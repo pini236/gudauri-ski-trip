@@ -57,6 +57,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -160,19 +161,6 @@ internal fun BoxScope.Village(
         val hPx = view.h * kk
         val pl = Place(kk, 0f, 0f)
         Box(Modifier.fillMaxSize().background(if (night) Color(0xFF0B1424) else Color(0xFFE9EEF3)))
-        Canvas(Modifier.fillMaxWidth().height(with(dens) { hPx.toDp() })) {
-            pic?.let { drawImage(it, dstSize = androidx.compose.ui.unit.IntSize(size.width.toInt(), hPx.toInt())) }
-            layer(data, view, pl, 1f, light, night, 1f, null, 0f, 0f, 0f, near = true, closeUp = true, measurer, unitM, nf)
-        }
-        // the lifts' tags: "Goodaura ↑", "Soliko ↑", "Zuma"; a tap opens the lift's panel
-        for (m in marks.stations) {
-            val lift = scene.runs.lifts.firstOrNull { it.name == m.lift } ?: continue
-            Row(Modifier.offset { IntOffset(((m.x + m.dx) * kk).toInt(), ((m.y + m.dy) * kk).toInt()) }.height(22.dp).clip(RoundedCornerShape(11.dp))
-                .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(11.dp)).semantics { role = Role.Button }
-                .clickable { haptics.tick(.3f); onLift(lift) }.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("⁦${m.lift}⁩" + if (m.arrow) " ↑" else "", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1)
-            }
-        }
         // the pins: tickets, food (its count from places.json now), parking (no tap); a meeting today at a station here
         val places = LocalPlaces.current
         val food = remember(places, scene) {
@@ -181,12 +169,48 @@ internal fun BoxScope.Village(
         }
         val shown = marks.pins.filter { it.kind != "food" || (places != null && food > 0) }
         val at = VillageMarks.spread(shown.map { it.x to it.y })
-        for ((m, p) in shown.zip(at)) {
-            val text = when (m.kind) {
-                "tickets" -> stringResource(R.string.app_vill_pin_tickets)
-                "food" -> stringResource(R.string.app_vill_pin_food, food.toString())
-                else -> stringResource(R.string.app_vill_pin_parking)
+        val pinText = shown.map { m -> when (m.kind) {
+            "tickets" -> stringResource(R.string.app_vill_pin_tickets)
+            "food" -> stringResource(R.string.app_vill_pin_food, food.toString())
+            else -> stringResource(R.string.app_vill_pin_parking)
+        } }
+        // never one tag over another (the review of 25.11: large text and night): the pins keep their places, a lift's tag
+        // that would touch one moves a step up or down, and the picture's own names leave out what these tags hold
+        val screenW = with(dens) { androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp.toPx() }
+        val tagStyle = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+        val px = { d: Float -> with(dens) { d.dp.toPx() } }
+        val pinBoxes = pinText.zip(at).map { (t, p) ->
+            val w = measurer.measure(t, tagStyle).size.width + px(18f)
+            val x = p.first * kk; val y = p.second * kk - px(34f)
+            val l = x - w / 2f + PinRules.slide(x, w, screenW, px(8f))
+            androidx.compose.ui.geometry.Rect(l, y, l + w, y + px(24f))
+        }
+        val liveStations = marks.stations.filter { m -> scene.runs.lifts.any { it.name == m.lift } }
+        val stLabel = { m: VillageMarks.Mark -> "⁦${m.lift}⁩" + if (m.arrow) " ↑" else "" }
+        val stBoxes0 = liveStations.map { m ->
+            val w = measurer.measure(stLabel(m), tagStyle).size.width + px(16f)
+            val x = (m.x + m.dx) * kk; val y = (m.y + m.dy) * kk
+            androidx.compose.ui.geometry.Rect(x, y, x + w, y + px(22f))
+        }
+        val stDy = TagLayout.place(pinBoxes, stBoxes0, px(26f), 2, px(3f))
+        val reserved = pinBoxes + stBoxes0.mapIndexed { i, r -> r.translate(0f, stDy[i]) }
+        Canvas(Modifier.fillMaxWidth().height(with(dens) { hPx.toDp() })) {
+            pic?.let { drawImage(it, dstSize = androidx.compose.ui.unit.IntSize(size.width.toInt(), hPx.toInt())) }
+            layer(data, view, pl, 1f, light, night, 1f, null, 0f, 0f, 0f, near = true, closeUp = true, measurer, unitM, nf,
+                reserved = reserved.map { it.inflate(px(2f)) })
+        }
+        // the lifts' tags: "Goodaura ↑", "Soliko ↑", "Zuma"; a tap opens the lift's panel
+        for ((i, m) in liveStations.withIndex()) {
+            val lift = scene.runs.lifts.first { it.name == m.lift }
+            val dy = stDy[i]
+            Row(Modifier.offset { IntOffset(((m.x + m.dx) * kk).toInt(), ((m.y + m.dy) * kk + dy).toInt()) }.height(22.dp).clip(RoundedCornerShape(11.dp))
+                .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(11.dp)).semantics { role = Role.Button }
+                .clickable { haptics.tick(.3f); onLift(lift) }.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stLabel(m), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1)
             }
+        }
+        for ((i, m) in shown.withIndex()) {
+            val p = at[i]; val text = pinText[i]
             val tap: (() -> Unit)? = when (m.kind) { "tickets" -> onSkipass; "food" -> onFood; else -> null }
             Pin(text, Offset(p.first * kk, p.second * kk), k, night, tap?.let { t -> { haptics.tick(.3f); t() } })
         }
@@ -321,6 +345,24 @@ private fun VRow(title: String, end: String, k: SheetInk, onClick: (() -> Unit)?
     }
 }
 
+
+/**
+ * The village's tags laid out so none sits on another: the [fixed] boxes stay; each of the [movable] boxes, in order, takes
+ * the first of 0, -step, +step, -2·step, +2·step… (up to [steps] each way) that touches neither a fixed box nor a movable
+ * one already placed (with [gap] between); if none is free it stays where it was. Returns each movable box's move down.
+ */
+internal object TagLayout {
+    fun place(fixed: List<androidx.compose.ui.geometry.Rect>, movable: List<androidx.compose.ui.geometry.Rect>, step: Float, steps: Int, gap: Float): FloatArray {
+        val taken = fixed.map { it.inflate(gap) }.toMutableList()
+        val out = FloatArray(movable.size)
+        for ((i, r) in movable.withIndex()) {
+            val tries = listOf(0f) + (1..steps).flatMap { listOf(-it * step, it * step) }
+            val dy = tries.firstOrNull { d -> taken.none { it.overlaps(r.translate(0f, d)) } } ?: 0f
+            out[i] = dy; taken += r.translate(0f, dy).inflate(gap)
+        }
+        return out
+    }
+}
 
 /** How far a village tag of width [w] slides so it stays inside [edge] of a screen [screenW] wide, centred on [x]. */
 internal object PinRules {

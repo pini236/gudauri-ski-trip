@@ -1428,12 +1428,12 @@ redesign2() {
   mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
   # K12: the film down Tatra 2 from the full sheet: it starts by itself, a stop, half way by the rail, the speed, the end
   mark; qa "--es qa.redesign ride"; waitlog "redesign ride open Tatra 2" 15 || fail "redesign: the film did not open"
-  waitlog "redesign ride play" 10 || fail "redesign: the film did not start by itself"; sleep 3; shot redesign-ride-playing
+  waitlog "redesign ride play" 10 || fail "redesign: the film did not start by itself"; sleep 3; seen "redesign live drawn" 8; shot redesign-ride-playing
   mark; qa "--es qa.redesign ride:stop"; sleep 1; qa "--es qa.redesign ride:1200"; waitlog "redesign ride at 1200" 10 || fail "redesign: the film did not move to 1,200 m"
-  sleep 2; shot redesign-ride-standing
+  sleep 2; seen "redesign live drawn" 8; shot redesign-ride-standing
   mark; qa "--es qa.redesign ride:speed"; waitlog "redesign ride speed 2" 10 || fail "redesign: the film's speed did not change"
-  mark; qa "--es qa.redesign ride:99999"; sleep 2; shot redesign-ride-end
-  qa "--es qa.mode night"; sleep 2; shot redesign-ride-night; qa "--es qa.mode day"; sleep 1
+  mark; qa "--es qa.redesign ride:99999"; sleep 2; seen "redesign live drawn" 8; shot redesign-ride-end
+  mark; qa "--es qa.mode night"; sleep 2; seen "redesign live drawn" 8; shot redesign-ride-night; qa "--es qa.mode day"; sleep 1
   mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film did not close"
   # the film on two more runs (Pini, 24.11.2026): the dot on the line and the camera on it, playing and stopped half way
   for rk in "Tatra 2" "Kikilo 1" "Kobi"; do
@@ -1500,7 +1500,7 @@ redesign2() {
   # board L08, the day in a minute: three held moments of the film (its clock in seconds), the light of their hour
   for sec in 8 25 60; do
     mark; qa "--es qa.redesign 'film:$sec'"; waitlog "redesign day film held $sec" 15 || fail "redesign: the film did not hold $sec"
-    sleep 4; shot "redesign-day-film-$sec"
+    sleep 4; seen "redesign live drawn" 8; shot "redesign-day-film-$sec"
   done
   mark; qa "--es qa.redesign film:off"; waitlog "redesign day film off" 10; sleep 2
   # the ridge of the day and its timeline (board L07)

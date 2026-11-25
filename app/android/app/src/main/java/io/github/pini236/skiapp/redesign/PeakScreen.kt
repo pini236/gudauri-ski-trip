@@ -515,7 +515,7 @@ private fun dots(zf: Float) = PathEffect.dashPathEffect(floatArrayOf(1f * zf, 5f
 internal fun DrawScope.layer(
     d: PeakData, v: PeakData.View, pl: Place, a: Float, light: PeakData.Light, night: Boolean, wf: Float,
     key: String?, dm: Float, lit: Float, ms: Float, near: Boolean, closeUp: Boolean, measurer: TextMeasurer, unitM: String, nf: NumberFormat,
-    pinch: Float = 1f,
+    pinch: Float = 1f, reserved: List<androidx.compose.ui.geometry.Rect> = emptyList(),
 ) {
     // a pinch (the designer, 21.11): the places grow with the picture, every width by pinch^0.62, the names not at all
     val pw = pinch.pow(-.38f)
@@ -579,7 +579,7 @@ internal fun DrawScope.layer(
         if (sel != null && lit > 0f) chosen(d, sel, a * lit, ms, night, near, closeUp, v.s, pw)
     }
     // 5 (screen). names on the far view, only with no run chosen; the km numbers on a chosen run by day
-    if (normal > .01f && v.labels.isNotEmpty()) labels(v, pl, night, normal, measurer, unitM, nf, pinch)
+    if (normal > .01f && v.labels.isNotEmpty()) labels(v, pl, night, normal, measurer, unitM, nf, pinch, reserved)
     if (sel != null && dm > .3f && !night && ms >= REVEAL) kmNumbers(sel.mainSeg, pl, a * dm * ((ms - REVEAL) / 200f).coerceIn(0f, 1f), measurer, near, pinch)
 }
 
@@ -670,7 +670,8 @@ private fun DrawScope.slopeLine(d: PeakData, g: PeakData.Seg, to: Float, w: Floa
     }
 }
 
-private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Float, measurer: TextMeasurer, unitM: String, nf: NumberFormat, pinch: Float) {
+private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Float, measurer: TextMeasurer, unitM: String, nf: NumberFormat, pinch: Float,
+                             reserved: List<androidx.compose.ui.geometry.Rect> = emptyList()) {
     val ink = if (night) Color(0xFFEAF1F8) else Color(0xFF0E2233)
     val halo = if (night) Color(0xF2060B16) else Color(0xF2FFFFFF)
     val sc = pl.k / pinch / density   // the label sizes are in picture points at the unpinched size: a pinch does not grow them
@@ -678,7 +679,8 @@ private fun DrawScope.labels(v: PeakData.View, pl: Place, night: Boolean, a: Flo
     val sub = TextStyle(fontFamily = Gudi, fontSize = (10.5f * sc).sp, color = ink)
     // never one name over another (the review of 24.11, ק3: "Gondola Tickets" over the Georgian name on the village):
     // the data's order wins, and a name that would touch one already drawn is left out
-    val taken = ArrayList<androidx.compose.ui.geometry.Rect>()
+    // the places the screen's own tags hold (the village's pins and lifts, the review of 25.11) count as taken
+    val taken = ArrayList<androidx.compose.ui.geometry.Rect>(reserved)
     for (l in v.labels) {
         val q = pl.on(Offset(l.x, l.y))
         val t1 = measurer.measure(l.t, name)
