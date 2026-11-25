@@ -1141,6 +1141,8 @@ rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen mus
 rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign cleared" 10; sleep 1; }
 # the same on the live model: where its line is drawn now (qa.redesign spot:<run>), a real tap, chosen; and let go
 rd_live_touch() { # rd_live_touch <run>
+  # before the season the first touch only closes the countdown (Pini's bug, 25.11.2026): close it first
+  qa "--es qa.redesign season:off"; sleep 1
   mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign live spot $1" 20 || return 1
   local xy; xy=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*redesign live spot $1" | tail -1 | sed 's/.*redesign live spot .* \([0-9]*\) \([0-9]*\)$/\1 \2/')
   case "$xy" in *none*|*spot*|"") fail "redesign: no place on the live model to touch $1"; return 1 ;; esac
