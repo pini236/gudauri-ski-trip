@@ -2377,6 +2377,46 @@
    "h": 844,
    "title": "בירידה, בלילה (GD2)",
    "page": "v56"
+  },
+  "EM00-EmptyEnd.dc.html": {
+   "x": 0,
+   "y": 17188,
+   "w": 1280,
+   "h": 720,
+   "title": "סוף הקלטה בלי ירידות (EM00)",
+   "page": "v56"
+  },
+  "EM1.dc.html": {
+   "x": 0,
+   "y": 18048,
+   "w": 390,
+   "h": 844,
+   "title": "מחוץ לאתר, ביום (EM1)",
+   "page": "v56"
+  },
+  "EM2.dc.html": {
+   "x": 470,
+   "y": 18048,
+   "w": 390,
+   "h": 844,
+   "title": "מחוץ לאתר, בלילה (EM2)",
+   "page": "v56"
+  },
+  "EM3.dc.html": {
+   "x": 940,
+   "y": 18048,
+   "w": 390,
+   "h": 844,
+   "title": "לא נמצא מיקום (EM3)",
+   "page": "v56"
+  },
+  "EM4.dc.html": {
+   "x": 1410,
+   "y": 18048,
+   "w": 390,
+   "h": 844,
+   "title": "בגודאורי, ליד הרכבל (EM4)",
+   "page": "v56"
   }
  },
  "createdOnFiles": {
@@ -3227,7 +3267,12 @@
   "TM2f.dc.html",
   "GD00-Dashboard.dc.html",
   "GD1.dc.html",
-  "GD2.dc.html"
+  "GD2.dc.html",
+  "EM00-EmptyEnd.dc.html",
+  "EM1.dc.html",
+  "EM2.dc.html",
+  "EM3.dc.html",
+  "EM4.dc.html"
  ],
  "pages": [
   {
