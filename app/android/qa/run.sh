@@ -1548,8 +1548,8 @@ redesign2() {
     mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film on $rk did not close"
   done
   # the film on every run (Pini, 25.11.2026: on Kikilo 1 it ended half way down the line, the camera in the snow):
-  # a quarter, half and three quarters down the camera is over the snow and sees the dot; at the end the dot is at
-  # the run's lowest end (5 m) and the whole run is framed
+  # a quarter, half and three quarters down the camera is over the snow and sees the dot; at the end the dot is on
+  # an end of the drawn line (5 m), never half way down it, and the whole run is framed
   local site; site="$(cd "$(dirname "$0")/../../.." && pwd)/site/data/runs-and-lifts.json"
   local runs; runs=$(python3 -c "import json; print('\n'.join(p['key'] for p in json.load(open('$site'))['pistes'] if p.get('named') and any(not s.get('area') for s in p['segs'])))")
   local bad=0 nrun=0
@@ -1571,7 +1571,7 @@ redesign2() {
     mark; qa "--es qa.redesign ride:99999"; waitlog "redesign ride framed end" 10 || { fail "redesign: the film's end on $rk did not frame the run"; bad=1; }
     sleep 1.5; mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
     c=$(logline "redesign ride check $rk"); e=$(sed -n 's/.* end \(-\{0,1\}[0-9]*\) .*/\1/p' <<<"$c")
-    { [ -n "$e" ] && [ "${e#-}" -le 5 ]; } || { fail "redesign: the film on $rk ends ${e:-?} m above the line's bottom: ${c##*SkiQa}"; bad=1; }
+    { [ -n "$e" ] && [ "${e#-}" -le 5 ]; } || { fail "redesign: the film on $rk ends ${e:-?} m from an end of the line: ${c##*SkiQa}"; bad=1; }
     [ "$rk" = "Kikilo 1" ] && { seen "redesign live drawn" 8; shot redesign-ride-kikilo-end; }
     mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10
   done <<<"$runs"

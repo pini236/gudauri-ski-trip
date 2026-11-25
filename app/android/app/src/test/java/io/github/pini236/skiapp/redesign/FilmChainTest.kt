@@ -25,7 +25,8 @@ class FilmChainTest {
         val a = floatArrayOf(0f, 3000f, 0f, 0f, 2800f, 1000f)
         val b = floatArrayOf(10f, 2795f, 1010f, 10f, 2600f, 1600f)
         val c = FilmRules.chain(listOf(b, a))!!
-        assertEquals(1600f + hypot(10f, 10f) - 0f, FilmLine(c).length, 1f)
+        // 1,000 m, the 14 m gap, 590 m
+        assertEquals(1590f + hypot(10f, 10f), FilmLine(c).length, 1f)
         assertEquals(2600f, c[c.size - 2], .01f)
     }
 
@@ -35,15 +36,16 @@ class FilmChainTest {
         assertEquals(1000f, FilmLine(FilmRules.chain(listOf(a, b))!!).length, .01f)
     }
 
-    @Test fun aBranchOffTheLineThatEndsLowerIsTaken() {
-        // a line down, and a piece leaving it half way that ends 100 m lower than the line's own end
+    @Test fun aLongerBranchOffTheLineIsTaken() {
+        // a line down 1,000 m, and a piece leaving it half way that goes on 900 m: 500 + 900 is longer than 1,000
         val a = floatArrayOf(0f, 3000f, 0f, 0f, 2900f, 500f, 0f, 2800f, 1000f)
-        val b = floatArrayOf(5f, 2900f, 500f, 400f, 2700f, 800f)
+        val b = floatArrayOf(5f, 2900f, 500f, 905f, 2600f, 500f)
         val c = FilmRules.chain(listOf(a, b))!!
-        assertEquals(2700f, c[c.size - 2], .01f)
+        assertEquals(2600f, c[c.size - 2], .01f)
+        assertEquals(1400f, FilmLine(c).length, 6f)
     }
 
-    @Test fun onEveryRunTheDotEndsAtTheLowestEnd() {
+    @Test fun onEveryRunTheDotWalksTheLongestWayToAnEndOfTheLine() {
         var split = 0
         for (p in scene.runs.pistes) {
             val pieces = scene.topDown(p).filter { it.size >= 6 }
@@ -51,13 +53,18 @@ class FilmChainTest {
             val line = filmLine(scene, p.key)
             assertNotNull(p.key, line)
             val c = FilmRules.chain(pieces)!!
-            val low = pieces.minOf { it[it.size - 2] }
-            assertEquals("${p.key}: the film ends at the run's lowest end", low, c[c.size - 2], 5f)
+            val ex = c[c.size - 3]; val ez = c[c.size - 1]
+            // it ends where a piece of the drawn line ends, never in the middle of one
+            assertTrue("${p.key}: the film ends in the middle of the line",
+                pieces.any { l -> hypot(l[l.size - 3] - ex, l[l.size - 1] - ez) < 1f })
             assertTrue("${p.key}: shorter than its longest piece", line!!.length >= pieces.maxOf(::len) - 1f)
             if (pieces.size > 1) split++
         }
         assertTrue(split >= 5)
-        // the run of the report: both pieces, 1,150 m and 609 m
-        assertEquals(1759f, filmLine(scene, "Kikilo 1")!!.length, 15f)
+        // the run of the report: both pieces, 1,150 m and 609 m, to the run's bottom
+        val k = scene.topDown(scene.runs.pistes.first { it.key == "Kikilo 1" })
+        val c = FilmRules.chain(k)!!
+        assertEquals(1759f, FilmLine(c).length, 15f)
+        assertEquals(k.minOf { it[it.size - 2] }, c[c.size - 2], 1f)
     }
 }

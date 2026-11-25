@@ -314,11 +314,12 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
             c == "ride:stop" -> playing = false
             c == "ride:speed" -> { speed = FilmRules.nextSpeed(speed); Qa.log("redesign ride speed $speed") }
             c == "ride:close" -> close()
-            // where the dot stands against the run's drawn line, and whether the camera is over the snow and sees it
+            // where the dot stands against the run's drawn line (metres to the nearest end of a piece of it), and whether
+            // the camera is over the snow and sees it
             c == "ride:check" -> {
-                val p = line.at(d); val drawn = scene.topDown(scene.runs.pistes.first { it.key == key })
-                val low = drawn.filter { it.size >= 6 }.minOf { it[it.size - 2] }
-                Qa.log("redesign ride check $key at ${d.roundToInt()} of ${line.length.roundToInt()} end ${(p[1] - low).roundToInt()} clear ${view.filmClear(p[0], p[1], p[2])}")
+                val p = line.at(d); val drawn = scene.topDown(scene.runs.pistes.first { it.key == key }).filter { it.size >= 6 }
+                val toEnd = drawn.minOf { l -> hypot(l[l.size - 3] - p[0], l[l.size - 1] - p[2]) }
+                Qa.log("redesign ride check $key at ${d.roundToInt()} of ${line.length.roundToInt()} end ${toEnd.roundToInt()} clear ${view.filmClear(p[0], p[1], p[2])}")
             }
             c.startsWith("ride:") -> c.removePrefix("ride:").toFloatOrNull()?.let { scrub(it); Qa.log("redesign ride at ${it.roundToInt()}") }
         }
