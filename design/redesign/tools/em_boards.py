@@ -2,7 +2,8 @@
 """The end of a short or empty recording (Pini, 25.11.2026, via the manager): he tapped record away from the resort,
 stopped after a few seconds, and got one right-aligned line in an empty sheet ("too empty"). Here: what there was
 (how long, whether a location was found, where), what a real day gives (the sample day on the mountain), and two
-clear actions. Placed under the boards on the "הערות על גרסה 56" page. Design only, no handoff until Pini approves.
+clear actions. Placed under the boards on the "הערות על גרסה 56" page. Approved by Pini (25.11.2026);
+handoff: design/handoff/2026-11-25-redesign-empty-end/.
 Usage: python3 design/redesign/tools/em_boards.py"""
 import os, json
 import v56_boards as V
@@ -73,10 +74,10 @@ def end_empty(night=False, rec='0:42', found=True, where='out', when='היום �
 
 
 def phones():
-    return {'EM1.dc.html': ('סוף הקלטה בלי ירידות · מחוץ לאתר, ביום', end_empty(), 'day'),
-            'EM2.dc.html': ('סוף הקלטה בלי ירידות · מחוץ לאתר, בלילה', end_empty(True, when='היום · 21:14'), 'night'),
-            'EM3.dc.html': ('סוף הקלטה בלי ירידות · לא נמצא מיקום', end_empty(rec='0:18', found=False, where='none'), 'day'),
-            'EM4.dc.html': ('סוף הקלטה בלי ירידות · בגודאורי, ליד הרכבל', end_empty(rec='6:10', where='in', when='היום · 09:41'), 'day')}
+    return {'EM1.dc.html': ('סוף הקלטה בלי ירידות · מחוץ לאתר, ביום (אושר)', end_empty(), 'day'),
+            'EM2.dc.html': ('סוף הקלטה בלי ירידות · מחוץ לאתר, בלילה (אושר)', end_empty(True, when='היום · 21:14'), 'night'),
+            'EM3.dc.html': ('סוף הקלטה בלי ירידות · לא נמצא מיקום (אושר)', end_empty(rec='0:18', found=False, where='none'), 'day'),
+            'EM4.dc.html': ('סוף הקלטה בלי ירידות · בגודאורי, ליד הרכבל (אושר)', end_empty(rec='6:10', where='in', when='היום · 09:41'), 'day')}
 
 
 HEM = 720
@@ -100,14 +101,14 @@ def em00():
         ('הכרטיס', 'יום על ההר · דוגמה · {n} ירידות · {v} קמ״ש · {m} מ׳ ירידה'),
         ('כפתורים', 'חזרה להר · מחיקה'),
         ('קורא מסך', 'הכרטיס: "יום לדוגמה". ה-X: "חזרה להר".')])
-    inner = ('<p class="sec">הערות על גרסה 56 · סוף הקלטה בלי ירידות · לפיני</p><h1>הקלטה קצרה או ריקה: מה היה, ומה יש ביום אמיתי</h1>'
+    inner = ('<p class="sec">הערות על גרסה 56 · סוף הקלטה בלי ירידות · אושר (פיני, 25.11.2026)</p><h1>הקלטה קצרה או ריקה: מה היה, ומה יש ביום אמיתי</h1>'
              '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.2"><h2>מה במסך</h2>%s</div>'
-             '<div class="card" style="flex: 1"><h2>הטקסטים</h2>%s<p class="cap">"דוגמה" ו"מחיקה" קיימים. השאר חדשים, לסשן התוכן אחרי האישור.</p></div></div>'
+             '<div class="card" style="flex: 1"><h2>הטקסטים</h2>%s<p class="cap">"דוגמה" ו"מחיקה" קיימים. השאר חדשים, ונשלחו לסשן התוכן. המסירה: <span dir="ltr">design/handoff/2026-11-25-redesign-empty-end/</span></p></div></div>'
              '<div class="card"><h2>הלוחות</h2>%s</div>' % (what, texts, li(
                  'EM1 ו-EM2: מחוץ לאתר, ביום ובלילה (המקרה של פיני).',
                  'EM3: לא נמצא מיקום (בתוך בניין). העובדה "לא נמצא" בכתום, ואין "איפה".',
                  'EM4: בגודאורי, עמד ליד הרכבל ולא ירד.')))
-    wb('EM00-EmptyEnd.dc.html', 'סוף הקלטה בלי ירידות', 1280, HEM, inner)
+    wb('EM00-EmptyEnd.dc.html', 'סוף הקלטה בלי ירידות (אושר)', 1280, HEM, inner)
 
 
 def main():
@@ -122,8 +123,8 @@ def main():
     open(p, 'w', encoding='utf8').write(json.dumps(j, ensure_ascii=False, indent=1) + '\n')
     y = max(v['y'] + v['h'] for v in j['boards'].values() if v.get('page') == PAGE) + 260
     V.PLACE.clear()
-    V.PLACE.append(('EM00-EmptyEnd.dc.html', 0, y, 1280, HEM, 'סוף הקלטה בלי ירידות')); y += HEM + 140
-    for i, (c, t) in enumerate([('EM1', 'מחוץ לאתר, ביום'), ('EM2', 'מחוץ לאתר, בלילה'), ('EM3', 'לא נמצא מיקום'), ('EM4', 'בגודאורי, ליד הרכבל')]):
+    V.PLACE.append(('EM00-EmptyEnd.dc.html', 0, y, 1280, HEM, 'סוף הקלטה בלי ירידות (אושר)')); y += HEM + 140
+    for i, (c, t) in enumerate([('EM1', 'מחוץ לאתר, ביום (אושר)'), ('EM2', 'מחוץ לאתר, בלילה (אושר)'), ('EM3', 'לא נמצא מיקום (אושר)'), ('EM4', 'בגודאורי, ליד הרכבל (אושר)')]):
         V.PLACE.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     V.place_all(); print('ok')
 
