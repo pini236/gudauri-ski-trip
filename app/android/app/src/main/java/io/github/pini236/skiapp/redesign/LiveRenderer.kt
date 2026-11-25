@@ -44,6 +44,9 @@ uniform vec4 uDim;
 uniform sampler2D uDrape; uniform vec4 uDrapeBox; uniform float uDrapeOn; uniform float uDrapeK;
 uniform sampler2D uGround; uniform vec4 uGroundBox; uniform float uGroundOn;
 uniform vec4 uAir2;
+// the front seam (the designer's step 4, Y03, terrain-seam.frag): over its last uSeam.y metres the model reads its maps
+// from the band (ringband), the same maps the ring reads past the edge, so the two meet as one ground
+uniform vec2 uSeam; uniform sampler2D uBand; uniform vec4 uBBox;
 // the air of height (the designer's ring handoff, 25.11.2026; the architect allowed it on the mountain too): up to 1.5
 // times the camera's distance the haze of before, then a slow one (25 km), thinner over 2,800 m, so the high snow stands
 // over the haze of the valleys; uAir2.y = 0 is the haze of before
@@ -57,7 +60,10 @@ out vec4 o;
 void main(){
   vec2 uv=(vPos.xz-uBox.xy)*uBox.zw;
   vec3 rl=texture(uRelief,uv).rgb; vec3 cv=texture(uCover,uv).rgb; vec3 tl=texture(uTile,vPos.xz/640.0).rgb;
-  vec2 s=(rl.rg-0.5)*3.2;
+  float wE=0.0; vec4 rr=vec4(rl,cv.r);
+  if(uSeam.x>0.0){ vec2 qd=min(uv,1.0-uv)/uBox.zw; float te=1.0-clamp(min(qd.x,qd.y)/uSeam.y,0.0,1.0); wE=te*te*(3.0-2.0*te);
+    rr=texture(uBand,(vPos.xz-uBBox.xy)*uBBox.zw); cv.r=mix(cv.r,rr.a,wE); }
+  vec2 s=mix((rl.rg-0.5)*3.2,(rr.rg-0.5)*3.2,wE);
   float deg=degrees(atan(length(s)));
   float amp=(1.0-0.85*cv.g)*(1.0-smoothstep(30.0,40.0,deg));
   s+=(tl.rg-0.5)*0.5*amp*uRipple;
@@ -75,7 +81,7 @@ void main(){
   float stk=texture(uTile,vPos.xz/160.0).b*fall.y+texture(uTile,vPos.zx/160.0).b*fall.x;
   float rk=smoothstep(28.5,38.0,18.0+30.0*cv.r+(stk-0.5)*12.0)*0.9;
   col=mix(col,mix(uRockS,uRock,t)*(2.0*cv.b)*(0.7+0.6*stk),rk);
-  col*=0.7+0.6*rl.b;
+  col*=0.7+0.6*mix(rl.b,rr.b,wE);
   // what lies on the snow (Drape.kt, without the contours): roads, water and the village, premultiplied, lit by the
   // snow's light of the hour instead of the map's (the handoff, section 3)
   vec4 e=uDrapeOn>0.0?texture(uDrape,(vPos.xz-uDrapeBox.xy)*uDrapeBox.zw):vec4(0.0);
@@ -113,6 +119,9 @@ uniform float uDirect; uniform float uGlow; uniform vec3 uCam; uniform vec3 uHaz
 uniform float uRingR;
 uniform sampler2D uRRel; uniform vec4 uRBox; uniform float uRTex; uniform vec4 uMBox;
 uniform vec4 uAir2;
+// the front seam (step 4, ring-ref.frag): near the model the ring reads the band, the model's own maps carried past its
+// edge, and takes the model's glaze, height tone and rock, so the two meet as one ground; uSeam.y = the band's margin
+uniform vec2 uSeam; uniform float uRip; uniform sampler2D uBand; uniform vec4 uBBox;
 // the air of height (the designer's ring handoff, 25.11.2026; the architect allowed it on the mountain too): up to 1.5
 // times the camera's distance the haze of before, then a slow one (25 km), thinner over 2,800 m, so the high snow stands
 // over the haze of the valleys; uAir2.y = 0 is the haze of before
@@ -125,19 +134,25 @@ float airOf(float d,float y){
 out vec4 o;
 void main(){
   vec3 n0=normalize(vNor); vec2 s=-n0.xz/max(n0.y,0.2); float occ=1.0;
-  vec2 ruv=(vPos.xz-uRBox.xy)*uRBox.zw;
-  if(uRTex>0.0 && ruv.x>0.0 && ruv.y>0.0 && ruv.x<1.0 && ruv.y<1.0){ vec3 rr=texture(uRRel,ruv).rgb;
+  vec2 ruv=(vPos.xz-uRBox.xy)*uRBox.zw; vec3 rr=texture(uRRel,clamp(ruv,0.0,1.0)).rgb;
+  if(uRTex>0.0 && ruv.x>0.0 && ruv.y>0.0 && ruv.x<1.0 && ruv.y<1.0){
     float om=max(max(uMBox.x-vPos.x,vPos.x-uMBox.z),max(uMBox.y-vPos.z,vPos.z-uMBox.w));
-    float w=smoothstep(0.0,0.04,min(min(ruv.x,ruv.y),min(1.0-ruv.x,1.0-ruv.y)))*smoothstep(0.0,500.0,om);
+    float w=smoothstep(0.0,0.04,min(min(ruv.x,ruv.y),min(1.0-ruv.x,1.0-ruv.y)))*(uSeam.x>0.0 ? 1.0 : smoothstep(0.0,500.0,om));
     s=mix(s,(rr.rg-0.5)*3.2,w); occ=mix(1.0,0.7+0.6*rr.b,w); }
+  float wb=0.0; vec2 buv=(vPos.xz-uBBox.xy)*uBBox.zw; vec4 bb=texture(uBand,clamp(buv,0.0,1.0));   // outside any branch: the mip level needs the neighbours
+  if(uSeam.x>0.0){ float om=max(max(uMBox.x-vPos.x,vPos.x-uMBox.z),max(uMBox.y-vPos.z,vPos.z-uMBox.w));
+    wb=1.0-smoothstep(uSeam.y-1200.0,uSeam.y-100.0,om);
+    s=mix(s,(bb.rg-0.5)*3.2,wb); occ=mix(occ,0.7+0.6*bb.b,wb); }
   float deg=degrees(atan(length(s)));
-  s+=(texture(uTile,vPos.xz/640.0).rg-0.5)*0.5*1.6*(1.0-smoothstep(30.0,40.0,deg));
+  s+=(texture(uTile,vPos.xz/640.0).rg-0.5)*0.5*(uSeam.x>0.0 ? uRip : 1.6)*(1.0-smoothstep(30.0,40.0,deg));
   vec3 n=normalize(vec3(-s.x,1.0,-s.y));
   float lam=max(dot(n,uSun),0.0);
   float direct=lam*(1.0-0.94*vShadow)*uDirect+(1.0-uDirect)*0.55*n.y;
   float t=pow(direct,0.85);
   t*=mix(1.0,0.35+0.65*smoothstep(2350.0,3000.0,vPos.y),uGlow);
   vec3 col=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
+  if(uSeam.x>0.0){ vec3 v=normalize(uCam-vPos); vec3 hh=normalize(uSun+v);   // the model's glaze of a low sun, and its height tone
+    col+=pow(max(dot(n,hh),0.0),38.0)*(1.0-vShadow)*uDirect*0.20*uLit; col*=0.94+0.06*smoothstep(2000.0,3100.0,vPos.y); }
   float stk=texture(uTile,vPos.xz/160.0).b;
   float rk=smoothstep(27.0,36.0,deg+(stk-0.5)*6.0)*0.8;
   vec2 fall=s*s/(dot(s,s)+1e-4);
@@ -150,7 +165,13 @@ void main(){
     float pot=deg+(stk2-0.5)*7.0+(m2-0.5)*11.0+(m4-0.5)*7.0+(m1-0.5)*8.0+(m3-0.5)*6.0;
     rk=smoothstep(27.0,36.0,pot)*0.92;
     tone=(0.82+0.36*m1)*(0.7+0.6*stk); }
+  vec3 colS=col;
   col=mix(col,mix(uRockS,uRock,t)*tone,rk);
+  if(wb>0.0){                          // the model's rock, from the band's rock potential (the same lines as the model)
+    float stM=texture(uTile,vPos.xz/160.0).b*fall.y+texture(uTile,vPos.zx/160.0).b*fall.x;
+    float rkM=smoothstep(28.5,38.0,18.0+30.0*bb.a+(stM-0.5)*12.0)*0.9;
+    vec3 rockM=mix(uRockS,uRock,t)*(0.82+0.36*texture(uTile,vPos.xz/2400.0).b)*(0.7+0.6*stM);
+    col=mix(col,mix(colS,rockM,rkM),wb); }
   col*=occ;
   col=mix(col,uDim.rgb,uDim.a);
   float d=length(vPos-uCam);
@@ -406,7 +427,7 @@ class LiveRenderer(
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         prog = program(VS, FS); skyProg = program(SKY_VS, SKY_FS); ringProg = program(RING_VS, RING_FS); lineProg = program(LINE_VS, LINE_FS); dotProg = program(DOT_VS, DOT_FS)
-        uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0; ringOn = null; ringCount = 0; ringTex[0] = 0
+        uploaded = false; texOn = false; tex.fill(0); runs.clear(); lifts.clear(); dotCount = 0; ringOn = null; ringCount = 0; ringTex[0] = 0; bandTex[0] = 0; bandBox = null
         drapeTex[0] = 0; drapeOn = null; groundTex[0] = 0; groundOn = null; chosenGpu = null; chosenGpuOf = null
         dayGpu = null; dayGpuOf = null; dayLogged = null
         lensGpu.clear(); lensGpuOf = null
@@ -466,6 +487,9 @@ class LiveRenderer(
     private var ringProg = 0; private val ringVao = IntArray(1); private val ringBufs = IntArray(3)
     private var ringOn: LiveRing? = null; private var ringCount = 0
     private val ringTex = IntArray(1)
+    /** The band of the front seam (step 4): one RGBA texture; 0 until the ring brings it. */
+    private val bandTex = IntArray(1)
+    private var bandBox: FloatArray? = null
     /** The ring's cast shadow (LiveRing.shadows), set off the GL thread; uploaded on the next frame. */
     @Volatile private var ringShade: FloatArray? = null
     @Volatile private var ringShadowDirty = false
@@ -477,6 +501,7 @@ class LiveRenderer(
     private fun uploadRing(r: LiveRing) {
         if (ringCount > 0) { glDeleteBuffers(3, ringBufs, 0); glDeleteVertexArrays(1, ringVao, 0) }
         if (ringTex[0] != 0) { glDeleteTextures(1, ringTex, 0); ringTex[0] = 0 }
+        if (bandTex[0] != 0) { glDeleteTextures(1, bandTex, 0); bandTex[0] = 0; bandBox = null }
         glGenVertexArrays(1, ringVao, 0); glBindVertexArray(ringVao[0])
         glGenBuffers(3, ringBufs, 0)
         glBindBuffer(GL_ARRAY_BUFFER, ringBufs[0]); glBufferData(GL_ARRAY_BUFFER, r.vertices.size * 4, floats(r.vertices), GL_STATIC_DRAW)
@@ -494,6 +519,21 @@ class LiveRenderer(
             glGenerateMipmap(GL_TEXTURE_2D)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        }
+        // the band (step 4): RGBA8 with mipmaps, no flip (row 0 north, as the shaders read)
+        r.band?.let { b ->
+            glGenTextures(1, bandTex, 0); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, bandTex[0])
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, b.w, b.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(b.px))
+            glGenerateMipmap(GL_TEXTURE_2D)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+            bandBox = floatArrayOf(b.x0, b.z0, 1f / (b.x1 - b.x0), 1f / (b.z1 - b.z0), b.margin)
+        }
+        // the model's last 1,500 m bent to the ring's heights (step 4): its positions written again, once
+        if (uploaded) {
+            glBindBuffer(GL_ARRAY_BUFFER, bufs[0]); glBufferSubData(GL_ARRAY_BUFFER, 0, scene.mesh.vertices.size * 4, floats(r.bend(scene.mesh.vertices, TerrainMesh.STRIDE)))
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
         }
         ringOn = r; ringCount = r.indices.size
     }
@@ -651,6 +691,12 @@ class LiveRenderer(
         // the rest of the mountain under a chosen run (phase A: rgb(54,78,128) at 0.42 by day, rgb(2,6,18) at 0.62 at night)
         if (night) glUniform4f(u(prog, "uDim"), 2f / 255, 6f / 255, 18f / 255, .62f * dim)
         else glUniform4f(u(prog, "uDim"), 54f / 255, 78f / 255, 128f / 255, .42f * dim)
+        // the front seam (step 4): the band, once the ring has brought it (the ring is uploaded before the mountain draws)
+        ring?.let { r -> if (r !== ringOn) uploadRing(r) }
+        val bx = bandBox
+        glUniform2f(u(prog, "uSeam"), if (bx != null) 1f else 0f, LiveRing.SEAM_IN)
+        glActiveTexture(GL_TEXTURE5); glBindTexture(GL_TEXTURE_2D, bandTex[0]); glUniform1i(u(prog, "uBand"), 5)
+        if (bx != null) glUniform4f(u(prog, "uBBox"), bx[0], bx[1], bx[2], bx[3])
         glBindVertexArray(vao[0]); glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0)
         glActiveTexture(GL_TEXTURE0)
         // the far ground past the model's edge, after it (its middle lies under the mesh): one draw, no textures
@@ -674,6 +720,10 @@ class LiveRenderer(
             glUniform4f(u(ringProg, "uMBox"), mb[0], mb[1], mb[2], mb[3])
             glUniform1f(u(ringProg, "uRTex"), if (ringTex[0] != 0) 1f else 0f)
             if (ringTex[0] != 0) { glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, ringTex[0]); glUniform1i(u(ringProg, "uRRel"), 3); glActiveTexture(GL_TEXTURE0) }
+            val rbx = bandBox
+            glUniform2f(u(ringProg, "uSeam"), if (rbx != null) 1f else 0f, rbx?.get(4) ?: 0f); glUniform1f(u(ringProg, "uRip"), D.ripple)
+            glActiveTexture(GL_TEXTURE4); glBindTexture(GL_TEXTURE_2D, bandTex[0]); glUniform1i(u(ringProg, "uBand"), 4); glActiveTexture(GL_TEXTURE0)
+            if (rbx != null) glUniform4f(u(ringProg, "uBBox"), rbx[0], rbx[1], rbx[2], rbx[3])
             if (ringShadowDirty) ringShade?.takeIf { it.size == ringOn!!.points }?.let { sh ->
                 glBindBuffer(GL_ARRAY_BUFFER, ringBufs[2]); glBufferSubData(GL_ARRAY_BUFFER, 0, sh.size * 4, floats(sh)); ringShadowDirty = false
             }

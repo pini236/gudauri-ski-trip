@@ -1327,8 +1327,18 @@ redesign() {
   # mountains; the shadow is worked out off the drawing thread, its time noted (the architect: 150 ms on a middling
   # phone, otherwise the outer ring has none)
   mark; qa "--es qa.redesign hour:16.4"; waitlog "redesign ring shadow" 20; rd_drawn; shot redesign-far-afternoon
-  note "ring: $(logline 'redesign ring ready' | sed 's/.*ring ready //') triangles; shadow $(logline 'redesign ring shadow' | sed 's/.*ring shadow //')"
+  note "ring: $(logline 'redesign ring ready' | sed 's/.*ring ready //') triangles; shadow $(logline 'redesign ring shadow' | sed 's/.*ring shadow //'); band shadow $(logline 'redesign ring band shadow' | sed 's/.*band shadow //')"
   logline "redesign ring ready" | grep -q "relief true" || fail "redesign: the ring's relief map did not load"
+  logline "redesign ring ready" | grep -q "band true" || fail "redesign: the band of the front seam did not load"
+  # the front seam (the designer's step 4, Y03): the model's south edge from the front, close and from far, at noon and
+  # in a low sun; the ground must go on as one, with no flat band and no line
+  local sh; for sh in "12:noon" "16.4:afternoon"; do
+    mark; qa "--es qa.redesign hour:${sh%%:*}"; waitlog "redesign live hour" 10
+    mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-${sh#*:}"
+    mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-${sh#*:}"
+  done
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10; rd_drawn
   # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
   # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure
   for rg in on off; do
