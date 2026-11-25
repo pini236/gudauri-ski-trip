@@ -1552,17 +1552,18 @@ redesign2() {
   # an end of the drawn line (5 m), never half way down it, and the whole run is framed
   # every run in the app at once (the camera's sums, no frames: one by one they overran the part's time), then
   # Kikilo 1 on the screen: three quarters down, and at the end the whole run framed with the dot on the line's end
-  mark; qa "--es qa.redesign ride:all"
-  if waitlog "redesign ride all [0-9]* bad" 60; then
-    c=$(logline "redesign ride all [0-9]* bad"); note "film on every run: ${c##*ride all }"
-    grep -q " bad 0" <<<"$c" || fail "redesign: the film fails on some runs: $(grep -o 'redesign ride all [^0-9].*' "$OUT/logcat.txt" | tr -d '\r' | tr '\n' ';')"
-  fi
   rk="Kikilo 1"
   mark; qa "--es qa.redesign unpick"; sleep .5
   mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 20 || fail "redesign: $rk was not framed"
   mark; qa "--es qa.redesign ride"; waitlog "redesign ride open $rk" 15 || fail "redesign: the film did not open on $rk"
   len=$(logline "redesign ride open $rk" | sed 's/.* //')
   qa "--es qa.redesign ride:stop"; sleep .5
+  # (the check lives in the film's screen, so it runs once a film is open)
+  mark; qa "--es qa.redesign ride:all"
+  if waitlog "redesign ride all [0-9]* bad" 60; then
+    c=$(logline "redesign ride all [0-9]* bad"); note "film on every run: ${c##*ride all }"
+    grep -q " bad 0" <<<"$c" || fail "redesign: the film fails on some runs: $(grep -o 'redesign ride all [^0-9].*' "$OUT/logcat.txt" | tr -d '\r' | tr '\n' ';')"
+  fi
   at=$(( ${len:-0} * 75 / 100 ))
   mark; qa "--es qa.redesign ride:$at"; waitlog "redesign ride at $at" 10; sleep 1.2
   mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
