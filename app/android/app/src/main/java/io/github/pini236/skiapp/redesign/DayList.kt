@@ -231,9 +231,6 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                 }
             }
             if (!list.isNullOrEmpty()) item {
-                Text(stringResource(R.string.app_days_delete_hint), Modifier.padding(horizontal = 4.dp), fontFamily = Gudi, fontSize = 12.sp, color = muted)
-            }
-            if (!list.isNullOrEmpty()) item {
                 val all = sure == ALL
                 Text(stringResource(if (all) R.string.app_days_delete_all_sure else R.string.app_days_delete_all),
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).clickable(role = Role.Button) {

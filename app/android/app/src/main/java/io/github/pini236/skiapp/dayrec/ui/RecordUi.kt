@@ -205,7 +205,7 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
             Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 18.dp), style = Ski.type.number.copy(fontSize = 28.sp), color = c.ink)
         }
         Text(what(live, liftName, runName), style = Ski.type.bodyBold.copy(fontSize = 17.sp), color = c.ink, modifier = Modifier.heightIn(min = 44.dp))
-        if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, began)) Text(stringResource(R.string.app_rec_gps_weak), style = Ski.type.small, color = red)
+        if (recording && LiveNumbers.weakGps(now, DayRec.lastFixAt, began)) Text(stringResource(R.string.app_rec_weak_title) + " · " + stringResource(R.string.app_rec_weak_hint), style = Ski.type.small, color = red)
         // notifications off: the recording goes on, but the stop button outside the app is not there (15.11.2026)
         if (recording && noNotif) Text(stringResource(R.string.app_rec_no_notif), style = Ski.type.small, color = c.muted)
         Spacer(Modifier.height(16.dp))
@@ -223,7 +223,6 @@ fun DayLiveScreen(liftName: (String) -> String, runName: (String) -> String = { 
                 Box(Modifier.size(12.dp).background(c.ink))
                 Text(stringResource(R.string.app_rec_stop), style = Ski.type.bodyBold.copy(fontSize = 16.5.sp), color = c.ink)
             }
-            Text(stringResource(R.string.app_rec_soon), Modifier.weight(1f), style = Ski.type.small, color = c.muted, textAlign = TextAlign.Start)
         }
     }
 }

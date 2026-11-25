@@ -306,8 +306,7 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
                 Text("⁦×$speed⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink, style = tabular)
             }
         }
-        val hint = stringResource(R.string.app_ride_hint) + if (hapticsOn) " " + stringResource(R.string.app_ride_hint_haptic) else ""
-        Text(hint, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, lineHeight = 15.sp)
+        Text(stringResource(R.string.app_ride_hint), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, lineHeight = 15.sp)
     }
     // the emulator's switches (qa.redesign ride:<metres>, ride:play, ride:stop, ride:speed)
     LaunchedEffectQa { c ->
