@@ -1107,7 +1107,7 @@ rd_areas() { # rd_areas <prefix>
   # the list on its own descriptor: adb shell reads standard input and would eat the rest of it
   while IFS='|' read -r name open close <&3; do
     [ -z "$name" ] && continue
-    mark; qa "--es qa.redesign $open"; sleep 2.5; shot "redesign-$1-$name"; qa "--es qa.redesign $close"; sleep 1.2
+    mark; qa "--es qa.redesign $open"; sleep 1; rd_settled; shot "redesign-$1-$name"; qa "--es qa.redesign $close"; sleep 1.2
   done 3<<'AREAS'
 me|people:me|people:off
 settings|people:settings|people:off
@@ -1546,14 +1546,16 @@ redesign4() {
   mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
   waitlog "redesign live drawn" 60 || fail "redesign: the mountain was not drawn under the live screen"
   mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
-  sleep 1.5; shot redesign-rec-search
+  # each command (an intent) pauses the activity and the GL context goes: the mountain is back once it is drawn again
+  # (ש5 of the review of 24.11 was this gap: the shot came before it); before the emulator's first fix (~3.6 s)
+  seen "redesign live drawn" 4 || true; shot redesign-rec-search
   geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
   # completion part 1 (P01 to P03): standing, next to a lift and a break, held (the emulator cannot stand for minutes)
-  mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 || fail "redesign: no standing sheet"; sleep 1.5; shot redesign-rec-standing
+  mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 || fail "redesign: no standing sheet"; rd_settled; shot redesign-rec-standing
   # part 6 (U04): recording with the notifications off, the line above the buttons (the emulator's switch)
   mark; qa "--es qa.redesign rec:nonotif"; waitlog "redesign edge rec no notif" 10 || fail "redesign: the no-notifications line did not show"; sleep 1; shot redesign-edge-rec-nonotif; qa "--es qa.redesign rec:notif"; sleep .5
-  mark; qa "--es qa.redesign stage:near"; waitlog "redesign rec stage near_lift" 10 || fail "redesign: no sheet next to a lift"; sleep 1.5; shot redesign-rec-near-lift
-  mark; qa "--es qa.redesign stage:break"; waitlog "redesign rec stage break" 10 || fail "redesign: no break screen"; sleep 1.5; shot redesign-rec-break
+  mark; qa "--es qa.redesign stage:near"; waitlog "redesign rec stage near_lift" 10 || fail "redesign: no sheet next to a lift"; rd_settled; shot redesign-rec-near-lift
+  mark; qa "--es qa.redesign stage:break"; waitlog "redesign rec stage break" 10 || fail "redesign: no break screen"; rd_settled; shot redesign-rec-break
   mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10
   # "see the day": the day so far over the live screen, the recording going on; back returns to it
   if tapText "לראות את היום"; then
