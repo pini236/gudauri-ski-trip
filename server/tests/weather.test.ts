@@ -4,7 +4,7 @@
 
 import postgres from "postgres";
 import { handle, type Deps } from "../supabase/functions/api/actions.ts";
-import { buildAnswer, gudauriClock, POINTS, riskOf } from "../supabase/functions/api/weather.ts";
+import { buildAnswer, fetchOpenMeteo, gudauriClock, POINTS, riskOf } from "../supabase/functions/api/weather.ts";
 
 const sql = postgres(Deno.env.get("DB_URL") ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres", { onnotice: () => {} });
 const T = { low_max: 40, medium_max: 60 };
@@ -153,3 +153,43 @@ Deno.test("a threshold change is written to the audit log", async () => {
 });
 
 Deno.test("close", async () => { await sql.end(); });
+
+// --- The Open-Meteo fetch: retries, and a reason in the error (25.11.2026: a month of silent 503) ---
+
+const noSleep = async () => {};
+const URL0 = "https://api.open-meteo.com/v1/forecast?x=1";
+function replies(codes: number[], seen: string[] = []): typeof fetch {
+  let i = 0;
+  return (async (url: string | URL | Request) => {
+    seen.push(String(url));
+    const code = codes[Math.min(i++, codes.length - 1)];
+    return code === 200 ? new Response(JSON.stringify([{ ok: 1 }]), { status: 200 }) : new Response(`{"reason":"limit ${code}"}`, { status: code });
+  }) as typeof fetch;
+}
+
+Deno.test("fetchOpenMeteo: retries 503 and 429, then succeeds", async () => {
+  eq(await fetchOpenMeteo(URL0, replies([503, 429, 200]), noSleep), [{ ok: 1 }], "third try works");
+});
+
+Deno.test("fetchOpenMeteo: gives up after three tries and the error says status and reason", async () => {
+  const seen: string[] = [];
+  let msg = "";
+  try { await fetchOpenMeteo(URL0, replies([503], seen), noSleep); } catch (e) { msg = String(e); }
+  eq(seen.length, 3, "three calls");
+  eq(msg.includes("answered 503") && msg.includes("limit 503"), true, "status and body in the error");
+});
+
+Deno.test("fetchOpenMeteo: a 400 is not retried; a key moves the call to the customer host and never shows in the error", async () => {
+  const seen: string[] = [];
+  let msg = "";
+  try { await fetchOpenMeteo(URL0, replies([400], seen), noSleep, "SECRETKEY"); } catch (e) { msg = String(e); }
+  eq(seen.length, 1, "one call");
+  eq(seen[0].startsWith("https://customer-api.open-meteo.com/") && seen[0].includes("apikey=SECRETKEY"), true, "customer host with the key");
+  eq(msg.includes("SECRETKEY"), false, "the key is not in the error");
+});
+
+Deno.test("a failed fetch says why in the 502 body (for net._http_response)", async () => {
+  const d = deps(async () => { throw new Error("open-meteo answered 503: limit"); });
+  const r = await handle(d, null, "fetch_weather", {}, { fetchAuthorized: true });
+  eq([r.status, (r.body as { error: string }).error, String((r.body as { reason?: string }).reason).includes("503")], [502, "fetch_failed", true], "502 with a reason");
+});

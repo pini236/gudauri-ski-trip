@@ -25,6 +25,30 @@ export interface Thresholds {
   medium_max: number;
 }
 
+// Open-Meteo answers 429/5xx now and then (a shared egress IP can hit its daily limit). Retry those a few times with a
+// growing pause, and put the status AND the start of the body in the error, so the logs say why (25.11.2026: a month of
+// "503" was logged without the reason). Anything else that is not 2xx fails at once. Never returns a partial answer.
+export const RETRY_PAUSES_MS = [2000, 5000] as const;
+export async function fetchOpenMeteo(
+  url: string,
+  fetchFn: typeof fetch = fetch,
+  sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms)),
+  apiKey?: string,
+): Promise<unknown> {
+  // With a paid key Open-Meteo asks for the customer host; without one, the free host.
+  const target = apiKey ? url.replace("https://api.open-meteo.com", "https://customer-api.open-meteo.com") + `&apikey=${encodeURIComponent(apiKey)}` : url;
+  let last = "";
+  for (let i = 0; i <= RETRY_PAUSES_MS.length; i++) {
+    const r = await fetchFn(target, { signal: AbortSignal.timeout(15000), headers: { "user-agent": "gudauri-ski-trip-server/1 (weather cache)" } });
+    if (r.ok) return await r.json();
+    const text = (await r.text().catch(() => "")).replaceAll(apiKey || "\u0000", "***").slice(0, 200);
+    last = `open-meteo answered ${r.status}: ${text}`;
+    if (r.status !== 429 && r.status < 500) break; // a 4xx other than 429 will not get better by waiting
+    if (i < RETRY_PAUSES_MS.length) await sleep(RETRY_PAUSES_MS[i]);
+  }
+  throw new Error(last);
+}
+
 export function openMeteoUrl(): string {
   const q = new URLSearchParams({
     latitude: POINTS.map((p) => p.lat).join(","),

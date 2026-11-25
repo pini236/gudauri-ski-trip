@@ -1,0 +1,48 @@
+# Alert when the weather answer on the live server is older than 3 hours (docs/OPERATIONS.md, server/CONTRACT.md "תפעול").
+# Why this exists: the hourly pg_cron job "succeeds" even when /api/fetch_weather answers 502 (pg_net does not care), and a
+# failed fetch correctly keeps the old row, so nothing was ever red (25.11.2026: stale since 20.11). This job reads the PUBLIC
+# answer (no secret, no write) and fails, opening one GitHub issue, when `updated` is missing or older than 3 hours.
+name: weather-freshness
+on:
+  schedule:
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read /api/weather and check the age
+        env:
+          URL: ${{ vars.SUPABASE_URL || 'https://vanuhuzuhnljvcoihvys.supabase.co' }}
+        run: |
+          out=$(curl -sS -m 30 -w '\n%{http_code}' "$URL/functions/v1/api/weather" -H "Cache-Control: no-cache" || true)
+          code=${out##*$'\n'}; body=${out%$'\n'*}
+          if [ "$code" != "200" ]; then echo "::error::GET /api/weather answered $code (no stored answer or server error)"; exit 1; fi
+          updated=$(echo "$body" | python3 -c 'import sys,json;print(json.load(sys.stdin)["updated"])')
+          age=$(python3 -c 'import sys,datetime as d;u=d.datetime.fromisoformat(sys.argv[1].replace("Z","+00:00"));print(int((d.datetime.now(d.timezone.utc)-u).total_seconds()//60))' "$updated")
+          echo "updated=$updated age_minutes=$age"
+          if [ "$age" -gt 180 ]; then echo "::error::the weather answer is $age minutes old (limit 180); updated=$updated"; exit 1; fi
+
+      - name: Fresh again, close the alert
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Weather data on the server is stale"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number -q '.[0].number')
+          if [ -n "$n" ]; then gh issue close "$n" -R "$GITHUB_REPOSITORY" -c "Fresh again: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"; fi
+
+      - name: Tell Pini (one issue, commented on again each time)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Weather data on the server is stale"
+          n=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number -q '.[0].number')
+          body="The weather answer is missing or older than 3 hours: $RUN. Check net._http_response for fetch_weather (the 502 body now has a reason) and the function logs. docs/OPERATIONS.md."
+          if [ -n "$n" ]; then gh issue comment "$n" -R "$GITHUB_REPOSITORY" -b "$body"; else gh issue create -R "$GITHUB_REPOSITORY" -t "$title" -b "$body"; fi

@@ -15,7 +15,7 @@
 // answer and error code) is server/CONTRACT.md.
 
 import type postgres from "postgres";
-import { buildAnswer, openMeteoUrl, type Thresholds } from "./weather.ts";
+import { buildAnswer, fetchOpenMeteo, openMeteoUrl, type Thresholds } from "./weather.ts";
 
 type Sql = postgres.Sql;
 type Tx = postgres.TransactionSql;
@@ -814,14 +814,13 @@ async function fetchWeather(d: Deps): Promise<Result> {
     return { status: 200, body: { ok: true, updated: answer.updated } };
   } catch (e) {
     console.error(JSON.stringify({ action: "fetch_weather", error: String(e) }));
-    return { status: 502, body: { error: "fetch_failed" } };
+    // `reason` is new and additive: the cron response (net._http_response) now says why, not only "fetch_failed".
+    return { status: 502, body: { error: "fetch_failed", reason: String(e).slice(0, 300) } };
   }
 }
 
-async function defaultFetchJson(url: string): Promise<unknown> {
-  const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
-  if (!r.ok) throw new Error(`open-meteo answered ${r.status}`);
-  return await r.json();
+function defaultFetchJson(url: string): Promise<unknown> {
+  return fetchOpenMeteo(url, fetch, undefined, Deno.env.get("OPEN_METEO_API_KEY") || undefined);
 }
 
 // The daily keepalive (decision 28): open to anyone, it only bumps a
