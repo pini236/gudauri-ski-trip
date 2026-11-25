@@ -1302,7 +1302,8 @@ redesign() {
     # back (the system's, as Pini's swipe on 0.1.867) returns to the view before the shelf, the names on their places
     from=$(logline "redesign layer from" | sed 's/.*layer from //')
     mark; adb shell input keyevent KEYCODE_BACK
-    if waitlog "redesign layer back" 10; then
+    # 25 s: on the emulator the mountain is drawn again after the shelf (textures, shadow, the band), up to 9 s at load 16
+    if waitlog "redesign layer back" 25; then
       back=$(logline "redesign layer back" | sed 's/.*layer back //')
       [ "${back% drift*}" = "$from" ] || fail "redesign: back from the shelf did not return to the view before it ($from, now ${back% drift*})"
       [ "${back##* drift }" = "0" ] || fail "redesign: after back from the shelf the names sit ${back##* drift } px off their places"
@@ -1313,7 +1314,7 @@ redesign() {
   mark; qa "--es qa.redesign station:Goodaura"
   if waitlog "redesign station " 10; then rd_settled; shot redesign-station-goodaura
     mark; adb shell input keyevent KEYCODE_BACK
-    if waitlog "redesign layer back" 10; then
+    if waitlog "redesign layer back" 25; then
       back=$(logline "redesign layer back" | sed 's/.*layer back //')
       [ "${back##* drift }" = "0" ] || fail "redesign: after back from the station the names sit ${back##* drift } px off their places"
       rd_settled; shot redesign-station-back
