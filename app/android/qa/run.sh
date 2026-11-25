@@ -1114,6 +1114,12 @@ rd_areas() { # rd_areas <prefix>
     case "$open" in tab:*) qa "--es qa.redesign close"; sleep 1; mark; qa "--es qa.redesign day --es qa.tab ${open#tab:}" ;; *) qa "--es qa.redesign $open" ;; esac
     if [ -n "$wait" ]; then waitlog "$wait" 30 || note "rd_areas: $name did not log '$wait'"; sleep 1.5; else sleep 1; rd_settled; fi
     shot "redesign-$1-$name"
+    # the pins stand on the picture, which is never mirrored: in Hebrew too the ticket office (x 304 of 390) is on the
+    # right half (Modifier.offset mirrored them, the review of 25.11)
+    if [ "$name" = village ]; then
+      local pos; pos=$(where "קופת כרטיסים")
+      if [ -z "$pos" ]; then note "rd_areas: no ticket pin to check"; elif [ "${pos%% *}" -lt 540 ]; then fail "redesign: the village's pins are mirrored (tickets at ${pos%% *})"; fi
+    fi
     case "$close" in
       home) qa "--es qa.tab home"; sleep 2; mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; seen "redesign live drawn" 30; qa "--es qa.redesign season:off" ;;
       *) qa "--es qa.redesign $close" ;;
@@ -1442,9 +1448,12 @@ redesign2() {
     # the frames while the film plays, at night (where the beads froze the main thread, GUDI-ANDROID-B): no frame
     # over 2 s at the 99th percentile and no ANR
     qa "--es qa.mode night"; sleep 1
-    adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
     mark; qa "--es qa.redesign ride"; waitlog "redesign ride open $rk" 15 || { fail "redesign: the film did not open on $rk"; continue; }
     waitlog "redesign ride play" 10 || fail "redesign: the film on $rk did not start by itself"
+    # every QA intent pauses the app and its picture is drawn again (about a second, the textures): the frames are
+    # counted only from the mountain drawn again, so they are the film's and not the test's
+    seen "redesign live drawn" 8
+    adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
     sleep 6; shot "redesign-ride-night-${rk// /-}"
     gfx=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
     tot=$(sed -n 's/^Total frames rendered: //p' <<<"$gfx" | head -1); jank=$(sed -n 's/^Janky frames: //p' <<<"$gfx" | head -1)
@@ -1452,10 +1461,10 @@ redesign2() {
     note "film frames $rk: ${tot:-?} rendered, janky ${jank:-?}, 99th ${p99:-?} ms"
     [ -n "$p99" ] && [ "$p99" -gt 2000 ] && fail "redesign: the film on $rk froze (99th percentile ${p99} ms)"
     adb shell dumpsys activity processes 2>/dev/null | grep -q "notResponding=true" && fail "redesign: an ANR during the film on $rk"
-    qa "--es qa.mode day"; sleep 1
+    mark; qa "--es qa.mode day"; sleep 1; seen "redesign live drawn" 8
     shot "redesign-ride-playing-${rk// /-}"
     mark; qa "--es qa.redesign ride:stop"; sleep 1; qa "--es qa.redesign ride:600"; waitlog "redesign ride at 600" 10
-    sleep 2; shot "redesign-ride-standing-${rk// /-}"
+    sleep 2; seen "redesign live drawn" 8; shot "redesign-ride-standing-${rk// /-}"
     mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film on $rk did not close"
   done
   # the sheets follow the finger (Pini, 24.11.2026): a pull up on the low run sheet opens the full one, a pull down

@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -404,7 +405,7 @@ internal fun MeetPinTargets(clusters: List<List<Pair<Station, Offset>>>, chosen:
         val (s, p) = c.first()
         if (c.any { it.first.id == chosen }) continue
         val names = c.joinToString(", ") { it.first.name }
-        Box(Modifier.offset { IntOffset((p.x - 22.dp.toPx()).toInt(), (p.y - 22.dp.toPx()).toInt()) }.size(44.dp)
+        Box(Modifier.absoluteOffset { IntOffset((p.x - 22.dp.toPx()).toInt(), (p.y - 22.dp.toPx()).toInt()) }.size(44.dp)
             .semantics { role = Role.Button; contentDescription = names }.clickable { onPick(s) })
     }
     Spacer(Modifier.size(0.dp))
@@ -413,7 +414,7 @@ internal fun MeetPinTargets(clusters: List<List<Pair<Station, Offset>>>, chosen:
 /** The flag's tappable place (a second tap on it clears), read as "meeting at 13:00, Goodaura". */
 @Composable
 internal fun MeetFlagTarget(at: Offset, desc: String, onTap: () -> Unit) {
-    Box(Modifier.offset { IntOffset((at.x - 12.dp.toPx()).toInt(), (at.y - 58.dp.toPx()).toInt()) }.size(width = 76.dp, height = 64.dp)
+    Box(Modifier.absoluteOffset { IntOffset((at.x - 12.dp.toPx()).toInt(), (at.y - 58.dp.toPx()).toInt()) }.size(width = 76.dp, height = 64.dp)
         .semantics { role = Role.Button; contentDescription = desc }.clickable(onClick = onTap))
 }
 

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -180,17 +181,19 @@ internal fun BoxScope.Village(
         val tagStyle = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
         val px = { d: Float -> with(dens) { d.dp.toPx() } }
         val pinBoxes = pinText.zip(at).map { (t, p) ->
-            val w = measurer.measure(t, tagStyle).size.width + px(18f)
-            val x = p.first * kk; val y = p.second * kk - px(34f)
+            val m = measurer.measure(t, tagStyle)
+            val w = m.size.width + px(18f); val h = maxOf(px(24f), m.size.height + px(4f))
+            val x = p.first * kk; val y = p.second * kk - px(10f) - h
             val l = x - w / 2f + PinRules.slide(x, w, screenW, px(8f))
-            androidx.compose.ui.geometry.Rect(l, y, l + w, y + px(24f))
+            androidx.compose.ui.geometry.Rect(l, y, l + w, y + h)
         }
         val liveStations = marks.stations.filter { m -> scene.runs.lifts.any { it.name == m.lift } }
         val stLabel = { m: VillageMarks.Mark -> "⁦${m.lift}⁩" + if (m.arrow) " ↑" else "" }
         val stBoxes0 = liveStations.map { m ->
-            val w = measurer.measure(stLabel(m), tagStyle).size.width + px(16f)
+            val t = measurer.measure(stLabel(m), tagStyle)
+            val w = t.size.width + px(16f); val h = maxOf(px(22f), t.size.height + px(4f))
             val x = (m.x + m.dx) * kk; val y = (m.y + m.dy) * kk
-            androidx.compose.ui.geometry.Rect(x, y, x + w, y + px(22f))
+            androidx.compose.ui.geometry.Rect(x, y, x + w, y + h)
         }
         val stDy = TagLayout.place(pinBoxes, stBoxes0, px(26f), 2, px(3f))
         val reserved = pinBoxes + stBoxes0.mapIndexed { i, r -> r.translate(0f, stDy[i]) }
@@ -203,7 +206,8 @@ internal fun BoxScope.Village(
         for ((i, m) in liveStations.withIndex()) {
             val lift = scene.runs.lifts.first { it.name == m.lift }
             val dy = stDy[i]
-            Row(Modifier.offset { IntOffset(((m.x + m.dx) * kk).toInt(), ((m.y + m.dy) * kk + dy).toInt()) }.height(22.dp).clip(RoundedCornerShape(11.dp))
+            // absoluteOffset: the picture is drawn the same in Hebrew, so the tags are not mirrored with the layout
+            Row(Modifier.absoluteOffset { IntOffset(((m.x + m.dx) * kk).toInt(), ((m.y + m.dy) * kk + dy).toInt()) }.heightIn(min = 22.dp).clip(RoundedCornerShape(11.dp))
                 .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(11.dp)).semantics { role = Role.Button }
                 .clickable { haptics.tick(.3f); onLift(lift) }.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(stLabel(m), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1)
@@ -234,17 +238,20 @@ internal fun BoxScope.Village(
 private fun Pin(text: String, at: Offset, k: SheetInk, night: Boolean, onTap: (() -> Unit)?, bg: Color = k.ink) {
     val fg = if (night) Color(0xFF0F1828) else Color.White
     var w by remember { mutableStateOf(0) }
+    var h by remember { mutableStateOf(0) }
     val dens = LocalDensity.current
     // the tag stays whole on the screen (the review of 24.11, ק3: "food and drink" was 18 dp wide at the edge); the stem
     // keeps its place, so the tag slides along it
     val screenW = with(dens) { androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp.toPx() }
     val edge = with(dens) { 8.dp.toPx() }
     val shift = PinRules.slide(at.x, w.toFloat(), screenW, edge)
-    Column(Modifier.offset { IntOffset((at.x - w / 2f).toInt(), (at.y - with(dens) { 34.dp.toPx() }).toInt()) }
-        .onSizeChanged { w = it.width },
+    // absoluteOffset: the picture is not mirrored in Hebrew, so neither is the pin; the stem's foot is on [at], whatever
+    // the tag's height (large text)
+    Column(Modifier.absoluteOffset { IntOffset((at.x - w / 2f).toInt(), (at.y - h).toInt()) }
+        .onSizeChanged { w = it.width; h = it.height },
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.offset { IntOffset(shift.toInt(), 0) }.let { if (onTap != null) it.semantics { role = Role.Button }.clickable(onClick = onTap) else it }
-            .height(24.dp).clip(RoundedCornerShape(12.dp)).background(bg).padding(horizontal = 9.dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.absoluteOffset { IntOffset(shift.toInt(), 0) }.let { if (onTap != null) it.semantics { role = Role.Button }.clickable(onClick = onTap) else it }
+            .heightIn(min = 24.dp).clip(RoundedCornerShape(12.dp)).background(bg).padding(horizontal = 9.dp), contentAlignment = Alignment.Center) {
             Text(text, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = fg, maxLines = 1)
         }
         Box(Modifier.size(2.dp, 10.dp).background(bg))
