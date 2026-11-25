@@ -23655,6 +23655,15 @@
     "ka"
    ]
   },
+  "app.kobi_side_wait": {
+    "he": "התמונה של צד Kobi תיטען כשתהיה קליטה",
+    "en": "The Kobi side photo will load when you have a signal",
+    "ru": "Фото стороны Kobi загрузится, когда появится связь",
+    "ka": "Kobi-ს მხარის ფოტო ჩაიტვირთება, როცა კავშირი გაჩნდება",
+    "where": "app/android, app/ios",
+    "note": "מוצגת בכניסה לצד Kobi בתצוגת התמונה כשהתמונות עוד לא ירדו ואין GLES 3, כך שאין חלופה חיה",
+    "check": ["ru", "ka"]
+  },
   "app.mode_live_temp": {
    "he": "חי לרגע · חוזרים לתמונה",
    "en": "Live for a moment · back to photo",
