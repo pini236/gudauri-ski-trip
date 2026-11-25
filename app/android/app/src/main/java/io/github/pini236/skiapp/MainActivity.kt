@@ -1028,12 +1028,15 @@ class MainActivity : ComponentActivity() {
                             if (id != null) nav.replaceTop(Route.DayOf(id)) else nav.back()
                         }
                         // the test build's redesign (round 4) records on the mountain; the store build, today's screen
-                        if (!io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded,
-                                liftState = { n -> lstat.isOpen(n)?.let { it to lstat.reason(n) } }) { nav.back() })
+                        val onMountain = io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded,
+                                liftState = { n -> lstat.isOpen(n)?.let { it to lstat.reason(n) } }) { nav.back() }
+                        if (!onMountain)
                             io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(liftName = liftName, runName = runName, runs = scene?.runs,
                                 onSwitch = ::switchRecording, onBack = { nav.back() }, onEnded = onEnded, onStop = onStop)
-                        // the test build's counter (frames, missed frames) and the recorder's pulse, over the live screen, for a screenshot
-                        if (showStats) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
+                        // the test build's counter (frames, missed frames) and the recorder's pulse, over today's live screen, for a
+                        // screenshot; not over the redesign's live screen, where it sat on "looking for satellites" (Pini, 25.11.2026).
+                        // The diagnostic log goes on as it is.
+                        if (showStats && !onMountain) StatsBar(false, Modifier.align(Alignment.BottomStart).padding(bottom = 100.dp))
                     }
                     Route.Skipass -> io.github.pini236.skiapp.skipass.SkipassScreen(prices, skipDays, seasonToday) { nav.back() }
                     Route.Days -> if (!io.github.pini236.skiapp.redesign.Redesign.days(dnMode, haptics, onOpen = { id -> nav.push(Route.DayOf(id)) }, scene = scene, onRecord = { record(false) }) { nav.back() })
