@@ -758,7 +758,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (veilA > 0f) Box(Modifier.fillMaxSize().background((if (night) Color(0x5C020612) else Color(0x42283E6E)).copy(alpha = (if (night) .36f else .26f) * veilA)))
         // back (or the close) from the shelf and from the station returns to the view before them, as the village does;
         // a pick frames its run instead (Pini, 0.1.867: back from the shelf left the camera low on the last card's run)
-        var layerFrom by remember { mutableStateOf<io.github.pini236.skiapp.map.OrbitCamera.State?>(null) }
+        var layerFrom by remember { mutableStateOf<Any?>(null) }
         val layerOn = shelfOpen || fromSt != null
         LaunchedEffect(layerOn) {
             if (layerOn) { if (layerFrom == null) layerFrom = view.viewNow() }

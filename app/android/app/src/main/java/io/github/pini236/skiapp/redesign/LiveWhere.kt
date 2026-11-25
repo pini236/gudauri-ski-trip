@@ -55,6 +55,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -150,7 +151,7 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, record
 private fun StageSwitch(k: SheetInk, night: Boolean, photo: Boolean, onPhoto: (Boolean) -> Unit) {
     val shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
     Column(Modifier.width(44.dp).shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
-        .semantics { androidx.compose.ui.semantics.selectableGroup() }) {
+        .selectableGroup()) {
         for (pic in listOf(true, false)) {
             val on = photo == pic
             val name = stringResource(if (pic) R.string.app_mode_photo else R.string.app_mode_live)
