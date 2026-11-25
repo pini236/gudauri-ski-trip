@@ -1747,8 +1747,9 @@ redesign4() {
   mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
   # each command (an intent) pauses the activity and the GL context goes: the mountain is back once it is drawn again
   # (ש5 of the review of 24.11 was this gap: the shot came before it); before the emulator's first fix (~3.6 s)
-  seen "redesign live drawn" 4 || true; shot redesign-rec-search
-  geo 42.482631 44.483401; dayrec_walk 10; sleep 7; shot redesign-rec-live
+  seen "redesign live drawn" 4 || true; waitlog "redesign rec search shown" 5 || fail "redesign: no search before the first reading"; shot redesign-rec-search
+  geo 42.482631 44.483401; dayrec_walk 10
+  waitlog "redesign rec search found" 15 || fail "redesign: the search did not give way to the live screen"; sleep 7; shot redesign-rec-live
   # completion part 1 (P01 to P03): standing, next to a lift and a break, held (the emulator cannot stand for minutes)
   mark; qa "--es qa.redesign stage:standing"; waitlog "redesign rec stage standing" 10 || fail "redesign: no standing sheet"; rd_settled; shot redesign-rec-standing
   # part 6 (U04): recording with the notifications off, the line above the buttons (the emulator's switch)

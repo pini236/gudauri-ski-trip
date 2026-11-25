@@ -234,14 +234,30 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             dot?.let { d -> drawCircle(Color(0x553B7BF0), 13f * dens, d); drawCircle(Color.White, 7.5f * dens, d); drawCircle(Color(0xFF2F6FE4), 5.2f * dens, d) }
         }
 
-        Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            // the top: recording and the time from the tap; a touch goes back (the recording goes on)
+        // the search (handoff 2026-11-25-redesign-search-pulse, version 3): the veil, the rings and the title, nothing
+        // above them; once the first reading comes it fades into the live screen in 400 ms (at once with reduced motion)
+        val stillMotion = remember { io.github.pini236.skiapp.ui.Motion.reduced(context) }
+        androidx.compose.animation.AnimatedVisibility(searching, enter = androidx.compose.animation.fadeIn(tween(0)),
+            exit = androidx.compose.animation.fadeOut(tween(if (stillMotion) 0 else 400))) {
+            SearchPulse(night, if (searching) now - began else 0L)
+        }
+        val foundSr = stringResource(R.string.app_sr_fix_found)
+        var searchSeen by remember { mutableStateOf(false) }
+        LaunchedEffect(searching) {
+            if (searching) { searchSeen = true; Qa.log("redesign rec search shown") }
+            else if (searchSeen && recording) { searchSeen = false; hostView.announceForAccessibility(foundSr); Qa.log("redesign rec search found") }
+        }
+        val topShown by androidx.compose.animation.core.animateFloatAsState(if (searching) 0f else 1f, tween(if (stillMotion) 0 else 400), label = "top")
+        Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp).graphicsLayer { alpha = topShown }
+            .then(if (searching) Modifier.clearAndSetSemantics { } else Modifier), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // the top: recording and the time from the first reading; a touch goes back (the recording goes on)
             Row(Modifier.fillMaxWidth().height(44.dp).shadow(10.dp, RoundedCornerShape(22.dp)).clip(RoundedCornerShape(22.dp)).background(glass)
                 .border(1.dp, rule, RoundedCornerShape(22.dp)).clickable(role = Role.Button) { haptics.tick(.3f); onBack() }.padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (recording) Box(Modifier.size(12.dp).clip(CircleShape).background(red))
                 // one descent says so in place of "recording" (completion part 1, P04)
-                val clock = LiveNumbers.elapsed(LiveNumbers.sinceTap(now, began))
+                // from the first reading, 0:00 when it comes (the search shows no time; Pini, board TM00)
+                val clock = LiveNumbers.elapsed(LiveNumbers.fromFix(now, DayRec.since))
                 Text(if (single) stringResource(R.string.app_rec_one) + " · \u2066$clock\u2069" else stringResource(R.string.app_rec_now, clock),
                     fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
             }
@@ -312,9 +328,22 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         }
                         stringResource(R.string.app_rec_on_lift, name) + (eta?.let { " · " + stringResource(R.string.app_rec_lift_eta, it) } ?: "")
                     })
-                searching -> {
-                    Text(stringResource(R.string.app_rec_search), style = bold)
-                    Text(stringResource(R.string.app_rec_search_note), style = small, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                // the search's title and line are on the rings (SearchPulse); here only the hold to finish under them
+                searching -> {}
+                // in a descent: the simple ring (handoff 2026-11-25-redesign-search-pulse, GD1 and GD2)
+                DayRec.live?.act == "ski" -> {
+                    val live = DayRec.live
+                    val k = live?.runs?.firstOrNull()
+                    val on = k?.let { key -> scene.runs?.pistes?.firstOrNull { it.key == key } }
+                    val runText = live?.runs.orEmpty().let { r -> if (r.isEmpty()) stringResource(R.string.app_rec_off) else r.joinToString(" · ") { runName(it) } }
+                    LaunchedEffect(Unit) { Qa.log("redesign rec speed ring") }
+                    SpeedRing(DayRec.liveSpeed?.takeIf { it >= 0 }?.let { it * 3.6 }, live?.maxKmh, night, glass, ink, muted,
+                        stringResource(R.string.app_rec_unit), runText, on?.refs?.firstOrNull(),
+                        on?.let { Color(io.github.pini236.skiapp.game.runColor(it.color)) }, Modifier.padding(bottom = 8.dp))
+                    if (weak) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFE0A21B)))
+                        Text(stringResource(R.string.app_rec_weak_title) + " · " + stringResource(R.string.app_rec_weak_hint), style = small)
+                    }
                 }
                 else -> {
                     // the number on a soft glow, only behind it: the mountain stays clear above (L03; round 4's check, point 4)
