@@ -365,9 +365,11 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val t0 = System.nanoTime()
         var sh = Sun.shadows(t, dir)
         mountainMs = (System.nanoTime() - t0) / 1_000_000; bandMs = 0
-        ring?.let { r -> val t1 = System.nanoTime(); sh = r.modelBand(sh, t.nx, t.ny, t.x0, t.y0, t.sx, t.sy, dir)
+        // the band's rays: within the ring's 150 ms, or half the mountain's own on a slower phone; over it, none
+        ring?.let { r -> val t1 = System.nanoTime()
+            sh = r.modelBand(sh, t.nx, t.ny, t.x0, t.y0, t.sx, t.sy, dir, maxOf(LiveRing.SHADOW_MS, mountainMs / 2))
             bandMs = (System.nanoTime() - t1) / 1_000_000
-            Qa.log("redesign ring band shadow $bandMs ms") }
+            Qa.log("redesign ring band shadow $bandMs ms${if (r.bandOff) " off" else ""}") }
         renderer.setShadow(LiveLight.soften(sh, t.nx, t.ny))
     }
 

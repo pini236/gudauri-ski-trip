@@ -156,4 +156,18 @@ class RingTest {
         assertTrue(r.outerShadowOff)
         for (k in ni until r.points) assertEquals(0f, s[k], 0f)
     }
+
+    @Test fun theBandShadowKeepsTheModelSOwnOverItsBudget() {
+        // a flat model 15 by 15 km at 40 m: the band reworks only its last 1,500 m; with no time, the model's own
+        val nx = 370; val ny = 390; val sx = (x1 - x0) / (nx - 1); val sy = (y1 - y0) / (ny - 1)
+        val raw = FloatArray(nx * ny) { .25f }
+        val low = floatArrayOf(-0.97f, 0.24f, 0f)
+        val none = ring.modelBand(raw, nx, ny, x0, y0, sx, sy, low, budgetMs = 0)
+        assertTrue(ring.bandOff); assertTrue(none === raw)
+        val full = ring.modelBand(raw, nx, ny, x0, y0, sx, sy, low, budgetMs = 60_000)
+        assertTrue(!ring.bandOff)
+        // the middle untouched; values in 0..1 everywhere
+        assertEquals(.25f, full[(ny / 2) * nx + nx / 2], 0f)
+        assertTrue(full.all { it in 0f..1f })
+    }
 }
