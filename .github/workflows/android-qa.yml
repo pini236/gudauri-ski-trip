@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: core, map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, bigtext, redesign, redesign2, redesign3, redesign4, redesign5, dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
+        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: core (the one small part main will run; by hand until it is in run.sh on main), map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, bigtext, redesign, redesign2, redesign3, redesign4, redesign5, dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
         default: auto
       quick_debug:
         description: 'Diagnostic only: debug APK; skip final Sentry and release checks (choose a specific scenario) '
