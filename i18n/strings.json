@@ -24753,6 +24753,177 @@
    "ka": "იწერება, {time}. ცოცხალი ეკრანის გახსნა.",
    "where": "app/android, app/ios",
    "note": "קורא מסך: כפתור ההקלטה בזמן הקלטה. {time} זמן שעבר במילים, נבנה בקוד הלקוח. הנגיעה פותחת את המסך החי."
+  },
+  "app.empty_title": {
+   "he": "הקלטה בלי ירידות",
+   "en": "Recording with no descents",
+   "ru": "Запись без спусков",
+   "ka": "ჩანაწერი დაშვებების გარეშე",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): כותרת הגיליון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_when": {
+   "he": "היום · {time}",
+   "en": "Today · {time}",
+   "ru": "Сегодня · {time}",
+   "ka": "დღეს · {time}",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): {time} = שעת הסיום",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_rec": {
+   "he": "הוקלט",
+   "en": "Recorded",
+   "ru": "Записано",
+   "ka": "ჩაწერილია",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): תווית מתחת לזמן ההקלטה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_loc": {
+   "he": "מיקום",
+   "en": "Location",
+   "ru": "Место",
+   "ka": "მდებარეობა",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): תווית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_loc_found": {
+   "he": "נמצא",
+   "en": "Found",
+   "ru": "Найдено",
+   "ka": "ნაპოვნია",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'מיקום'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_loc_none": {
+   "he": "לא נמצא",
+   "en": "Not found",
+   "ru": "Не найдено",
+   "ka": "ვერ მოიძებნა",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'מיקום'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_where": {
+   "he": "איפה",
+   "en": "Where",
+   "ru": "Где",
+   "ka": "სად",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): תווית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_where_in": {
+   "he": "בגודאורי",
+   "en": "In Gudauri",
+   "ru": "В Гудаури",
+   "ka": "გუდაურში",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'איפה'. שם המקום קבוע, בלי משתנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_where_out": {
+   "he": "מחוץ לגודאורי",
+   "en": "Outside Gudauri",
+   "ru": "Вне Гудаури",
+   "ka": "გუდაურის გარეთ",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'איפה'; התא צר (כ-110 פיקסלים ב-16), ביטוי מלא בלי משתנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_sample_title": {
+   "he": "יום על ההר",
+   "en": "A day on the mountain",
+   "ru": "День на горе",
+   "ka": "დღე მთაზე",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): כותרת כרטיס היום לדוגמה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_sample_line": {
+   "he": {
+    "one": "ירידה אחת · {kmh} קמ״ש · {m} מ׳ ירידה",
+    "two": "{n} ירידות · {kmh} קמ״ש · {m} מ׳ ירידה",
+    "other": "{n} ירידות · {kmh} קמ״ש · {m} מ׳ ירידה"
+   },
+   "en": {
+    "one": "{n} descent · {kmh} km/h · {m} m down",
+    "other": "{n} descents · {kmh} km/h · {m} m down"
+   },
+   "ru": {
+    "one": "{n} спуск · {kmh} км/ч · {m} м вниз",
+    "few": "{n} спуска · {kmh} км/ч · {m} м вниз",
+    "many": "{n} спусков · {kmh} км/ч · {m} м вниз",
+    "other": "{n} спуска · {kmh} км/ч · {m} м вниз"
+   },
+   "ka": {
+    "one": "{n} დაშვება · {kmh} კმ/სთ · {m} მ დაშვება",
+    "other": "{n} დაშვება · {kmh} კმ/სთ · {m} მ დაშვება"
+   },
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (EM00 עד EM4): שורת המספרים בכרטיס היום לדוגמה, צורות רבים לפי {n}",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_sample_a11y": {
+   "he": "יום לדוגמה. פתיחה.",
+   "en": "Example day. Open.",
+   "ru": "Пример дня. Открыть.",
+   "ka": "მაგალითი დღე. გახსნა.",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): קורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_delete_confirm": {
+   "he": "למחוק?",
+   "en": "Delete?",
+   "ru": "Удалить?",
+   "ka": "წაშლა?",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): הכפתור אחרי הנגיעה הראשונה במחיקה, ברוחב חצי מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
