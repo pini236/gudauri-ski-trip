@@ -815,8 +815,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (tripOpen && around != null) {
             val sk = remember(night) { SheetInk(night) }
             val t = around.trip
-            Box(Modifier.fillMaxSize().background(sk.veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
             val nowL = java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(now), java.time.ZoneId.systemDefault())
+            // the full form is a page over the mountain (T09): the ticket is not drawn under it, where it showed through
+            // the form's veil (the review of 24.11, ש8)
+            if (!tripForm) {
+            Box(Modifier.fillMaxSize().background(sk.veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
             if (t != null) LiveTripPass(around, t, nowL, night, haptics, tripSkipass(around, t), onField = { e -> tripEdit = e; Qa.log("redesign trip field $e") },
                 onSkipass = { Qa.log("redesign trip skipass"); skipassOpen = true })
             else LiveTripEmpty(night) { tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates }
@@ -831,9 +834,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     Text(stringResource(R.string.trip_edit), Modifier.padding(horizontal = 18.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = ink)
                 }
             }
+            }
             val e = tripEdit
             val todayL = nowL.toLocalDate()
-            if (t == null || e == io.github.pini236.skiapp.trip.PassEdit.Dates) Box(Modifier.align(Alignment.BottomCenter)) {
+            if (!tripForm && (t == null || e == io.github.pini236.skiapp.trip.PassEdit.Dates)) Box(Modifier.align(Alignment.BottomCenter)) {
                 LiveCalendar(t, todayL, sk, haptics) { nt -> around.onTrip(nt); tripEdit = null; Qa.log("redesign trip saved") }
             }
             if (t != null && e != null && e != io.github.pini236.skiapp.trip.PassEdit.Dates)
