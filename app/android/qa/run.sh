@@ -1719,10 +1719,10 @@ store() {
   rd_hour 17.35 sunset
   rd_hour 22.0 night
   rd_hour 10.6 morning
-  mark; qa "--es qa.redesign lifts"; rd_settled; sshot lifts
+  mark; qa "--es qa.redesign lifts"; rd_settled; rd_drawn; sshot lifts
   mark; qa "--es qa.redesign lifts:off"; sleep 1
   mark; qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20
-  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open pass" 10 || fail "store: the trip pass did not open"; rd_settled; sshot trip
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open pass" 10 || fail "store: the trip pass did not open"; rd_settled; rd_drawn; sshot trip
   mark; qa "--es qa.redesign trip:off"; sleep 1
   mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
   mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "store: the day on the mountain did not open"
