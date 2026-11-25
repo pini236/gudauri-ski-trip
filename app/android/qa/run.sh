@@ -1704,10 +1704,12 @@ rd_picture() { # the opening on the picture (Stage, 25.11.2026): the picture, a 
   rd_live_back
   qa "--es qa.mode night"; sleep 3; shot redesign-picture-night; qa "--es qa.mode day"; sleep 1
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 4
-  mark; qa "--es qa.redesign live"; waitlog "redesign picture drawn" 40 || fail "redesign: the picture was not drawn in English"; sleep 2; shot redesign-picture-en
+  # a new locale can start the process again (the emulator's flag for the picture goes with it): ask for it again
+  mark; qa "--es qa.redesign live"; waitlog "redesign live open" 20; qa "--es qa.redesign show:photo"
+  waitlog "redesign picture drawn" 40 || fail "redesign: the picture was not drawn in English"; sleep 2; shot redesign-picture-en
   qa "--es qa.mode night"; sleep 3; shot redesign-picture-en-night; qa "--es qa.mode day"; sleep 1
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 4
-  mark; qa "--es qa.redesign live"; waitlog "redesign picture drawn" 40
+  mark; qa "--es qa.redesign live"; waitlog "redesign live open" 20; qa "--es qa.redesign show:photo"; waitlog "redesign picture drawn" 40
   # back to live: the picture lets its images go before the live model draws (never both, the architect's condition 3)
   mark; qa "--es qa.redesign show:live"; waitlog "redesign live drawn" 60 || fail "redesign: the live model did not come back"
   local log; log=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt")
