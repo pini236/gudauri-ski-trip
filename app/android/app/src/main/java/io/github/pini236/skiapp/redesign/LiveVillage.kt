@@ -194,11 +194,14 @@ internal fun BoxScope.Village(
         val stBoxes0 = liveStations.map { m ->
             val t = measurer.measure(stLabel(m), tagStyle)
             val w = t.size.width + px(16f); val h = maxOf(px(22f), t.size.height + px(4f))
-            val x = (m.x + m.dx) * kk; val y = (m.y + m.dy) * kk
+            // whole on the screen (the review of 25.11: "↑ Good" at the right edge): it slides in from the edge
+            val x = ((m.x + m.dx) * kk).coerceIn(px(8f), (screenW - w - px(8f)).coerceAtLeast(px(8f))); val y = (m.y + m.dy) * kk
             androidx.compose.ui.geometry.Rect(x, y, x + w, y + h)
         }
         val stDy = TagLayout.place(pinBoxes, stBoxes0, px(26f), 2, px(3f))
-        val reserved = pinBoxes + stBoxes0.mapIndexed { i, r -> r.translate(0f, stDy[i]) }
+        // a pin holds its stem and the foot on the picture too (the review of 25.11: "Gondola Tickets" on the ticket office)
+        val stems = at.map { p -> androidx.compose.ui.geometry.Rect(p.first * kk - px(10f), p.second * kk - px(12f), p.first * kk + px(10f), p.second * kk + px(8f)) }
+        val reserved = pinBoxes + stems + stBoxes0.mapIndexed { i, r -> r.translate(0f, stDy[i]) }
         Canvas(Modifier.fillMaxWidth().height(with(dens) { hPx.toDp() })) {
             pic?.let { drawImage(it, dstSize = androidx.compose.ui.unit.IntSize(size.width.toInt(), hPx.toInt())) }
             layer(data, view, pl, 1f, light, night, 1f, null, 0f, 0f, 0f, near = true, closeUp = true, measurer, unitM, nf,
@@ -208,8 +211,9 @@ internal fun BoxScope.Village(
         for ((i, m) in liveStations.withIndex()) {
             val lift = scene.runs.lifts.first { it.name == m.lift }
             val dy = stDy[i]
-            // absoluteOffset: the picture is drawn the same in Hebrew, so the tags are not mirrored with the layout
-            Row(Modifier.atScreen { IntOffset(((m.x + m.dx) * kk).toInt(), ((m.y + m.dy) * kk + dy).toInt()) }.heightIn(min = 22.dp).clip(RoundedCornerShape(11.dp))
+            // atScreen: the picture is drawn the same in Hebrew, so the tags are not mirrored with the layout
+            val box = stBoxes0[i]
+            Row(Modifier.atScreen { IntOffset(box.left.toInt(), (box.top + dy).toInt()) }.heightIn(min = 22.dp).clip(RoundedCornerShape(11.dp))
                 .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(11.dp)).semantics { role = Role.Button }
                 .clickable { haptics.tick(.3f); onLift(lift) }.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(stLabel(m), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1)

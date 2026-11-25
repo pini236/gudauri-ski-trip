@@ -1300,6 +1300,13 @@ redesign3() {
   # sheet), cleared with its undo, and at night
   mark; qa "--es qa.redesign meet"; waitlog "redesign meet where" 10 || fail "redesign: the meeting point did not open"
   rd_settled; shot redesign-meet-where
+  # a real touch on a pin, not a command (ק10 of the review of 25.11): its tappable place is 44 and reads its station's name
+  local pin; pin=$(where "~Goodaura")
+  if [ -z "$pin" ]; then fail "redesign: no station pin to touch"; else
+    mark; adb shell input tap $pin
+    waitlog "redesign meet set" 10 || fail "redesign: a touch on the pin did not set a meeting ($pin)"
+    mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10; sleep .5
+  fi
   mark; qa "--es qa.redesign meet:lift:Goodaura"; waitlog "redesign meet set" 10 || fail "redesign: no flag on Goodaura's top"
   rd_settled; shot redesign-meet-set
   mark; qa "--es qa.redesign meet:share"; waitlog "redesign meet image file" 20 || fail "redesign: the meeting point's picture was not written"
