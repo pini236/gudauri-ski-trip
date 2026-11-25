@@ -1817,6 +1817,102 @@
    "h": 1780,
    "title": "צד Kobi בתמונה: איך עוברים מהחזית",
    "page": "edge"
+  },
+  "SE00-PreSeason.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1830,
+   "title": "לפני העונה: שלוש חלופות, והמלצה",
+   "page": "season"
+  },
+  "SEAD.dc.html": {
+   "x": 0,
+   "y": 1970,
+   "w": 390,
+   "h": 844,
+   "title": "א · הרכבל עולה, ביום (ההמלצה)",
+   "page": "season"
+  },
+  "SEAN.dc.html": {
+   "x": 470,
+   "y": 1970,
+   "w": 390,
+   "h": 844,
+   "title": "א · בלילה",
+   "page": "season"
+  },
+  "SEBD.dc.html": {
+   "x": 940,
+   "y": 1970,
+   "w": 390,
+   "h": 844,
+   "title": "ב · השלט בשמיים, ביום",
+   "page": "season"
+  },
+  "SEBN.dc.html": {
+   "x": 1410,
+   "y": 1970,
+   "w": 390,
+   "h": 844,
+   "title": "ב · בלילה",
+   "page": "season"
+  },
+  "SECD.dc.html": {
+   "x": 1880,
+   "y": 1970,
+   "w": 390,
+   "h": 844,
+   "title": "ג · שורה שקטה, ביום",
+   "page": "season"
+  },
+  "SECN.dc.html": {
+   "x": 2350,
+   "y": 1970,
+   "w": 390,
+   "h": 844,
+   "title": "ג · בלילה",
+   "page": "season"
+  },
+  "RB00-RecButton.dc.html": {
+   "x": 0,
+   "y": 3014,
+   "w": 1280,
+   "h": 1330,
+   "title": "כפתור ההקלטה: שלוש חלופות, והמלצה",
+   "page": "season"
+  },
+  "RB1.dc.html": {
+   "x": 0,
+   "y": 4484,
+   "w": 390,
+   "h": 844,
+   "title": "1 · א: הנקודה והמילה",
+   "page": "season"
+  },
+  "RB2.dc.html": {
+   "x": 470,
+   "y": 4484,
+   "w": 390,
+   "h": 844,
+   "title": "2 · ב: נקודה ורמז, פעם אחת",
+   "page": "season"
+  },
+  "RB3.dc.html": {
+   "x": 940,
+   "y": 4484,
+   "w": 390,
+   "h": 844,
+   "title": "3 · הנגיעה הראשונה (L01)",
+   "page": "season"
+  },
+  "RB4.dc.html": {
+   "x": 1410,
+   "y": 4484,
+   "w": 390,
+   "h": 844,
+   "title": "4 · בזמן הקלטה, בלילה",
+   "page": "season"
   }
  },
  "createdOnFiles": {
@@ -2350,6 +2446,15 @@
    "w": 1000,
    "y": -200,
    "text": "ההר מרחף, ותמונה או חי (25.11.2026)"
+  },
+  "tSE": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "season",
+   "x": 0,
+   "w": 1000,
+   "y": -200,
+   "text": "לפני העונה, וכפתור ההקלטה (25.11.2026)"
   }
  },
  "order": [
@@ -2579,7 +2684,19 @@
   "Z05-TempLive.dc.html",
   "Z06-KobiPicDay.dc.html",
   "Z07-KobiPicNight.dc.html",
-  "Z08-KobiPic.dc.html"
+  "Z08-KobiPic.dc.html",
+  "SE00-PreSeason.dc.html",
+  "SEAD.dc.html",
+  "SEAN.dc.html",
+  "SEBD.dc.html",
+  "SEBN.dc.html",
+  "SECD.dc.html",
+  "SECN.dc.html",
+  "RB00-RecButton.dc.html",
+  "RB1.dc.html",
+  "RB2.dc.html",
+  "RB3.dc.html",
+  "RB4.dc.html"
  ],
  "pages": [
   {
@@ -2589,6 +2706,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "season",
+   "name": "לפני העונה, וכפתור ההקלטה"
   },
   {
    "id": "edge",
