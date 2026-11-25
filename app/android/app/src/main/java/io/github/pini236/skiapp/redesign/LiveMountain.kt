@@ -89,6 +89,9 @@ import io.github.pini236.skiapp.qa.Qa
  * light of the hour in the shader, one detail texture, the haze of the valleys), with the runs and lifts on it and a
  * tap that lights a run. The hour slider moves the sun along 12 January, as on the painted picture.
  */
+/** the emulator asked for the picture (qa.redesign show:photo): kept for the process, as a remount would forget it */
+private var qaPhoto = false
+
 @Composable
 fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status: io.github.pini236.skiapp.status.LiftStatus?, inSeason: Boolean,
                  forMe: Boolean, onForMe: (Boolean) -> Unit, around: io.github.pini236.skiapp.home.Around?, onPainted: () -> Unit, onLeave: (() -> Unit)?,
@@ -164,7 +167,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val view = remember { StageHost().also { v -> v.onChoose = { k -> chosen = k; haptics.tick(.5f); Qa.log("redesign live chosen $k") } } }
     var liveBroken by remember { mutableStateOf(false) }
     val canLive = gles && !liveBroken
-    var liveChosen by remember { mutableStateOf(StagePrefs.live(context)) }
+    // the emulator's parts were written for the live model: driven by them, it opens there unless one asks for the picture
+    // (qa.redesign show:photo); a phone opens on the user's choice, the picture by default
+    var liveChosen by remember { mutableStateOf(StagePrefs.live(context) || (RedesignQa.asked && !qaPhoto)) }
+    LaunchedEffect(RedesignQa.asked) { if (RedesignQa.asked && !qaPhoto) liveChosen = true }
     // why the live model is up for a moment ("ride", "kobi"), and a run to pick once it is
     var temp by remember { mutableStateOf<String?>(null) }
     var tempPick by remember { mutableStateOf<String?>(null) }
@@ -275,9 +281,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "air:off" -> live?.showAir(false)
             c == "air:on" -> live?.showAir(true)
             c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { live?.qaTurn(it) }
-            // the stage: the picture or the live model, as the switch sets it (kept as the user's choice)
-            c == "stage:photo" -> { liveChosen = false; StagePrefs.setLive(context, false) }
-            c == "stage:live" -> { liveChosen = true; StagePrefs.setLive(context, true) }
+            // the stage: the picture or the live model, as the switch sets it (kept as the user's choice; not stage:, LiveDay's)
+            c == "show:photo" -> { qaPhoto = true; liveChosen = false; StagePrefs.setLive(context, false) }
+            c == "show:live" -> { qaPhoto = false; liveChosen = true; StagePrefs.setLive(context, true) }
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
             c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
             c == "weather" -> { liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true }

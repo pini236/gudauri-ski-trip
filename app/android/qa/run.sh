@@ -1697,8 +1697,27 @@ redesign2() {
 # the one-minute video of board L11 (MediaCodec, about 16 MB), in a part of its own: after it, three runs of redesign2
 # lost the emulator, and the part's end checks with it (25.11.2026). The sample day on the mountain, its story, the share
 # sheet, and the video made and saved, never a place in it.
+rd_picture() { # the opening on the picture (Stage, 25.11.2026): the picture, a tap on it, night, English, and back to live
+  mark; qa "--es qa.redesign show:photo"; waitlog "redesign stage picture" 20 || fail "redesign: the picture did not come in"
+  waitlog "redesign picture drawn" 30 || fail "redesign: the picture was not drawn"; sleep 2; shot redesign-picture-day
+  rd_live_touch "Tatra 2" && { waitlog "redesign picture framed Tatra 2" 10; sleep 2; shot redesign-picture-chosen; } || fail "redesign: a tap on the picture did not choose Tatra 2"
+  rd_live_back
+  qa "--es qa.mode night"; sleep 3; shot redesign-picture-night; qa "--es qa.mode day"; sleep 1
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 4
+  mark; qa "--es qa.redesign live"; waitlog "redesign picture drawn" 40 || fail "redesign: the picture was not drawn in English"; sleep 2; shot redesign-picture-en
+  qa "--es qa.mode night"; sleep 3; shot redesign-picture-en-night; qa "--es qa.mode day"; sleep 1
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 4
+  mark; qa "--es qa.redesign live"; waitlog "redesign picture drawn" 40
+  # back to live: the picture lets its images go before the live model draws (never both, the architect's condition 3)
+  mark; qa "--es qa.redesign show:live"; waitlog "redesign live drawn" 60 || fail "redesign: the live model did not come back"
+  local log; log=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt")
+  local pc ld; pc=$(grep -n "redesign picture closed" <<< "$log" | head -1 | cut -d: -f1); ld=$(grep -n "redesign live drawn" <<< "$log" | head -1 | cut -d: -f1)
+  [ -n "$pc" ] && [ -n "$ld" ] && [ "$pc" -lt "$ld" ] || fail "redesign: the picture was still held when the live model drew"
+  mark; qa "--es qa.redesign season:off"; sleep 2
+}
 redesign5() {
   rd_live_start redesign5
+  rd_picture
   mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
   mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "redesign: the day on the mountain did not open"
   waitlog "redesign live day drawn .* day" 90 || fail "redesign: the day was not drawn on the mountain"
