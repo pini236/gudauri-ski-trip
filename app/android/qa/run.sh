@@ -1232,7 +1232,9 @@ core() {
   # me (nobody signed in)
   mark; qa "--es qa.group none --es qa.redesign people:me"; if waitlog "redesign people me" 15; then rd_settled; shot core-me; else fail "core: me did not open"; fi
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
-  # a recording: the live screen, started, a few readings down Tatra 2, stopped
+  # a recording: the live screen, started, a few readings down Tatra 2, stopped (the debug build shows the day's screens
+  # on the mountain only once asked: qa.redesign day)
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
   mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "core: the live screen did not open"
   mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "core: the recording did not start"
   geo 42.482631 44.483401; dayrec_walk 6; sleep 4; shot core-rec
