@@ -8,7 +8,7 @@ OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2 redesign3 redesign4)
+ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2 redesign3 redesign4 redesign5)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -20,7 +20,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4) ;;
+      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4|redesign5) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -294,8 +294,9 @@ games() {
   # A running app already completed startup in the previous scenario; it will not emit this line again.
   if [ -n "$cold" ]; then waitlog "shadow ready" 90 || return 1; fi
   sleep 1
-  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400; sleep 1
-  if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
+  # the app opens on the mountain (the redesign): the games are the village's "evening in the cabin"
+  qa "--es qa.redesign village"; sleep 2
+  if tapText "ערב בבקתה"; then sleep 2; shot games-page; else fail "no games row in the village"; fi
   tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
   # a swipe anywhere moves the board: a few, then undo
   mark; local d; for d in L U R D L D; do
@@ -751,25 +752,29 @@ meet() {
 
 # ---- the language from the home page (3.10.2026): the tag in the head opens the list; a tap saves the language ----
 lang() {
-  local up="$((W * 7 / 100)) $((H * 85 / 100)) $((W * 7 / 100)) $((H * 45 / 100)) 400"
+  # the app opens on the mountain (the redesign): the language is in "me", settings, language (R14); each language from
+  # the list, and the app comes back in it, mirrored, with its fonts (LT1 to LT3, FT1)
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
-  qa "--es qa.group none --es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20; sleep 2
+  qa "--es qa.group none --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20
+  rd_live_start lang
   shot lang-he-closed
-  mark; tapText "שפה: עברית" && waitlog "lang sheet open" 5 && { sleep 1; shot lang-he-open; }
+  lang_sheet() { mark; qa "--es qa.redesign people:lang"; sleep 2; }
+  lang_sheet; shot lang-he-open
   qa "--es qa.mode night"; sleep 2; shot lang-he-open-night
-  adb shell input keyevent KEYCODE_BACK; sleep 1; shot lang-he-closed-night
-  qa "--es qa.mode auto"; sleep 1
-  # each language from the list: the app comes back in it, mirrored, with its fonts (LT1 to LT3, FT1)
+  qa "--es qa.mode auto"; adb shell input keyevent KEYCODE_BACK; sleep 1
   local pick
-  for pick in "English:en:Language: English" "Русский:ru:Язык: Русский" "ქართული:ka:ენა: ქართული"; do
-    local name=${pick%%:*} rest=${pick#*:}; local code=${rest%%:*} tag=${rest#*:}
-    mark; tapText "~^(שפה|Language|Язык|ენა): " && waitlog "lang sheet open" 5 && sleep 1 && tapText "$name" && waitlog "lang set $code" 5
-    sleep 4; shot "lang-$code-closed"
-    mark; tapText "$tag" && waitlog "lang sheet open" 5 && { sleep 1; shot "lang-$code-open"; }
-    [ "$code" = en ] && { qa "--es qa.mode night"; sleep 2; shot lang-en-open-night; adb shell input keyevent KEYCODE_BACK; sleep 1; shot lang-en-closed-night; qa "--es qa.mode auto"; sleep 1; } || { adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  for pick in "English:en" "Русский:ru" "ქართული:ka"; do
+    local name=${pick%%:*} code=${pick#*:}
+    lang_sheet
+    mark; tapText "$name" && waitlog "lang set $code" 5 || fail "lang: $name was not set"
+    # the screen comes back in the language: on the mountain again
+    sleep 4; mark; qa "--es qa.redesign live"; seen "redesign live drawn" 30; sleep 2; shot "lang-$code-closed"
+    lang_sheet; shot "lang-$code-open"
+    [ "$code" = en ] && { qa "--es qa.mode night"; sleep 2; shot lang-en-open-night; qa "--es qa.mode auto"; sleep 1; }
+    adb shell input keyevent KEYCODE_BACK; sleep 1
   done
   # "from the phone": back to the phone's language (the emulator's English); then the run goes on in Hebrew
-  mark; tapText "ენა: ქართული" && waitlog "lang sheet open" 5 && sleep 1 && { drag $up; sleep 0.5; tapText "~ტელეფონის მიხედვით" && waitlog "lang set auto" 5 && { sleep 4; shot lang-auto; }; }
+  lang_sheet; mark; tapText "~^ტელეფონის მიხედვით" && waitlog "lang set auto" 5 && { sleep 4; qa "--es qa.redesign live"; seen "redesign live drawn" 30; shot lang-auto; }
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
   qa "--es qa.tab home"; sleep 1
 }
@@ -814,7 +819,10 @@ phone() {
     sleep 3; shot "phone-$loc"
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
-    local want="When do you fly?" got=""; [ "$loc" = he-IL ] && want="מתי טסים?"
+    # the app opens on the mountain (the redesign): its words in the phone's language, the bar's "the village" or "where
+    # to?", or the trip's question where today's home still shows
+    local want="~^(When do you fly\?|The village|Where to\?)" got=""
+    case "$loc" in he-IL) want="~^(מתי טסים\?|הכפר|לאן יורדים\?)" ;; ru-RU) want="~^(Деревня|Куда спускаемся\?)" ;; ka-GE) want="~^(სოფელი|საით ჩავდივართ\?)" ;; esac
     for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break
       # a system question over the page (notifications), in the phone's language: answered, and looked at again
       local w xy; for w in "Allow" "יש אישור" "Разрешить" "დაშვება"; do xy=$(where "$w"); [ -n "$xy" ] && { tap $xy; break; }; done
@@ -861,7 +869,8 @@ runview() {
   mark; tapText "Sadzele 1" && waitlog "selected Sadzele 1" 10 && { sleep 3; shot run-from-list; }
   # a run's link from the site, while the app is open (A-31): the same app comes forward on that run
   mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#map/run/Tatra%201' -p $PKG" > /dev/null
-  waitlog "selected Tatra 1" 15 && { sleep 3; shot run-link; }
+  # (every link opens on the mountain now, the run chosen there: Pini, 24.11.2026)
+  waitlog "redesign link pick:Tatra 1" 15 && waitlog "redesign live framed Tatra 1" 25 && { sleep 3; shot run-link; }
   # English: the same panel, left to right
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
   adb shell am force-stop "$PKG"; sleep 1; mark
@@ -1122,7 +1131,8 @@ weather() {
 # the place the screen says the run is drawn now (qa.redesign spot:<run>). The bug of 0.1.573: after a pinch, a touch
 # picked another run.
 rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen must choose it
-  mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign spot $1" 15 || return 1
+  # (it answers once the view is still: after the shelf's way back, on a slow emulator, up to half a minute)
+  mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign spot $1" 40 || return 1
   local xy; xy=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*redesign spot $1" | tail -1 | sed 's/.*redesign spot .* \([0-9]*\) \([0-9]*\)$/\1 \2/')
   case "$xy" in *none*|*spot*|"") fail "redesign: no place to touch $1"; return 1 ;; esac
   mark; tap $xy; waitlog "redesign chosen $1" 10
@@ -1653,12 +1663,27 @@ redesign2() {
   # board L11: what leaves the phone; the one-minute video made here (MediaCodec) and saved, never a place in it
   mark; qa "--es qa.redesign share"; waitlog "redesign share open" 15 || fail "redesign: the share sheet did not open"
   sleep 2; shot redesign-share
+  mark; qa "--es qa.redesign share:off"; sleep 1
+  mark; qa "--es qa.redesign story:off"; sleep 1
+  mark; qa "--es qa.redesign ridge:off"; sleep 2
+}
+
+# the one-minute video of board L11 (MediaCodec, about 16 MB), in a part of its own: after it, three runs of redesign2
+# lost the emulator, and the part's end checks with it (25.11.2026). The sample day on the mountain, its story, the share
+# sheet, and the video made and saved, never a place in it.
+redesign5() {
+  rd_live_start redesign5
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
+  mark; qa "--es qa.tab days/sample"; waitlog "redesign day open" 20 || fail "redesign: the day on the mountain did not open"
+  waitlog "redesign live day drawn .* day" 90 || fail "redesign: the day was not drawn on the mountain"
+  mark; qa "--es qa.redesign story"; waitlog "redesign day story" 15 || fail "redesign: the story did not open"
+  mark; qa "--es qa.redesign share"; waitlog "redesign share open" 15 || fail "redesign: the share sheet did not open"
+  sleep 2
   mark; qa "--es qa.redesign share:video"
   if waitlog "redesign share video made" 720; then waitlog "redesign share saved video true" 30 || fail "redesign: the video was not saved"; sleep 1; shot redesign-share-video
   else fail "redesign: the one-minute video was not made"; fi
   mark; qa "--es qa.redesign share:off"; sleep 1
   mark; qa "--es qa.redesign story:off"; sleep 1
-  mark; qa "--es qa.redesign ridge:off"; sleep 2
 }
 
 redesign4() {
