@@ -89,16 +89,16 @@ internal class PictureStage(private val context: Context, private val scene: Map
     private var z by mutableFloatStateOf(1f)
     private var cx by mutableFloatStateOf(hero.w / 2)
     private var cy by mutableFloatStateOf(hero.h / 2)
-    private var shift by mutableFloatStateOf(0f)
+    private var raise by mutableFloatStateOf(0f)
     private var w = 0f; private var h = 0f
     private var scope: CoroutineScope? = null
     private var cam: Job? = null
-    private fun place(): Place = PeakGeo.free(w, h, hero, z, Offset(cx, cy)).let { Place(it.k, it.x, it.y - shift) }
+    private fun place(): Place = PeakGeo.free(w, h, hero, z, Offset(cx, cy)).let { Place(it.k, it.x, it.y - raise) }
 
     // ---- the look
     private var epoch by mutableStateOf(System.currentTimeMillis())
     private var quietA by mutableFloatStateOf(1f)
-    private var focus by mutableStateOf<LiveRenderer.Focus?>(null)
+    private var focusOn by mutableStateOf<LiveRenderer.Focus?>(null)
     private var lensLines by mutableStateOf<Map<String, LensStroke>?>(null)
     private var lensSeq = 0
 
@@ -375,8 +375,8 @@ internal class PictureStage(private val context: Context, private val scene: Map
         }
         return out
     }
-    override fun setFocus(f: LiveRenderer.Focus?) { focus = f }
-    override fun setShift(px: Float) { if (px != shift) shift = px }
+    override fun setFocus(f: LiveRenderer.Focus?) { focusOn = f }
+    override fun setShift(px: Float) { if (px != raise) raise = px }
     override fun setQuiet(a: Float, runs: Float) { quietA = min(a, max(runs, a * .5f)) }
 
     // ---- the pictures
@@ -418,7 +418,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
         val ch = chosen
         LaunchedEffect(ch) { if (ch != null) while (chosenMs() < 2000f && frozen == null) withFrameNanos { tick++ } }
         val dim = remember { Animatable(0f) }
-        val focused = focus != null || lensLines != null
+        val focused = focusOn != null || lensLines != null
         LaunchedEffect(ch, focused) { dim.animateTo(if (ch != null || focused) 1f else 0f, tween(if (reduced) 1 else if (ch != null) 600 else 300)) }
         Canvas(modifier.fillMaxSize()
             // a turn tried (two fingers turning more than 15 degrees in one gesture): the hint, once a gesture
@@ -431,7 +431,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
                     val p0 = place(); val before = p0.back(centroid)
                     val kFit = PeakGeo.fit(w, h, hero)
                     val nz = (z * zoom).coerceIn(1f, MAX_Z); val k = kFit * nz
-                    z = nz; cx = before.x - (centroid.x - w / 2) / k - pan.x / k; cy = before.y - (centroid.y - h / 2 + shift) / k - pan.y / k
+                    z = nz; cx = before.x - (centroid.x - w / 2) / k - pan.x / k; cy = before.y - (centroid.y - h / 2 + raise) / k - pan.y / k
                     settle()
                 }
             }
@@ -469,7 +469,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
         val ms = if (ch != null) chosenMs() else 2600f
         layer(d, hero, pl, quietA, light, dark, z.pow(-.38f), ch, dm, 1f, ms, near = false, closeUp = false, measurer, unitM, nf, pinch = z)
         lensLines?.let { drawLens(it, pl) }
-        focus?.let { f -> drawFocus(f, pl, dark) }
+        focusOn?.let { f -> drawFocus(f, pl, dark) }
     }
 
     private var lastDm = 0f
