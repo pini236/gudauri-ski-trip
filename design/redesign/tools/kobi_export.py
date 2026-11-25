@@ -28,7 +28,10 @@ def main():
     V,o=X.view('kobi');o['px']=PX;o['images']={l:'img/kobi-%s.webp'%l for l in X.LIGHTS}
     V0=P.VIEWS['kobi']
     # the projection for the shared contract (architect, 20.11.2026, condition 3): one entry of site/data/peak.json
-    o['contract']=dict(az=V0['az'],S=V0['S'],c=X.R1(V0['c']),near=V0['near'],W=V0['W'],H=V0['H'],y_c=V0['y_c'],zref=round(V['zref'],2),step=10,
+    import hashlib;h=hashlib.sha256()
+    for l in X.LIGHTS:h.update(open(os.path.join(OUT,'img','kobi-%s.webp'%l),'rb').read())
+    rev=h.hexdigest()[:10]                # the set and its tables go together (architect, 25.11.2026: site/img/peak/kobi/<rev>/)
+    o['contract']=dict(id='kobi',packaged=False,rev=rev,path='img/peak/kobi/%s/'%rev,images={l:'kobi-%s.webp'%l for l in X.LIGHTS},az=V0['az'],S=V0['S'],c=X.R1(V0['c']),near=V0['near'],W=V0['W'],H=V0['H'],y_c=V0['y_c'],zref=round(V['zref'],2),step=10,
                        F=[round(float(x),2) for x in V['F']],C=[round(float(x),4) for x in V['C']])
     o['labels']=[]                       # names of the Kobi side come from the data at run time (Kobi Pass, the village of Kobi); none baked here
     chk=[]

@@ -15,7 +15,7 @@
 |---|---|
 | `img/kobi-<light>.webp` | שבע תמונות, 585 על 1266 (נקודה וחצי לפיקסל), יחד 327 קילובייט. **לא נארזות באפליקציה; יורדות מהאתר** (`site/img/peak/kobi/<rev>/`), לפי התנאים של הארכיטקט מ-25.11.2026: עד 350 קילובייט לסט. |
 | `peak-kobi.json` | מבט אחד, **באותו מבנה של `views.hero` ב-`peak-poc.json`**: `proj`, `details`, `bshadow`, `shadow`, `pistes`, `lifts`, `sel`, `labels`. כל הנקודות בנקודות של התמונה. |
-| `peak-kobi.json` → `view.contract` | טבלת ההטלה לחוזה: הרשומה `kobi` ב-`site/data/peak.json` (תנאי 3 של הארכיטקט מ-20.11.2026). |
+| `peak-kobi.json` → `view.contract` | הרשומה `kobi` ב-`views[]` של `site/data/peak.json` (תנאי 3 של הארכיטקט מ-20.11.2026, והתנאים מ-25.11.2026): `packaged: false`, `rev` (גיבוב של שבע התמונות, היום `99d2a36da2`), `path` (`img/peak/kobi/<rev>/`), שמות הקבצים, וטבלאות ההטלה. |
 | `peak-kobi.json` → `check` | שש נקודות בדיקה ל-`tools/fixtures/peak-projection.json`: הקצוות של Kobi ושל Truso, וגם שתי תחנות של החזית. Sadzele נראית מעל הרכס, ו-Goodaura מוסתרת. |
 | `peak-kobi.json` → `seen` | כמה מכל מסלול רואים מהתמונה הזו (0 עד 1). |
 | `ref/kobi-day.jpg`, `ref/kobi-night.jpg` | איך זה צריך להיראות: התמונה, השכבות, Kobi נבחר, והשלט "צד Kobi". |
