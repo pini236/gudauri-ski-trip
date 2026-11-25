@@ -579,6 +579,8 @@
 | שלג חדש, ראות ורוח בשכבת 700 hPa בשכבת מזג האוויר | `docs/FEATURES.md`, סעיף ג | חלק מהמפרט, לא לשכוח |
 | להמיר את הסרטונים ל"הוסף סרטון" אם יהיה מסד נתונים | שלב 3 המקורי | הוסר בהקטנה |
 
+- **(25.11.2026, product designer) Light and weather on the mountain, waiting for Pini** (`design/handoff/2026-11-25-redesign-hour-slider/`): the hour slider needs a visible entry (light button in the button column); four more light states (first light, late morning, early afternoon, golden hour), downloaded and not packed; weather as layers over the picture (stage 1 snowfall, fog and sea of cloud from `/api/weather`; stage 2 fresh snow, ridge wind, `cloud_cover` from the server; stage 3 the live model). Candidates: seasonal sun for the trip days only, tomorrow's chips on the strip (not now).
+
 ## הוחלט לא לעשות (30.9.2026)
 
 נשמרים כאן כדי שלא ילכו לאיבוד. כדי לחזור אליהם צריך החלטה חדשה של פיני.
