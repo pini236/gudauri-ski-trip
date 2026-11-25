@@ -1,6 +1,7 @@
 package io.github.pini236.skiapp.redesign
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -34,5 +35,12 @@ class PullRulesTest {
         assertTrue(PullRules.shown(-1000f, d, canUp = true) >= -48f * d)
         assertTrue(PullRules.shown(-1000f, d, canUp = false) >= -16f * d)
         assertEquals(-30f, PullRules.shown(-90f, d, canUp = true))
+    }
+    @Test fun whoseIsThePull() {
+        assertTrue(PullRules.takes(-30f, canUp = true, canDown = true, atTop = false))   // up on the low sheet: the sheet's
+        assertFalse(PullRules.takes(-30f, canUp = false, canDown = true, atTop = true))  // up on the full one: the list's
+        assertTrue(PullRules.takes(30f, canUp = false, canDown = true, atTop = true))    // down at the list's top
+        assertFalse(PullRules.takes(30f, canUp = false, canDown = true, atTop = false))  // down in a scrolled list: the list's
+        assertFalse(PullRules.takes(30f, canUp = true, canDown = false, atTop = true))
     }
 }

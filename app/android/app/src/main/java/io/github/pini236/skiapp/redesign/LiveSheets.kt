@@ -388,6 +388,8 @@ internal object PullRules {
         canUp && (y < -UP_DP * dens || (v < -FLICK_DP * dens && y <= 0f)) -> To.UP
         else -> To.BACK
     }
+    /** Whose is a pull of [dy] once past the slop: up when the sheet has an "up", down when it has a "down" and an inner list is at its top. */
+    fun takes(dy: Float, canUp: Boolean, canDown: Boolean, atTop: Boolean): Boolean = if (dy < 0f) canUp else canDown && atTop
     /** Up has no room to go: it gives a little and stops (a third of the pull, at most 48 dp). */
     fun shown(y: Float, dens: Float, canUp: Boolean): Float = if (y >= 0f) y else if (canUp) maxOf(y / 3f, -48f * dens) else maxOf(y / 6f, -16f * dens)
 }
@@ -402,15 +404,14 @@ internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = nul
     if (onDown == null && onUp == null) return this
     val scope = rememberCoroutineScope()
     val dens = androidx.compose.ui.platform.LocalDensity.current.density
+    val slop = androidx.compose.ui.platform.LocalViewConfiguration.current.touchSlop
     var y by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
     var h by remember { androidx.compose.runtime.mutableFloatStateOf(1f) }
+    // how far an inner list is scrolled from its top (0 at the top): only then a pull down is the sheet's
+    var inner by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
     val down = androidx.compose.runtime.rememberUpdatedState(onDown)
     val up = androidx.compose.runtime.rememberUpdatedState(onUp)
     val gone = androidx.compose.runtime.rememberUpdatedState(closes)
-    // the finger on the screen: how far down since it touched, and its speed (read in the first pass, never consumed)
-    var finger by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
-    var fingerV by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
-    var base by remember { androidx.compose.runtime.mutableStateOf<Float?>(null) }
     fun release(v: Float) {
         val to = PullRules.settle(y, v, h, dens, down.value != null, up.value != null)
         Qa.log("redesign pull ${to.name.lowercase()} y=${y.toInt()} v=${v.toInt()} h=${h.toInt()}")
@@ -425,55 +426,40 @@ internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = nul
             }
         }
     }
-    val nested = remember {
+    // the inner list's place, learnt from what it scrolls (never taken from it)
+    val watch = remember {
         object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
-                // pulled down and now going back up: the sheet takes it first
-                if (y > 0f && available.y < 0f) {
-                    val b = base
-                    if (b != null) { val ny = maxOf(0f, finger - b); val t = ny - y; y = ny; return Offset(0f, maxOf(available.y, t)) }
-                    val t = maxOf(available.y, -y); y += t; return Offset(0f, t)
-                }
-                return Offset.Zero
-            }
             override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
-                // the list is at its top and the finger still goes down: the sheet follows
-                // follows the finger itself (its place on the screen, read outside the moving layer): the list inside
-                // sees the finger against a sheet that moves too, and only half of the pull reached it (the review of 24.11)
-                if (available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput && down.value != null) {
-                    if (base == null) base = finger - y
-                    y = maxOf(0f, finger - (base ?: 0f)); return Offset(0f, available.y)
-                }
+                inner = minOf(0f, inner + consumed.y); if (available.y > 0f) inner = 0f
                 return Offset.Zero
-            }
-            override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
-                if (y != 0f) { base = null; release(maxOf(available.y, fingerV)); return available }
-                return androidx.compose.ui.unit.Velocity.Zero
             }
         }
     }
     return this
         .onSizeChanged { h = it.height.toFloat().coerceAtLeast(1f) }
+        // one gesture, read in the first pass outside the moving layer (the place on the screen): once past the slop it
+        // is the sheet's (up with an "up", down at a list's top) and the sheet takes it, 1:1 and with its real speed; else
+        // the sheet leaves it to what is inside (the review of 24.11, ח6: a list inside swallowed the pull)
         .pointerInput(Unit) {
             awaitEachGesture {
                 val first = awaitFirstDown(requireUnconsumed = false, pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial)
                 val vt = androidx.compose.ui.input.pointer.util.VelocityTracker()
-                val y0 = first.position.y
-                finger = 0f; fingerV = 0f; base = null
-                vt.addPosition(first.uptimeMillis, Offset(0f, y0))
+                vt.addPosition(first.uptimeMillis, Offset(0f, first.position.y))
+                var mine: Boolean? = null; var from = 0f
                 while (true) {
                     val e = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
                     val c = e.changes.firstOrNull { it.id == first.id } ?: break
-                    // outside the moving layer (this modifier comes before it): the place on the screen
-                    val sy = c.position.y
-                    vt.addPosition(c.uptimeMillis, Offset(0f, sy))
-                    finger = sy - y0
-                    if (!c.pressed) { fingerV = vt.calculateVelocity().y; break }
+                    vt.addPosition(c.uptimeMillis, Offset(0f, c.position.y))
+                    val dy = c.position.y - first.position.y
+                    if (mine == null && kotlin.math.abs(dy) > slop) {
+                        mine = PullRules.takes(dy, up.value != null, down.value != null, inner >= -0.5f)
+                        from = dy
+                    }
+                    if (mine == true) { y = dy - from; c.consume() }
+                    if (!c.pressed) { if (mine == true) release(vt.calculateVelocity().y); break }
                 }
             }
         }
-        .nestedScroll(nested)
-        .draggable(androidx.compose.foundation.gestures.rememberDraggableState { d -> y += d }, androidx.compose.foundation.gestures.Orientation.Vertical,
-            onDragStopped = { v -> release(v) })
+        .nestedScroll(watch)
         .graphicsLayer { translationY = PullRules.shown(y, dens, up.value != null) }
 }

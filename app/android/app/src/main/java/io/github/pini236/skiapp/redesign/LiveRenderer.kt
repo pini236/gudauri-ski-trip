@@ -446,7 +446,12 @@ class LiveRenderer(
         if (dotCount == 0 && D != null) uploadVillage(D.village)
         val L = light
         // until the textures and the light are in, the plain sky colour (a frame or two)
-        if (!texOn || L == null || D == null) { glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); return }
+        // (a second or so after the screen comes back, when the context went: the sky of this hour, never a day blue at
+        // night; the review of 24.11, ש7)
+        if (!texOn || L == null || D == null) {
+            L?.hor?.let { h -> glClearColor(h[0], h[1], h[2], 1f) }
+            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); return
+        }
 
         var moving = false
         if (frozenMs == null) anim?.let { a ->
