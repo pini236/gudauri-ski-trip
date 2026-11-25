@@ -147,19 +147,19 @@ def first_hint():
 
 # ---------------------------------------------------------------- the record button
 def rec_hint():
-    return ('<div class="hint" style="right: 14px; bottom: 86px; max-width: 250px"><b style="display: block; font-size: 15px; margin-bottom: 2px">מקליטים</b>'
-            'מהירות, מסלולים וירידות. מכל מקום, בכל שעה.<i style="right: 30px; bottom: -6px"></i></div>')
+    return ('<div class="hint" style="left: 14px; bottom: 86px; max-width: 250px"><b style="display: block; font-size: 15px; margin-bottom: 2px">מקליטים</b>'
+            'מהירות, מסלולים וירידות. מכל מקום, בכל שעה.<i style="left: 20px; bottom: -6px"></i></div>')
 
 
 def first_sheet():
     o = ('<div class="sheet glass" style="gap: 12px"><div class="grab"></div>'
-         '<p class="ttl" style="font-size: 23px; line-height: 1.25">הטלפון בכיס. ההר מצייר את היום.</p>'
-         '<p class="sub" style="font-size: 14.5px">מזהים לבד רכבל, ירידה והפסקה, עם שמות המסלולים. אין מה ללחוץ בדרך.</p>'
+         '<p class="ttl" style="font-size: 23px; line-height: 1.25">מעקב גלישה</p>'
+         '<p class="sub" style="font-size: 14.5px">מזהה לבד רכבל, ירידה והפסקה, בשם המסלול.</p>'
          '<div style="display: flex; flex-direction: column; gap: 10px">%s</div>'
          '<div class="seg"><button class="on">כל היום</button><button>ירידה אחת</button></div>'
          '<button class="pri" style="flex: none">מתחילים</button><button class="lnk">לא עכשיו</button></div>')
     rows = ''.join('<div style="display: flex; gap: 12px; align-items: center"><span class="ic" style="background: var(--line); flex: none">%s</span><span style="font-size: 14.5px">%s</span></div>' % (ic(p), t) for p, t in (
-        ('<rect x="7" y="3" width="10" height="18" rx="2.500"/><path d="M11 17.500h2"/>', 'הטלפון בכיס, ההקלטה ממשיכה'),
+        ('<rect x="7" y="3" width="10" height="18" rx="2.500"/><path d="M11 17.500h2"/>', 'עובד גם כשהטלפון בכיס'),
         ('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 'הכל נשאר בטלפון')))
     return o % rows
 
@@ -272,7 +272,7 @@ def rb00():
         '<b>ב · נקודה ורמז, פעם אחת.</b> הנקודה של היום, ובפתיחה הראשונה בועה מעליה: "מקליטים · מהירות, מסלולים וירידות. מכל מקום, בכל שעה." (לוח 2). מינימליסטי, אבל מי שסגר את הרמז נשאר עם נקודה.',
         '<b>ג · לפי מה שכבר יודעים (ההמלצה).</b> המילה עד שההקלטה הראשונה מסתיימת, ואז רק הנקודה. בזמן הקלטה הנקודה פועמת והזמן שעבר לידה, כך שגם מי שחזר להר רואה שזה רץ (לוח 4). בכל מצב, הנגיעה הראשונה פותחת את ההסבר (לוח 3).') + '</div>')
     first = ('<div class="card" style="flex: 1"><p class="sec">הנגיעה הראשונה</p><h2>ההסבר של L01, כמו שאושר</h2>' + li(
-        '<b>הגיליון:</b> "הטלפון בכיס. ההר מצייר את היום.", שתי שורות (בכיס, הכל בטלפון), "כל היום" או "ירידה אחת", "מתחילים" ו"לא עכשיו".',
+        '<b>הגיליון:</b> "מעקב גלישה", שתי שורות (בכיס, הכל בטלפון), "כל היום" או "ירידה אחת", "מתחילים" ו"לא עכשיו".',
         '<b>אחרי "מתחילים":</b> ההסבר של המערכת על מיקום, ואז המסך החי (L02).',
         '<b>"לא עכשיו"</b> לא מעלים את המילה. היא יורדת רק אחרי הקלטה שהסתיימה.',
         '<b>לפני העונה ומחוץ לגודאורי</b> הכפתור עובד אותו דבר ("מכל מקום, בכל שעה"); השמות של המסלולים מופיעים רק על ההר.') + '</div>')
@@ -380,7 +380,7 @@ def lv_run():
     o += ('<div class="sheet glass" style="gap: 12px"><div class="grab"></div><div style="display: flex; align-items: center; gap: 10px">%s<span class="ttl" dir="ltr">%s</span><span class="sub" style="margin-inline-start: auto">%s · %s</span></div>'
           '<div class="nums"><div><span class="num">%s</span><span class="cap">אורך</span></div><div><span class="num">%d מ׳</span><span class="cap">ירידה</span></div><div><span class="num">%d°</span><span class="cap">הקטע התלול</span></div></div>'
           '<div style="display: flex; gap: 8px"><button class="sec" style="flex: 1">לרדת בסרט</button><button class="sec" style="flex: 1.5; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px"><i style="width: 11px; height: 11px; border-radius: 50%%; background: #E5352B; display: inline-block"></i>מודדים ירידה אחת</button></div>'
-          '<span class="sub" style="font-size: 12.5px">נעצר לבד בתחתית, ונותן כרטיס של הירידה.</span></div>'
+          '</div>'
           % (sign(k, True), k, HE[f['color']], 'כחול' and 'קל', km(f['len']), round(f['drop']), round(f['steep'])))
     return o
 

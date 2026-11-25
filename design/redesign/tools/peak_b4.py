@@ -80,8 +80,8 @@ def build():
     def b01():
         o=pic('hero')+base('hero',runs='line')+veil(0,844,'var(--veil)')
         o+='<div class="sheet glass" style="gap: 14px; padding-bottom: 18px"><div class="grab"></div>'
-        o+='<div><div class="ttl">הטלפון בכיס. ההר מצייר את היום.</div></div>'
-        o+='<div class="l3">%s<span>מזהים לבד רכבל, ירידה והפסקה, עם שמות המסלולים. אין מה ללחוץ בדרך.</span></div>'%IC['pocket']
+        o+='<div><div class="ttl">מעקב גלישה</div></div>'
+        o+='<div class="l3">%s<span>מזהה לבד רכבל, ירידה והפסקה, בשם המסלול.</span></div>'%IC['pocket']
         o+='<div class="l3">%s<span>הכל נשאר בטלפון. שום מיקום לא נשלח לשום מקום.</span></div>'%IC['lock']
         o+='<div class="l3">%s<span>לטלפון מספיקה ההרשאה ״בזמן השימוש באפליקציה״, עם מיקום מדויק.</span></div>'%IC['pin']
         o+='<div class="seg"><button class="on">כל היום</button><button>ירידה אחת</button></div>'
