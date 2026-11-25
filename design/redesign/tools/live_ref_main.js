@@ -61,7 +61,7 @@
 
   const V3 = a => new THREE.Vector3(a[0], a[1], a[2]);
   const hazeK = [num('hz0', 1.0), num('hz1', 0.43)];
-  const common = { uSun: { value: sunDir }, uLit: { value: V3(lt.lit) }, uShade: { value: V3(lt.shade) }, uHor: { value: V3(lt.hor) }, uDirect: { value: lt.direct }, uGlow: { value: glow } };
+  const common = { uAir2: { value: new THREE.Vector4(num('air', 0) == 2 ? st.dist * num('hd1', 1.5) : 0, num('air', 0) == 2 ? num('hl2', 25000) : 0, num('ydens', 2800), num('dmin', 0.35)) }, uSun: { value: sunDir }, uLit: { value: V3(lt.lit) }, uShade: { value: V3(lt.shade) }, uHor: { value: V3(lt.hor) }, uDirect: { value: lt.direct }, uGlow: { value: glow } };
   const terrain = new THREE.Mesh(geo, new THREE.RawShaderMaterial({ glslVersion: THREE.GLSL3, vertexShader: document.getElementById('tvs').textContent, fragmentShader: document.getElementById('tfs').textContent,
     uniforms: Object.assign({ uMvp: { value: mvp }, uRelief: { value: relief }, uCover: { value: cover }, uTile: { value: tile }, uBox: { value: new THREE.Vector4(x0, z0, 1 / (x1 - x0), 1 / (z1 - z0)) },
       uRock: { value: V3(lt.rock) }, uRockS: { value: V3(lt.rockS) }, uCam: { value: eye }, uHaze: { value: new THREE.Vector3(st.dist * hazeK[0], st.dist * hazeK[1], num('hzmax', 0.72)) }, uValley: { value: num('valley', 0.26) }, uDetail: { value: num('detail', 1) }, uEdge: { value: num('edge', 0) }, uRipple: { value: num('ripple', L.k.ripple) } }, common) }));
@@ -76,25 +76,50 @@
 
   // ---- the edge board (25.11.2026). ?ring=1: alternative A, the real terrain around the model (design/redesign/assets/edge/ring.json)
   //      ?cloud=<metres>: alternative B, a sea of cloud at that height (paint), with ?edge=<metres> fading the last metres of the model
-  if (num('ring', 0)) { const R = await fetch('/design/redesign/assets/edge/ring.json').then(r => r.json()), rn = R.n, rc = R.cell, rb = atob(R.b64), RZ = new Float32Array(rn * rn);
+  // ---- the edge board (25.11.2026). ?ring=1: alternative A, the real terrain around the model (design/redesign/assets/edge/ring.json)
+  //      ?ring=now: the ring of 0.1.884 as the app draws it (700 m, no shadow, no relief); ?ring=2: the ring as good as the
+  //      mountain (ring2, 25.11.2026): an inner ring (?r2=<dir> under design/redesign/assets, default ring2) with cast
+  //      shadows and the 120 m relief (?rtex=0 without), and the outer ring past it. ?air=2: the haze of the heights.
+  //      ?cloud=<metres>: alternative B, a sea of cloud at that height (paint), with ?edge=<metres> fading the last metres of the model
+  const ringMode = q.get('ring') || '0';
+  async function loadR(u) { const R = await fetch(u).then(r => r.json()), rn = R.n, rb = atob(R.b64), RZ = new Float32Array(rn * rn);
     for (let i = 0; i < rn * rn; i++) { let v = rb.charCodeAt(2 * i) | (rb.charCodeAt(2 * i + 1) << 8); RZ[i] = v > 32767 ? v - 65536 : v; }
-    const rat = (c, r) => RZ[Math.min(Math.max(r, 0), rn - 1) * rn + Math.min(Math.max(c, 0), rn - 1)];
-    const rel = (x, z) => { const c = Math.min(Math.max((x - R.x0) / rc, 0), rn - 1.001), r = Math.min(Math.max((z - R.z0) / rc, 0), rn - 1.001), c0 = c | 0, r0 = r | 0, fc = c - c0, fr = r - r0;
-      return (rat(c0, r0) * (1 - fc) + rat(c0 + 1, r0) * fc) * (1 - fr) + (rat(c0, r0 + 1) * (1 - fc) + rat(c0 + 1, r0 + 1) * fc) * fr; };
-    const H2 = new Float32Array(rn * rn), out = (x, z) => Math.max(x0 - x, x - x1, z0 - z, z - z1);     // > 0 outside the model
-    for (let r = 0; r < rn; r++) for (let c = 0; c < rn; c++) { const x = R.x0 + c * rc, z = R.z0 + r * rc, o = out(x, z);
-      H2[r * rn + c] = o < -rc ? elev(x, z) - 40 : o <= 0 ? elev(x, z) : elev(x, z) + (rat(c, r) - elev(x, z)) * Math.min(o / 900, 1) ** 2 * (3 - 2 * Math.min(o / 900, 1)); }
+    R.at = (c, r) => RZ[Math.min(Math.max(r, 0), rn - 1) * rn + Math.min(Math.max(c, 0), rn - 1)];
+    R.el = (x, z) => { const c = Math.min(Math.max((x - R.x0) / R.cell, 0), rn - 1.001), r = Math.min(Math.max((z - R.z0) / R.cell, 0), rn - 1.001), c0 = c | 0, r0 = r | 0, fc = c - c0, fr = r - r0;
+      return (R.at(c0, r0) * (1 - fc) + R.at(c0 + 1, r0) * fc) * (1 - fr) + (R.at(c0, r0 + 1) * (1 - fc) + R.at(c0 + 1, r0 + 1) * fc) * fr; };
+    R.inside = (x, z, m) => x > R.x0 + m && x < R.x1 - m && z > R.z0 + m && z < R.z1 - m; return R; }
+  const out = (x, z) => Math.max(x0 - x, x - x1, z0 - z, z - z1);                                     // > 0 outside the model
+  // R: the ring; hole: an inner ring it lies under (or null); shadowOf: heights for the cast shadow (or null: no shadow)
+  function ringMesh(R, hole, shadowOf, uni) {
+    const rn = R.n, rc = R.cell, H2 = new Float32Array(rn * rn);
+    for (let r = 0; r < rn; r++) for (let c = 0; c < rn; c++) { const x = R.x0 + c * rc, z = R.z0 + r * rc, o = out(x, z); let h;
+      h = o < -num('lowin', 1) * rc ? elev(x, z) - 40 : o <= 0 ? elev(x, z) : elev(x, z) + (R.at(c, r) - elev(x, z)) * Math.min(o / num('seam', 900), 1) ** 2 * (3 - 2 * Math.min(o / num('seam', 900), 1));
+      if (hole && hole.inside(x, z, 0)) h = Math.min(h, hole.el(x, z)) - 30; H2[r * rn + c] = h; }
     const rp = new Float32Array(rn * rn * 3), rnm = new Float32Array(rn * rn * 3), rsh = new Float32Array(rn * rn), H2at = (c, r) => H2[Math.min(Math.max(r, 0), rn - 1) * rn + Math.min(Math.max(c, 0), rn - 1)];
     const hz = Math.max(Math.hypot(sunDir.x, sunDir.z), 1e-4), ux = sunDir.x / hz, uz = sunDir.z / hz, rise = sunDir.y / hz;
     for (let r = 0; r < rn; r++) for (let c = 0; c < rn; c++) { const i = r * rn + c, x = R.x0 + c * rc, z = R.z0 + r * rc, h = H2[i];
       rp.set([x, h, z], 3 * i); const gx = (H2at(c + 1, r) - H2at(c - 1, r)) / (2 * rc), gz = (H2at(c, r + 1) - H2at(c, r - 1)) / (2 * rc), l = Math.hypot(gx, 1, gz); rnm.set([-gx / l, 1 / l, -gz / l], 3 * i);
-      let s = 0, dd = rc; while (dd < 20000) { const px = x + ux * dd, pz = z + uz * dd; if (px < R.x0 || px > R.x1 || pz < R.z0 || pz > R.z1) break;
-        const ov = rel(px, pz) - (h + 3 + rise * dd); if (ov > 0) { s = Math.max(s, Math.min(ov / 60, 1)); if (s >= 1) break; } if (h + rise * dd > 5100) break; dd += rc * (1 + dd / 6000); } rsh[i] = s; }
-    const ri = []; for (let r = 0; r < rn - 1; r++) for (let c = 0; c < rn - 1; c++) { const a = r * rn + c; ri.push(a, a + rn, a + 1, a + 1, a + rn, a + rn + 1); }
+      if (!shadowOf || out(x, z) < 0) continue;
+      let s = 0, dd = rc; while (dd < 24000) { const px = x + ux * dd, pz = z + uz * dd; const sh = shadowOf(px, pz); if (sh === null) break;
+        const ov = sh - (h + 3 + rise * dd); if (ov > 0) { s = Math.max(s, Math.min(ov / 60, 1)); if (s >= 1) break; } if (h + rise * dd > 5200) break; dd += rc * 0.5 * (1 + dd / 6000); } rsh[i] = s; }
+    if (shadowOf) { const b = new Float32Array(rsh); for (let r = 1; r < rn - 1; r++) for (let c = 1; c < rn - 1; c++) { let a = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) a += b[(r + j) * rn + c + i] * (i && j ? 1 : i || j ? 2 : 4); rsh[r * rn + c] = a / 16; } }
+    const ri = []; let nt = 0;
+    for (let r = 0; r < rn - 1; r++) for (let c = 0; c < rn - 1; c++) { const x = R.x0 + c * rc, z = R.z0 + r * rc;
+      if (out(x, z) < -rc && out(x + rc, z + rc) < -rc) continue;                                       // under the model
+      if (hole && hole.inside(x, z, hole.cell * 2) && hole.inside(x + rc, z + rc, hole.cell * 2)) continue;   // under the inner ring
+      const a = r * rn + c; ri.push(a, a + rn, a + 1, a + 1, a + rn, a + rn + 1); nt += 2; }
     const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(rp, 3)); rg.setAttribute('shadow', new THREE.BufferAttribute(rsh, 1)); rg.setAttribute('nrm', new THREE.BufferAttribute(rnm, 3)); rg.setIndex(ri);
     const rm = new THREE.Mesh(rg, new THREE.RawShaderMaterial({ glslVersion: THREE.GLSL3, vertexShader: document.getElementById('rvs').textContent, fragmentShader: document.getElementById('rfs').textContent, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 4,
-      uniforms: Object.assign({ uMvp: { value: mvp }, uTile: { value: tile }, uRock: { value: V3(lt.rock) }, uRockS: { value: V3(lt.rockS) }, uCam: { value: eye }, uHaze: terrain.material.uniforms.uHaze, uValley: { value: num('valley', 0.26) }, uRingR: { value: R.x1 } }, common) }));
-    rm.frustumCulled = false; scene.add(rm); }
+      uniforms: Object.assign({ uMvp: { value: mvp }, uTile: { value: tile }, uRock: { value: V3(lt.rock) }, uRockS: { value: V3(lt.rockS) }, uCam: { value: eye }, uHaze: terrain.material.uniforms.uHaze, uValley: { value: num('valley', 0.26) },
+        uRingR: { value: 1e9 }, uRRel: { value: tile }, uRBox: { value: new THREE.Vector4(0, 0, 1, 1) }, uRTex: { value: 0 }, uMBox: { value: new THREE.Vector4(x0, z0, x1, z1) } }, common, uni) }));
+    rm.frustumCulled = false; scene.add(rm); window.ringTris = (window.ringTris || 0) + nt; return rm; }
+  if (ringMode === '1') ringMesh(await loadR('/design/redesign/assets/edge/ring.json'), null, null, {});
+  if (ringMode === 'now') { const R = await loadR('/design/redesign/assets/ring2/now.json'); ringMesh(R, null, null, { uRingR: { value: R.x1 } }); }
+  if (ringMode === '2') { const dir = '/design/redesign/assets/' + (q.get('r2') || 'ring2') + '/', I = await loadR(dir + 'inner.json'), O = await loadR(dir + 'outer.json');
+    const shOf = (x, z) => I.inside(x, z, 0) ? (out(x, z) < 0 ? elev(x, z) : I.el(x, z)) : O.inside(x, z, 0) ? O.el(x, z) : null;
+    const rrel = num('rtex', 1) ? await new Promise(res => new THREE.TextureLoader().load(dir + 'tex/ringrelief.webp', t => { t.flipY = false; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = 8; res(t); })) : null;
+    const rel = rrel ? { uRRel: { value: rrel }, uRBox: { value: new THREE.Vector4(I.x0, I.z0, 1 / (I.x1 - I.x0), 1 / (I.z1 - I.z0)) }, uRTex: { value: 1 } } : {};
+    ringMesh(I, null, num('rsh', 1) ? shOf : null, rel); ringMesh(O, I, num('rsh', 1) ? shOf : null, Object.assign({ uRingR: { value: O.x1 } }, rel)); }
   if (num('cloud', 0)) { const ct = await new Promise(res => new THREE.TextureLoader().load('/design/redesign/assets/edge/tex/cloud.webp', t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; res(t); }));
     const cy = num('cloud', 0), S = 70000, cg = new THREE.BufferGeometry();
     cg.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-S, cy, -S, S, cy, -S, -S, cy, S, S, cy, S]), 3)); cg.setAttribute('shadow', new THREE.BufferAttribute(new Float32Array(4), 1)); cg.setAttribute('nrm', new THREE.BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), 3)); cg.setIndex([0, 2, 1, 1, 2, 3]);

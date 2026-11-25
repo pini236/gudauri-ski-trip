@@ -1985,6 +1985,14 @@
    "h": 844,
    "title": "8 · ירידה אחת בגיליון המסלול",
    "page": "season"
+  },
+  "Y02-Ring.dc.html": {
+   "x": 1480,
+   "y": 0,
+   "w": 1280,
+   "h": 4640,
+   "title": "ההרים מסביב, באותה איכות של ההר",
+   "page": "edge"
   }
  },
  "createdOnFiles": {
@@ -2777,7 +2785,8 @@
   "LVCD.dc.html",
   "LVCN.dc.html",
   "LVF.dc.html",
-  "LVR.dc.html"
+  "LVR.dc.html",
+  "Y02-Ring.dc.html"
  ],
  "pages": [
   {
