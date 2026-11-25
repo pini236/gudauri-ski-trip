@@ -1,0 +1,49 @@
+# The painted mountain's files must equal what the tool builds (architect, 25.11.2026, a late review of the painted
+# mountain contract): peak.json, the projection fixture and the picture revisions. About 15 seconds, only numpy, no secrets
+# and no network. A change in runs-and-lifts.json or terrain.json fails it until the tool is run again: that is the intent.
+# A separate light workflow, so a change to the tool does not start the browser modes (tests.yml) or the Android build.
+name: peak-check
+on:
+  push:
+    paths:
+      - 'tools/build-peak.py'
+      - 'site/data/peak.json'
+      - 'site/data/terrain.json'
+      - 'site/data/runs-and-lifts.json'
+      - 'tools/fixtures/peak-projection.json'
+      - 'site/img/peak/**'
+      - 'design/handoff/2026-11-25-redesign-kobi-picture/**'
+      - 'app/android/app/src/main/assets/redesign/img/hero-*.webp'
+      - 'app/android/app/src/main/assets/redesign/peak-poc.json'
+      - '.github/workflows/peak-check.yml'
+  pull_request:
+    paths:
+      - 'tools/build-peak.py'
+      - 'site/data/peak.json'
+      - 'site/data/terrain.json'
+      - 'site/data/runs-and-lifts.json'
+      - 'tools/fixtures/peak-projection.json'
+      - 'site/img/peak/**'
+      - 'design/handoff/2026-11-25-redesign-kobi-picture/**'
+      - 'app/android/app/src/main/assets/redesign/img/hero-*.webp'
+      - 'app/android/app/src/main/assets/redesign/peak-poc.json'
+      - '.github/workflows/peak-check.yml'
+  workflow_dispatch:
+concurrency:
+  group: peak-check-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  peak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: The tool, when it is there
+        run: |
+          if [ ! -f tools/build-peak.py ]; then echo "tools/build-peak.py is not on this branch yet: nothing to check"; exit 0; fi
+          # floating point: numpy is pinned to the version that built the files
+          python3 -m venv "$RUNNER_TEMP/peak"
+          "$RUNNER_TEMP/peak/bin/pip" install --quiet numpy==2.5.3
+          "$RUNNER_TEMP/peak/bin/python" tools/build-peak.py --check
