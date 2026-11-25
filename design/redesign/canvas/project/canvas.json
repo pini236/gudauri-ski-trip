@@ -1915,12 +1915,12 @@
    "y": 0
   },
   "Y02-Ring.dc.html": {
-   "h": 4640,
-   "page": "edge",
-   "title": "ההרים מסביב, באותה איכות של ההר (Y02)",
-   "w": 1280,
    "x": 1480,
-   "y": 0
+   "y": 0,
+   "w": 1280,
+   "h": 4640,
+   "title": "ההרים מסביב, באותה איכות של ההר (Y02)",
+   "page": "edge"
   },
   "Z00-PicLive.dc.html": {
    "h": 1540,
@@ -2401,6 +2401,14 @@
    "h": 844,
    "title": "בהפחתת תנועה (GD4)",
    "page": "v56"
+  },
+  "Y03-Seam.dc.html": {
+   "x": 2960,
+   "y": 0,
+   "w": 1280,
+   "h": 2560,
+   "title": "התפר בחזית: קרקע אחת (Y03)",
+   "page": "edge"
   }
  },
  "createdOnFiles": {
@@ -3254,7 +3262,8 @@
   "GD1.dc.html",
   "GD2.dc.html",
   "GD3.dc.html",
-  "GD4.dc.html"
+  "GD4.dc.html",
+  "Y03-Seam.dc.html"
  ],
  "pages": [
   {
