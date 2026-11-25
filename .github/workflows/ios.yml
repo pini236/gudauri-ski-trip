@@ -115,7 +115,7 @@ jobs:
         run: swift test --package-path app/ios/Packages/GudiCore
 
   app:
-    name: App build and simulator screenshot
+    name: App build and tests (screenshots by hand)
     needs: plan
     if: needs.plan.outputs.app == 'true'
     runs-on: macos-26
@@ -177,6 +177,8 @@ jobs:
       - name: Gate, the built app carries no test bundle
         run: sh tools/check-ios-no-tests.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app"
       - name: Run in a simulator and take a screenshot
+        # by hand only (workflow_dispatch): Pini, 25.11.2026, test only the app's core activity; a push builds and runs the tests
+        if: github.event_name == 'workflow_dispatch'
         timeout-minutes: 30
         run: |
           set -x
@@ -208,6 +210,7 @@ jobs:
           grep -E "error:|Test Case .* failed" "$RUNNER_TEMP/test.log" | sort -u | head -40 || true
           test "$RC" -eq 0
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: github.event_name == 'workflow_dispatch'
         with:
           name: ios-screenshots
           path: shots/

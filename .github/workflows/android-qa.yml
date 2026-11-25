@@ -9,11 +9,11 @@ on:
   # waiting run on main out of the single slot below. Another branch runs it by hand (workflow_dispatch).
   push:
     branches: [main]
-    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', 'i18n/strings.json', '.github/workflows/android-qa.yml']
+    paths: ['app/android/**', 'site/data/**', 'site/audio/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'tools/build-app-data.py', 'tools/build-app-strings.py', '.github/workflows/android-qa.yml']
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, bigtext, redesign, redesign2, redesign3, redesign4, redesign5, dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
+        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: core, map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, bigtext, redesign, redesign2, redesign3, redesign4, redesign5, dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
         default: auto
       quick_debug:
         description: 'Diagnostic only: debug APK; skip final Sentry and release checks (choose a specific scenario) '
@@ -59,7 +59,7 @@ jobs:
         run: |
           python3 - <<'PYTHON'
           import json, os, subprocess
-          allowed = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5,dayrecvideo".split(",")
+          allowed = "core,map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5,dayrecvideo".split(",")
           scenario = os.environ["QA_SCENARIO"].strip()
           quick = os.environ["QA_QUICK_DEBUG"] == "true"
           if quick and scenario in ("all", "auto"):
