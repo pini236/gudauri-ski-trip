@@ -1,0 +1,601 @@
+{
+ "schema": 1,
+ "note": "made by tools/build-peak.py with site/data/peak.json; tolerance half a point",
+ "tol": 0.5,
+ "points": [
+  {
+   "view": "front",
+   "what": "Pirveli, first end",
+   "lat": 42.462131,
+   "lon": 44.485141,
+   "z": 1995.2,
+   "x": 82.62,
+   "y": 729.06,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Pirveli, last end",
+   "lat": 42.470858,
+   "lon": 44.487352,
+   "z": 2148.77,
+   "x": 105.84,
+   "y": 644.85,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Sadzele, first end",
+   "lat": 42.496658,
+   "lon": 44.498815,
+   "z": 2777.81,
+   "x": 226.24,
+   "y": 377.1,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Sadzele, last end",
+   "lat": 42.508985,
+   "lon": 44.503209,
+   "z": 3235.02,
+   "x": 272.4,
+   "y": 232.63,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Goodaura, first end",
+   "lat": 42.471146,
+   "lon": 44.492189,
+   "z": 2161.32,
+   "x": 156.65,
+   "y": 641.27,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Goodaura, last end",
+   "lat": 42.492379,
+   "lon": 44.494273,
+   "z": 2705.59,
+   "x": 178.54,
+   "y": 418.06,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Soliko, first end",
+   "lat": 42.471099,
+   "lon": 44.487723,
+   "z": 2150.17,
+   "x": 109.74,
+   "y": 642.83,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Soliko, last end",
+   "lat": 42.48971,
+   "lon": 44.498974,
+   "z": 2690.07,
+   "x": 227.91,
+   "y": 440.44,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Shino, first end",
+   "lat": 42.473577,
+   "lon": 44.482861,
+   "z": 2172.74,
+   "x": 58.67,
+   "y": 621.18,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Shino, last end",
+   "lat": 42.49278,
+   "lon": 44.494115,
+   "z": 2708.74,
+   "x": 176.88,
+   "y": 414.61,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Kudebi, first end",
+   "lat": 42.489647,
+   "lon": 44.495888,
+   "z": 2668.96,
+   "x": 195.5,
+   "y": 443.19,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Kudebi, last end",
+   "lat": 42.497037,
+   "lon": 44.507485,
+   "z": 2983.41,
+   "x": 317.31,
+   "y": 352.08,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Kobi, first end",
+   "lat": 42.531743,
+   "lon": 44.493217,
+   "z": 2512.53,
+   "x": 167.44,
+   "y": 219.38,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Kobi, last end",
+   "lat": 42.511221,
+   "lon": 44.492784,
+   "z": 2950.47,
+   "x": 162.9,
+   "y": 249.28,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Truso, first end",
+   "lat": 42.556724,
+   "lon": 44.497523,
+   "z": 1979.88,
+   "x": 212.67,
+   "y": 252.28,
+   "visible": false
+  },
+  {
+   "view": "front",
+   "what": "Truso, last end",
+   "lat": 42.531823,
+   "lon": 44.493691,
+   "z": 2510.3,
+   "x": 172.42,
+   "y": 219.52,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Kikilo, first end",
+   "lat": 42.480766,
+   "lon": 44.50222,
+   "z": 2348.5,
+   "x": 262.01,
+   "y": 546.52,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "Kikilo, last end",
+   "lat": 42.492362,
+   "lon": 44.503421,
+   "z": 2764.37,
+   "x": 274.62,
+   "y": 411.88,
+   "visible": true
+  },
+  {
+   "view": "front",
+   "what": "south, past the picture",
+   "lat": 42.42,
+   "lon": 44.48,
+   "z": 1578.99,
+   "x": 28.62,
+   "y": 940.17,
+   "visible": false
+  },
+  {
+   "view": "front",
+   "what": "Stepantsminda, far north",
+   "lat": 42.657,
+   "lon": 44.643,
+   "z": 2157.0,
+   "x": 1740.73,
+   "y": 198.52,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Pirveli, first end",
+   "lat": 42.462131,
+   "lon": 44.485141,
+   "z": 1995.2,
+   "x": 352.3,
+   "y": 285.99,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Pirveli, last end",
+   "lat": 42.470858,
+   "lon": 44.487352,
+   "z": 2148.77,
+   "x": 314.2,
+   "y": 268.05,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Sadzele, first end",
+   "lat": 42.496658,
+   "lon": 44.498815,
+   "z": 2777.81,
+   "x": 116.66,
+   "y": 178.52,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Sadzele, last end",
+   "lat": 42.508985,
+   "lon": 44.503209,
+   "z": 3235.02,
+   "x": 40.94,
+   "y": 145.16,
+   "visible": true
+  },
+  {
+   "view": "kobi",
+   "what": "Goodaura, first end",
+   "lat": 42.471146,
+   "lon": 44.492189,
+   "z": 2161.32,
+   "x": 230.84,
+   "y": 265.89,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Goodaura, last end",
+   "lat": 42.492379,
+   "lon": 44.494273,
+   "z": 2705.59,
+   "x": 194.93,
+   "y": 186.49,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Soliko, first end",
+   "lat": 42.471099,
+   "lon": 44.487723,
+   "z": 2150.17,
+   "x": 307.8,
+   "y": 268.15,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Soliko, last end",
+   "lat": 42.48971,
+   "lon": 44.498974,
+   "z": 2690.07,
+   "x": 113.92,
+   "y": 185.39,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Shino, first end",
+   "lat": 42.473577,
+   "lon": 44.482861,
+   "z": 2172.74,
+   "x": 391.59,
+   "y": 267.46,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Shino, last end",
+   "lat": 42.49278,
+   "lon": 44.494115,
+   "z": 2708.74,
+   "x": 197.65,
+   "y": 186.48,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Kudebi, first end",
+   "lat": 42.489647,
+   "lon": 44.495888,
+   "z": 2668.96,
+   "x": 167.1,
+   "y": 189.71,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Kudebi, last end",
+   "lat": 42.497037,
+   "lon": 44.507485,
+   "z": 2983.41,
+   "x": -32.75,
+   "y": 136.21,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Kobi, first end",
+   "lat": 42.531743,
+   "lon": 44.493217,
+   "z": 2512.53,
+   "x": 213.13,
+   "y": 500.69,
+   "visible": true
+  },
+  {
+   "view": "kobi",
+   "what": "Kobi, last end",
+   "lat": 42.511221,
+   "lon": 44.492784,
+   "z": 2950.47,
+   "x": 220.59,
+   "y": 221.32,
+   "visible": true
+  },
+  {
+   "view": "kobi",
+   "what": "Truso, first end",
+   "lat": 42.556724,
+   "lon": 44.497523,
+   "z": 1979.88,
+   "x": 138.92,
+   "y": 840.4,
+   "visible": true
+  },
+  {
+   "view": "kobi",
+   "what": "Truso, last end",
+   "lat": 42.531823,
+   "lon": 44.493691,
+   "z": 2510.3,
+   "x": 204.96,
+   "y": 501.88,
+   "visible": true
+  },
+  {
+   "view": "kobi",
+   "what": "Kikilo, first end",
+   "lat": 42.480766,
+   "lon": 44.50222,
+   "z": 2348.5,
+   "x": 57.98,
+   "y": 242.36,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Kikilo, last end",
+   "lat": 42.492362,
+   "lon": 44.503421,
+   "z": 2764.37,
+   "x": 37.28,
+   "y": 174.15,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "south, past the picture",
+   "lat": 42.42,
+   "lon": 44.48,
+   "z": 1578.99,
+   "x": 440.89,
+   "y": 337.8,
+   "visible": false
+  },
+  {
+   "view": "kobi",
+   "what": "Stepantsminda, far north",
+   "lat": 42.657,
+   "lon": 44.643,
+   "z": 2157.0,
+   "x": -2368.04,
+   "y": 917.02,
+   "visible": false
+  }
+ ],
+ "taps": [
+  {
+   "view": "front",
+   "x": 97.0,
+   "y": 525.0,
+   "run": "Soliko 1"
+  },
+  {
+   "view": "front",
+   "x": 103.0,
+   "y": 525.0,
+   "run": "Soliko 1"
+  },
+  {
+   "view": "front",
+   "x": 216.9,
+   "y": 395.5,
+   "run": "Snow Park"
+  },
+  {
+   "view": "front",
+   "x": 222.9,
+   "y": 395.5,
+   "run": "Snow Park"
+  },
+  {
+   "view": "front",
+   "x": 137.1,
+   "y": 568.2,
+   "run": "Sportuli 1"
+  },
+  {
+   "view": "front",
+   "x": 143.1,
+   "y": 568.2,
+   "run": "Sportuli 1"
+  },
+  {
+   "view": "front",
+   "x": 27.9,
+   "y": 501.2,
+   "run": "Tatra 1"
+  },
+  {
+   "view": "front",
+   "x": 33.9,
+   "y": 501.2,
+   "run": "Tatra 1"
+  },
+  {
+   "view": "front",
+   "x": 225.6,
+   "y": 567.2,
+   "run": "New Goodaura"
+  },
+  {
+   "view": "front",
+   "x": 231.6,
+   "y": 567.2,
+   "run": "New Goodaura"
+  },
+  {
+   "view": "front",
+   "x": 196.4,
+   "y": 306.5,
+   "run": "Sadzele 1"
+  },
+  {
+   "view": "front",
+   "x": 202.4,
+   "y": 306.5,
+   "run": "Sadzele 1"
+  },
+  {
+   "view": "front",
+   "x": 181.8,
+   "y": 274.3,
+   "run": "Firni 1"
+  },
+  {
+   "view": "front",
+   "x": 187.8,
+   "y": 274.3,
+   "run": "Firni 1"
+  },
+  {
+   "view": "front",
+   "x": 195,
+   "y": 20,
+   "run": null
+  },
+  {
+   "view": "front",
+   "x": 20,
+   "y": 830,
+   "run": null
+  },
+  {
+   "view": "front",
+   "x": 380,
+   "y": 400,
+   "run": null
+  },
+  {
+   "view": "kobi",
+   "x": 37.7,
+   "y": 139.6,
+   "run": "Sadzele 2"
+  },
+  {
+   "view": "kobi",
+   "x": 43.7,
+   "y": 139.6,
+   "run": "Sadzele 2"
+  },
+  {
+   "view": "kobi",
+   "x": 33.4,
+   "y": 164.1,
+   "run": "Sadzele 3"
+  },
+  {
+   "view": "kobi",
+   "x": 39.4,
+   "y": 164.1,
+   "run": "Sadzele 1"
+  },
+  {
+   "view": "kobi",
+   "x": 192.1,
+   "y": 363.2,
+   "run": "Kobi"
+  },
+  {
+   "view": "kobi",
+   "x": 198.1,
+   "y": 363.2,
+   "run": "Kobi"
+  },
+  {
+   "view": "kobi",
+   "x": 155.8,
+   "y": 191.4,
+   "run": "Sadzele 1"
+  },
+  {
+   "view": "kobi",
+   "x": 161.8,
+   "y": 191.4,
+   "run": "Sadzele 1"
+  },
+  {
+   "view": "kobi",
+   "x": 214.2,
+   "y": 213.1,
+   "run": "Firni 1"
+  },
+  {
+   "view": "kobi",
+   "x": 220.2,
+   "y": 213.1,
+   "run": "Firni 1"
+  },
+  {
+   "view": "kobi",
+   "x": 223.8,
+   "y": 190.3,
+   "run": "Firni 2"
+  },
+  {
+   "view": "kobi",
+   "x": 229.8,
+   "y": 190.3,
+   "run": "Firni 2"
+  },
+  {
+   "view": "kobi",
+   "x": 195,
+   "y": 20,
+   "run": null
+  },
+  {
+   "view": "kobi",
+   "x": 20,
+   "y": 830,
+   "run": null
+  },
+  {
+   "view": "kobi",
+   "x": 380,
+   "y": 400,
+   "run": null
+  }
+ ]
+}
