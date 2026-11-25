@@ -23,6 +23,12 @@ IMG = {'now-m': '2f9b815c6ef72dc5843e7a4049844c2c', 'after-m': '5fd1ac623bb99e0d
        'tex-m': '1d1824d3a3b7729edbe98d768d76e6ea', 'lean-m': '06318424bd7ff889df0917cd1ae9ff59', 'now-s': '8282b8e09f4946901a4efe372fad802f',
        'after-s': 'fab62ec9037c1b1378f6cd0f0a8bf779', 'now-n': 'b212d745bd9d55508a692a1f72b6ee3f', 'after-n': 'e5eeca41aef75b62c89078a34b134e1a',
        'open-now': '85428fce83e920e82d423aec8917d6a8', 'open-after': 'b1349fbf6be7705080c7da412ed6a248'}
+# the front seam fixed (Y03): the after frames of Y02 are replaced; the old ones stay for the before of Y03
+OLD = {k: IMG[k] for k in ('after-m', 'tex-m', 'lean-m', 'after-s', 'after-n', 'open-after')}
+IMG.update({'after-m': '7ee1ac5f0061facbe1b32591cea18cfe', 'after-s': '11dff0baa64642b07541027f33e9a88e', 'after-n': '673ba7596e5ab64ff95bf49671b965a8',
+            'tex-m': '964190f7d0fa58b4b5d0ccb6eb6f9d3c', 'lean-m': '9e53f7fcf82a91cc3d0b693ff128120a', 'open-after': '7fe31520977c43a16d3b8ec49cdef040',
+            'crop-before': 'f19297f39eddc9ff2b8caaedf6a587bc', 'crop-after': '52ee9367e5b635322f378ab0eed86f66'})
+IMG.update({'old-' + k: v for k, v in OLD.items()})
 U = lambda k: '/_blob/' + IMG[k]
 REC = '; border: 3px solid #6B3FD4'
 
@@ -91,7 +97,7 @@ def y02():
         '<b>הפריימים מכלי העיצוב בדפדפן,</b> עם אותו עולם ואותה מצלמה של המנוע, לא מהטלפון. את הצילום שלך לא ראיתי: "המבט הרחוק" כאן הוא המרחק המרבי (10 ק״מ) מכיוון הפתיחה.',
         '<b>כל הגבהים אמיתיים,</b> מאותם אריחי גובה פתוחים של ההר. השלג מצויר כמו על ההר: לא ידוע איפה בעמקים שמסביב אין שלג, ואין יער.',
         '<b>האוויר של הגובה משנה מעט גם את ההר:</b> החלק הרחוק שלו (מעבר לפעם וחצי ממרחק המצלמה) קצת פחות מעורפל. במבט הפתיחה כמעט לא רואים הבדל.',
-        '<b>התפר בחזית:</b> כשמסתכלים ישר על הקצה הדרומי של ההר, נראה קו דק בין ההר לטבעת. הוא קיים גם היום. לא פתרתי אותו בכלי; המבצע יבדוק בטלפון.',
+        '<b>התפר בחזית תוקן</b> בלוח הבא (Y03): הפריימים בלוח הזה כבר בלי הרצועה ובלי הקצה, חוץ מ"1 · רשת עדינה", שצולם לפני התיקון.',
         '<b>לא נמדד בטלפון:</b> קצב הפריימים, הזיכרון וזמן חישוב הצל.') + '</div>')
     qs = ('<div class="card"><h2>שאלות אליך</h2>'
           '<div class="q"><span class="qn">1</span><span><b>להביא את ההרים שמסביב לאיכות של ההר:</b> רשת עדינה, תבליט, צל ואוויר של גובה. <b>(ההמלצה: כן, שלושת הצעדים יחד)</b></span></div>'
@@ -108,12 +114,55 @@ def y02():
     return board('ההרים מסביב', 1280, HY2, wide(1280, HY2, inner))
 
 
+HY3 = 2560
+
+
+def crop(k, w, cap, sub='', mark=''):
+    h = round(w * 386 / 585)
+    return ('<div class="fr" style="width: %dpx"><div class="th" style="width: %dpx; height: %dpx%s"><img alt="" src="%s"></div><p class="cap"><b>%s</b>%s</p></div>'
+            % (w, w, h, mark, U(k), cap, ('<br>' + sub) if sub else ''))
+
+
+def y03():
+    hero = (crop('crop-before', 572, 'לפני', 'הרצועה השטוחה והמטושטשת, ואחריה הקצה.')
+            + crop('crop-after', 572, 'אחרי', 'אותו מקום, אותו אור. קרקע אחת.', REC))
+    full = (shot('old-after-m', 270, 'לפני, בוקר', '"3 · אוויר של גובה" כמו ב-Y02.')
+            + shot('after-m', 270, 'אחרי, בוקר', '', REC) + shot('after-s', 270, 'אחרי, שקיעה') + shot('after-n', 270, 'אחרי, לילה'))
+    why = ('<div class="card"><p class="sec">מה ראית, ומה השתנה</p>' + table([
+        ('<b>הרצועה השטוחה</b>', 'מעבר לקצה, הטבעת החזיקה את גובה הקצה לאורך 900 מ׳, ורק אז ירדה לגבהים שלה.', 'הטבעת שומרת על הגבהים האמיתיים שלה עד הקצה ומתחתיו. 1,500 המטרים האחרונים של ההר מתכופפים לאט אל אותם גבהים.'),
+        ('<b>הטשטוש</b>', 'התבליט של הטבעת התחיל רק 500 מ׳ אחרי הקצה, וגם אז ב-60 מ׳, פי ארבעה רך מהמפות של ההר (14 מ׳).', 'המפות של ההר עצמו (שיפוע, שקעים, סלע) ממשיכות 2 ק״מ מעבר לקצה, ושני הצדדים קוראים מהן ליד הקצה.'),
+        ('<b>הקצה</b>', 'הסלע של הטבעת בא מנוסחה אחרת, והצל שלה חושב בנפרד.', 'אותה נוסחת סלע, אותו ברק על השלג ואותו גוון לפי גובה. הצל ליד הקצה מחושב מאותם גבהים בשני הצדדים.'),
+        ('<b>האובך</b>', 'כבר היה אחד.', 'בלי שינוי.'),
+    ], head=['', 'למה', 'עכשיו'], widths=['14%', '38%', None]) + '</div>')
+    more = (shot('open-after', 270, 'מבט הפתיחה', 'כמעט בלי שינוי: הקצה רחוק מהמצלמה.')
+            + shot('tex-m', 270, 'בלי אוויר של גובה', 'גם בלי האובך אין רצועה ואין קצה.')
+            + shot('lean-m', 270, 'החלופה הקלה', 'אותו תיקון עובד גם עם הטבעת הקלה.')
+            + '<div class="card" style="flex: 1"><p class="sec">תקציב</p><h2>מה זה מוסיף</h2>' + li(
+                '<b>תמונה אחת, 228 ק״ב:</b> ארבע מפות באפור, זו מתחת לזו (626 על 653 כל אחת, 30 מ׳ לפיקסל). בזיכרון הגרפי כ-2.2 מ״ב.',
+                '<b>אפס משולשים נוספים.</b>',
+                '<b>הצל:</b> עוד נקודות לחשב מחוץ לציור, רק בפס של 1.7 ק״מ סביב הקצה, ורק כשהאור משתנה.',
+                '<b>ההר:</b> 1,500 המטרים האחרונים שלו מקבלים את צורת הטבעת. הפרטים הקטנים נשמרים במפות.') + '</div>')
+    hon = ('<div class="card"><h2>ביושר</h2>' + li(
+        '<b>הפריימים מכלי העיצוב בדפדפן,</b> לא מהטלפון.',
+        '<b>נבדק מדרום, ממערב ומצפון,</b> בבוקר, בשקיעה ובלילה, ובמבט הפתיחה. בכל אחד לא נשאר קו.',
+        '<b>הגבהים בפס:</b> בתוך ההר הם של ההר, ומחוצה לו מאותם אריחים פתוחים של הטבעת. ההפרש ביניהם ליד הקצה: חציון 2 מ׳.',
+        '<b>לא נמדד בטלפון:</b> זמן חישוב הצל הנוסף והזיכרון.') + '</div>')
+    inner = ('<p class="sec">הערה שלך על Y02 · 25.11.2026</p><h1>התפר בחזית: קרקע אחת</h1>'
+             '<p class="lead">בכל התמונות, גם ב"3 · אוויר של גובה", ראית רצועה שטוחה ומטושטשת ואחריה קצה. עכשיו ההר והטבעת הם קרקע אחת: אותם גבהים, אותן מפות, אותו אור.</p>'
+             '<div class="rowx">%s</div><div class="rowx">%s</div>%s<div class="rowx" style="align-items: stretch">%s</div>%s'
+             % (hero, full, why, more, hon))
+    return board('התפר בחזית', 1280, HY3, wide(1280, HY3, inner))
+
+
 def main():
     open(os.path.join(PROJ, 'Y02-Ring.dc.html'), 'w', encoding='utf8').write(y02())
+    open(os.path.join(PROJ, 'Y03-Seam.dc.html'), 'w', encoding='utf8').write(y03())
     p = os.path.join(PROJ, 'canvas.json'); j = json.load(open(p, encoding='utf8'))
-    j['boards']['Y02-Ring.dc.html'] = dict(x=1480, y=0, w=1280, h=HY2, title='ההרים מסביב, באותה איכות של ההר', page='edge')
-    if 'Y02-Ring.dc.html' not in j['order']: j['order'].append('Y02-Ring.dc.html')
-    open(p, 'w', encoding='utf8').write(json.dumps(j, ensure_ascii=False, indent=1) + '\n'); print('Y02 written')
+    j['boards']['Y02-Ring.dc.html'] = dict(x=1480, y=0, w=1280, h=HY2, title='ההרים מסביב, באותה איכות של ההר (Y02)', page='edge')
+    j['boards']['Y03-Seam.dc.html'] = dict(x=2960, y=0, w=1280, h=HY3, title='התפר בחזית: קרקע אחת (Y03)', page='edge')
+    for k in ('Y02-Ring.dc.html', 'Y03-Seam.dc.html'):
+        if k not in j['order']: j['order'].append(k)
+    open(p, 'w', encoding='utf8').write(json.dumps(j, ensure_ascii=False, indent=1) + '\n'); print('Y02, Y03 written')
 
 
 if __name__ == '__main__': main()
