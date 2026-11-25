@@ -50,10 +50,25 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 45
     environment: ios-release
+    permissions:
+      contents: read
+      actions: read   # only to look up the full iOS run below
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
+      - name: Gate, a full green iOS run (with the screenshots) on this commit (architect d696a6ae, 25.11.2026)
+        # the push build runs only the build and the tests; before anything is archived for the store, the by-hand full run
+        # (workflow_dispatch of ios.yml, screenshots included) must have passed on this same commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ios.yml/runs?head_sha=$GITHUB_SHA&event=workflow_dispatch&status=success" --jq '.total_count')
+          if [ "${n:-0}" -lt 1 ]; then
+            echo "::error::no full, green run of ios.yml (workflow_dispatch, with the screenshots) on commit $GITHUB_SHA: run it first (docs/OPERATIONS.md, release list)"
+            exit 1
+          fi
+          echo "a full green ios.yml run exists on this commit"
       - name: Are the secrets there
         id: gate
         env:
