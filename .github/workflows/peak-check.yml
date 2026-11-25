@@ -43,7 +43,7 @@ jobs:
       - name: The tool, when it is there
         run: |
           if [ ! -f tools/build-peak.py ]; then echo "tools/build-peak.py is not on this branch yet: nothing to check"; exit 0; fi
-          # floating point: numpy is pinned to the version that built the files
+          # floating point: numpy is pinned to the version that built the files; Pillow only reads and hashes the pictures (the tool says python 3.11, numpy, Pillow)
           python3 -m venv "$RUNNER_TEMP/peak"
-          "$RUNNER_TEMP/peak/bin/pip" install --quiet numpy==2.5.3
+          "$RUNNER_TEMP/peak/bin/pip" install --quiet numpy==2.5.3 pillow
           "$RUNNER_TEMP/peak/bin/python" tools/build-peak.py --check
