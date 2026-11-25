@@ -322,6 +322,14 @@ body{margin:0}
 .H .rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .H .rb.still .dt,.H .rb.still .ar{animation:none!important}
 .H .sh.mid{width:56px;height:56px}
+.H .rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.H .rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.H .rq .o svg{position:absolute;inset:0}
+.H .rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.H .25)}
+.H .rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.H .rq.on{padding-inline-end:12px;background:rgba(229,53,43,.H .12)}
+.H .night .rq.on{background:rgba(255,116,104,.H .16)}
+.H .rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .H .still .tk,.H .still .ar,.H .still.sh{animation:none!important}
 .H .nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
 .H .nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.H .25)}
@@ -335,36 +343,6 @@ body{margin:0}
 .H .dock3.split .gap{flex:none;width:74px}
 
 .H .gtm{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;direction:ltr;color:var(--ink2)}
-
-@keyframes snf{0%{transform:translate(0,-30px)}100%{transform:translate(var(--dx),230px)}}
-.H .gd{position:absolute;left:50%;bottom:92px;width:252px;height:252px;transform:translateX(-50%)}
-.H .gd .win{position:absolute;inset:26px;border-radius:50%;overflow:hidden;box-shadow:0 10px 26px rgba(8,18,36,.35),inset 0 0 0 2px rgba(255,255,255,.7)}
-.H .night .gd .win{box-shadow:0 10px 26px rgba(0,0,0,.5),inset 0 0 0 2px rgba(176,206,255,.45)}
-.H .gd .win img{position:absolute;width:780px;height:1688px;max-width:none}
-.H .gd .win .vg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 46% at 50% 40%,rgba(255,255,255,.5) 0,rgba(255,255,255,.18) 70%,rgba(255,255,255,0) 100%)}
-.H .night .gd .win .vg{background:radial-gradient(ellipse 70% 46% at 50% 40%,rgba(6,12,26,.55) 0,rgba(6,12,26,.25) 70%,rgba(6,12,26,0) 100%)}
-.H .gd .sn{position:absolute;inset:0}
-.H .gd .sn i{position:absolute;top:0;width:3px;height:3px;border-radius:2px;background:#fff;opacity:.95;animation:snf linear infinite;box-shadow:0 0 0 1px rgba(70,92,125,.45),0 1px 3px rgba(40,60,90,.35)}
-.H .night .gd .sn i{box-shadow:0 0 3px rgba(255,255,255,.7)}
-.H .gd .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding-bottom:34px;box-sizing:border-box}
-.H .gd .v{display:flex;align-items:baseline;gap:6px;direction:ltr}
-.H .gd .v b{font-size:88px;font-weight:300;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums;text-shadow:0 0 16px var(--halo),0 0 4px var(--halo)}
-.H .gd .v span{font-size:17px;font-weight:700;color:var(--ink2)}
-.H .gd .rn{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700}
-.H .gd .you{position:absolute;left:50%;top:84%;width:10px;height:10px;border-radius:50%;background:#2F7BFF;border:2px solid #fff;transform:translate(-50%,-50%)}
-
-.H .cg{position:absolute;left:50%;bottom:92px;width:240px;height:240px;transform:translateX(-50%)}
-.H .cg .disc{position:absolute;inset:0;border-radius:50%}
-.H .cg svg{position:absolute;inset:0;overflow:visible}
-.H .cg .tk{stroke:var(--ink);stroke-linecap:round}
-.H .night .cg .tk{stroke:#DCE8FF;filter:drop-shadow(0 0 2px rgba(170,200,255,.55))}
-.H .cg .nm{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:500;color:var(--ink2);direction:ltr;font-variant-numeric:tabular-nums}
-.H .night .cg .nm{color:#B9C8E6}
-.H .cg .nd{transition:transform .3s cubic-bezier(.3,.7,.3,1)}
-.H .cg .rd{position:absolute;left:0;right:0;top:146px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.H .cg .rd b{font-size:48px;font-weight:300;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums;direction:ltr}
-.H .cg .rd span{font-size:12px;font-weight:700;color:var(--ink2)}
-.H .cg .rn{position:absolute;left:0;right:0;top:211px;display:flex;justify-content:center;align-items:center;gap:6px;font-size:12.5px;font-weight:700;transform:scale(.92)}
 </style>
 </helmet>
 <div class="H" style="width: 390px; height: 844px; position: relative; overflow: hidden">
