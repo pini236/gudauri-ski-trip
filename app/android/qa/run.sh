@@ -1518,7 +1518,7 @@ redesign2() {
   mark; qa "--es qa.redesign ride:stop"; sleep 1; qa "--es qa.redesign ride:1200"; waitlog "redesign ride at 1200" 10 || fail "redesign: the film did not move to 1,200 m"
   sleep 2; seen "redesign live drawn" 8; shot redesign-ride-standing
   mark; qa "--es qa.redesign ride:speed"; waitlog "redesign ride speed 2" 10 || fail "redesign: the film's speed did not change"
-  mark; qa "--es qa.redesign ride:99999"; sleep 2; seen "redesign live drawn" 8; shot redesign-ride-end
+  mark; qa "--es qa.redesign ride:99999"; waitlog "redesign frame done" 30; sleep 1; seen "redesign live drawn" 8; shot redesign-ride-end
   mark; qa "--es qa.mode night"; sleep 2; seen "redesign live drawn" 8; shot redesign-ride-night; qa "--es qa.mode day"; sleep 1
   mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10 || fail "redesign: the film did not close"
   # the film on two more runs (Pini, 24.11.2026): the dot on the line and the camera on it, playing and stopped half way
@@ -1570,10 +1570,12 @@ redesign2() {
   c=$(logline "redesign ride check $rk"); grep -q "clear true" <<<"$c" || fail "redesign: the film's camera on $rk at 75% is in the snow: ${c##*SkiQa}"
   seen "redesign live drawn" 8; shot redesign-ride-kikilo-75
   mark; qa "--es qa.redesign ride:99999"; waitlog "redesign ride framed end" 10 || fail "redesign: the film's end on $rk did not frame the run"
-  sleep 1.5; mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
+  waitlog "redesign frame done" 30; sleep 1; seen "redesign live drawn" 8; shot redesign-ride-kikilo-end
+  mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
   c=$(logline "redesign ride check $rk"); e=$(sed -n 's/.* end \(-\{0,1\}[0-9]*\) .*/\1/p' <<<"$c")
   { [ -n "$e" ] && [ "${e#-}" -le 5 ]; } || fail "redesign: the film on $rk ends ${e:-?} m from an end of the line: ${c##*SkiQa}"
-  seen "redesign live drawn" 8; shot redesign-ride-kikilo-end
+  # the whole run framed: the camera far back (the framing's 1,400 m and up), not left behind the dot at 760
+  d=$(sed -n 's/.* cam \([0-9]*\) .*/\1/p' <<<"$c"); [ "${d:-0}" -ge 1400 ] || fail "redesign: the film's end on $rk is not framed (camera ${d:-?} m)"
   mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10
   # the sheets follow the finger (Pini, 24.11.2026): a pull up on the low run sheet opens the full one, a pull down
   # goes back to the low one, a slow short pull goes back into place, a flick down closes

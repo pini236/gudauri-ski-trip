@@ -945,7 +945,9 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val dy = (1f - 2f * c) * dist * vf / kotlin.math.cos(s0.pitch).coerceAtLeast(.3f)
         val to = fit.copy(dist = dist, ty = fit.ty - dy)
         renderer.stopAnim(); camera.stopFling()
-        if (Motion.reduced(context)) { camera.set(to); requestRender() } else renderer.animate(to, 0.6f)
+        // its end logged: on the emulator a frame takes a second, and the glide of 0.6 s (in steps of 0.1) takes several
+        if (Motion.reduced(context)) { camera.set(to); requestRender(); Qa.log("redesign frame done") }
+        else renderer.animate(to, 0.6f) { Qa.log("redesign frame done") }
         Qa.log(log); Qa.log("redesign frame to ${to.dist.roundToInt()} ${"%.2f".format(to.pitch)} free ${"%.2f".format(bottom)}")
     }
 
