@@ -292,10 +292,150 @@ def rb00():
     return board('כפתור ההקלטה', 1280, HR, wbox(1280, HR, inner), props={'night': False}, script="return { mode: (this.props.night ?? false) ? 'night' : 'day' };")
 
 
+
+# ---------------------------------------------------------------- the live recording screen (Pini, 25.11.2026, on 0.1.8xx "looking for satellites")
+import day4 as D
+from peak_b4 import IC, you as B4you
+LCSS = """
+.H .steps{position:absolute;left:12px;right:12px;top:106px;height:44px;border-radius:22px;display:flex;align-items:center;gap:6px;padding:0 14px;box-sizing:border-box;font-size:12.5px;white-space:nowrap}
+.H .steps span{display:flex;align-items:center;gap:6px;color:var(--ink2)}
+.H .steps span i{width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor;box-sizing:border-box;flex:none}
+.H .steps span.on{color:var(--ink);font-weight:700}.H .steps span.on i{background:#E5352B;border-color:#E5352B;box-shadow:0 0 0 4px rgba(229,53,43,.22)}
+.H .steps b{flex:1;height:1px;background:var(--line);min-width:8px}
+.H .radar{position:absolute;border-radius:50%;transform:translate(-50%,-50%);border:1.5px solid rgba(255,255,255,.75);box-shadow:0 0 18px rgba(255,255,255,.35)}
+.H .night .radar{border-color:rgba(190,215,255,.6)}
+.H .bars{display:flex;gap:5px;align-items:flex-end;direction:ltr}.H .bars i{width:9px;border-radius:2px;background:var(--ink)}
+"""
+G4.MB.CSS = G4.MB.CSS + LCSS
+
+
+def recp(t='0:14', extra=''):
+    return '<div class="recp glass"><span class="rdot"></span><span>מקליטים</span><span class="tmr">%s</span><span style="margin-inline-start: auto">%s</span></div>' % (t, extra)
+
+
+def hold():
+    return '<div class="hold glass"><i></i>החזקה לסיום</div>'
+
+
+def bars(n=2):
+    return '<span class="bars">%s</span>' % ''.join('<i style="height: %dpx; opacity: %s"></i>' % (h, '1' if k < n else '.25') for k, h in enumerate((8, 12, 16, 20)))
+
+
+def search_card(top=560, extra=''):
+    return ('<div class="card glass" style="position: absolute; left: 16px; right: 16px; top: %dpx; gap: 8px"><div style="display: flex; align-items: center; gap: 10px">%s<b style="font-size: 16px">מחפשים לוויינים</b><span style="margin-inline-start: auto">%s</span></div>'
+            '<div class="sub">הזמן כבר נספר מהנגיעה. המהירות והקו מתחילים כשיש מיקום מדויק, ולא רגע לפני.</div>%s</div>' % (top, IC['sat'], bars(), extra))
+
+
+def lv_a(night):
+    light = 'night' if night else 'morning'
+    o = pic('hero', light, None) + veil(0, 844, 'var(--veil)') + recp()
+    o += ('<div class="steps glass"><span class="on"><i></i>מחפשים לוויינים</span><b></b><span><i></i>מקליטים</span><b></b><span><i></i>היום על ההר</span></div>')
+    o += '<div style="position: absolute; left: 0; right: 0; top: 300px; display: flex; flex-direction: column; align-items: center; gap: 6px"><div class="huge" style="font-weight: 200; font-size: 104px">—</div><div class="unit">קמ״ש</div></div>'
+    o += search_card() + hold()
+    return o
+
+
+def ghost(m, a=.42):
+    return '<g opacity="%s">%s</g>' % (a, D.day(VH, m, w=2.6, lifts=False))
+
+
+def lv_b(night):
+    light = 'night' if night else 'morning'; m = 'night' if night else 'day'
+    o = pic('hero', light, None) + lay(svg(VH, ghost(m)))
+    o += ('<div class="tag" style="left: 190px; top: 238px; height: 28px; font-size: 12.5px; font-weight: 700">%s כך ייראה היום שלך על ההר</div>' % EG)
+    o += recp() + fade(470, 90) + veil(560, 284, 'var(--bg)')
+    o += search_card(top=520, extra='<div style="border-top: 1px solid var(--line); padding-top: 8px; font-size: 14px; line-height: 1.45">בכל ירידה: המהירות ושם המסלול. בסוף היום: כל היום על ההר, וסיפור קצר.</div>')
+    o += hold()
+    return o
+
+
+def lv_c(night):
+    light = 'night' if night else 'morning'
+    vx, vy = 195, 222
+    o = pic('hero', light, None) + veil(0, 844, 'var(--veil)') + recp()
+    o += ''.join('<div class="radar" style="left: %.0fpx; top: %.0fpx; width: %dpx; height: %dpx; opacity: %s"></div>' % (vx, vy, r, r, op) for r, op in ((150, '.9'), (270, '.5'), (390, '.25')))
+    o += ('<div style="position: absolute; left: 0; right: 0; top: 190px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-shadow: 0 0 18px var(--halo)">'
+          '<span class="bars" style="transform: scale(1.8); margin-bottom: 14px">%s</span><b style="font-size: 25px">מחפשים לוויינים</b>'
+          '<span style="font-size: 15px">תחת שמיים פתוחים זה לוקח עד דקה</span></div>' % ''.join('<i style="height: %dpx; opacity: %s"></i>' % (h, op) for h, op in ((8, '1'), (12, '1'), (16, '.25'), (20, '.25'))))
+    o += hold()
+    return o
+
+
+def lv_found(night=False):
+    """B, a minute later: the fix came, the example fades, and the line starts where you stand"""
+    light = 'night' if night else 'morning'
+    x, y, _, _ = P.pt(VH, *P.lift_ends(P.flift('Goodaura'))[0])
+    o = pic('hero', light, None) + base('hero', cabins=False) + B4you(x, y)
+    o += '<div class="hint" style="left: %.0fpx; top: %.0fpx; max-width: 180px">הירידה הראשונה תצויר מכאן<i style="left: 22px; bottom: -6px"></i></div>' % (x - 20, y - 70)
+    o += recp('1:02')
+    o += ('<div class="glass" style="position: absolute; left: 12px; right: 12px; top: 106px; border-radius: 22px; padding: 10px 16px; display: flex; align-items: baseline; gap: 10px"><b style="font-size: 18px">עומדים</b>'
+          '<span class="sub">מחכים לירידה הראשונה</span></div>') + hold()
+    return o
+
+
+def lv_run():
+    """C of the toggle: one descent lives in the run sheet"""
+    k = 'Tatra 2'; f = facts(k)
+    o = pic('hero') + base('hero', runs='line', skip=None) + lay(svg(VH, glow_run(VH, k, 'day'))) + top()
+    o += ('<div class="sheet glass" style="gap: 12px"><div class="grab"></div><div style="display: flex; align-items: center; gap: 10px">%s<span class="ttl" dir="ltr">%s</span><span class="sub" style="margin-inline-start: auto">%s · %s</span></div>'
+          '<div class="nums"><div><span class="num">%s</span><span class="cap">אורך</span></div><div><span class="num">%d מ׳</span><span class="cap">ירידה</span></div><div><span class="num">%d°</span><span class="cap">הקטע התלול</span></div></div>'
+          '<div style="display: flex; gap: 8px"><button class="sec" style="flex: 1">לרדת בסרט</button><button class="sec" style="flex: 1.5; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px"><i style="width: 11px; height: 11px; border-radius: 50%%; background: #E5352B; display: inline-block"></i>מודדים ירידה אחת</button></div>'
+          '<span class="sub" style="font-size: 12.5px">נעצר לבד בתחתית, ונותן כרטיס של הירידה.</span></div>'
+          % (sign(k, True), k, HE[f['color']], 'כחול' and 'קל', km(f['len']), round(f['drop']), round(f['steep'])))
+    return o
+
+
+def lv_phones():
+    out = {}
+    for k, f, cap in (('A', lv_a, 'א · שלושה שלבים'), ('B', lv_b, 'ב · הצצה למה שיתקבל'), ('C', lv_c, 'ג · מחפשים, חי')):
+        for night in (False, True):
+            out['LV%s%s.dc.html' % (k, 'N' if night else 'D')] = ('המסך החי · %s, %s' % (cap, 'בלילה' if night else 'ביום'), f(night), 'night' if night else 'day')
+    out['LVF.dc.html'] = ('המסך החי · ב, אחרי שנמצא מיקום', lv_found(), 'day')
+    out['LVR.dc.html'] = ('ירידה אחת · בגיליון המסלול', lv_run(), 'day')
+    return out
+
+
+HL = 1400
+
+
+def lv00():
+    tog = ('<div class="card" style="flex: 1.2"><p class="sec">הבורר "כל היום / ירידה אחת"</p><h2>להוריד אותו מהמסך החי</h2>' + li(
+        '<b>היום ההבדל לא נראה:</b> שני המצבים מקליטים, מודדים מהירות ומזהים מסלול. ההבדל היחיד הוא מתי זה נעצר: "ירידה אחת" נעצרת לבד בתחתית, "כל היום" כשמסיימים. את זה אי אפשר להבין מבורר.',
+        '<b>וכל היום כבר מודד כל ירידה:</b> על הרכבל מופיע "הירידה שהרגע עשית" (L04), ובסוף היום לכל ירידה כרטיס. מי שרוצה רק את הירידה הזו מסיים בתחתית, ומקבל אותו דבר.',
+        '<b>א · בלי בורר בכלל.</b> הכי פשוט. אבל "ירידה אחת" הייתה בקשה שלך (30.10: "שמישהו יוכל להתחיל למדוד מהירות במסלול ספציפי, שלא יפעיל את זה כל היום"), והיא נעלמת.',
+        '<b>ב · להשאיר, עם שורה שמסבירה</b> מתחת לכל צד. ברור יותר, אבל שתי בחירות לפני שהתחלת, במסך שצריך להיות שקט.',
+        '<b>ג · "ירידה אחת" עוברת לגיליון המסלול (ההמלצה).</b> במסך החי ובגיליון של L01 רק "מקליטים", כלומר כל היום. בגיליון של מסלול נבחר, ליד "לרדת בסרט": "מודדים ירידה אחת", שנעצר לבד בתחתית ונותן כרטיס (לוח 8). שם ברור למה זה: בחרת מסלול, ואתה רוצה לדעת כמה מהר ירדת בו.') + '</div>')
+    impact = ('<div class="card" style="flex: 1"><p class="sec">מה זה משנה</p><h2>אם ג מאושר</h2>' + li(
+        '<b>L01</b> (הנגיעה הראשונה) ו-<b>L02</b>: בלי הבורר. נשארים הכותרת, שתי השורות, "מתחילים" ו"לא עכשיו". גם הלוח של הנגיעה הראשונה בעמוד הזה (לוח 3 של הכפתור).',
+        '<b>L03</b>: לא השתנה (הבורר כבר שקט בירידה).',
+        '<b>החלטה 84:</b> לא נוגעת בבורר, ולכן לא משתנה. מה שאושר בה (סולם המהירות, שקט בירידה, החזקה לסיום, מסך הנעילה, "היום בדקה") נשאר.',
+        '<b>הנתונים:</b> "ירידה אחת" נשארת אותו מצב הקלטה (<code>mode: run</code>), רק נכנסים אליו ממקום אחר. בלי שינוי בכלי של יום הגלישה.',
+        '<b>הכרטיס בסוף:</b> אותו כרטיס של "ירידה אחת · נשמרה" (P04).') + '</div>')
+    alts = ('<div class="card"><p class="sec">המסך החי, עד שנמצא מיקום</p><h2>שיהיה ברור מה קורה, ומה יתקבל</h2>' + li(
+        '<b>א · שלושה שלבים.</b> שורה מתחת לגלולה: "מחפשים לוויינים · מקליטים · היום על ההר", והשלב שעכשיו דולק. ברור איפה אתה בדרך, אבל לא מראה מה יתקבל.',
+        '<b>ב · הצצה למה שיתקבל (ההמלצה).</b> בזמן החיפוש, על ההר, היום לדוגמה בקווי האור (מסומן "דוגמה"), ובכרטיס שורה אחת: "בכל ירידה: המהירות ושם המסלול. בסוף היום: כל היום על ההר, וסיפור קצר." כשנמצא מיקום הדוגמה נמסה, והנקודה שלך מופיעה עם "הירידה הראשונה תצויר מכאן" (לוח 7). משתמש חדש רואה מה יקבל, לפני שעשה משהו.',
+        '<b>ג · מחפשים, חי.</b> טבעות של אור שמתרחבות סביב פסי הקליטה, גדולים במרכז המסך (לא סביב מקום, כי עוד לא ידוע איפה אתה). חי ורגוע, אבל לא מסביר מה תקבל בסוף.',
+        '<b>בכל שלוש:</b> הזמן רץ מהנגיעה, אין "0 קמ״ש" לפני שיש מיקום, ו"החזקה לסיום" במקום. בהפחתת תנועה: בלי התרחבות ובלי נמס, רק החלפה.') + '</div>')
+    hon = ('<div class="card"><h2>ביושר ושאלות</h2>' + li(
+        '<b>היום לדוגמה</b> הוא היום של כלי הבדיקה (<code>tools/fixtures/dayrec-logs/full_day.jsonl</code>), על הקווים האמיתיים, כמו בסבב 4 וב"יום לדוגמה" שכבר באפליקציה. תמיד עם התג "דוגמה".',
+        '<b>טקסטים קיימים:</b> "מקליטים", "מחפשים לוויינים", ההסבר שמתחתיו, "עומדים", "תחת שמיים פתוחים זה לוקח עד דקה", "החזקה לסיום", "ירידה אחת", "היום על ההר".',
+        '<b>הצעות לסשן התוכן:</b> "כך ייראה היום שלך על ההר"; "בכל ירידה: המהירות ושם המסלול. בסוף היום: כל היום על ההר, וסיפור קצר."; "הירידה הראשונה תצויר מכאן"; "מחכים לירידה הראשונה"; "מודדים ירידה אחת"; "נעצר לבד בתחתית, ונותן כרטיס של הירידה."',
+        '<b>הפס הטכני בתחתית</b> בצילום שלך הוא של גרסת הבדיקה, לא חלק מהעיצוב.',
+        '<b>לא נבדק בטלפון.</b>')
+           + '<div class="q" style="margin-top: 6px"><span class="qn">1</span><span><b>הבורר:</b> א (בלי), ב (להסביר) או ג (ירידה אחת בגיליון המסלול). <b>(ההמלצה: ג)</b></span></div>'
+           '<div class="q"><span class="qn">2</span><span><b>המסך החי עד שנמצא מיקום:</b> א, ב או ג. <b>(ההמלצה: ב, הצצה למה שיתקבל)</b></span></div>'
+           '<div class="q"><span class="qn">3</span><span><b>היום לדוגמה על ההר</b> כהצצה, עם התג. <b>(ההמלצה: כן)</b></span></div></div>')
+    inner = ('<p class="sec">בקשה שלך · 25.11.2026</p><h1>המסך החי: מה קורה אחרי הנגיעה</h1>'
+             '<p class="lead">ביקשת לבדוק אם צריך בכלל את הבורר "כל היום / ירידה אחת", ולתת למסך החי חוויה ברורה: מה קורה עכשיו, ומה יתקבל בסוף. '
+             'ההמלצה: "ירידה אחת" עוברת לגיליון המסלול, ובמסך החי הצצה למה שיתקבל.</p>'
+             '<div class="rowx" style="align-items: stretch">%s%s</div>%s%s' % (tog, impact, alts, hon))
+    return board('המסך החי', 1280, HL, wbox(1280, HL, inner))
+
+
 def main():
-    for fn, (title, body, fx) in phones().items():
+    for fn, (title, body, fx) in list(phones().items()) + list(lv_phones().items()):
         PB.phone(fn, title, body, night=fx == 'night', fixed=fx)
-    for fn, f in (('SE00-PreSeason.dc.html', se00), ('RB00-RecButton.dc.html', rb00)):
+    for fn, f in (('SE00-PreSeason.dc.html', se00), ('RB00-RecButton.dc.html', rb00), ('LV00-Live.dc.html', lv00)):
         open(os.path.join(PROJ, fn), 'w', encoding='utf8').write(f())
     p = os.path.join(PROJ, 'canvas.json'); j = json.load(open(p, encoding='utf8'))
     Y1 = HS + 140; Y2 = Y1 + 844 + 200; Y3 = Y2 + HR + 140
@@ -307,6 +447,13 @@ def main():
     caps = ['1 · א: הנקודה והמילה', '2 · ב: נקודה ורמז, פעם אחת', '3 · הנגיעה הראשונה (L01)', '4 · בזמן הקלטה, בלילה']
     for i, fn in enumerate(['RB1.dc.html', 'RB2.dc.html', 'RB3.dc.html', 'RB4.dc.html']):
         place.append((fn, 470 * i, Y3, 390, 844, caps[i]))
+    Y4 = Y3 + 844 + 200; Y5 = Y4 + HL + 140; Y6 = Y5 + 844 + 160
+    place.append(('LV00-Live.dc.html', 0, Y4, 1280, HL, 'המסך החי: הבורר, וחוויה עד שנמצא מיקום'))
+    caps = ['1 · א: שלושה שלבים, ביום', '2 · א, בלילה', '3 · ב: הצצה למה שיתקבל, ביום (ההמלצה)', '4 · ב, בלילה', '5 · ג: מחפשים, חי, ביום', '6 · ג, בלילה']
+    for i, fn in enumerate(['LVAD.dc.html', 'LVAN.dc.html', 'LVBD.dc.html', 'LVBN.dc.html', 'LVCD.dc.html', 'LVCN.dc.html']):
+        place.append((fn, 470 * i, Y5, 390, 844, caps[i]))
+    place.append(('LVF.dc.html', 0, Y6, 390, 844, '7 · ב: נמצא מיקום'))
+    place.append(('LVR.dc.html', 470, Y6, 390, 844, '8 · ירידה אחת בגיליון המסלול'))
     for fn, x, y, w, h, t in place:
         j['boards'][fn] = dict(x=x, y=y, w=w, h=h, title=t, page='season')
         if fn not in j['order']: j['order'].append(fn)

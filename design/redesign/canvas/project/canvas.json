@@ -1913,6 +1913,78 @@
    "h": 844,
    "title": "4 · בזמן הקלטה, בלילה",
    "page": "season"
+  },
+  "LV00-Live.dc.html": {
+   "x": 0,
+   "y": 5528,
+   "w": 1280,
+   "h": 1400,
+   "title": "המסך החי: הבורר, וחוויה עד שנמצא מיקום",
+   "page": "season"
+  },
+  "LVAD.dc.html": {
+   "x": 0,
+   "y": 7068,
+   "w": 390,
+   "h": 844,
+   "title": "1 · א: שלושה שלבים, ביום",
+   "page": "season"
+  },
+  "LVAN.dc.html": {
+   "x": 470,
+   "y": 7068,
+   "w": 390,
+   "h": 844,
+   "title": "2 · א, בלילה",
+   "page": "season"
+  },
+  "LVBD.dc.html": {
+   "x": 940,
+   "y": 7068,
+   "w": 390,
+   "h": 844,
+   "title": "3 · ב: הצצה למה שיתקבל, ביום (ההמלצה)",
+   "page": "season"
+  },
+  "LVBN.dc.html": {
+   "x": 1410,
+   "y": 7068,
+   "w": 390,
+   "h": 844,
+   "title": "4 · ב, בלילה",
+   "page": "season"
+  },
+  "LVCD.dc.html": {
+   "x": 1880,
+   "y": 7068,
+   "w": 390,
+   "h": 844,
+   "title": "5 · ג: מחפשים, חי, ביום",
+   "page": "season"
+  },
+  "LVCN.dc.html": {
+   "x": 2350,
+   "y": 7068,
+   "w": 390,
+   "h": 844,
+   "title": "6 · ג, בלילה",
+   "page": "season"
+  },
+  "LVF.dc.html": {
+   "x": 0,
+   "y": 8072,
+   "w": 390,
+   "h": 844,
+   "title": "7 · ב: נמצא מיקום",
+   "page": "season"
+  },
+  "LVR.dc.html": {
+   "x": 470,
+   "y": 8072,
+   "w": 390,
+   "h": 844,
+   "title": "8 · ירידה אחת בגיליון המסלול",
+   "page": "season"
   }
  },
  "createdOnFiles": {
@@ -2696,7 +2768,16 @@
   "RB1.dc.html",
   "RB2.dc.html",
   "RB3.dc.html",
-  "RB4.dc.html"
+  "RB4.dc.html",
+  "LV00-Live.dc.html",
+  "LVAD.dc.html",
+  "LVAN.dc.html",
+  "LVBD.dc.html",
+  "LVBN.dc.html",
+  "LVCD.dc.html",
+  "LVCN.dc.html",
+  "LVF.dc.html",
+  "LVR.dc.html"
  ],
  "pages": [
   {
