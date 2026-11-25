@@ -866,8 +866,11 @@ runview() {
   for i in 1 2 3 4; do xy=$(where "Sadzele 1"); [ -n "$xy" ] && break; drag $up; sleep 1; done
   mark; tapText "Sadzele 1" && waitlog "selected Sadzele 1" 10 && { sleep 3; shot run-from-list; }
   # a run's link from the site, while the app is open (A-31): the same app comes forward on that run
+  # (every link opens on the mountain now, the run chosen there: Pini, 24.11.2026); in the debug build the mountain
+  # opens only when asked, so the live mountain is opened over home first
+  qa "--es qa.run none --es qa.tab home"; sleep 2; mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"
+  seen "redesign live drawn" 60; qa "--es qa.redesign season:off"; sleep 1
   mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#map/run/Tatra%201' -p $PKG" > /dev/null
-  # (every link opens on the mountain now, the run chosen there: Pini, 24.11.2026)
   waitlog "redesign link pick:Tatra 1" 15 && waitlog "redesign live framed Tatra 1" 75 && { sleep 3; shot run-link; }
   # English: the same panel, left to right
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
