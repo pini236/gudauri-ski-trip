@@ -2153,6 +2153,62 @@
    "h": 760,
    "title": "טקסטים: קצר, ברור, אומר מה זה (TX00)",
    "page": "v56"
+  },
+  "RD00-RecButton.dc.html": {
+   "x": 0,
+   "y": 7378,
+   "w": 1280,
+   "h": 1250,
+   "title": "כפתור ההקלטה: שלוש חלופות (RD00)",
+   "page": "v56"
+  },
+  "RD1.dc.html": {
+   "x": 0,
+   "y": 8768,
+   "w": 390,
+   "h": 844,
+   "title": "א · עקבות, ביום (RD1)",
+   "page": "v56"
+  },
+  "RD2.dc.html": {
+   "x": 470,
+   "y": 8768,
+   "w": 390,
+   "h": 844,
+   "title": "א · בזמן הקלטה, בלילה (RD2)",
+   "page": "v56"
+  },
+  "RD3.dc.html": {
+   "x": 940,
+   "y": 8768,
+   "w": 390,
+   "h": 844,
+   "title": "ב · קו האור, ביום (RD3)",
+   "page": "v56"
+  },
+  "RD4.dc.html": {
+   "x": 1410,
+   "y": 8768,
+   "w": 390,
+   "h": 844,
+   "title": "ב · בזמן הקלטה, בלילה (RD4)",
+   "page": "v56"
+  },
+  "RD5.dc.html": {
+   "x": 1880,
+   "y": 8768,
+   "w": 390,
+   "h": 844,
+   "title": "ג · בפעם הראשונה, ביום (ההמלצה) (RD5)",
+   "page": "v56"
+  },
+  "RD6.dc.html": {
+   "x": 2350,
+   "y": 8768,
+   "w": 390,
+   "h": 844,
+   "title": "ג · אחרי הקלטה ראשונה, בלילה (RD6)",
+   "page": "v56"
   }
  },
  "createdOnFiles": {
@@ -2975,7 +3031,14 @@
   "GS8.dc.html",
   "GS9.dc.html",
   "GS00-States.dc.html",
-  "TX00-Text.dc.html"
+  "TX00-Text.dc.html",
+  "RD00-RecButton.dc.html",
+  "RD1.dc.html",
+  "RD2.dc.html",
+  "RD3.dc.html",
+  "RD4.dc.html",
+  "RD5.dc.html",
+  "RD6.dc.html"
  ],
  "pages": [
   {
