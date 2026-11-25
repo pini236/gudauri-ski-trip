@@ -16859,10 +16859,10 @@
    ]
   },
   "app.rec_sign": {
-   "he": "מקליטים",
-   "en": "Record",
-   "ru": "Запись",
-   "ka": "ჩაწერა",
+   "he": "הקלטת גלישה",
+   "en": "Record skiing",
+   "ru": "Запись катания",
+   "ka": "სრიალის ჩაწერა",
    "where": "app/android",
    "note": "יום הגלישה (סבב 29, החלטה 77): the red sign at the top of the signs and the round button on the map",
    "check": [
@@ -22169,10 +22169,10 @@
    ]
   },
   "app.sr_dock_rec": {
-   "he": "מקליטים.",
-   "en": "Record.",
-   "ru": "Запись.",
-   "ka": "ჩაწერა.",
+   "he": "הקלטת גלישה.",
+   "en": "Record skiing.",
+   "ru": "Запись катания.",
+   "ka": "სრიალის ჩაწერა.",
    "where": "app/android, app/ios",
    "note": "סבב ההשלמה, חלק 8 (סעיף 2 ב-design/handoff/2026-11-23-redesign-everyone): קורא מסך: הסרגל התחתון",
    "check": [
