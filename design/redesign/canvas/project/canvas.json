@@ -1791,7 +1791,31 @@
    "y": 5400,
    "w": 390,
    "h": 844,
-   "title": "5 · חי לרגע: צד Kobi",
+   "title": "5 · חי לרגע: לרדת בסרט",
+   "page": "edge"
+  },
+  "Z06-KobiPicDay.dc.html": {
+   "x": 2350,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "6 · צד Kobi בתמונה, ביום",
+   "page": "edge"
+  },
+  "Z07-KobiPicNight.dc.html": {
+   "x": 2820,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "7 · צד Kobi בתמונה, בלילה",
+   "page": "edge"
+  },
+  "Z08-KobiPic.dc.html": {
+   "x": 0,
+   "y": 6404,
+   "w": 1280,
+   "h": 1780,
+   "title": "צד Kobi בתמונה: איך עוברים מהחזית",
    "page": "edge"
   }
  },
@@ -2552,7 +2576,10 @@
   "Z02-SwitchLive.dc.html",
   "Z03-RotateHint.dc.html",
   "Z04-SwitchColumn.dc.html",
-  "Z05-TempLive.dc.html"
+  "Z05-TempLive.dc.html",
+  "Z06-KobiPicDay.dc.html",
+  "Z07-KobiPicNight.dc.html",
+  "Z08-KobiPic.dc.html"
  ],
  "pages": [
   {

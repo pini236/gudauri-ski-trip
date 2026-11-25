@@ -2,7 +2,8 @@
 """Two boards (25.11.2026), for Pini's notes on 0.1.867 via the manager:
   Y01  the edge of the live model: "I don't like that it is cut, as if the model floats" (alternatives A, B, C)
   Z00  the picture and the live model as two views of the same mountain: where to switch, what opens, what has no
-       counterpart in the picture; with the phone boards Z01 to Z04
+       counterpart in the picture; with the phone boards Z01 to Z07
+  Z08  the Kobi side as a picture (Pini, 25.11.2026): how to get there from the front, by a cross-fade with a short slide
 The frames of Y01 are from the design tool of the live model (live_ref.js, with ring=1 / cloud= / edge= added for this
 board), in design/redesign/assets/edge/frames, uploaded to the canvas as assets; the urls are below.
   python3 design/redesign/tools/edge_boards.py      write the boards and update canvas.json
@@ -27,6 +28,10 @@ IMG = {'now-far-m': 'a7dc436ee025fedaf84a37e8cb6d7b5d', 'now-far-s': '76c704de5e
        'B-far-n': '16c4edf6343e1dc455659549ecefc587', 'C-open-m': '84f4f99881c3f9b666743ff2a63dc591', 'C-open-n': '4f7379e12ab6a8cb2f606da2c4a44083',
        'C-max-m': '03c6cde8d1b59bb7d3b7ebad1759e35e', 'kobi-m': 'c5a07d61cd03c51c5154c4bcbd614319', 'kobi-n': 'a3c73122654ec711fb61cee5ceaed8cb'}
 U = lambda k: '/_blob/' + IMG[k]
+import peak as P
+import peak_boards as PB
+PB.IMG.update({'kobi-morning': '32e9f8adb0cffb3992573797c40e971e', 'kobi-night': 'e9939a4f7211c57bb1e8fa06dd9685ef'})   # the Kobi side as a picture (kobi_export.py)
+PB.VIEW['kobi'] = VK = P.load('kobi')
 REC = '; border: 3px solid #6B3FD4'
 
 
@@ -146,12 +151,67 @@ def phones():
     b = (pic('hero') + G4.base('hero') + top()
          + ctl_plain('<button class="glass" aria-label="תמונה או חי">%s</button>' % ic(P_CUBE, 20)) + dock())
     out['Z04-SwitchColumn.dc.html'] = ('תמונה או חי · 4 · חלופה: כפתור בעמודה', b)
-    # Z05: a temporary switch to live (the Kobi side, or a film), opened from the picture: the tag says so, and it goes back by itself
-    b = (live('kobi-m', 'kobi-n') + top()
+    # Z05: a temporary switch to live (a film, or "the day in a minute"), opened from the picture: the tag says so, and it goes back by itself
+    b = (live('A-open-m', 'A-open-n') + top()
          + '<span class="ltag glass">%s חי לרגע · חוזרים לתמונה</span>' % ic(P_CUBE, 15)
-         + '<span class="glass" style="position: absolute; left: 12px; bottom: 112px; height: 40px; border-radius: 20px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700">צד Kobi %s</span>' % ic('<path d="M15 6l-6 6 6 6"/>', 18)
-         + dock())
-    out['Z05-TempLive.dc.html'] = ('תמונה או חי · 5 · חי לרגע: צד Kobi', b)
+         + '<div class="glass" style="position: absolute; left: 12px; right: 12px; bottom: 16px; height: 64px; border-radius: 32px; display: flex; align-items: center; gap: 12px; padding: 0 10px 0 18px; box-sizing: border-box">'
+           '<span style="font-size: 15px; font-weight: 700"><span dir="ltr">Tatra 2</span> · לרדת בסרט</span>'
+           '<span style="flex: 1; height: 4px; border-radius: 2px; background: var(--line); position: relative"><span style="position: absolute; inset-inline-end: 0; top: 0; bottom: 0; width: 38%%; border-radius: 2px; background: var(--ink)"></span></span>'
+           '<button class="rb" aria-label="עצירה" style="background: var(--ink); color: var(--bg); border: 0">%s</button></div>' % ic('<path d="M9 6v12M15 6v12"/>', 18))
+    out['Z05-TempLive.dc.html'] = ('תמונה או חי · 5 · חי לרגע: לרדת בסרט', b)
+    # Z06, Z07: the Kobi side as a picture, Kobi chosen; day and night
+    R = P.run_path(VK, 'Kobi'); x, y, *_ = P.at(R, R['cum'][-1] * 0.45)
+    kob = '<span class="glass" style="position: absolute; right: 12px; bottom: 88px; height: 40px; border-radius: 20px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700">צד Kobi %s</span>' % ic('<path d="M15 6l-6 6 6 6"/>', 18)
+    for fn, title, fx in (('Z06-KobiPicDay.dc.html', 'תמונה או חי · 6 · צד Kobi בתמונה, ביום', 'day'), ('Z07-KobiPicNight.dc.html', 'תמונה או חי · 7 · צד Kobi בתמונה, בלילה', 'night')):
+        b = (PB.pic('kobi') + PB.base('kobi') + PB.both(lambda m, l: PB.svg(VK, PB.glow_run(VK, 'Kobi', m))) + top() + row('pic') + ctl_plain()
+             + PB.tag(x - 74, y - 12, '<span dir="ltr">Kobi</span>', 'var(--blue)') + kob + dock())
+        out[fn] = (title, b, fx)
+    return out
+
+
+def storyboard(w=262):
+    """front picture to the Kobi picture: cross-fade with a 36 pt slide, the front to the left and the Kobi side in from the right"""
+    s = w / 390; o = ''
+    for t, cap in ((0, '0 מ״ש · החזית'), (0.33, '150 מ״ש'), (0.67, '300 מ״ש'), (1, '450 מ״ש · צד Kobi')):
+        e = t * t * (3 - 2 * t)
+        lay = ('<div style="position: absolute; inset: 0; opacity: %.2f; transform: translateX(%.1fpx)">%s</div>' % (1 - e, -36 * e, PB.pic('hero', 'morning', None) + PB.lay(P.runs_svg(PB.VH, 'day')) + PB.lay(P.lifts_svg(PB.VH, 'day', 'morning', cabins=False)))
+               + '<div style="position: absolute; inset: 0; opacity: %.2f; transform: translateX(%.1fpx)">%s</div>' % (e, 36 * (1 - e), PB.pic('kobi', 'morning', None) + PB.lay(P.runs_svg(VK, 'day')) + PB.lay(P.lifts_svg(VK, 'day', 'morning', cabins=False)) + PB.lay(PB.svg(VK, PB.glow_run(VK, 'Kobi', 'day')))))
+        o += ('<div class="fr" style="width: %dpx"><div class="th H" style="width: %dpx; height: %dpx; position: relative; overflow: hidden"><div class="day" style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform: scale(%.4f); transform-origin: 0 0">%s</div></div><p class="cap"><b>%s</b></p></div>'
+              % (w, w, round(844 * s), s, lay, cap))
+    return o
+
+
+HK = 1780
+
+
+def z08():
+    how = ('<div class="card" style="flex: 1.15"><p class="sec">איך עוברים מהחזית</p><h2>הצלבה עם הזזה קצרה (ההמלצה)</h2>' + li(
+        '<b>מתי:</b> כל מסלול שייך לתמונה שממנה רואים ממנו הכי הרבה; היום Kobi לצד שלו וכל השאר לחזית. בוחרים את Kobi (במדף, "מהתחנה", בקישור או בנגיעה בקו שמציץ מעל הרכס): עוברים לצד. מסלול של החזית שנבחר בצד: חוזרים.',
+        '<b>התנועה:</b> 450 מ״ש, האטה בשני הקצוות. החזית דוהה וזזה 36 נקודות שמאלה, הצד של Kobi נכנס מימין ומתחדד. כל שכבה (קווים, רכבלים, תגיות) זזה עם התמונה שלה.',
+        '<b>למה הזזה:</b> היא רומזת על הסיבוב דרך המזרח, כמו בהר החי, בלי להעמיד פנים שהתמונה מסתובבת. סיבוב מזויף היה מעקם את ההר.',
+        '<b>אחרי המעבר:</b> רגע הבחירה הרגיל על התמונה של הצד (הטבעת, הצל וקו האור). אין לצד הזה תמונה קרובה, ו-Kobi כבר ממלא את שליש המסך האמצעי, ולכן בלי התקרבות.',
+        '<b>"צד Kobi"</b> (השלט הקיים) מחזיר לחזית באותה תנועה הפוכה. סגירת הגיליון לא מחזירה: נשארים בצד, כמו בחי.',
+        '<b>הפחתת תנועה:</b> החלפה מיידית, בלי הזזה ובלי הצלבה.') + '</div>')
+    alt = ('<div class="card" style="flex: 1"><p class="sec">חלופות</p><h2>שתיים שלא בחרתי</h2>' + li(
+        '<b>ב. הצלבה בלבד,</b> בלי הזזה. שקטה יותר, אבל לא אומרת שהסתובבת, ושני הרים שונים נמסים זה בזה.',
+        '<b>ג. דרך השמיים:</b> החזית עולה לשמיים, והצד של Kobi יורד מהם. ברור שזה מקום אחר, אבל ארוך (כ-800 מ״ש), ומרגיש כמו מסך חדש ולא כמו אותו הר.')
+           + '<p class="cap" style="margin: 4px 0 0">בהר החי הסיבוב נשאר כמו בסעיף 10. ההזזה כאן היא רק לתמונה.</p></div>')
+    data = ('<div class="card"><p class="sec">הסט</p><h2>שבע תמונות, באותו מבט של צד Kobi בהר החי</h2>' + li(
+        '<b>אותו כיוון ואותה מטרה</b> כמו המבט הרחב של צד Kobi (סעיף 10): מצפון, פונים דרומה, על <span dir="ltr">tx -60, tz -2596.1</span>. זווית המבט באותה שיטה כמו החזית, מתעקלת מ-24 מעלות קרוב ל-4 רחוק, כך שהרכס עומד מול השמיים, כמו בהר החי.',
+        '<b>שבעה מצבי אור</b> באותה שיטה ובאותן שעות של החזית. בינואר העמק הזה פונה צפונה, ולכן רובו בצל גם בצהריים. זה נכון, לא תקלה.',
+        '<b>משקל:</b> 327 קילובייט לשבע התמונות, בנקודה וחצי לפיקסל ולא בשלוש, בתוך התקרה של הארכיטקט (350). הסט של החזית: 1,180 קילובייט. לא נארז; יורד מהאתר ברקע, ומשתמשים בו רק כשכל השבע ירדו.',
+        '<b>טבלת ההטלה</b> בשדה <code>contract</code> של <code>peak-kobi.json</code>, באותם שדות של החוזה (<span dir="ltr">az, S, c, near, W, H, y_c, zref, F, C</span>), לרשומה <code>kobi</code> ב-<code>site/data/peak.json</code>. שש נקודות בדיקה (קצות Kobi ו-Truso, ושתי תחנות של החזית) ל-<code>tools/fixtures/peak-projection.json</code>.',
+        '<b>בלי הסט שירד</b> (פתיחה ראשונה בלי קליטה): Kobi נפתח בחי לרגע (לוח 5); בטלפון בלי תלת-ממד נשארים בחזית, הגיליון עובד, ומתחת לגלולה "התמונה של צד Kobi תיטען כשתהיה קליטה".') + '</div>')
+    hon = ('<div class="card"><h2>ביושר</h2>' + li(
+        'נבדק ברינדור מקומי, לא בטלפון. התמונה מצוירת מנתוני הגובה, לא צילום; השמיים והאובך ציור.',
+        'המסגור לא זהה לפריים של ההר החי: אותו כיוון ואותה מטרה, אבל ההטלה המתעקלת של התמונה. ההזזה של 36 נקודות ו-450 מ״ש הם ההגדרה שלי.',
+        'מעל הרכס מציצים פסגת Sadzele וקצוות של Sadzele 1 ו-Firni, כי הם באמת נראים משם. הקווים שלהם מצוירים, ונגיעה בהם מחזירה לחזית. לכן הכלל הוא "איפה רואים יותר" ולא "פחות מחצי": מהצד רואים 53 אחוז מ-Sadzele 1, רק את קצהו.',
+        'אין טקסט חדש: "צד Kobi", "חי לרגע · חוזרים לתמונה" ו"התמונה של צד Kobi תיטען כשתהיה קליטה" כבר בקובץ השפות.') + '</div>')
+    inner = ('<p class="sec">החלטה שלך · 25.11.2026</p><h1>צד Kobi גם בתמונה</h1>'
+             '<p class="lead">"אני רוצה שגם צד Kobi יהיה בתצוגת התמונה." כאן: התמונה של הצד השני, ואיך מגיעים אליה מהחזית בלי לסובב תמונה.</p>'
+             '<style>%s</style><div class="rowx" style="gap: 18px; align-items: flex-start">%s</div>'
+             '<div class="rowx" style="align-items: stretch">%s%s</div>%s%s' % (G4.MB.CSS, storyboard(), how, alt, data, hon))
+    return board('צד Kobi בתמונה', 1280, HK, wide(1280, HK, inner), props={'night': False}, script="return { mode: (this.props.night ?? false) ? 'night' : 'day' };")
     return out
 
 
@@ -168,8 +228,8 @@ def z00():
                  ('האור לפי השעה', 'בשתיהן. בתמונה שבעה מצבי אור שמתחלפים; בחי רציף.'),
                  ('סיבוב והטיה', '<b>רק בחי.</b> בתמונה, סיבוב בשתי אצבעות לא עושה כלום, ומופיע פעם אחת "סיבוב והטיה עובדים בהר החי" עם "לעבור לחי" (לוח 3). לא עוברים לבד.'),
                  ('מצפן', 'רק בחי (בתמונה הכיוון קבוע).'),
-                 ('"לרדת בסרט" ו"היום בדקה"', '<b>תמיד בחי, לרגע.</b> נגיעה בהם בתמונה: הצלבה של 300 מ״ש לחי באותו מסגור, ואז הסרט. בסוף או בעצירה: הצלבה חזרה לתמונה, באותו מסגור שהיה.'),
-                 ('הצד של Kobi', '<b>חי לרגע (ההמלצה), לא תמונה חדשה.</b> בחירת Kobi בתמונה: הצלבה לחי, ואז הסיבוב של סעיף 10 לצד השני. "צד Kobi" מחזיר לחזית ואז לתמונה (לוח 5).'),
+                 ('"לרדת בסרט" ו"היום בדקה"', '<b>תמיד בחי, לרגע.</b> נגיעה בהם בתמונה: הצלבה של 300 מ״ש לחי באותו מסגור, ואז הסרט. בסוף או בעצירה: הצלבה חזרה לתמונה, באותו מסגור שהיה (לוח 5).'),
+                 ('הצד של Kobi', '<b>תמונה משלו (ההחלטה שלך, 25.11.2026).</b> בחירת Kobi בתמונה: מעבר לתמונה של הצד השני, בהצלבה עם הזזה קצרה. "צד Kobi" מחזיר לחזית (לוחות 6 עד 8). בלי הסט שירד: חי לרגע.'),
                  ('איך נראה "חי לרגע"', 'תגית קטנה מתחת לגלולה, "חי לרגע · חוזרים לתמונה", כל עוד המעבר זמני. המתג בשורת השכבות לא זז, ולכן ברור שזה לא שינוי של ההגדרה. מי שרוצה להישאר בחי עובר במתג.'),
                  ('טלפון בלי תלת-ממד', 'רק תמונה, ואין מתג. "לרדת בסרט" וסיבוב לא מוצגים, כמו היום.')]) + '</table>')
     where = ('<div class="card" style="flex: 1"><p class="sec">איפה עוברים</p><h2>בשורת השכבות (ההמלצה)</h2>' + li(
@@ -186,11 +246,11 @@ def z00():
         '<b>שני הלוחות בחי</b> (2) מראים את פריים הפתיחה מכלי העיצוב, עם "א" של הלוח הקודם, בלי המסלולים שמעליו. הם מראים רק איפה המתג יושב.',
         '<b>טקסטים חדשים (הצעה לסשן התוכן):</b> "תמונה", "חי", "סיבוב והטיה עובדים בהר החי", "לעבור לחי". לא הכנסתי אותם לקובץ השפות.',
         '<b>הכלל של הסרט ושל Kobi</b> (לעבור לחי ולחזור) הוא ההגדרה שלי. לא נבדק בטלפון.',
-        '<b>למה לא תמונה של צד Kobi:</b> עוד סט של שבעה מצבי אור, כ-200 קילובייט לתמונה, ועוד טבלת הטלה, בשביל מסלול אחד. במודל החי הצד הזה כבר קיים ונבדק (סעיף 10).',
+        '<b>צד Kobi בתמונה</b> (ההחלטה שלך): שבע תמונות, 621 קילובייט, יורדות מהאתר; הלוח שמתחת.',
         '<b>טקסט חדש נוסף (הצעה):</b> "חי לרגע · חוזרים לתמונה".')
            + '<div class="q" style="margin-top: 6px"><span class="qn">1</span><span><b>איפה המתג?</b> בשורת השכבות, או כפתור בעמודה. <b>(ההמלצה: בשורת השכבות)</b></span></div>'
            '<div class="q"><span class="qn">2</span><span><b>מה נפתח?</b> <b>(ההמלצה: תמונה עד שהקצה נפתר, ואז חי; ומה שבחרו נשמר)</b></span></div>'
-           '<div class="q"><span class="qn">3</span><span><b>"לרדת בסרט", "היום בדקה" ו-Kobi מתוך התמונה</b> עוברים לחי לרגע, עם תגית, וחוזרים. <b>(ההמלצה: כן, ובלי תמונה חדשה לצד Kobi)</b></span></div></div>')
+           '<div class="q"><span class="qn">3</span><span><b>"לרדת בסרט" ו"היום בדקה" מתוך התמונה</b> עוברים לחי לרגע, עם תגית, וחוזרים. <b>(ההמלצה: כן)</b> צד Kobi: תמונה משלו, לפי ההחלטה שלך.</span></div></div>')
     inner = ('<p class="sec">הבהרה שלך · 25.11.2026</p><h1>תמונה או חי: שני מבטים על אותו הר</h1>'
              '<p class="lead">"לא התכוונתי להוריד את התמונה, אלא שגם בתמונה תהיה כל הפונקציונליות וכל הכפתורים שיש גם במודל." '
              'כאן: איפה עוברים, מה נפתח, ומה קורה במה שאין לו מקבילה בתמונה.</p>'
@@ -201,14 +261,20 @@ def z00():
 
 
 def main():
-    for fn, (title, body) in phones().items(): phone(fn, title, body)
-    for fn, f in (('Y01-Edge.dc.html', y01), ('Z00-PicLive.dc.html', z00)):
+    for fn, v in phones().items():
+        title, body = v[0], v[1]
+        if len(v) > 2: PB.phone(fn, title, body, night=v[2] == 'night', fixed=v[2])
+        else: phone(fn, title, body)
+    for fn, f in (('Y01-Edge.dc.html', y01), ('Z00-PicLive.dc.html', z00), ('Z08-KobiPic.dc.html', z08)):
         open(os.path.join(PROJ, fn), 'w', encoding='utf8').write(f())
     p = os.path.join(PROJ, 'canvas.json'); j = json.load(open(p, encoding='utf8'))
-    Z0 = HY + 380
+    Z0 = HY + 380; ZP = Z0 + HZ + 140
     place = [('Y01-Edge.dc.html', 0, 0, 1280, HY, 'ההר מרחף: שלוש דרכים, והמלצה'), ('Z00-PicLive.dc.html', 0, Z0, 1280, HZ, 'תמונה או חי: איפה עוברים, ומה נפתח')]
-    for i, fn in enumerate(['Z01-SwitchPic.dc.html', 'Z02-SwitchLive.dc.html', 'Z03-RotateHint.dc.html', 'Z04-SwitchColumn.dc.html', 'Z05-TempLive.dc.html']):
-        place.append((fn, [0, 470, 940, 1410, 1880][i], Z0 + HZ + 140, 390, 844, ['1 · המתג בשורת השכבות, בתמונה', '2 · אותו מתג, בהר החי', '3 · מסובבים בתמונה', '4 · חלופה: כפתור בעמודה', '5 · חי לרגע: צד Kobi'][i]))
+    names = ['Z01-SwitchPic.dc.html', 'Z02-SwitchLive.dc.html', 'Z03-RotateHint.dc.html', 'Z04-SwitchColumn.dc.html', 'Z05-TempLive.dc.html', 'Z06-KobiPicDay.dc.html', 'Z07-KobiPicNight.dc.html']
+    caps = ['1 · המתג בשורת השכבות, בתמונה', '2 · אותו מתג, בהר החי', '3 · מסובבים בתמונה', '4 · חלופה: כפתור בעמודה', '5 · חי לרגע: לרדת בסרט', '6 · צד Kobi בתמונה, ביום', '7 · צד Kobi בתמונה, בלילה']
+    for i, fn in enumerate(names):
+        place.append((fn, 470 * i, ZP, 390, 844, caps[i]))
+    place.append(('Z08-KobiPic.dc.html', 0, ZP + 844 + 160, 1280, HK, 'צד Kobi בתמונה: איך עוברים מהחזית'))
     for fn, x, y, w, h, t in place:
         j['boards'][fn] = dict(x=x, y=y, w=w, h=h, title=t, page='edge')
         if fn not in j['order']: j['order'].append(fn)
