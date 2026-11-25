@@ -1,3 +1,4 @@
+// the ring (Y02, 25.11.2026), with the front seam (Y03): from design/redesign/tools/live_ref.html (rfs). uDbg is a design-tool tint, leave it out
 // the ring (alternative A of the edge board, 25.11.2026): the real terrain around the model, 240 m cells, lit like the snow of the model
 precision highp float;
 in vec3 vPos; in float vShadow; in vec3 vN;
@@ -14,22 +15,32 @@ float airOf(float d,float y){
   return uHaze.z*(1.0-exp(-od*dens));
 }
 uniform sampler2D uRRel; uniform vec4 uRBox; uniform float uRTex; uniform vec4 uMBox;   // ring2: the relief at 60 m (slopes, occlusion) over the inner box; uMBox: the model x0 z0 x1 z1
+uniform vec2 uSeam; uniform float uRip;   // seam2: x = 1 on; y = the band's margin (metres past the model): there the ring is drawn as the model
+uniform sampler2D uBand; uniform vec4 uBBox; uniform float uDbg;
 out vec4 o;
 void main(){
   vec3 n0=normalize(vN); vec2 s=-n0.xz/max(n0.y,0.2); float occ=1.0;
-  vec2 ruv=(vPos.xz-uRBox.xy)*uRBox.zw;
-  if(uRTex>0.0 && ruv.x>0.0 && ruv.y>0.0 && ruv.x<1.0 && ruv.y<1.0){ vec3 rr=texture(uRRel,ruv).rgb;
+  vec2 ruv=(vPos.xz-uRBox.xy)*uRBox.zw; vec3 rr=texture(uRRel,clamp(ruv,0.0,1.0)).rgb;
+  if(uRTex>0.0 && ruv.x>0.0 && ruv.y>0.0 && ruv.x<1.0 && ruv.y<1.0){
     float om=max(max(uMBox.x-vPos.x,vPos.x-uMBox.z),max(uMBox.y-vPos.z,vPos.z-uMBox.w));
-    float w=smoothstep(0.0,0.04,min(min(ruv.x,ruv.y),min(1.0-ruv.x,1.0-ruv.y)))*smoothstep(0.0,500.0,om);
+    float w=smoothstep(0.0,0.04,min(min(ruv.x,ruv.y),min(1.0-ruv.x,1.0-ruv.y)))*(uSeam.x>0.0 ? 1.0 : smoothstep(0.0,500.0,om));
     s=mix(s,(rr.rg-0.5)*3.2,w); occ=mix(1.0,0.7+0.6*rr.b,w); }
+  // seam2: near the model the ring takes the model's own maps (the band), so the two meet as one ground; the ring's 60 m relief past it
+  float wb=0.0; vec4 bb=vec4(0.5);
+  if(uSeam.x>0.0){ vec2 buv=(vPos.xz-uBBox.xy)*uBBox.zw; bb=texture(uBand,clamp(buv,0.0,1.0));   // sampled outside any branch: the mip level needs the neighbours
+    float om=max(max(uMBox.x-vPos.x,vPos.x-uMBox.z),max(uMBox.y-vPos.z,vPos.z-uMBox.w));
+    wb=1.0-smoothstep(uSeam.y-1200.0,uSeam.y-100.0,om);
+    s=mix(s,(bb.rg-0.5)*3.2,wb); occ=mix(occ,0.7+0.6*bb.b,wb); }
   float deg=degrees(atan(length(s)));
-  s+=(texture(uTile,vPos.xz/640.0).rg-0.5)*0.5*1.6*(1.0-smoothstep(30.0,40.0,deg));   // the same wind ripples as on the model
+  s+=(texture(uTile,vPos.xz/640.0).rg-0.5)*0.5*(uSeam.x>0.0 ? uRip : 1.6)*(1.0-smoothstep(30.0,40.0,deg));   // the same wind ripples as on the model
   vec3 n=normalize(vec3(-s.x,1.0,-s.y));
   float lam=max(dot(n,uSun),0.0);
   float direct=lam*(1.0-0.94*vShadow)*uDirect+(1.0-uDirect)*0.55*n.y;
   float t=pow(direct,0.85);
   t*=mix(1.0,0.35+0.65*smoothstep(2350.0,3000.0,vPos.y),uGlow);
   vec3 col=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
+  if(uSeam.x>0.0){ vec3 v=normalize(uCam-vPos); vec3 hh=normalize(uSun+v);                     // seam2: the model's glaze of a low sun, and its height tone
+    col+=pow(max(dot(n,hh),0.0),38.0)*(1.0-vShadow)*uDirect*0.20*uLit; col*=0.94+0.06*smoothstep(2000.0,3100.0,vPos.y); }
   float stk=texture(uTile,vPos.xz/160.0).b;
   float rk=smoothstep(27.0,36.0,deg+(stk-0.5)*6.0)*0.8;
   vec2 fall=s*s/(dot(s,s)+1e-4);
@@ -42,7 +53,13 @@ void main(){
     float pot=deg+(stk2-0.5)*7.0+(m2-0.5)*11.0+(m4-0.5)*7.0+(m1-0.5)*8.0+(m3-0.5)*6.0;
     rk=smoothstep(27.0,36.0,pot)*0.92;
     tone=(0.82+0.36*m1)*(0.7+0.6*stk); }
+  vec3 colS=col;
   col=mix(col,mix(uRockS,uRock,t)*tone,rk);
+  if(wb>0.0){                          // seam2: the model's rock, from the band's rock potential (the same lines as the model)
+    float stM=texture(uTile,vPos.xz/160.0).b*fall.y+texture(uTile,vPos.zx/160.0).b*fall.x;
+    float rkM=smoothstep(28.5,38.0,18.0+30.0*bb.a+(stM-0.5)*12.0)*0.9;
+    vec3 rockM=mix(uRockS,uRock,t)*(0.82+0.36*texture(uTile,vPos.xz/2400.0).b)*(0.7+0.6*stM);
+    col=mix(col,mix(colS,rockM,rkM),wb); }
   col*=occ;
   float d=length(vPos-uCam);
   float far=airOf(d,vPos.y);
@@ -51,5 +68,6 @@ void main(){
   float rim=smoothstep(uRingR-5000.0,uRingR-500.0,max(abs(vPos.x),abs(vPos.z)));
   col=mix(col,uHor,rim);
   col=clamp(col,0.0,1.0); col=col*col*(3.0-2.0*col)*0.55+col*0.45;
+  if(uDbg>0.0) col=mix(col,uDbg>1.5?vec3(0.0,0.0,1.0):vec3(1.0,0.0,0.0),0.5);
   o=vec4(col,1.0);
 }
