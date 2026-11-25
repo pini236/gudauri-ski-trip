@@ -463,8 +463,16 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     /** The film's camera is over the snow (the emulator's check): its eye over the ground and the dot in sight. */
-    fun filmClear(x: Float, h: Float, y: Float): Boolean {
-        val s = camera.state(); val e = FloatArray(3); OrbitCamera.eye(s, e)
+    fun filmClear(x: Float, h: Float, y: Float): Boolean = clearFrom(camera.state(), x, h, y)
+
+    /** Whether the film's camera would be over the snow at [x], [h], [y] facing [yaw] (the emulator's check of every run). */
+    fun filmClearAt(x: Float, h: Float, y: Float, yaw: Float, free: Float): Boolean {
+        val dist = 760f
+        return clearFrom(filmState(x, h, y, yaw, free, dist, filmPitchFor(x, h, y, yaw, free, dist)), x, h, y)
+    }
+
+    private fun clearFrom(s: OrbitCamera.State, x: Float, h: Float, y: Float): Boolean {
+        val e = FloatArray(3); OrbitCamera.eye(s, e)
         if (e[1] < scene.terrain.elev(e[0], e[2]) + 20f) return false
         for (k in 1 until 10) {
             val f = k / 10f

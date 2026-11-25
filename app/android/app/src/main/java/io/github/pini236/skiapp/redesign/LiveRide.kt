@@ -321,6 +321,24 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
                 val toEnd = drawn.minOf { l -> hypot(l[l.size - 3] - p[0], l[l.size - 1] - p[2]) }
                 Qa.log("redesign ride check $key at ${d.roundToInt()} of ${line.length.roundToInt()} end ${toEnd.roundToInt()} clear ${view.filmClear(p[0], p[1], p[2])}")
             }
+            // every run's film, every 5 % of the way: the camera over the snow and the dot in sight, and the end on an
+            // end of the drawn line (one line per run that fails, then the count)
+            c == "ride:all" -> {
+                var n = 0; var bad = 0
+                for (r in scene.runs.pistes) {
+                    val l = filmLine(scene, r.key) ?: continue; n++
+                    val drawn = scene.topDown(r).filter { it.size >= 6 }
+                    val e = l.at(l.length)
+                    val toEnd = drawn.minOf { q -> hypot(q[q.size - 3] - e[0], q[q.size - 1] - e[2]) }
+                    val snowy = (1..19).map { it * .05f }.filter { f ->
+                        val p = l.at(l.length * f); !view.filmClearAt(p[0], p[1], p[2], l.yawAt(l.length * f), free)
+                    }
+                    if (snowy.isNotEmpty() || toEnd > 5f) {
+                        bad++; Qa.log("redesign ride all ${r.key} end ${toEnd.roundToInt()} snow ${snowy.joinToString(",") { "${(it * 100).roundToInt()}%" }}")
+                    }
+                }
+                Qa.log("redesign ride all $n bad $bad")
+            }
             c.startsWith("ride:") -> c.removePrefix("ride:").toFloatOrNull()?.let { scrub(it); Qa.log("redesign ride at ${it.roundToInt()}") }
         }
     }

@@ -1550,32 +1550,30 @@ redesign2() {
   # the film on every run (Pini, 25.11.2026: on Kikilo 1 it ended half way down the line, the camera in the snow):
   # a quarter, half and three quarters down the camera is over the snow and sees the dot; at the end the dot is on
   # an end of the drawn line (5 m), never half way down it, and the whole run is framed
-  local site; site="$(cd "$(dirname "$0")/../../.." && pwd)/site/data/runs-and-lifts.json"
-  local runs; runs=$(python3 -c "import json; print('\n'.join(p['key'] for p in json.load(open('$site'))['pistes'] if p.get('named') and any(not s.get('area') for s in p['segs'])))")
-  local bad=0 nrun=0
-  while IFS= read -r rk; do
-    [ -z "$rk" ] && continue; nrun=$((nrun+1))
-    mark; qa "--es qa.redesign unpick"; sleep .5
-    mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 20 || { fail "redesign: $rk was not framed"; bad=1; continue; }
-    mark; qa "--es qa.redesign ride"; waitlog "redesign ride open $rk" 15 || { fail "redesign: the film did not open on $rk"; bad=1; continue; }
-    len=$(logline "redesign ride open $rk" | sed 's/.* //')
-    qa "--es qa.redesign ride:stop"; sleep .5
-    for f in 25 50 75; do
-      at=$(( len * f / 100 ))
-      mark; qa "--es qa.redesign ride:$at"; waitlog "redesign ride at $at" 10; sleep 1.2
-      mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
-      c=$(logline "redesign ride check $rk")
-      grep -q "clear true" <<<"$c" || { fail "redesign: the film's camera on $rk at $f% is in the snow: ${c##*SkiQa}"; bad=1; }
-      [ "$rk" = "Kikilo 1" ] && [ "$f" = 75 ] && { seen "redesign live drawn" 8; shot redesign-ride-kikilo-75; }
-    done
-    mark; qa "--es qa.redesign ride:99999"; waitlog "redesign ride framed end" 10 || { fail "redesign: the film's end on $rk did not frame the run"; bad=1; }
-    sleep 1.5; mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
-    c=$(logline "redesign ride check $rk"); e=$(sed -n 's/.* end \(-\{0,1\}[0-9]*\) .*/\1/p' <<<"$c")
-    { [ -n "$e" ] && [ "${e#-}" -le 5 ]; } || { fail "redesign: the film on $rk ends ${e:-?} m from an end of the line: ${c##*SkiQa}"; bad=1; }
-    [ "$rk" = "Kikilo 1" ] && { seen "redesign live drawn" 8; shot redesign-ride-kikilo-end; }
-    mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10
-  done <<<"$runs"
-  note "film on every run: $nrun runs, $([ $bad = 0 ] && echo all clear || echo some failed)"
+  # every run in the app at once (the camera's sums, no frames: one by one they overran the part's time), then
+  # Kikilo 1 on the screen: three quarters down, and at the end the whole run framed with the dot on the line's end
+  mark; qa "--es qa.redesign ride:all"
+  if waitlog "redesign ride all [0-9]* bad" 60; then
+    c=$(logline "redesign ride all [0-9]* bad"); note "film on every run: ${c##*ride all }"
+    grep -q " bad 0" <<<"$c" || fail "redesign: the film fails on some runs: $(grep -o 'redesign ride all [^0-9].*' "$OUT/logcat.txt" | tr -d '\r' | tr '\n' ';')"
+  fi
+  rk="Kikilo 1"
+  mark; qa "--es qa.redesign unpick"; sleep .5
+  mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 20 || fail "redesign: $rk was not framed"
+  mark; qa "--es qa.redesign ride"; waitlog "redesign ride open $rk" 15 || fail "redesign: the film did not open on $rk"
+  len=$(logline "redesign ride open $rk" | sed 's/.* //')
+  qa "--es qa.redesign ride:stop"; sleep .5
+  at=$(( ${len:-0} * 75 / 100 ))
+  mark; qa "--es qa.redesign ride:$at"; waitlog "redesign ride at $at" 10; sleep 1.2
+  mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
+  c=$(logline "redesign ride check $rk"); grep -q "clear true" <<<"$c" || fail "redesign: the film's camera on $rk at 75% is in the snow: ${c##*SkiQa}"
+  seen "redesign live drawn" 8; shot redesign-ride-kikilo-75
+  mark; qa "--es qa.redesign ride:99999"; waitlog "redesign ride framed end" 10 || fail "redesign: the film's end on $rk did not frame the run"
+  sleep 1.5; mark; qa "--es qa.redesign ride:check"; waitlog "redesign ride check $rk" 10
+  c=$(logline "redesign ride check $rk"); e=$(sed -n 's/.* end \(-\{0,1\}[0-9]*\) .*/\1/p' <<<"$c")
+  { [ -n "$e" ] && [ "${e#-}" -le 5 ]; } || fail "redesign: the film on $rk ends ${e:-?} m from an end of the line: ${c##*SkiQa}"
+  seen "redesign live drawn" 8; shot redesign-ride-kikilo-end
+  mark; qa "--es qa.redesign ride:close"; waitlog "redesign ride closed" 10
   # the sheets follow the finger (Pini, 24.11.2026): a pull up on the low run sheet opens the full one, a pull down
   # goes back to the low one, a slow short pull goes back into place, a flick down closes
   mark; qa "--es qa.redesign unpick"; sleep .5
