@@ -236,9 +236,13 @@ layout(location=5) in float aProg;
 out vec4 vCol; out float vSide; out float vProg;
 void main(){
   vec4 c=uMvp*vec4(aPos,1.0), p=uMvp*vec4(aPrev,1.0), n=uMvp*vec4(aNext,1.0);
+  // a point at or behind the eye: no widening (its w would divide into infinity), the clipper drops it
+  if(min(c.w,min(p.w,n.w))<1e-3){ c.z -= uBias*c.w; gl_Position=c; vCol=aColor; vSide=aSide; vProg=aProg; return; }
   vec2 a=c.xy/c.w*uRes*0.5, b=p.xy/p.w*uRes*0.5, e=n.xy/n.w*uRes*0.5;
   vec2 d1=a-b, d2=e-a;
   if(length(d1)<1e-4) d1=d2; if(length(d2)<1e-4) d2=d1;
+  // three points on one pixel (a GPS fix standing still): any direction, never normalize(0), which is NaN
+  if(length(d1)<1e-4){ d1=vec2(1.0,0.0); d2=d1; }
   d1=normalize(d1); d2=normalize(d2);
   vec2 t=d1+d2; t = length(t)<1e-3 ? d1 : normalize(t);
   vec2 nn=vec2(-t.y,t.x); float ml=1.0/max(dot(nn,vec2(-d1.y,d1.x)),0.6);
