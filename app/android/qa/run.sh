@@ -1111,7 +1111,7 @@ rd_areas() { # rd_areas <prefix>
     [ -z "$name" ] && continue
     mark
     # a page of the app opens under the mountain in the emulator's build: the mountain closes first
-    case "$open" in tab:*) qa "--es qa.redesign close"; sleep 1; mark; qa "--es qa.tab ${open#tab:}" ;; *) qa "--es qa.redesign $open" ;; esac
+    case "$open" in tab:*) qa "--es qa.redesign close"; sleep 1; mark; qa "--es qa.redesign day --es qa.tab ${open#tab:}" ;; *) qa "--es qa.redesign $open" ;; esac
     if [ -n "$wait" ]; then waitlog "$wait" 30 || note "rd_areas: $name did not log '$wait'"; sleep 1.5; else sleep 1; rd_settled; fi
     shot "redesign-$1-$name"
     case "$close" in
