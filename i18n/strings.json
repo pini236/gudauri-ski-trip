@@ -23607,6 +23607,75 @@
     "ka"
    ]
   },
+  "app.mode_photo": {
+   "he": "תמונה",
+   "en": "Photo",
+   "ru": "Фото",
+   "ka": "ფოტო",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: שם המצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mode_live": {
+   "he": "חי",
+   "en": "Live",
+   "ru": "Живой",
+   "ka": "ცოცხალი",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: שם המצב",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mode_live_hint": {
+   "he": "סיבוב והטיה עובדים בהר החי",
+   "en": "Rotate and tilt work on the live mountain",
+   "ru": "Вращение и наклон работают на живой горе",
+   "ka": "ბრუნვა და დახრა მუშაობს ცოცხალ მთაზე",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: רמז חד-פעמי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.mode_live_go": {
+   "he": "לעבור לחי",
+   "en": "Switch to live",
+   "ru": "Включить живой",
+   "ka": "ცოცხალზე გადასვლა",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוחות Z00 עד Z04 בקנבס העיצוב מחדש: כפתור ברמז",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.kobi_side_wait": {
+    "he": "התמונה של צד Kobi תיטען כשתהיה קליטה",
+    "en": "The Kobi side photo will load when you have a signal",
+    "ru": "Фото стороны Kobi загрузится, когда появится связь",
+    "ka": "Kobi-ს მხარის ფოტო ჩაიტვირთება, როცა კავშირი გაჩნდება",
+    "where": "app/android, app/ios",
+    "note": "מוצגת בכניסה לצד Kobi בתצוגת התמונה כשהתמונות עוד לא ירדו ואין GLES 3, כך שאין חלופה חיה",
+    "check": ["ru", "ka"]
+  },
+  "app.mode_live_temp": {
+   "he": "חי לרגע · חוזרים לתמונה",
+   "en": "Live for a moment · back to photo",
+   "ru": "Живой на миг · возврат к фото",
+   "ka": "ცოცხალი წამით · ფოტოზე დაბრუნება",
+   "where": "app/android, app/ios",
+   "note": "מתג תמונה/חי על ההר, לוח Z05 בקנבס העיצוב מחדש: תגית מתחת לגלולה כשפעולה עוברת זמנית למודל החי",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.me_days_sub": {
    "he": {
     "one": "יום גלישה אחד · השיאים שלך",

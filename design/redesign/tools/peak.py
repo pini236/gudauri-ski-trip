@@ -37,6 +37,8 @@ VIEWS={
  'hero': dict(az=0,S=0.128,c=(CE+110,CN+250),near=5350,far=NORTH-(CN+250)-60,W=390,H=844,y_c=452,p=(33,5.5,6500,10800)),
  'zoom': dict(az=0,S=0.25, c=(CE-486,CN-381),near=2700,far=3900,W=390,H=560,y_c=292,p=(33,33,1,2)),
  'vill': dict(az=0,S=0.62, c=(-430,-4470),   near=1050,far=1500,W=390,H=560,y_c=300,p=(33,33,1,2),haze=0.15),
+ # the Kobi side (stage b, section 10 of the live handoff): from the north, facing south, centred on the target of the live Kobi view
+ 'kobi': dict(az=180,S=0.21,c=(-60,2596.1),near=3900,far=2596.1-dm['y0']-60,W=390,H=844,y_c=530,p=(24,4,5800,8200)),
  'wide': dict(az=0,S=0.150,c=(CE+110,CN+250),near=5350,far=NORTH-(CN+250)-60,W=1180,H=640,y_c=372,p=(33,5.5,6000,10800)),
 }
 def L_(h,lit,shade,rock,rockS,zen,hor,band=None,direct=1.0,stars=0,moon=None):

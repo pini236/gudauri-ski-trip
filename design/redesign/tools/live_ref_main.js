@@ -48,7 +48,7 @@
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); renderer.setPixelRatio(dpr); renderer.setSize(W, Hh); document.body.appendChild(renderer.domElement);
   const tex = (name, rep) => new Promise(res => new THREE.TextureLoader().load(H + 'tex/' + name + (q.get('v') ? '?' + q.get('v') : ''), t => { t.flipY = false; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = 8;
     t.wrapS = rep ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping; t.wrapT = rep === 2 ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping; res(t); }));
-  const [relief, cover, tile, horizon, cirrus] = await Promise.all([tex(q.get('relief') || 'relief.webp'), tex(q.get('cover') || 'cover.webp'), tex(q.get('tile') || 'tile.webp', 2), tex(q.get('horizon') || 'horizon.webp', 1), tex(q.get('cirrus') || 'cirrus.webp', 1)]);
+  const [relief, cover, tile, horizon, cirrus] = await Promise.all([tex(q.get('relief') || 'relief.webp'), tex(q.get('cover') || 'cover.webp'), tex(q.get('tile') || 'tile.webp', 2), (q.get('hzpath') ? new Promise(res => new THREE.TextureLoader().load(q.get('hzpath'), t => { t.flipY = false; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.ClampToEdgeWrapping; res(t); })) : tex(q.get('horizon') || 'horizon.webp', 1)), tex(q.get('cirrus') || 'cirrus.webp', 1)]);
 
   // ---- the camera (OrbitCamera)
   const kx = 111320 * Math.cos(T.proj.lat0 * rad);
@@ -64,7 +64,7 @@
   const common = { uSun: { value: sunDir }, uLit: { value: V3(lt.lit) }, uShade: { value: V3(lt.shade) }, uHor: { value: V3(lt.hor) }, uDirect: { value: lt.direct }, uGlow: { value: glow } };
   const terrain = new THREE.Mesh(geo, new THREE.RawShaderMaterial({ glslVersion: THREE.GLSL3, vertexShader: document.getElementById('tvs').textContent, fragmentShader: document.getElementById('tfs').textContent,
     uniforms: Object.assign({ uMvp: { value: mvp }, uRelief: { value: relief }, uCover: { value: cover }, uTile: { value: tile }, uBox: { value: new THREE.Vector4(x0, z0, 1 / (x1 - x0), 1 / (z1 - z0)) },
-      uRock: { value: V3(lt.rock) }, uRockS: { value: V3(lt.rockS) }, uCam: { value: eye }, uHaze: { value: new THREE.Vector3(st.dist * hazeK[0], st.dist * hazeK[1], num('hzmax', 0.72)) }, uValley: { value: num('valley', 0.26) }, uDetail: { value: num('detail', 1) }, uRipple: { value: num('ripple', L.k.ripple) } }, common) }));
+      uRock: { value: V3(lt.rock) }, uRockS: { value: V3(lt.rockS) }, uCam: { value: eye }, uHaze: { value: new THREE.Vector3(st.dist * hazeK[0], st.dist * hazeK[1], num('hzmax', 0.72)) }, uValley: { value: num('valley', 0.26) }, uDetail: { value: num('detail', 1) }, uEdge: { value: num('edge', 0) }, uRipple: { value: num('ripple', L.k.ripple) } }, common) }));
   terrain.frustumCulled = false;
   const sgeo = new THREE.BufferGeometry(); sgeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
   const hz = L.tex.horizon;
@@ -73,6 +73,34 @@
       uStars: { value: lt.stars }, uSunUp: { value: lt.alt > 0 && lt.direct > 0 && lt.stars < 1 ? 1 : 0 }, uStrip: { value: new THREE.Vector4(hz.lo_deg, hz.hi_deg, hz.far_m, 0) }, uFar: { value: num('far', 1) }, uSkyTop: { value: num('skytop', 11) }, uAir: { value: new THREE.Vector2(num('air0', 0.55), num('air1', 0.30)) } }, common) }));
   sky.frustumCulled = false; sky.renderOrder = -1;
   const scene = new THREE.Scene(); scene.add(sky); scene.add(terrain);
+
+  // ---- the edge board (25.11.2026). ?ring=1: alternative A, the real terrain around the model (design/redesign/assets/edge/ring.json)
+  //      ?cloud=<metres>: alternative B, a sea of cloud at that height (paint), with ?edge=<metres> fading the last metres of the model
+  if (num('ring', 0)) { const R = await fetch('/design/redesign/assets/edge/ring.json').then(r => r.json()), rn = R.n, rc = R.cell, rb = atob(R.b64), RZ = new Float32Array(rn * rn);
+    for (let i = 0; i < rn * rn; i++) { let v = rb.charCodeAt(2 * i) | (rb.charCodeAt(2 * i + 1) << 8); RZ[i] = v > 32767 ? v - 65536 : v; }
+    const rat = (c, r) => RZ[Math.min(Math.max(r, 0), rn - 1) * rn + Math.min(Math.max(c, 0), rn - 1)];
+    const rel = (x, z) => { const c = Math.min(Math.max((x - R.x0) / rc, 0), rn - 1.001), r = Math.min(Math.max((z - R.z0) / rc, 0), rn - 1.001), c0 = c | 0, r0 = r | 0, fc = c - c0, fr = r - r0;
+      return (rat(c0, r0) * (1 - fc) + rat(c0 + 1, r0) * fc) * (1 - fr) + (rat(c0, r0 + 1) * (1 - fc) + rat(c0 + 1, r0 + 1) * fc) * fr; };
+    const H2 = new Float32Array(rn * rn), out = (x, z) => Math.max(x0 - x, x - x1, z0 - z, z - z1);     // > 0 outside the model
+    for (let r = 0; r < rn; r++) for (let c = 0; c < rn; c++) { const x = R.x0 + c * rc, z = R.z0 + r * rc, o = out(x, z);
+      H2[r * rn + c] = o < -rc ? elev(x, z) - 40 : o <= 0 ? elev(x, z) : elev(x, z) + (rat(c, r) - elev(x, z)) * Math.min(o / 900, 1) ** 2 * (3 - 2 * Math.min(o / 900, 1)); }
+    const rp = new Float32Array(rn * rn * 3), rnm = new Float32Array(rn * rn * 3), rsh = new Float32Array(rn * rn), H2at = (c, r) => H2[Math.min(Math.max(r, 0), rn - 1) * rn + Math.min(Math.max(c, 0), rn - 1)];
+    const hz = Math.max(Math.hypot(sunDir.x, sunDir.z), 1e-4), ux = sunDir.x / hz, uz = sunDir.z / hz, rise = sunDir.y / hz;
+    for (let r = 0; r < rn; r++) for (let c = 0; c < rn; c++) { const i = r * rn + c, x = R.x0 + c * rc, z = R.z0 + r * rc, h = H2[i];
+      rp.set([x, h, z], 3 * i); const gx = (H2at(c + 1, r) - H2at(c - 1, r)) / (2 * rc), gz = (H2at(c, r + 1) - H2at(c, r - 1)) / (2 * rc), l = Math.hypot(gx, 1, gz); rnm.set([-gx / l, 1 / l, -gz / l], 3 * i);
+      let s = 0, dd = rc; while (dd < 20000) { const px = x + ux * dd, pz = z + uz * dd; if (px < R.x0 || px > R.x1 || pz < R.z0 || pz > R.z1) break;
+        const ov = rel(px, pz) - (h + 3 + rise * dd); if (ov > 0) { s = Math.max(s, Math.min(ov / 60, 1)); if (s >= 1) break; } if (h + rise * dd > 5100) break; dd += rc * (1 + dd / 6000); } rsh[i] = s; }
+    const ri = []; for (let r = 0; r < rn - 1; r++) for (let c = 0; c < rn - 1; c++) { const a = r * rn + c; ri.push(a, a + rn, a + 1, a + 1, a + rn, a + rn + 1); }
+    const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(rp, 3)); rg.setAttribute('shadow', new THREE.BufferAttribute(rsh, 1)); rg.setAttribute('nrm', new THREE.BufferAttribute(rnm, 3)); rg.setIndex(ri);
+    const rm = new THREE.Mesh(rg, new THREE.RawShaderMaterial({ glslVersion: THREE.GLSL3, vertexShader: document.getElementById('rvs').textContent, fragmentShader: document.getElementById('rfs').textContent, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 4,
+      uniforms: Object.assign({ uMvp: { value: mvp }, uTile: { value: tile }, uRock: { value: V3(lt.rock) }, uRockS: { value: V3(lt.rockS) }, uCam: { value: eye }, uHaze: terrain.material.uniforms.uHaze, uValley: { value: num('valley', 0.26) }, uRingR: { value: R.x1 } }, common) }));
+    rm.frustumCulled = false; scene.add(rm); }
+  if (num('cloud', 0)) { const ct = await new Promise(res => new THREE.TextureLoader().load('/design/redesign/assets/edge/tex/cloud.webp', t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; res(t); }));
+    const cy = num('cloud', 0), S = 70000, cg = new THREE.BufferGeometry();
+    cg.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-S, cy, -S, S, cy, -S, -S, cy, S, S, cy, S]), 3)); cg.setAttribute('shadow', new THREE.BufferAttribute(new Float32Array(4), 1)); cg.setAttribute('nrm', new THREE.BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), 3)); cg.setIndex([0, 2, 1, 1, 2, 3]);
+    const cm = new THREE.Mesh(cg, new THREE.RawShaderMaterial({ glslVersion: THREE.GLSL3, side: THREE.DoubleSide, vertexShader: document.getElementById('rvs').textContent, fragmentShader: document.getElementById('cfs').textContent,
+      uniforms: Object.assign({ uMvp: { value: mvp }, uCloudT: { value: ct }, uCam: { value: eye }, uHaze: terrain.material.uniforms.uHaze }, common) }));
+    cm.frustumCulled = false; scene.add(cm); }
 
   // ---- the runs, as ribbons on the snow (only to judge the mountain with its live layer; the engine has its own)
   if (num('runs', 1)) { const col = { green: 0x178A4A, blue: 0x1B6FDB, red: 0xD8362C, black: 0x14171B }, night = lt.stars >= 0.25;

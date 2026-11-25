@@ -1737,6 +1737,86 @@
    "h": 844,
    "title": "״בלי הרשאה״",
    "page": "gap9"
+  },
+  "Y01-Edge.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 3340,
+   "title": "ההר מרחף: שלוש דרכים, והמלצה",
+   "page": "edge"
+  },
+  "Z00-PicLive.dc.html": {
+   "x": 0,
+   "y": 3720,
+   "w": 1280,
+   "h": 1540,
+   "title": "תמונה או חי: איפה עוברים, ומה נפתח",
+   "page": "edge"
+  },
+  "Z01-SwitchPic.dc.html": {
+   "x": 0,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "1 · המתג בשורת השכבות, בתמונה",
+   "page": "edge"
+  },
+  "Z02-SwitchLive.dc.html": {
+   "x": 470,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "2 · אותו מתג, בהר החי",
+   "page": "edge"
+  },
+  "Z03-RotateHint.dc.html": {
+   "x": 940,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "3 · מסובבים בתמונה",
+   "page": "edge"
+  },
+  "Z04-SwitchColumn.dc.html": {
+   "x": 1410,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "4 · חלופה: כפתור בעמודה",
+   "page": "edge"
+  },
+  "Z05-TempLive.dc.html": {
+   "x": 1880,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "5 · חי לרגע: לרדת בסרט",
+   "page": "edge"
+  },
+  "Z06-KobiPicDay.dc.html": {
+   "x": 2350,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "6 · צד Kobi בתמונה, ביום",
+   "page": "edge"
+  },
+  "Z07-KobiPicNight.dc.html": {
+   "x": 2820,
+   "y": 5400,
+   "w": 390,
+   "h": 844,
+   "title": "7 · צד Kobi בתמונה, בלילה",
+   "page": "edge"
+  },
+  "Z08-KobiPic.dc.html": {
+   "x": 0,
+   "y": 6404,
+   "w": 1280,
+   "h": 1780,
+   "title": "צד Kobi בתמונה: איך עוברים מהחזית",
+   "page": "edge"
   }
  },
  "createdOnFiles": {
@@ -2261,6 +2341,15 @@
    "w": 420,
    "y": 900,
    "text": "באותו מקום, לפי הסיבה: מיקום משוער: צריך מיקום מדויק. בהגדרות האפליקציה מאשרים \"מיקום מדויק\". · מיקום כבוי: המיקום בטלפון כבוי. מדליקים אותו בהגדרות."
+  },
+  "tY": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "edge",
+   "x": 0,
+   "w": 1000,
+   "y": -200,
+   "text": "ההר מרחף, ותמונה או חי (25.11.2026)"
   }
  },
  "order": [
@@ -2480,7 +2569,17 @@
   "W06-Splash.dc.html",
   "W07-StoreShots.dc.html",
   "X01-CutDay.dc.html",
-  "X02-Blocked.dc.html"
+  "X02-Blocked.dc.html",
+  "Y01-Edge.dc.html",
+  "Z00-PicLive.dc.html",
+  "Z01-SwitchPic.dc.html",
+  "Z02-SwitchLive.dc.html",
+  "Z03-RotateHint.dc.html",
+  "Z04-SwitchColumn.dc.html",
+  "Z05-TempLive.dc.html",
+  "Z06-KobiPicDay.dc.html",
+  "Z07-KobiPicNight.dc.html",
+  "Z08-KobiPic.dc.html"
  ],
  "pages": [
   {
@@ -2490,6 +2589,10 @@
   {
    "id": "nav",
    "name": "המפה · מה צויר, מה נשאר, ואיך מגיעים"
+  },
+  {
+   "id": "edge",
+   "name": "ההר: הקצה, ותמונה או חי"
   },
   {
    "id": "gap9",
