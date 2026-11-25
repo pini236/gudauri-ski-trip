@@ -209,6 +209,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "run:low" -> runFull = false
             c == "unpick" -> { runFull = false; riding = null; held = null; chosen = null; view.choose(null); Qa.log("redesign live unpicked") }
             c == "front" -> view.backToFront()
+            c == "far" -> view.qaFar()
             c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { view.qaTurn(it) }
             // part 2 (Q01 to Q03): the lifts' sheet and one lift
             c == "lifts" -> { liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true }
@@ -672,6 +673,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         LaunchedEffect(shelfShift) { view.setShift(shelfShift) }
         val veilA by androidx.compose.animation.core.animateFloatAsState(if (shelfOpen) 1f else 0f, tween(250), label = "veil")
         if (veilA > 0f) Box(Modifier.fillMaxSize().background((if (night) Color(0x5C020612) else Color(0x42283E6E)).copy(alpha = (if (night) .36f else .26f) * veilA)))
+        // back (or the close) from the shelf and from the station returns to the view before them, as the village does;
+        // a pick frames its run instead (Pini, 0.1.867: back from the shelf left the camera low on the last card's run)
+        var layerFrom by remember { mutableStateOf<io.github.pini236.skiapp.map.OrbitCamera.State?>(null) }
+        val layerOn = shelfOpen || fromSt != null
+        LaunchedEffect(layerOn) {
+            if (layerOn) { if (layerFrom == null) layerFrom = view.viewNow() }
+            else { val b = layerFrom; layerFrom = null; if (b != null && chosen == null) view.backTo(b, "redesign layer back") }
+        }
         LaunchedEffect(shelfOpen, shelfMid) {
             val r = shelfMid
             view.setFocus(if (shelfOpen && r != null) LiveRenderer.Focus(setOf(r.key), 3.6f, 6f, setOfNotNull(r.lift)) else null)

@@ -144,6 +144,7 @@ waitlog() { # waitlog <text> [seconds]
   done
   fail "no '$1' in the log after ${2:-60}s"; return 1
 }
+logline() { grep "SkiQa.*$1" "$OUT/logcat.txt" | tail -1 | tr -d '\r' | sed 's/[[:space:]]*$//'; } # the last log line with <text>
 seen() { # seen <text> [seconds]: as waitlog, but a miss is no failure (the caller tries again)
   local deadline=$((SECONDS + ${2:-30}))
   while (( SECONDS < deadline )); do
@@ -1281,13 +1282,31 @@ redesign() {
     rd_settled; shot redesign-shelf-easy
     mark; qa "--es qa.redesign shelf:next"; waitlog "redesign shelf center" 10 || fail "redesign: the next card did not come to the middle"; rd_settled; shot redesign-shelf-next
     mark; qa "--es qa.redesign shelf:sort:lift"; sleep 1
-    mark; qa "--es qa.redesign shelf:off"; sleep 1
+    # back (the system's, as Pini's swipe on 0.1.867) returns to the view before the shelf, the names on their places
+    from=$(logline "redesign layer from" | sed 's/.*layer from //')
+    mark; adb shell input keyevent KEYCODE_BACK
+    if waitlog "redesign layer back" 10; then
+      back=$(logline "redesign layer back" | sed 's/.*layer back //')
+      [ "${back% drift*}" = "$from" ] || fail "redesign: back from the shelf did not return to the view before it ($from, now ${back% drift*})"
+      [ "${back##* drift }" = "0" ] || fail "redesign: after back from the shelf the names sit ${back##* drift } px off their places"
+      rd_settled; shot redesign-shelf-back
+    else fail "redesign: back from the shelf did not return the view"; fi
   else fail "redesign: the shelf did not open"; fi
   # part 4b (K06): the runs from the top of Goodaura, and a pick from its sheet
   mark; qa "--es qa.redesign station:Goodaura"
   if waitlog "redesign station " 10; then rd_settled; shot redesign-station-goodaura
-    mark; qa "--es qa.redesign station:off"; sleep 1
+    mark; adb shell input keyevent KEYCODE_BACK
+    if waitlog "redesign layer back" 10; then
+      back=$(logline "redesign layer back" | sed 's/.*layer back //')
+      [ "${back##* drift }" = "0" ] || fail "redesign: after back from the station the names sit ${back##* drift } px off their places"
+      rd_settled; shot redesign-station-back
+    else fail "redesign: back from the station did not return the view"; fi
   else fail "redesign: the sheet from the station did not open"; fi
+  # the farthest pinch at the opening angle (Pini, 0.1.867: the mountain's cut edge over the sky), at dawn and at noon
+  mark; qa "--es qa.redesign hour:7.2"; waitlog "redesign live hour" 10
+  mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10 && { rd_drawn; shot redesign-far-dawn; }
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10; rd_drawn; shot redesign-far-noon
+  mark; qa "--es qa.redesign hour:off"; qa "--es qa.redesign front"; waitlog "redesign live turned" 20
   # part 4b (K08): the lenses, at noon (the sun) with a fresh report (open), and easy to hard; the sun as the suite has it (no sun: the sheet says so)
   mark; qa "--es qa.status fresh --es qa.redesign lens:sun"
   if waitlog "redesign lens sun" 20; then rd_settled; shot redesign-lens-sun; else fail "redesign: the sun lens did not draw"; fi

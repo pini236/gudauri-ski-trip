@@ -114,6 +114,13 @@ void main(){
   if(uStars>0.0 && el>1.0){ vec3 cell=floor(d*420.0); float hh=hash(cell); if(hh>0.9965) c+=vec3(0.95,0.97,1.0)*(hh-0.9965)/0.0035*uStars*(1.0-cm)*smoothstep(1.0,8.0,el); }
   float sd=max(dot(d,uSun),0.0);
   c+=uLit*(pow(sd,48.0)*0.35+pow(sd,900.0)*1.2)*uSunUp;
+  // under the far strip the eye sees the ground past the model's edge (the farthest pinch, Pini on 0.1.867): flat snow
+  // lit by the hour and in the far air, never the horizon's pink (the architect's condition 6)
+  if(el<uStrip.x+1.5){
+    float tf=pow(max(uSun.y,0.0)*uDirect+(1.0-uDirect)*0.55,0.85);
+    vec3 gf=mix(uShade+(uLit-uShade*0.86)*tf,uHor,clamp(uAir.x+uAir.y*0.2,0.0,0.9));
+    c=mix(c,gf,smoothstep(uStrip.x+1.5,uStrip.x,el));
+  }
   if(el>uStrip.x && el<uStrip.y){
     vec3 hz=texture(uHorizon,vec2(az/6.2831853,(uStrip.y-el)/(uStrip.y-uStrip.x))).rgb;
     float land=1.0-smoothstep(0.90,0.99,hz.b);

@@ -62,12 +62,26 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             for (i in intArrayOf(0, n - 1)) { val x = l[i * 3]; val z = l[i * 3 + 2]; out += x; out += scene.terrain.elev(x, z) + 4f; out += z } }
         out.toFloatArray()
     }
-    private var lastOv: Overlay? = null; private var lastOvAt: OrbitCamera.State? = null; private var lastOvW = 0
-    /** The same overlay while the camera and the size do not change (so an idle screen does not redraw it). */
+    private var ovLabels: List<PeakData.Label>? = null
+    /** How far (pixels) the overlay shown now is from the one the camera has now: 0 when the names sit on their places. */
+    fun overlayDrift(): Float {
+        val l = ovLabels ?: return 0f
+        val a = overlay(l); val b = overlayNow(l); var d = 0f
+        for (i in a.names.indices) b.names.getOrNull(i)?.let { q -> d = maxOf(d, kotlin.math.abs(a.names[i].second - q.second), kotlin.math.abs(a.names[i].third - q.third)) }
+        for (i in a.stations.indices) b.stations.getOrNull(i)?.let { d = maxOf(d, kotlin.math.abs(a.stations[i] - it)) }
+        return d
+    }
+    private var lastOv: Overlay? = null; private var lastOvAt: OrbitCamera.State? = null; private var lastOvW = 0; private var lastOvShift = 0f
+    /**
+     * The same overlay while the camera, the size and the mountain's raise do not change (so an idle screen does not
+     * redraw it). The raise too: the shelf and the station lower the mountain back with the camera still (Pini, 0.1.867:
+     * the names and the stations stayed 120 up in the sky after back from the shelf).
+     */
     fun overlay(labels: List<PeakData.Label>): Overlay {
-        val cs = camera.state()
-        lastOv?.let { if (cs == lastOvAt && width == lastOvW) return it }
-        return overlayNow(labels).also { lastOv = it; lastOvAt = cs; lastOvW = width }
+        ovLabels = labels
+        val cs = camera.state(); val sh = renderer.shiftPx
+        lastOv?.let { if (cs == lastOvAt && width == lastOvW && sh == lastOvShift) return it }
+        return overlayNow(labels).also { lastOv = it; lastOvAt = cs; lastOvW = width; lastOvShift = sh }
     }
     private fun overlayNow(labels: List<PeakData.Label>): Overlay {
         val t = scene.terrain
@@ -628,6 +642,26 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     }
 
     private var beforeVillage: OrbitCamera.State? = null
+
+    /** The view now, to come back to when a layer that moves the camera (the shelf, the station) closes. */
+    fun viewNow(): OrbitCamera.State = camera.state().also { Qa.log("redesign layer from ${pose(it)}") }
+    private fun pose(e: OrbitCamera.State) = "dist ${"%.0f".format(e.dist)} pitch ${"%.1f".format(Math.toDegrees(e.pitch.toDouble()))} yaw ${"%.1f".format(Math.toDegrees(e.yaw.toDouble()))}"
+
+    /** Back to [s] (the view before the shelf or the station), 500 ms, or at once with reduced motion; logs [log]. */
+    fun backTo(s: OrbitCamera.State, log: String) {
+        renderer.stopAnim(); camera.stopFling()
+        // the log with the view it ends at and the names' drift, for the emulator (qa/run.sh)
+        val done = { postDelayed({ Qa.log("$log ${pose(camera.state())} drift ${"%.0f".format(overlayDrift())}") }, 400) }
+        if (Motion.reduced(context)) { camera.set(s); requestRender(); done() }
+        else { renderer.animate(s, .5f) { post { done() } }; requestRender() }
+    }
+
+    /** The emulator's far view (qa.redesign far): the opening view at the farthest the pinch goes, set at once. */
+    fun qaFar() {
+        renderer.stopAnim(); camera.stopFling()
+        camera.set(front().copy(dist = LiveLimits.MAX_DIST)); requestRender()
+        Qa.log("redesign live far ${pose(camera.state())}")
+    }
 
     /**
      * K17's flight to the village picture's view ([pose]: tx, ty, tz, dist, yaw and pitch in degrees), 600 ms slowing at
