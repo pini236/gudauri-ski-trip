@@ -5,9 +5,9 @@ name: iOS
 # Reviewed by the architect (docs/ARCHITECTURE.md, 21.10.2026) and DevOps (decision 66) before merge.
 on:
   push:
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/audio/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
   pull_request:
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/audio/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
   workflow_dispatch:
     inputs:
       variant:
@@ -58,10 +58,10 @@ jobs:
           if [ "$EVENT" = pull_request ]; then base="origin/$BASE_REF"; elif [ -n "$BEFORE" ] && ! echo "$BEFORE" | grep -q '^0*$' && git cat-file -e "$BEFORE^{commit}" 2> /dev/null; then base="$BEFORE"; elif [ "$REF" = refs/heads/main ]; then echo "app=true" >> "$GITHUB_OUTPUT"; echo "main without a before commit: build"; exit 0; else base=$(git merge-base origin/main HEAD); fi
           files=$(git diff --name-only "$base" HEAD)
           # the app's own code and the scripts that pack its data, strings and workflow
-          if echo "$files" | grep -q -E '^(app/ios/|tools/build-ios-|\.github/workflows/ios\.yml)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if echo "$files" | grep -q -E '^(app/ios/|tools/build-ios-|tools/check-ios-|\.github/workflows/ios\.yml)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
           if [ "$REF" = refs/heads/main ]; then
             # on main the data the app packs also counts (the shared site data, the relief and tokens it is tested against)
-            if echo "$files" | grep -q -E '^(site/data/|site/games/descent/|site/games/thumbs/|site/js/relief\.js|site/css/site\.css|tools/fixtures/)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+            if echo "$files" | grep -q -E '^(site/data/|site/games/descent/|site/games/thumbs/|site/img/pano/|site/audio/|site/js/relief\.js|site/css/site\.css|tools/fixtures/)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
             # the strings: a text edit or a new key cannot break the build; a removed key, or one whose placeholders or plural
             # shape changed, can (the app's typed accessors, tools/build-ios-strings.py)
             if echo "$files" | grep -q '^i18n/strings\.json$'; then
@@ -103,6 +103,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Gate, no closure literal handed to a background-queue system API from a @MainActor file
         run: sh tools/check-ios-isolation.sh
+      - name: Gate, the strings the app is generated from (a new key can break the build too, with a name Swift rejects or two keys with one name)
+        run: python3 tools/build-ios-strings.py "$RUNNER_TEMP/ios-strings.json" "$RUNNER_TEMP/ios-strings.swift"
       - name: Select Xcode
         run: |
           ls -d /Applications/Xcode*.app
