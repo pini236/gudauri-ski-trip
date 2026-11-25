@@ -1,0 +1,17 @@
+{
+ "note": "the model's maps carried past its edge, as one grey picture of four stacked planes (top to bottom): slope east (x3.2 around 0.5), slope south, occlusion (0.7+0.6v), rock potential (18+30v deg); the interior is flat",
+ "x0": -9795.76,
+ "z0": -9792.4,
+ "x1": 8975.15,
+ "z1": 9792.4,
+ "margin": 2000.0,
+ "inside": 1600.0,
+ "texel": 30.0,
+ "px": [
+  626,
+  653
+ ],
+ "kb": 228,
+ "source": "the model's maps (relief, cover) carried 2 km past its edge, the heights from Terrain Tiles on AWS (terrarium, zoom 12) outside the model; made by design/redesign/tools/seam_export.py (the designer's step 4, 25.11.2026)",
+ "file": "ringband.webp"
+}

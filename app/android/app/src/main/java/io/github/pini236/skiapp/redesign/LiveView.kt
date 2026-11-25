@@ -185,19 +185,7 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
             renderer.drape = b; requestRender(); Qa.log("redesign live drape ready")
         }
         // the far ground past the model's edge (LiveRing, the architect's option a); without it the model as it was
-        worker.execute {
-            val r = runCatching {
-                val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
-                val t = scene.terrain
-                LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev).also { r ->
-                    // the relief map (the sixth texture); without it the ring is drawn as before, never not at all
-                    r.relief = runCatching { LiveTex.decode(context, "ringrelief") }.onFailure { Qa.log("redesign ring relief failed") }.getOrNull()
-                }
-            }.onFailure { Qa.log("redesign ring failed ${it.javaClass.simpleName}") }.getOrNull() ?: return@execute
-            ring = r
-            renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles} relief ${r.relief != null}")
-            lightDir?.let { ringShadow(r, it) }
-        }
+        worker.execute { loadRing(true) }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
         val open = front()
@@ -341,7 +329,7 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
         val t = scene.terrain
         lightDir = l.dir
         worker.execute {
-            if (lightKey == key) renderer.setShadow(LiveLight.soften(Sun.shadows(t, l.dir), t.nx, t.ny))
+            if (lightKey == key) modelShadow(l.dir)
             // the far ground's shadow, with the mountain's (the architect: off the drawing thread, 150 ms)
             if (lightKey == key) ring?.let { ringShadow(it, l.dir) }
         }
@@ -349,12 +337,58 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
 
     @Volatile private var ring: LiveRing? = null
     @Volatile private var lightDir: FloatArray? = null
+    /** The last shadow computation's parts (ms), for the budget and the log. */
+    @Volatile private var mountainMs = 0L
+    @Volatile private var bandMs = 0L
+
+    /** The ring built and handed to the renderer (on the worker); [seam] false: the ring of before step 4, for the emulator. */
+    private fun loadRing(seam: Boolean) {
+        val r = runCatching {
+            val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
+            val t = scene.terrain
+            LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, seam, t::elev).also { r ->
+                // the relief map (the sixth texture); without it the ring is drawn as before, never not at all
+                r.relief = runCatching { LiveTex.decode(context, "ringrelief") }.onFailure { Qa.log("redesign ring relief failed") }.getOrNull()
+                // the band of the front seam (step 4): the model's maps past its edge; without it the seam's shading is as before
+                r.band = if (!seam) null else runCatching { band() }.onFailure { Qa.log("redesign ring band failed ${it.javaClass.simpleName}") }.getOrNull()
+            }
+        }.onFailure { Qa.log("redesign ring failed ${it.javaClass.simpleName}") }.getOrNull() ?: return
+        ring = r
+        renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles} relief ${r.relief != null} band ${r.band != null}")
+        // the model's own shadow again, its last 1,500 m over the ring's ground (it bends to it), then the ring's
+        lightDir?.let { d -> modelShadow(d); ringShadow(r, d) }
+    }
+
+    /** The model's cast shadow for the sun in [dir] (on the worker): with the ring, its edge over the ring's ground. */
+    private fun modelShadow(dir: FloatArray) {
+        val t = scene.terrain
+        val t0 = System.nanoTime()
+        var sh = Sun.shadows(t, dir)
+        mountainMs = (System.nanoTime() - t0) / 1_000_000; bandMs = 0
+        // the band's rays: within the ring's 150 ms, or half the mountain's own on a slower phone; over it, none
+        ring?.let { r -> val t1 = System.nanoTime()
+            sh = r.modelBand(sh, t.nx, t.ny, t.x0, t.y0, t.sx, t.sy, dir, maxOf(LiveRing.SHADOW_MS, mountainMs / 2))
+            bandMs = (System.nanoTime() - t1) / 1_000_000
+            Qa.log("redesign ring band shadow $bandMs ms${if (r.bandOff) " off" else ""}") }
+        renderer.setShadow(LiveLight.soften(sh, t.nx, t.ny))
+    }
+
+    /** The band of the front seam: ringband.json and the four grey planes of ringband.webp. */
+    private fun band(): LiveRing.Band {
+        val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ringband.json").bufferedReader().use { it.readText() })
+        val o = android.graphics.BitmapFactory.Options().apply { inPremultiplied = false; inScaled = false; inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888 }
+        val bmp = context.assets.open(LiveData.DIR + "ringband.webp").use { android.graphics.BitmapFactory.decodeStream(it, null, o) } ?: error("ringband")
+        val w = bmp.width; val h = bmp.height; val argb = IntArray(w * h); bmp.getPixels(argb, 0, w, 0, 0, w, h); bmp.recycle()
+        return LiveRing.Band.of(j, argb, w, h)
+    }
 
     /** The ring's cast shadow for the sun in [dir] (on the worker), logged with its time for the emulator. */
     private fun ringShadow(r: LiveRing, dir: FloatArray) {
-        val sh = r.shadows(dir)
+        // the band's shadow counts inside the ring's 150 ms (the architect, 25.11.2026): the outer ring goes first
+        val sh = r.shadows(dir, (LiveRing.SHADOW_MS - bandMs).coerceAtLeast(0))
         renderer.setRingShadow(sh)
         Qa.log("redesign ring shadow ${r.lastShadowMs} ms${if (r.outerShadowOff) " outer off" else ""}")
+        Qa.log("redesign shadow total ${mountainMs + bandMs + r.lastShadowMs} ms (mountain $mountainMs, band $bandMs, ring ${r.lastShadowMs})")
     }
 
     /**
@@ -386,6 +420,8 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
     fun showAir(on: Boolean) { renderer.airOn = on; requestRender(); Qa.log("redesign air ${if (on) "on" else "off"}") }
 
     /** The emulator's switch for the far ground (qa.redesign ring:off / ring:on), to measure the frames with and without it. */
+    /** The emulator's before and after of the front seam (qa.redesign seam:off, seam:on): the ring built again. */
+    fun qaSeam(on: Boolean) { worker.execute { loadRing(on); Qa.log("redesign seam ${if (on) "on" else "off"}") } }
     fun showRing(on: Boolean) { renderer.ringShown = on; requestRender(); Qa.log("redesign ring ${if (on) "on" else "off"}") }
     override fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }
     val shiftPx: Float get() = renderer.shiftPx

@@ -13,10 +13,10 @@ The UI is Hebrew, RTL, phone first. (The Hebrew original of this file is `docs/a
 
 ## Mandatory for everyone working in the repo
 
-1. **Before starting:** read @docs/STATUS.md. It says what is done, in progress, open, and which decisions were made.
+1. **Before starting:** read @docs/STATUS.md. It says what is done, in progress, open, and lists the decisions (an index; the full text is in `docs/DECISIONS.md`, read only the decision you need).
 2. **When finishing work, before the last commit:** update `docs/STATUS.md`: mark stages and tasks, add a log line, and update "Open now".
 3. **An idea or a plan for the future:** write it in `docs/ROADMAP.md`, not only in the conversation. **Even a small passing mention** (in conversation, in a comment, in parentheses) is recorded there immediately, in the section "small items not to miss". Nothing may be missed.
-4. **A structure change or a new decision:** update `README.md` and the decisions in `docs/STATUS.md` too.
+4. **A structure change or a new decision:** update `README.md`, add the full decision to `docs/DECISIONS.md` and one index line to `docs/STATUS.md`.
 5. Work that finished without a `docs/STATUS.md` update is considered unfinished.
 6. **At the end of every stage:** after the commit, merge the branch into `main` (fast-forward when possible) and push, so Vercel deploys. Pini approved this as a standing permission.
 7. **Every change to how the site looks or behaves is shown first on the design canvas and waits for Pini's approval** (1.10.2026). Only after approval is it implemented in code. Even a small change.
@@ -26,7 +26,7 @@ The UI is Hebrew, RTL, phone first. (The Hebrew original of this file is `docs/a
 11. **Several sessions in parallel (Pini, 2.10.2026, decision 45):**
     - **Who works on what:** before starting on an area (site, Android, server, canvas, etc.), check the table "who works on what now" at the top of `docs/STATUS.md`. Area taken: do not enter it; send a message to the session that holds it. Area free: register the session in it and push the row to the main branch **before** starting, so other sessions see it. When done, return the row to "free".
     - **System architect (decision 51):** before code, a design review with the architect session (id in the table) is mandatory when changing a contract, database structure or permissions; adding a service, library or external tool; building a capability that touches more than one platform; touching security, privacy, authentication or signing; or changing the release and test process. The proposal follows the template in `docs/ROLE-ARCHITECT.md`. He recommends, Pini decides.
-    - **Decision numbering:** during work a new decision is recorded without a number ("new decision"), also in commit messages. The number is assigned only on merge to the main branch: after merging the main branch into your branch, take the next free number in the table.
+    - **Decision numbering:** during work a new decision is recorded without a number ("new decision"), also in commit messages. The number is assigned only on merge to the main branch: after merging the main branch into your branch, take the next free number in the table in `docs/DECISIONS.md`.
 12. **Token saving (Pini, 25.11.2026):**
     - Only `docs/STATUS.md` is auto-loaded. `FEATURES`, `ROADMAP`, `HANDOFF` and the archive (`docs/STATUS-ARCHIVE.md`) are read only when the task needs them, and only the relevant section (grep, do not read the whole file).
     - A log line is at most three lines. Detail stays in the commit, the handoff, or the area's own doc.
@@ -34,11 +34,14 @@ The UI is Hebrew, RTL, phone first. (The Hebrew original of this file is `docs/a
     - Report to the manager session only at the end of a task or when stuck, not on every step.
     - Model: Sonnet by default; Opus or Fable only when Pini decides.
     - No research agents and no repeated design reviews when there is no real need.
-    - **A session per task:** a new session for each task, closed (archived) when it ends, not a session that lives for weeks: every step re-reads the whole conversation. A session that grew past about 500K tokens is replaced by a new one that starts from `docs/STATUS.md`. Standing role sessions (architect, server, content, quality) stay, but dormant until they have a task.
+    - **A session per task:** a new session for each task, closed (archived) when it ends, not a session that lives for weeks: every step re-reads the whole conversation. A session that grew past about 200K tokens (or went through a context compaction) is replaced by a new one that starts from `docs/STATUS.md`. Standing role sessions (architect, server, content, quality) stay, but dormant until they have a task.
     - **Effort level:** medium or low for routine work (implementing to a spec, log lines, relaying messages); high only for new graphic design and architecture decisions.
     - **Images:** look only at screenshots of the screen that changed, not the whole set.
     - **Monday update:** once a day and at the end of a stage, not after every step.
     - **Code search:** broad searches go to an Explore agent or a cheap model; do not read whole files.
+    - **Reading CI output:** never download or read full logs. Read only the failing step or the FAIL lines (a status call, or `grep`), and delegate anything bigger to a cheap agent that returns the conclusion. Do not poll a run: continue other work and check once.
+    - **Handoffs between sessions:** at most ten lines and a link to the file; detail lives in the handoff document, not the message.
+    - **Keeping STATUS small:** `docs/STATUS.md` stays under about 60KB. The manager session moves the old log, finished items and closed decisions out at the end of every week (or when it passes the limit).
     - **Tests (Pini, 25.11.2026):** do not overdo tests. Only the app's core flows get a test on every push (one short emulator part); everything else runs manually, and a full run is required before any store upload.
 
 ## Planning documents
@@ -47,7 +50,8 @@ The UI is Hebrew, RTL, phone first. (The Hebrew original of this file is `docs/a
 - Detailed instructions for stages 1 to 5 (history): `docs/HANDOFF.md`
 - Feature spec (and the working process with design): `docs/FEATURES.md`
 - Ideas and future plans: `docs/ROADMAP.md`
-- History (stages, closed decisions, log before 24.11.2026): `docs/STATUS-ARCHIVE.md`
+- Decisions, full text: `docs/DECISIONS.md`
+- History (stages, closed decisions, old log): `docs/STATUS-ARCHIVE.md`
 - System structure, contracts, security, risks and technical decisions: `docs/ARCHITECTURE.md` (the system architect's; his role is in `docs/ROLE-ARCHITECT.md`).
 - The professional team (product, design, branding, marketing, stores, data, content, community, legal, business, ski expert, games, quality, alignment, infrastructure): `docs/TEAM.md`, whom to approach and when (decision 52). **Who is active now:** a very lean team (decision 54, there).
 - Operating the live services (Vercel, Supabase, GitHub Actions, Sentry, PostHog): what to check, what to do when a component fails, keys and expiry, and the incident log: `docs/OPERATIONS.md` (owned by cloud infrastructure and operations).

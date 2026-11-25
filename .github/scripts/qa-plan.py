@@ -9,7 +9,7 @@ the short ones are paired (each pays about two minutes to start an emulator), th
 """
 import json, os, re, subprocess, sys
 
-ALL = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5".split(",")
+ALL = "core,map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5".split(",")
 SMOKE = "home"
 PAIRS = [("store", "lang"), ("status", "weather"), ("locate", "descent")]
 # a change in any of these runs everything
@@ -55,27 +55,13 @@ def groups(parts):
     return [g for g in left] + out
 
 
-# a push to main that changes only texts and documents (i18n/strings.json, docs, research, design) runs two short parts, not
-# every part: the build and the unit tests still compile every string (25.11.2026, docs/CI-AUDIT.md). Anything else, a doubt
-# or a missing "before" commit runs everything.
-LIGHT = re.compile(r"^(i18n/(strings\.json|glossary\.md|README\.md|store-listing.*|appstore-listing.*)|docs/|research/|design/|README\.md|CLAUDE\.md)")
-
-
-def light_push():
-    before = os.environ.get("QA_BEFORE", "")
-    if os.environ.get("QA_EVENT") != "push" or not before or set(before) <= {"0"}:
-        return False
-    out = subprocess.run(["git", "diff", "--name-only", before, "HEAD"], capture_output=True, text=True)
-    files = [f for f in out.stdout.splitlines() if f]
-    return out.returncode == 0 and bool(files) and all(LIGHT.match(f) for f in files)
-
-
 scenario, ref = (sys.argv[1] or "all"), sys.argv[2]
-if scenario == "all" and ref == "main" and light_push():
-    parts = ["home", "lang"]
-elif scenario == "all" or (scenario == "auto" and ref == "main"):
-    # main always runs every part when it is not told which: its results are the release's
-    parts = [p for p in ALL if not p.startswith("redesign")]  # redesign* (the new design, now the store build): by hand or by its own files until the split into four parts has run green; then main runs them too (architect a08a81fe)
+if scenario == "all" or (scenario == "auto" and ref == "main"):
+    # Pini, 25.11.2026: test only the app's core activity. main and "all" run the one small core part (target about 10
+    # minutes: it launches, the mountain draws, a run opens, a recording starts and stops, the village / me screen opens);
+    # every other part (run, bigtext, locate, descent, store, lang, games, the redesign parts, the rest) is by hand only,
+    # by naming it (workflow_dispatch). A text-only push does not start this workflow at all (its paths).
+    parts = ["core"]
 elif scenario == "auto":
     parts = auto()
 else:

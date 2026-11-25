@@ -278,6 +278,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "far" -> live?.qaFar()
             c == "ring:off" -> live?.showRing(false)
             c == "ring:on" -> live?.showRing(true)
+            c == "seam:off" -> live?.qaSeam(false)
+            c == "seam:on" -> live?.qaSeam(true)
             c == "air:off" -> live?.showAir(false)
             c == "air:on" -> live?.showAir(true)
             c.startsWith("turn:") -> c.removePrefix("turn:").toFloatOrNull()?.let { live?.qaTurn(it) }
