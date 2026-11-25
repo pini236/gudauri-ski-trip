@@ -116,7 +116,7 @@ def rc(state='idle', t=TIME, timer=True):
     ring = ('<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19.75" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>')
     if state == 'idle':
         return '<button class="rq" aria-label="%s"><span class="o">%s<span class="dt"></span></span></button>' % (WORD, ring)
-    lab = 'עצירת ההקלטה, %s' % t
+    lab = 'מקליט, %s. פתיחת המסך החי.' % t
     tm = '<span class="tm">%s</span>' % t if timer else ''
     return ('<button class="rq on%s" aria-label="%s"><span class="o">%s<span class="sq"></span></span>%s</button>'
             % ('' if timer else '" style="background: none; padding: 0', lab, ring, tm))
@@ -177,7 +177,7 @@ def rx00():
         ('בזמן הקלטה', 'אותה טבעת, ובתוכה ריבוע אדום 16, פינות 3: "עצירה". לידו הזמן, 16, משקל 700. הכפתור כולו גלולה ברקע אדום שקוף (12 אחוז ביום, 16 בלילה). "לאן יורדים?" מתכווץ.'),
         ('תנועה', 'בלי. הזמן מתעדכן כל שנייה. במעבר בין המצבים: העיגול הופך לריבוע ב-200 מ״ש.'),
         ('נגיעה', 'לפני הקלטה: הגיליון של L01. בזמן הקלטה: המסך החי (שם "החזקה לסיום"). הנגיעה לא עוצרת לבד.'),
-        ('קורא מסך', 'לפני: "%s" (<span dir="ltr">app.rec_sign</span>). בזמן: "עצירת ההקלטה" ואחריו הזמן; טקסט חדש לסשן התוכן.' % WORD)]) + '</div>')
+        ('קורא מסך', 'לפני: "%s" (<span dir="ltr">app.rec_sign</span>). בזמן: "מקליט, {זמן}. פתיחת המסך החי." (<span dir="ltr">app.sr_rec_live</span>).' % WORD)]) + '</div>')
     inner = ('<p class="sec">הערות על גרסה 56 · כפתור ההקלטה · אושר (פיני, 25.11.2026): הזמן בכפתור, RX3</p><h1>כפתור ההקלטה: בתוך הסרגל, עיגול ואז ריבוע</h1>'
              '<div class="rowx" style="align-items: stretch">%s%s</div>'
              '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>מה החליט פיני</h2>%s</div>'
