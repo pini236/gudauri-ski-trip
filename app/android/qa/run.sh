@@ -10,7 +10,7 @@ SCENARIO=${SCENARIO:-all}
 REC_SIGN="~^(מקליטים|הקלטת גלישה)$"
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
-ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2 redesign3 redesign4 redesign5)
+ALL_SCENARIOS=(core map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2 redesign3 redesign4 redesign5)
 if [[ "$SCENARIO" == all ]]; then
   SCENARIOS=("${ALL_SCENARIOS[@]}")
 else
@@ -22,7 +22,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4|redesign5) ;;
+      core|map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4|redesign5) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -1210,6 +1210,34 @@ rd_live_start() {
   waitlog "redesign live drawn" 60 || fail "$1: the live model drew nothing but the clear colour"
   mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
   sleep 3; uidump && unblock || true
+}
+
+
+# The core (Pini, 25.11.2026: "לא צריך להגזים עם הבדיקות"): the app's main activity only, about 10 minutes, the part
+# every push runs. The app starts and the mountain draws; a tap on a run opens its sheet; the village; me; and a
+# recording started and stopped. Every other part stays, by hand.
+core() {
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  rd_live_start core
+  adb shell pidof "$PKG" > /dev/null || fail "core: the app is not running after the start"
+  rd_settled; shot core-mountain
+  # a real tap on a run's line: chosen, its sheet up
+  if rd_live_touch "Tatra 2"; then sleep 2; shot core-run; else fail "core: a tap on Tatra 2 did not choose it"; fi
+  rd_live_back
+  # the village
+  mark; qa "--es qa.redesign village"; if waitlog "redesign village open" 20; then sleep 1.5; shot core-village; else fail "core: the village did not open"; fi
+  mark; qa "--es qa.redesign village:off"; sleep 1
+  # me (nobody signed in)
+  mark; qa "--es qa.group none --es qa.redesign people:me"; if waitlog "redesign people me" 15; then rd_settled; shot core-me; else fail "core: me did not open"; fi
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # a recording: the live screen, started, a few readings down Tatra 2, stopped
+  mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "core: the live screen did not open"
+  mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "core: the recording did not start"
+  geo 42.482631 44.483401; dayrec_walk 6; sleep 4; shot core-rec
+  mark; qa "--es qa.dayrec stop"; waitlog "dayrec stop user" 15 || fail "core: the recording did not stop"
+  sleep 2; adb shell pidof "$PKG" > /dev/null || fail "core: the app is not running at the end"
 }
 
 redesign() {
