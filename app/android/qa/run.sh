@@ -6,6 +6,8 @@ set -uo pipefail
 
 OUT=${OUT:-qa-out}
 SCENARIO=${SCENARIO:-all}
+# the old home's record sign, in either wording (app.rec_sign became "הקלטת גלישה" on 25.11.2026)
+REC_SIGN="~^(מקליטים|הקלטת גלישה)$"
 # Reject typos before touching the device. An unknown part used to run the entire suite.
 [[ "$SCENARIO" != *$'\n'* && "$SCENARIO" != *$'\r'* ]] || { echo "QA scenario must be a single line" >&2; exit 2; }
 ALL_SCENARIOS=(map descent games school snowball home group meet status run locate weather lang phone store bigtext redesign redesign2 redesign3 redesign4 redesign5)
@@ -741,8 +743,8 @@ meet() {
   adb shell am force-stop "$PKG"; sleep 1
   mark; adb shell am start -n "$ACT" > /dev/null; waitlog "scene ready" 60
   seen "notifications asked" 6 && fail "the app asked about notifications when it opened"
-  if [ -n "$(where 'מקליטים')" ]; then
-    mark; tapText "מקליטים"; waitlog "notifications asked" 15 && { sleep 2; shot record-asks-notifications
+  if [ -n "$(where "$REC_SIGN")" ]; then
+    mark; tapText "$REC_SIGN"; waitlog "notifications asked" 15 && { sleep 2; shot record-asks-notifications
       tapText "Allow" && waitlog "notifications allowed" 10 && { sleep 1; shot record-notifications-allowed; }; }
     adb shell input keyevent KEYCODE_BACK; sleep 1
   else note "no record entry on home: the notification ask at the first tap was not tried"; fi
@@ -1044,12 +1046,12 @@ dayrec_steps() {
   adb shell "am start -W -n $ACT --es qa.tab map --es qa.trip none --es qa.dayrec start" > /dev/null
   waitlog "dayrec start result NeedPrecise" 60
   # the same answer by the entry on home: a screen that says what is in the way, with the way to the settings (not a toast)
-  qa "--es qa.tab home"; sleep 3; tapText "מקליטים" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
+  qa "--es qa.tab home"; sleep 3; tapText "$REC_SIGN" && { sleep 2; shot dayrec-blocked; adb shell input keyevent KEYCODE_BACK; sleep 1; }
   adb shell pm grant "$PKG" "$perm"
   # the live screen (round 29): the map under the numbers, then the signal-lost message when the readings stop for a while
   qa "--es qa.tab home"; sleep 3
-  if [ -n "$(where 'מקליטים')" ]; then
-    tapText "מקליטים"; sleep 2
+  if [ -n "$(where "$REC_SIGN")" ]; then
+    tapText "$REC_SIGN"; sleep 2
     for w in "המשך" "כל היום"; do [ -n "$(where "$w")" ] && { tapText "$w"; sleep 3; }; done
     sleep 1; shot dayrec-live-search # before the first reading: the numbers breathe
     # the counter goes by the tap whatever the GPS does (13.11.2026, Pini's phone: nothing moved while it waited for a first reading)
