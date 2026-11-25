@@ -449,11 +449,14 @@ internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = nul
                 while (true) {
                     val e = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
                     val c = e.changes.firstOrNull { it.id == first.id } ?: break
+                    // a busy phone hands over a whole pull in one or two events: its points in between count for the speed
+                    for (hp in c.historical) vt.addPosition(hp.uptimeMillis, Offset(0f, hp.position.y))
                     vt.addPosition(c.uptimeMillis, Offset(0f, c.position.y))
                     val dy = c.position.y - first.position.y
                     if (mine == null && kotlin.math.abs(dy) > slop) {
                         mine = PullRules.takes(dy, up.value != null, down.value != null, inner >= -0.5f)
-                        from = dy
+                        // only the slop is not the sheet's (not all the way the finger went by this event)
+                        from = if (dy > 0f) slop else -slop
                     }
                     if (mine == true) { y = dy - from; c.consume() }
                     if (!c.pressed) { if (mine == true) release(vt.calculateVelocity().y); break }
