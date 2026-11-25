@@ -72,11 +72,14 @@ object Redesign {
      * meeting point on a station, an invite, a group. The mountain takes it ([LiveMountain]) and clears it.
      */
     internal var link by androidx.compose.runtime.mutableStateOf<String?>(null)
+    /** A link came in this run of the app: in the debug build the mountain opens for it too, and stays. */
+    internal var linked by androidx.compose.runtime.mutableStateOf(false)
 
     /** Takes [r] for the mountain; false when it is not one the mountain opens (the caller then goes as before). */
     fun link(r: io.github.pini236.skiapp.nav.Route): Boolean {
         if (!on()) return false
         link = linkOf(r) ?: return false
+        linked = true
         io.github.pini236.skiapp.qa.Qa.log("redesign link $link")
         return true
     }
@@ -225,7 +228,8 @@ object Redesign {
         // the emulator's scripts drive the debug build through the current screens (qa/run.sh): there the mountain
         // opens only when the run asks for it (qa.redesign open), so every other part sees the app as it is
         val debug = io.github.pini236.skiapp.BuildConfig.DEBUG
-        if (debug && !RedesignQa.asked) return
+        // a link opens the mountain in every build (Pini, 24.11.2026), the emulator's runs included
+        if (debug && !RedesignQa.asked && !linked) return
         var open by rememberSaveable { mutableStateOf(!debug) }
         // the mountain is the app (Pini, 24.11.2026): it closes only in the emulator's runs, which drive the screens
         // under it; anywhere else back leaves the app and nothing leads to the old home

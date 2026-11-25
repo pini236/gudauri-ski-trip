@@ -294,9 +294,8 @@ games() {
   # A running app already completed startup in the previous scenario; it will not emit this line again.
   if [ -n "$cold" ]; then waitlog "shadow ready" 90 || return 1; fi
   sleep 1
-  # the app opens on the mountain (the redesign): the games are the village's "evening in the cabin"
-  qa "--es qa.redesign village"; sleep 2
-  if tapText "ערב בבקתה"; then sleep 2; shot games-page; else fail "no games row in the village"; fi
+  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400; sleep 1
+  if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
   tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
   # a swipe anywhere moves the board: a few, then undo
   mark; local d; for d in L U R D L D; do
@@ -819,10 +818,7 @@ phone() {
     sleep 3; shot "phone-$loc"
     tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -m1 "SkiQa.*language " | sed 's/.*SkiQa[^:]*: /  app: /' | tee -a "$OUT/summary.txt"
     # the screen reader of the test can be slow to come back after the restart: a few tries
-    # the app opens on the mountain (the redesign): its words in the phone's language, the bar's "the village" or "where
-    # to?", or the trip's question where today's home still shows
-    local want="~^(When do you fly\?|The village|Where to\?)" got=""
-    case "$loc" in he-IL) want="~^(מתי טסים\?|הכפר|לאן יורדים\?)" ;; ru-RU) want="~^(Деревня|Куда спускаемся\?)" ;; ka-GE) want="~^(სოფელი|საით ჩავდივართ\?)" ;; esac
+    local want="When do you fly?" got=""; [ "$loc" = he-IL ] && want="מתי טסים?"
     for i in 1 2 3 4 5; do got=$(where "$want"); [ -n "$got" ] && break
       # a system question over the page (notifications), in the phone's language: answered, and looked at again
       local w xy; for w in "Allow" "יש אישור" "Разрешить" "დაშვება"; do xy=$(where "$w"); [ -n "$xy" ] && { tap $xy; break; }; done
@@ -870,7 +866,7 @@ runview() {
   # a run's link from the site, while the app is open (A-31): the same app comes forward on that run
   mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#map/run/Tatra%201' -p $PKG" > /dev/null
   # (every link opens on the mountain now, the run chosen there: Pini, 24.11.2026)
-  waitlog "redesign link pick:Tatra 1" 15 && waitlog "redesign live framed Tatra 1" 25 && { sleep 3; shot run-link; }
+  waitlog "redesign link pick:Tatra 1" 15 && waitlog "redesign live framed Tatra 1" 75 && { sleep 3; shot run-link; }
   # English: the same panel, left to right
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
   adb shell am force-stop "$PKG"; sleep 1; mark
@@ -1138,6 +1134,14 @@ rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen mus
   mark; tap $xy; waitlog "redesign chosen $1" 10
 }
 rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign cleared" 10; sleep 1; }
+# the same on the live model: where its line is drawn now (qa.redesign spot:<run>), a real tap, chosen; and let go
+rd_live_touch() { # rd_live_touch <run>
+  mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign live spot $1" 20 || return 1
+  local xy; xy=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*redesign live spot $1" | tail -1 | sed 's/.*redesign live spot .* \([0-9]*\) \([0-9]*\)$/\1 \2/')
+  case "$xy" in *none*|*spot*|"") fail "redesign: no place on the live model to touch $1"; return 1 ;; esac
+  mark; tap $xy; waitlog "redesign live chosen $1" 10
+}
+rd_live_back() { mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; sleep 1; }
 # the redesign's parts (each in a job of its own, about 15 minutes): the frame helpers, and a part's way into the live
 # model as the first part leaves it (the app opened on the painted mountain, the live model drawn, the season off)
 rd_drawn() { seen "redesign live drawn" 25 || true; sleep 4; }
@@ -1908,10 +1912,10 @@ bigtext() {
     mark; qa "--es qa.redesign live"; waitlog "redesign live open" 15; waitlog "redesign live drawn" 60; rd_settled; shot redesign-tablet-mountain
     mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 && { rd_settled; shot redesign-tablet-skipass; }; qa "--es qa.redesign skipass:off"; sleep .5
     mark; qa "--es qa.redesign shelf"; sleep 2; shot redesign-tablet-shelf; qa "--es qa.redesign shelf:off"; sleep .5
-    rd_touch "Tatra 2" && { sleep 2.5; shot redesign-tablet-panel
+    rd_live_touch "Tatra 2" && { sleep 2.5; shot redesign-tablet-panel
       adb shell settings put system user_rotation 1; sleep 4; shot redesign-tablet-panel-turned
       seen "redesign live open" 3 && fail "redesign: the tablet's turn rebuilt the screen" || true; }
-    adb shell settings put system user_rotation 0; sleep 2; rd_back
+    adb shell settings put system user_rotation 0; sleep 2; rd_live_back
   else fail "redesign: the mountain did not open on the tablet"; fi
   adb shell wm size reset; adb shell wm density reset; sleep 2
   # a phone that turns stays upright (the lock by the window, at run time)

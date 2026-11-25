@@ -1048,6 +1048,41 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     fun toScreen(x: Float, y: Float, up: Float = 0f): FloatArray? =
         if (width == 0) null else project(camera.state(), floatArrayOf(x, scene.terrain.elev(x, y) + up, y))
 
+    /**
+     * The emulator's touch on the live model (qa.redesign spot:<run>): a place on the screen where [key]'s line is drawn
+     * now, seen from the eye, off the screen's edges and its bars, and as far as can be from any other named run's line,
+     * so a real tap there chooses [key] the way [pick] chooses (28 dp). Null when no such place is on the screen.
+     */
+    fun spotOf(key: String): FloatArray? {
+        if (width == 0) return null
+        val mvp = FloatArray(16); val eye = FloatArray(3); val v = FloatArray(4); val o = FloatArray(4)
+        OrbitCamera.mvp(camera.state(), width.toFloat() / height, mvp, eye, data.camera.fovDeg) { x, z -> scene.terrain.elev(x, z) }; shiftUp(mvp, renderer.shiftPx, height)
+        fun on(x: Float, y: Float, z: Float): FloatArray? {
+            v[0] = x; v[1] = y; v[2] = z; v[3] = 1f; Matrix.multiplyMV(o, 0, mvp, 0, v, 0)
+            if (o[3] <= 0f) return null
+            return floatArrayOf((o[0] / o[3] * .5f + .5f) * width, (1 - (o[1] / o[3] * .5f + .5f)) * height)
+        }
+        fun seen(x: Float, y: Float, z: Float): Boolean {
+            val dx = x - eye[0]; val dy = y - eye[1]; val dz = z - eye[2]
+            for (i in 4 until 40) { val f = i / 40f; if (scene.terrain.elev(eye[0] + dx * f, eye[2] + dz * f) > eye[1] + dy * f + 8f) return false }
+            return true
+        }
+        val others = ArrayList<Float>()
+        for (p in scene.runs.pistes) if (p.named && p.key != key) for (l in scene.draped[p.key] ?: emptyList())
+            for (i in 0 until l.size / 3) on(l[i * 3], l[i * 3 + 1], l[i * 3 + 2])?.let { others += it[0]; others += it[1] }
+        val m = 48 * density
+        var best: FloatArray? = null; var bestD = 28 * density
+        for (l in scene.draped[key] ?: return null) for (i in 0 until l.size / 3) {
+            val x = l[i * 3]; val y = l[i * 3 + 1]; val z = l[i * 3 + 2]
+            val s = on(x, y, z) ?: continue
+            if (s[0] < m || s[0] > width - m || s[1] < height * .18f || s[1] > height * .62f || !seen(x, y, z)) continue
+            var d = Float.MAX_VALUE; var j = 0
+            while (j < others.size) { d = minOf(d, hypot(others[j] - s[0], others[j + 1] - s[1])); j += 2 }
+            if (d > bestD) { bestD = d; best = s }
+        }
+        return best
+    }
+
     /** A run chosen as a tap chooses it (the emulator's pictures). */
     fun pickKey(key: String) { renderer.frozenMs = null; choose(key); onChoose?.invoke(key); frame(key) }
 

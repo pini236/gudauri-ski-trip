@@ -204,6 +204,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
             // a run chosen the way a tap chooses it (the turn to the Kobi side included), letting it go, and the sign
             c.startsWith("pick:") -> { held = null; view.pickKey(c.removePrefix("pick:")) }
+            // where to touch a run on the live model, for a real tap (qa/run.sh rd_live_touch)
+            c.startsWith("spot:") -> c.removePrefix("spot:").let { k -> val s = view.spotOf(k)
+                Qa.log(if (s == null) "redesign live spot $k none" else "redesign live spot $k ${s[0].toInt()} ${s[1].toInt()}") }
             c == "run:full" -> runFull = true
             c == "ride" -> chosen?.let { riding = it; Qa.log("redesign ride $it") }
             c == "run:low" -> runFull = false
