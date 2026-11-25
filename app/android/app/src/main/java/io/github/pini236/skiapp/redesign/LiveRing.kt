@@ -250,7 +250,7 @@ class LiveRing private constructor(
          * it is left out; an outer vertex inside the inner ring lies [UNDER_INNER] under it, and an outer cell two inner
          * cells inside the inner ring is left out.
          */
-        fun build(json: JSONObject, x0: Float, y0: Float, x1: Float, y1: Float, elev: (Float, Float) -> Float, seam: Boolean = true): LiveRing {
+        fun build(json: JSONObject, x0: Float, y0: Float, x1: Float, y1: Float, seam: Boolean = true, elev: (Float, Float) -> Float): LiveRing {
             check(json.getInt("schema") == 2) { "ring.json: schema ${json.getInt("schema")}" }
             val gi = grid(json.getJSONObject("inner")); val go = grid(json.getJSONObject("outer"))
             fun inModel(x: Float, y: Float, m: Float) = x > x0 + m && x < x1 - m && y > y0 + m && y < y1 - m

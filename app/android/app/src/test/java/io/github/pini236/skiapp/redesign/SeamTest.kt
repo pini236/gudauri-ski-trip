@@ -19,7 +19,7 @@ class SeamTest {
     private val terrain by lazy { Terrain.parse(File(dir, "terrain.json").readText()) }
     private val scene by lazy { MapScene(terrain, Runs.parse(File(dir, "runs-and-lifts.json").readText())) }
     private val ring by lazy {
-        LiveRing.build(JSONObject(File("src/main/assets/redesign/live/ring.json").readText()), terrain.x0, terrain.y0, terrain.x1, terrain.y1, terrain::elev)
+        LiveRing.build(JSONObject(File("src/main/assets/redesign/live/ring.json").readText()), terrain.x0, terrain.y0, terrain.x1, terrain.y1, elev = terrain::elev)
     }
 
     @Test fun nothingToDrawOrTouchStandsWhereTheGroundBends() {

@@ -346,7 +346,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         val r = runCatching {
             val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
             val t = scene.terrain
-            LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev, seam).also { r ->
+            LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, seam, t::elev).also { r ->
                 // the relief map (the sixth texture); without it the ring is drawn as before, never not at all
                 r.relief = runCatching { LiveTex.decode(context, "ringrelief") }.onFailure { Qa.log("redesign ring relief failed") }.getOrNull()
                 // the band of the front seam (step 4): the model's maps past its edge; without it the seam's shading is as before
