@@ -22,7 +22,7 @@ class PeakContractTest {
 
     @Test fun twoViewsAndOnlyTheFrontIsPacked() {
         assertEquals(listOf("front", "kobi"), peak.views.map { it.id })
-        assertTrue(peak.view("front")!!.packaged)
+        assertTrue(peak.view("front")!!.packaged && peak.view("front")!!.rev != null)
         val k = peak.view("kobi")!!
         assertTrue(!k.packaged && k.rev != null && k.path == "img/peak/kobi/${k.rev}/")
         assertEquals(7, k.images.size)

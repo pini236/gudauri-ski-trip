@@ -7,7 +7,7 @@ the pictures with these numbers and checks itself against the test values.
 
 Built from the designer's views (design/redesign/tools/peak.py: the same numbers the pictures were painted with), but
 with nothing of the painter: the projection, a depth grid for what is hidden behind a ridge, the runs and lifts already
-projected, and the pictures' metadata. Run by hand:  python3 tools/build-peak.py   (python 3.11, numpy, Pillow)
+projected, and the pictures' metadata. Run by hand:  python3 tools/build-peak.py ; in GitHub:  python3 tools/build-peak.py --check   (numpy 2.5.3)
 
 The formula (per view): u = (e-c.e)*cos(az) - (n-c.n)*sin(az); d = (e-c.e)*sin(az) + (n-c.n)*cos(az) + near;
   x = W/2 + S*u;  y = y_c - S*(F(d) + (z - zref)*C(d)); F, C every `step` metres of d, linear between, clamped;
@@ -21,7 +21,6 @@ A tap (`tap`): the named run whose drawn line (its `l`, segment by segment) is n
 import base64, hashlib, json, math, os, shutil, sys, zlib
 
 import numpy as np
-from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'site/data/peak.json')
@@ -156,9 +155,9 @@ def tap(view, x, y):
 def sha(f): return hashlib.sha256(open(f, 'rb').read()).hexdigest()
 
 
-def main():
+def main(check=False):
     sun = {l['name']: l for l in json.load(open(os.path.join(ROOT, 'app/android/app/src/main/assets/redesign/peak-poc.json')))['lights']}
-    views, fix_pts, fix_taps = [], [], []
+    views, fix_pts, fix_taps, copies = [], [], [], []
     for vid, V in VIEWS.items():
         setup(V)
         # the tables must be the ones the pictures were painted with (the designer's handoff)
@@ -182,16 +181,11 @@ def main():
             pts = [EN(g) for g in l['g']]; x, y, vis = project(V, pts, lift=11.0); xg, yg, _ = project(V, pts)
             w = chunks(x, y, vis)
             if w: lifts.append(dict(name=l['name'], wire=w, ground=chunks(xg, yg, vis)))
-        # the pictures: the front's are packed in the app; the Kobi side's are downloaded, in a folder named by their rev
+        # the pictures: the front's are packed in the app; the Kobi side's are downloaded, in a folder named by the rev
         if V['packaged']:
-            files = {l: os.path.join(APP_IMG, 'hero-%s.webp' % l) for l in LIGHTS}; path = None; rev = None
+            files = {l: os.path.join(APP_IMG, 'hero-%s.webp' % l) for l in LIGHTS}
         else:
             files = {l: os.path.join(KOBI_SRC, 'img', 'kobi-%s.webp' % l) for l in LIGHTS}
-            h = hashlib.sha256()
-            for l in LIGHTS: h.update(open(files[l], 'rb').read())
-            rev = h.hexdigest()[:10]; path = 'img/peak/%s/%s/' % (vid, rev)
-            dst = os.path.join(ROOT, 'site', path); os.makedirs(dst, exist_ok=True)
-            for l in LIGHTS: shutil.copyfile(files[l], os.path.join(dst, '%s-%s.webp' % (vid, l)))
             total = sum(os.path.getsize(f) for f in files.values())
             if total > KOBI_BUDGET: sys.exit('%s: %d bytes, over %d' % (vid, total, KOBI_BUDGET))
         images = [dict(light=l, file=(os.path.basename(files[l]) if V['packaged'] else '%s-%s.webp' % (vid, l)),
@@ -204,7 +198,14 @@ def main():
                     depth=dict(cell=CELL, tol=TOL, nx=int(dg.shape[1]), ny=int(dg.shape[0]),
                                b64=base64.b64encode(zlib.compress(dg.tobytes(), 9)).decode()),
                     images=images, runs=runs, lifts=lifts)
-        if rev: view.update(rev=rev, path=path)
+        # the rev: the pictures and every field of the view together (the architect, 25.11.2026), so new tables are never
+        # read with old pictures; the downloaded set lives in a folder named by it
+        h = hashlib.sha256(json.dumps(view, sort_keys=True, separators=(',', ':')).encode())
+        for l in LIGHTS: h.update(open(files[l], 'rb').read())
+        view['rev'] = h.hexdigest()[:10]
+        if not V['packaged']:
+            view['path'] = 'img/peak/%s/%s/' % (vid, view['rev'])
+            copies += [(files[l], os.path.join(ROOT, 'site', view['path'], '%s-%s.webp' % (vid, l))) for l in LIGHTS]
         views.append(view)
 
         # test values: the lifts' ends, as the apps compute them from the shipped model (bilinear)
@@ -231,9 +232,18 @@ def main():
 
     doc = dict(schema=1, note=__doc__.strip().split('\n\n')[0], built_from='design/redesign/tools/peak.py (VIEWS), '
                'site/data/terrain.json, site/data/runs-and-lifts.json', radius=RADIUS, views=views)
-    json.dump(doc, open(OUT, 'w'), separators=(',', ':'))
-    json.dump(dict(schema=1, note='made by tools/build-peak.py with site/data/peak.json; tolerance half a point',
-                   tol=0.5, points=fix_pts, taps=fix_taps), open(FIX, 'w'), indent=1)
+    doc_s = json.dumps(doc, separators=(',', ':'))
+    fix_s = json.dumps(dict(schema=1, note='made by tools/build-peak.py with site/data/peak.json; tolerance half a point',
+                            tol=0.5, points=fix_pts, taps=fix_taps), indent=1)
+    if check:
+        bad = [f for f, want in ((OUT, doc_s), (FIX, fix_s)) if not os.path.exists(f) or open(f).read() != want]
+        bad += [dst for src, dst in copies if not os.path.exists(dst) or sha(dst) != sha(src)]
+        if bad:
+            sys.exit('build-peak --check: not as built, run python3 tools/build-peak.py:\n  ' + '\n  '.join(os.path.relpath(b, ROOT) for b in bad))
+        print('build-peak --check: peak.json, the test values and %d pictures are as built' % len(copies)); return
+    open(OUT, 'w').write(doc_s); open(FIX, 'w').write(fix_s)
+    for src, dst in copies:
+        os.makedirs(os.path.dirname(dst), exist_ok=True); shutil.copyfile(src, dst)
     print('%s: %d KB' % (OUT, os.path.getsize(OUT) // 1024))
     for v in views:
         print(' ', v['id'], 'runs', len(v['runs']), 'lifts', len(v['lifts']), 'depth', v['depth']['nx'], 'x', v['depth']['ny'],
@@ -243,4 +253,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(check='--check' in sys.argv[1:])
