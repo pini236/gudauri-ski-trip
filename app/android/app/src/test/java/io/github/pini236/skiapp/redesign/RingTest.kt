@@ -142,10 +142,11 @@ class RingTest {
         assertTrue("some shade", low.count { it > .5f } > 100)
         val high = ring.shadows(floatArrayOf(0f, 1f, 0f), budgetMs = 60_000)
         assertTrue(high.all { it == 0f })
-        // deep under the model: none (hidden); two cells in, worked out (the seam's triangles)
+        // deep under the model: none (hidden); two cells in, worked out (the seam's triangles), and the softening
+        // spreads that one cell further
         for (k in 0 until ni) {
             val x = ring.vertices[k * 6]; val z = ring.vertices[k * 6 + 2]
-            if (ring.inward(x, z) > 2 * ring.inner.cell + 1) assertEquals(0f, low[k], 0f)
+            if (ring.inward(x, z) > 3 * ring.inner.cell + 1) assertEquals(0f, low[k], 0f)
         }
     }
 
