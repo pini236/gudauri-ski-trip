@@ -1703,13 +1703,15 @@ rd_picture() { # the opening on the picture (Stage, 25.11.2026): the picture, a 
   rd_live_touch "Tatra 2" && { waitlog "redesign picture framed Tatra 2" 10; sleep 2; shot redesign-picture-chosen; } || fail "redesign: a tap on the picture did not choose Tatra 2"
   rd_live_back
   qa "--es qa.mode night"; sleep 3; shot redesign-picture-night; qa "--es qa.mode day"; sleep 1
-  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 4
-  # a new locale can start the process again (the emulator's flag for the picture goes with it): ask for it again
-  mark; qa "--es qa.redesign live"; waitlog "redesign live open" 20; qa "--es qa.redesign show:photo"
-  waitlog "redesign picture drawn" 40 || fail "redesign: the picture was not drawn in English"; sleep 2; shot redesign-picture-en
+  # the new locale draws the screen again at once: the mark before it; ask for the picture again in case the process restarted
+  mark; adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 4
+  qa "--es qa.redesign live"; sleep 1; qa "--es qa.redesign show:photo"
+  waitlog "redesign picture drawn" 40 || fail "redesign: the picture was not drawn in English"
+  qa "--es qa.redesign season:off"; sleep 2; sleep 2; shot redesign-picture-en
   qa "--es qa.mode night"; sleep 3; shot redesign-picture-en-night; qa "--es qa.mode day"; sleep 1
-  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 4
-  mark; qa "--es qa.redesign live"; waitlog "redesign live open" 20; qa "--es qa.redesign show:photo"; waitlog "redesign picture drawn" 40
+  mark; adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 4
+  qa "--es qa.redesign live"; sleep 1; qa "--es qa.redesign show:photo"; waitlog "redesign picture drawn" 40
+  qa "--es qa.redesign season:off"; sleep 2
   # back to live: the picture lets its images go before the live model draws (never both, the architect's condition 3)
   mark; qa "--es qa.redesign show:live"; waitlog "redesign live drawn" 60 || fail "redesign: the live model did not come back"
   local log; log=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt")
