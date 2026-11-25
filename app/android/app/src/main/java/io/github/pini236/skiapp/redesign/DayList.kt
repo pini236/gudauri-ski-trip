@@ -267,8 +267,8 @@ private fun DayRow(d: ListedDay, n: Int?, colourOf: (LocalDate) -> Color, night:
     val dir = if (rtl) 1f else -1f
     var drag by remember(open) { mutableFloatStateOf(if (open) reveal else 0f) }
     Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))) {
-        // behind: the delete, two taps (as today)
-        Box(Modifier.matchParentSize().background(red.copy(alpha = .14f)), contentAlignment = if (rtl) Alignment.CenterStart else Alignment.CenterEnd) {
+        // behind: the delete, two taps (as today); only while the row is moved, since the row's glass lets it show through
+        if (drag > 0f) Box(Modifier.matchParentSize().background(red.copy(alpha = .14f)), contentAlignment = if (rtl) Alignment.CenterStart else Alignment.CenterEnd) {
             Text(stringResource(if (asked) R.string.app_days_delete_sure else R.string.app_days_delete),
                 Modifier.width(112.dp).fillMaxHeight().clickable(role = Role.Button) { onDelete() }.padding(horizontal = 10.dp, vertical = 12.dp),
                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = red)
