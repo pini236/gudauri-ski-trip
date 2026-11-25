@@ -65,7 +65,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
@@ -419,14 +418,20 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val n = srRuns[((if (i < 0) (if (d > 0) -1 else 0) else i) + d + srRuns.size) % srRuns.size]
             view.pickKey(n.key); Qa.log("redesign sr run ${n.key}"); return true
         }
-        AndroidView(factory = { view }, modifier = Modifier.fillMaxSize().semantics {
-            contentDescription = srMountain
-            customActions = listOf(
-                androidx.compose.ui.semantics.CustomAccessibilityAction(srNext) { srStep(1) },
-                androidx.compose.ui.semantics.CustomAccessibilityAction(srPrev) { srStep(-1) },
-                androidx.compose.ui.semantics.CustomAccessibilityAction(srFront) { view.backToFront(); true },
+        // on the GL view itself: Compose shows an AndroidView's own view to the screen reader in place of the
+        // node, so a semantics modifier here never reached it (the review of 24.11, ש2: no "mountain" in ui.xml)
+        val srStepNow by androidx.compose.runtime.rememberUpdatedState<(Int) -> Boolean>({ d -> srStep(d) })
+        DisposableEffect(view, srMountain, srNext, srPrev, srFront) {
+            view.contentDescription = srMountain
+            view.importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            val ids = listOf(
+                androidx.core.view.ViewCompat.addAccessibilityAction(view, srNext) { _, _ -> srStepNow(1) },
+                androidx.core.view.ViewCompat.addAccessibilityAction(view, srPrev) { _, _ -> srStepNow(-1) },
+                androidx.core.view.ViewCompat.addAccessibilityAction(view, srFront) { _, _ -> view.backToFront(); true },
             )
-        })
+            onDispose { ids.forEach { androidx.core.view.ViewCompat.removeAccessibilityAction(view, it) } }
+        }
+        AndroidView(factory = { view }, modifier = Modifier.fillMaxSize())
         placeMark?.let { pl ->
             var at by remember(pl) { mutableStateOf<Offset?>(null) }
             LaunchedEffect(pl) { while (true) { withFrameNanos { }; at = view.toScreen(io.github.pini236.skiapp.data.Geo.x(pl.lon), io.github.pini236.skiapp.data.Geo.y(pl.lat))?.let { Offset(it[0], it[1]) } } }

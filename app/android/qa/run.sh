@@ -1251,6 +1251,9 @@ redesign() {
 redesign3() {
   # the first part's second half, in a job of its own: from the village on
   rd_live_start redesign3
+  # ש2 (W04): the mountain is one item for the screen reader, with the next and the previous run as its actions
+  rd_settled; uidump; if grep -q 'content-desc="ההר\. מסלולים' "$OUT/ui.xml"; then note "screen reader: the mountain item is there"
+  else fail "redesign: no mountain item for the screen reader (W04)"; fi
   # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
   # the village's sign when it is on the screen, or the command (the sign may be under a sheet on a slow emulator)
   mark; if [ -n "$(where "הכפר")" ]; then tapText "הכפר"; else qa "--es qa.redesign village"; fi

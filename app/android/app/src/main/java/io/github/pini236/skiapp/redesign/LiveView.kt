@@ -166,8 +166,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
         }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
-        val c = d.camera
-        val open = OrbitCamera.State(c.tx, scene.terrain.elev(c.tx, c.tz), c.tz, c.dist, LiveOpen.YAW, Math.toRadians(c.pitchDeg.toDouble()).toFloat())
+        val open = front()
         camera.set(open.copy(dist = open.dist * 1.25f, pitch = open.pitch * .8f))
         renderer.animate(open, 2.2f)
     }
@@ -532,7 +531,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     // ---- the moment of choice and the two sides of the mountain (the handoff's sections 6 and 10) ----
 
     /** The two wide views, both aimed at the ground: the front (the opening, section 5) and the Kobi side (section 10). */
-    private fun front() = data.camera.let { c -> OrbitCamera.State(c.tx, scene.terrain.elev(c.tx, c.tz), c.tz, c.dist, LiveOpen.YAW, Math.toRadians(c.pitchDeg.toDouble()).toFloat()) }
+    private fun front() = data.camera.let { c -> OrbitCamera.State(c.tx, scene.terrain.elev(c.tx, c.tz), c.tz, c.dist * LiveOpen.DIST, LiveOpen.YAW, Math.toRadians(LiveOpen.PITCH_DEG.toDouble()).toFloat()) }
     private fun kobi() = OrbitCamera.State(KOBI_TX, scene.terrain.elev(KOBI_TX, KOBI_TZ), KOBI_TZ, KOBI_DIST, PI.toFloat(), Math.toRadians(KOBI_PITCH).toFloat())
 
     /** The share of a run seen from [s]'s eye: the designer's numbers() in kobi_boards.py, point by point. */
@@ -947,7 +946,13 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
  * (PeakData.Proj, d = n - c1 + near), so the camera stands to the south and looks north. In the map's camera
  * (map/Camera.kt) yaw 0 looks along -z, and the site's z grows south (data/Geo.kt): yaw 0 is north.
  */
-object LiveOpen { const val YAW = 0f }
+object LiveOpen {
+    const val YAW = 0f
+    // closer and more from above than the handoff's camera (6,617 m at 16°): on the phone the runs filled the middle
+    // third only and were too thin to touch; S01 has them from the pill to the dock (the review of 24.11, ש1)
+    const val DIST = 0.82f
+    const val PITCH_DEG = 30f
+}
 
 
 /**

@@ -23,6 +23,9 @@ class LiveTest {
         }
         // and yaw 0 of the map's camera looks north (map/Camera.kt: forward is -z; data/Geo.kt: z grows south)
         assertEquals(0f, LiveOpen.YAW, 0f)
+        // ש1: the opening is closer and more from above than the handoff's camera, and stays inside the gesture's bounds
+        assertTrue(LiveOpen.PITCH_DEG in 20f..40f); assertTrue(LiveOpen.DIST in .6f..1f)
+        assertTrue(6617f * LiveOpen.DIST in LiveLimits.MIN_DIST..LiveLimits.MAX_DIST)
     }
 
     private val live = LiveData.parse(File("src/main/assets/redesign/live/peak-live.json").readText())
