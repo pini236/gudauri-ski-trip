@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
 <meta charset="utf-8">
-<title>המסך החי: הטבעת כלוח מחוונים</title>
+<title>מד המהירות: טבעת או מד עדין</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -43,6 +43,15 @@ body{margin:0}
 .sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
 .sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
 .sh.mid{width:56px;height:56px}
 .still .tk,.still .ar,.still.sh{animation:none!important}
 .nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
@@ -60,9 +69,9 @@ body{margin:0}
 .HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
 </style>
 </helmet>
-<div class="HW" dir="rtl" style="width: 1280px; height: 760px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">הערות על גרסה 56 · המסך החי, בירידה</p><h1>הטבעת כלוח מחוונים: ההר בפנים, והשלג עף לפי המהירות</h1><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>מה בתוך הטבעת</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>חלון להר:</b> ההר המצויר של השעה, מקרוב, ואתה בתחתית החלון (הנקודה הכחולה). רואים איפה אתה בלי להוריד את העיניים מהמספר.</li><li><b>שלג שעף:</b> פתיתים חוצים את החלון. לאט הם יורדים רכים, ומהר הם נמתחים לפסים ועפים מהר. כך מרגישים את המהירות גם בלי לקרוא.</li><li><b>המספר נשאר הדבר הראשון:</b> החלון מואר מאחורי המספר ביום, ומוחשך בלילה, כדי שהספרות תמיד קריאות.</li><li><b>בהפחתת תנועה:</b> הפתיתים עומדים, והפסים קצרים לפי המהירות.</li></ul></div><div class="card" style="flex: 1"><h2>ביושר</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>הפתיתים מדומים,</b> לא שלג אמיתי שיורד עכשיו. אם אין שלג בתחזית, אפשר לכבות אותם (שאלה 2).</li><li><b>נבדק ברינדור מקומי,</b> לא בטלפון. 26 פתיתים בתנועה עולים מעט סוללה; לבדוק בטלפון בינוני.</li><li><b>ההר בחלון</b> הוא התמונה המצוירת. במודל החי זה יהיה מבט מלמעלה על המקום שלך.</li></ul></div></div><div class="card"><h2>ההחלטה שלי: כן, ליד הקיים (GS6, GS7)</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>זה מוסיף מה שהיה חסר בטבעת: תחושה של תנועה ומקום, בלי עוד טקסט. מתאים ליום הגלישה, שצריך להיות הכי מרהיב.</li><li>הלוחות GD1 עד GD4 ליד המצבים הקיימים: מהר ביום ובלילה, לאט, ובהפחתת תנועה.</li></ul><div class="q"><span class="qn">1</span><span><b>לוח המחוונים או הטבעת הפשוטה?</b> <b>(ההמלצה: לוח המחוונים)</b></span></div><div class="q"><span class="qn">2</span><span><b>שלג תמיד, או רק כשיורד שלג בתחזית?</b> <b>(ההמלצה: תמיד; הוא אומר "מהירות", לא "מזג אוויר")</b></span></div></div></div>
+<div class="HW" dir="rtl" style="width: 1280px; height: 500px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">הערות על גרסה 56 · המסך החי, בירידה · סבב 3</p><h1>מד המהירות: הטבעת הפשוטה, או מד עדין כמו ברכב</h1><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>המד העדין</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>שנתות דקות</b> כל 5 קמ״ש, ומספרים קטנים כל 20, על זכוכית. בלילה השנתות זוהרות קלות.</li><li><b>מחוג דק</b> בצבע של המהירות (אותו סולם של קווי האור), עם עקבה דקה מ-0 ועד המחוג. הוא נע ברכות, בלי לקפוץ.</li><li><b>המספר מתחת לציר,</b> קטן יותר מהיום (48 ולא 92). את המהירות קוראים מהמחוג במבט.</li><li><b>השיא של היום:</b> עיגול קטן על השנתות, בלי מספר.</li><li><b>בלי שלג ובלי חלון.</b> בהפחתת תנועה המחוג קופץ בלי תנועה.</li></ul></div><div class="card" style="flex: 1"><h2>ההמלצה: מד עדין</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>הטבעת הפשוטה ברורה, אבל היא פס צבע עם מספר ענק. המד אומר "מד מהירות" מיד, ונראה כמו מכשיר מדויק ולא כמו גרף.</li><li>הוא שקט יותר מלוח המחוונים: אין תנועה חוץ מהמחוג.</li><li>החיסרון: המספר קטן יותר. בירידה, בכפפות, מבט מהיר על המחוג מספיק; אם פיני רוצה מספר גדול, אפשר להגדיל ל-60 בלי לשבור את המד.</li></ul><div class="q"><span class="qn">1</span><span><b>מד עדין או הטבעת הפשוטה (GS6)?</b> <b>(ההמלצה: מד עדין)</b></span></div></div></div></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":500}}'>
 class Component extends DCLogic {
 renderVals() {
 return {};

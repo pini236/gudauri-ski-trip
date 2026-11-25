@@ -32,6 +32,15 @@ BCSS = """
 .sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
 .sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
 .sh.mid{width:56px;height:56px}
 .still .tk,.still .ar,.still.sh{animation:none!important}
 .nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
@@ -92,6 +101,28 @@ def sh(state='idle', size='', t=TIME, still=False, timer_in=False):
     return '<button class="%s" aria-label="%s">%s%s</button>' % (cls, lab, ring(d, state == 'live'), inner)
 
 
+def tracks2(px=20):
+    """the ski tracks, quiet: two thin white lines inside the dot, no motion"""
+    return ('<svg width="%d" height="%d" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1.6" stroke-opacity=".85" aria-hidden="true">'
+            '<path d="M17.4 3.2C9.4 4.2 6.4 6.8 10.2 9.6C14 12.4 14.6 15.4 7.4 18.4"/><path d="M20.6 4.8C13.6 5.8 11 8 14 10.6C17.2 13.4 17.6 16.6 10.6 20"/></svg>' % (px, px))
+
+
+def rb(state='idle', t=TIME, still=False, plain=False, prog=.3):
+    """the record button as decided (25.11.2026): 64, floating in the thumb corner. A white ring, and in it a red dot;
+    in the dot the ski tracks, quiet (or nothing: plain). While recording the dot breathes, the ring fills once a minute,
+    and the time is in the dot"""
+    d = 64; r = 29.5
+    base = '<circle cx="32" cy="32" r="%.1f" fill="none" stroke="#fff" stroke-opacity="%s" stroke-width="3"/>' % (r, '.45' if state == 'live' else '1')
+    arc = ''
+    if state == 'live':
+        arc = ('<circle class="ar" pathLength="1" cx="32" cy="32" r="%.1f" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" '
+               'transform="rotate(-90 32 32)" style="stroke-dashoffset: %.2f; animation-delay: -%.0fs"/>' % (r, 1 - prog, 60 * prog))
+    inner = '<span class="stm">%s</span>' % t if state == 'live' else ('' if plain else tracks2())
+    lab = WORD if state == 'idle' else '%s, %s' % (WORD, t)
+    return ('<button class="rb %s%s" aria-label="%s"><svg class="rg" viewBox="0 0 64 64">%s%s</svg><span class="dt">%s</span></button>'
+            % (state, ' still' if still else '', lab, base, arc, inner))
+
+
 def nub(t=TIME):
     return '<span class="nub"><i></i>%s</span>' % t
 
@@ -117,15 +148,11 @@ def top_rec(t=TIME):
 
 
 def rx_phones():
-    out = {}
-    out['RX1.dc.html'] = ('כפתור ההקלטה · א, בסרגל, ביום', mtn() + top() + ctl() + dock_a(sh('idle')), 'day')
-    out['RX2.dc.html'] = ('כפתור ההקלטה · א, בזמן הקלטה, בלילה', mtn('night') + top_rec() + ctl() + dock_a(sh('live')), 'night')
-    out['RX3.dc.html'] = ('כפתור ההקלטה · ב, צף מעל הסרגל, ביום', mtn() + top() + ctl() + dock_plain() + '<div class="fabw">%s</div>' % sh('idle', 'fab'), 'day')
-    out['RX4.dc.html'] = ('כפתור ההקלטה · ב, בזמן הקלטה, בלילה', mtn('night') + top() + ctl() + dock_plain()
-                          + '<div class="fabw">%s</div>' % sh('live', 'fab', timer_in=True), 'night')
-    out['RX5.dc.html'] = ('כפתור ההקלטה · ג, באמצע הסרגל, ביום', mtn() + top() + ctl() + dock_c(sh('idle', 'mid')), 'day')
-    out['RX6.dc.html'] = ('כפתור ההקלטה · ג, בזמן הקלטה, בלילה', mtn('night') + top_rec() + ctl() + dock_c(sh('live', 'mid')), 'night')
-    return out
+    f = lambda b: '<div class="fabw">%s</div>' % b
+    return {'RX1.dc.html': ('כפתור ההקלטה · ביום', mtn() + top() + ctl() + dock_plain() + f(rb()), 'day'),
+            'RX2.dc.html': ('כפתור ההקלטה · בלילה', mtn('night') + top() + ctl() + dock_plain() + f(rb()), 'night'),
+            'RX3.dc.html': ('כפתור ההקלטה · בזמן הקלטה, ביום', mtn() + top() + ctl() + dock_plain() + f(rb('live')), 'day'),
+            'RX4.dc.html': ('כפתור ההקלטה · בזמן הקלטה, בלילה', mtn('night') + top() + ctl() + dock_plain() + f(rb('live')), 'night')}
 
 
 def opt(k, h2, sd, sn, pros, cons, rec=False):
@@ -137,31 +164,35 @@ def z(x):
     return '<div class="z">%s</div>' % x
 
 
-HRX = 1000
+HRX = 910
 
 
 def rx00():
-    a = opt('א', 'בסרגל, בלי מילה', z(sh('idle')) + z(sh('live')), z(sh('idle')) + z(sh('live')),
-            'הכפתור האדום עם העקבות שאהבת, ועכשיו גם בתוך טבעת לבנה, כמו כפתור הקלטה של מצלמה. בזמן הקלטה הכפתור לא גדל: הטבעת מתמלאת פעם בדקה, והזמן עובר לגלולה העליונה.',
-            'עדיין קטן, בסוף הסרגל, ליד שני כפתורים אחרים.')
-    b = opt('ב', 'כפתור צף, מעל הסרגל', z(sh('idle', 'fab')) + z(sh('live', 'fab', timer_in=True)), z(sh('idle', 'fab')) + z(sh('live', 'fab', timer_in=True)),
-            'גדול (62), לבד, בפינה של האגודל, כמו כפתור הפעולה הראשי באנדרואיד. הסרגל נשאר רק לניווט. בזמן הקלטה הזמן בתוך הכפתור.',
-            'יושב על ההר, ומכסה פינה קטנה ממנו.', rec=True)
-    c = opt('ג', 'באמצע הסרגל, בין "הכפר" ל"לאן יורדים?"', z(sh('idle', 'mid')) + z(sh('live', 'mid')), z(sh('idle', 'mid')) + z(sh('live', 'mid')),
-            'במרכז, וגדול יותר (56), כמו כפתור הצילום במצלמה. עדיין כולו בתוך הסרגל.',
-            'הסרגל צר יותר ל"לאן יורדים?", ובאנגלית ובגאורגית המילים ארוכות.')
-    bug = ('<div class="card"><h2>הבאג בלוח RD2</h2>' + li(
-        'בזמן הקלטה הכפתור גדל לרוחב בשביל הזמן, ויחד עם ההילה הוא יצא מהסרגל.',
-        'מעכשיו הכפתור לא משנה גודל אף פעם, וההילה בתוכו ולא סביבו. הזמן עובר לגלולה העליונה (א, ג) או נכנס לתוך הכפתור (ב).') + '</div>')
-    rec = ('<div class="card"><h2>ההמלצה: ב</h2>' + li(
-        'ההקלטה היא הפעולה הראשית בהר, ולכן היא מקבלת כפתור משלה, גדול ולבד, ולא עוד פריט בסרגל.',
-        'מה שאומר "הקלטה" בלי מילה: עיגול אדום בתוך טבעת לבנה. העקבות בפנים אומרות "סקי".',
-        'קורא מסך אומר "%s", ובזמן הקלטה גם את הזמן.' % WORD,
-        'בהפחתת תנועה: העקבות והטבעת בלי תנועה.')
-        + q(1, '<b>איזו חלופה:</b> א, ב או ג? <b>(ההמלצה: ב)</b>') + '</div>')
-    inner = ('<p class="sec">הערות על גרסה 56 · כפתור ההקלטה, סבב 2</p><h1>כפתור ההקלטה בלי מילה, בשלושה מקומות</h1>'
-             '<div class="rowx" style="align-items: stretch">%s%s%s</div><div class="rowx" style="align-items: stretch">%s%s</div>' % (a, b, c, bug, rec))
-    wb('RX00-RecButton2.dc.html', 'כפתור ההקלטה: בלי מילה, שלושה מקומות', 1280, HRX, inner)
+    st = lambda *xs: ''.join(z(x) for x in xs)
+    look = ('<div class="card" style="flex: 1.3"><h2>הצורה: נקודה אדומה בתוך טבעת לבנה</h2>'
+            '<div class="stage d">%s</div><div class="stage n">%s</div>' % (st(rb(), rb(plain=True), rb('live')), st(rb(), rb(plain=True), rb('live')))
+            + '<p class="cap">מימין לשמאל: עם העקבות, בלי כלום, ובזמן הקלטה.</p></div>')
+    spec = ('<div class="card" style="flex: 1"><h2>הערכים</h2>' + table_rows([
+        ('מקום', 'צף, 12 מימין ו-86 מלמטה (מעל הסרגל), בפינה של האגודל. בשפות משמאל לימין: באותה פינה.'),
+        ('גודל', '64. הטבעת לבנה, 3, ברדיוס 29.5. הנקודה האדומה <span dir="ltr">#E5352B</span>, קוטר 44.'),
+        ('רקע', 'זכוכית כהה מאחורי הטבעת (ביום 30 אחוז, בלילה 40), כדי שהטבעת הלבנה תיראה גם על שלג.'),
+        ('בתוך הנקודה', 'שני קווי העקבות, דקים ולבנים (85 אחוז), בלי תנועה. אם זה מבלבל: בלי כלום.'),
+        ('בזמן הקלטה', 'הנקודה נושמת לאט (90 עד 100 אחוז, 2.4 שניות), הטבעת מתמלאת פעם בדקה, והזמן בתוך הנקודה.'),
+        ('נגיעה', 'כמו היום: לפני הקלטה פותחת את הגיליון של L01, ובזמן הקלטה את המסך החי.'),
+        ('הפחתת תנועה', 'בלי נשימה ובלי מילוי; הזמן מתעדכן.'),
+        ('קורא מסך', '"%s", ובזמן הקלטה גם הזמן (<span dir="ltr">app.rec_sign</span>).' % WORD)]) + '</div>')
+    inner = ('<p class="sec">הערות על גרסה 56 · כפתור ההקלטה · הוחלט (פיני, 25.11.2026)</p><h1>כפתור ההקלטה: צף, וכמו כפתור הקלטה מוכר</h1>'
+             '<div class="rowx" style="align-items: stretch">%s%s</div>'
+             '<div class="card"><h2>מה החליט פיני</h2>%s</div>' % (look, spec, li(
+                 'הכפתור נראה מיד כמו כפתור הקלטה: נקודה אדומה בתוך טבעת לבנה. העקבות בפנים עדינות ובלי תנועה; אם לא יהיה מספיק ברור, חושבים שוב.',
+                 'המקום: ב, צף מעל הסרגל בפינה של האגודל. הסרגל נשאר "הכפר" ו"לאן יורדים?".',
+                 'המסירה: <span dir="ltr">design/handoff/2026-11-25-redesign-record-button</span>.')))
+    wb('RX00-RecButton2.dc.html', 'כפתור ההקלטה: הוחלט', 1280, HRX, inner)
+
+
+def table_rows(rows):
+    return ('<table style="border-collapse: collapse; width: 100%%; font-size: 14.5px; line-height: 1.45">%s</table>'
+            % ''.join('<tr style="border-top: 1px solid #D9DEE4"><td style="padding: 7px 10px; vertical-align: top; width: 22%%"><b>%s</b></td><td style="padding: 7px 10px; vertical-align: top">%s</td></tr>' % r for r in rows))
 
 
 # ---------------------------------------------------------------- TM: the search screen, with or without a counter
@@ -188,28 +219,23 @@ def found0(night=False):
 
 
 def tm_phones():
-    return {'TM1d.dc.html': ('מסך החיפוש · עם מונה, ביום', search3(False, '0:14'), 'day'),
-            'TM1n.dc.html': ('מסך החיפוש · עם מונה, אחרי 30 שניות, בלילה', search3(True, '0:41', True), 'night'),
-            'TM2d.dc.html': ('מסך החיפוש · בלי זמן, ביום', search3(False), 'day'),
-            'TM2f.dc.html': ('מסך החיפוש · בלי זמן: כשנמצא מיקום, המונה מתחיל ב-0:00', found0(), 'day')}
+    return {'TM1d.dc.html': ('מסך החיפוש · ביום', search3(False), 'day'),
+            'TM1n.dc.html': ('מסך החיפוש · אחרי 30 שניות, בלילה', search3(True, long=True), 'night'),
+            'TM2f.dc.html': ('נמצא מיקום: המסך החי, והמונה מתחיל ב-0:00', found0(), 'day')}
 
 
-HTM = 540
+HTM = 420
 
 
 def tm00():
-    rows = [('עם מונה (ההמלצה)', 'מתחת ל"מחפש מיקום", בלי מילה ליד. סופר מהנגיעה, וממשיך באותו מספר במסך החי. כך הקוד עובד היום (התיקון מ-13.11).'),
-            ('בלי זמן', 'בזמן החיפוש אין מספר. כשנמצא מיקום המסך עובר למסך החי, והמונה מתחיל שם ב-0:00.')]
-    tbl = ''.join('<tr style="border-top: 1px solid #D9DEE4"><td style="padding: 9px 10px; width: 24%%"><b>%s</b></td><td style="padding: 9px 10px">%s</td></tr>' % r for r in rows)
-    inner = ('<p class="sec">הערות על גרסה 56 · מסך החיפוש, אחרי הבחירה ב-3</p><h1>מסך החיפוש: מונה או בלי</h1>'
-             '<div class="card"><table style="border-collapse: collapse; width: 100%%; font-size: 15.5px; line-height: 1.45">%s</table></div>'
-             '<div class="card"><h2>ההמלצה: עם מונה</h2>%s%s</div>' % (tbl, li(
-                 'השאלה שלך הייתה איך יודעים שההקלטה התחילה. מספר שזז עונה על זה בלי מילה, גם כשהחיפוש לוקח דקה.',
-                 'המונה סופר את הזמן מהנגיעה, אבל מה שנמדד (ירידות, מהירות) מתחיל רק כשיש מיקום. זה כבר כך היום.',
-                 'בלי זמן, חיפוש ארוך נראה תקוע, ואז המונה במסך החי מתחיל ב-0:00 כאילו כלום לא קרה עד עכשיו.',
-                 'השורה "בחוץ זה לוקח בדרך כלל פחות מדקה" מופיעה רק אחרי 30 שניות בלי מיקום, בשתי האפשרויות.'),
-                 q(1, '<b>מונה מהנגיעה, או בלי זמן עד שיש מיקום?</b> <b>(ההמלצה: מונה)</b>')))
-    wb('TM00-Counter.dc.html', 'מסך החיפוש: מונה או בלי', 1280, HTM, inner)
+    inner = ('<p class="sec">הערות על גרסה 56 · מסך החיפוש · הוחלט (פיני, 25.11.2026)</p><h1>מסך החיפוש: בלי מונה</h1>'
+             '<div class="card"><h2>מה החליט פיני</h2>%s</div>' % li(
+                 'בזמן החיפוש אין מספר: רק הפעימה ו"מחפש מיקום".',
+                 'כשנמצא מיקום, המסך עובר לבד למסך החי, והמונה מתחיל שם ב-0:00. הוא סופר מרגע שנמצא מיקום, לא מהנגיעה.',
+                 'השורה "בחוץ זה לוקח בדרך כלל פחות מדקה" מופיעה רק אחרי 30 שניות בלי מיקום.',
+                 '"החזקה לסיום" נשאר, כדי שאפשר לוותר.',
+                 'המסירה עודכנה: <span dir="ltr">design/handoff/2026-11-25-redesign-search-pulse</span>.'))
+    wb('TM00-Counter.dc.html', 'מסך החיפוש: בלי מונה', 1280, HTM, inner)
 
 
 # ---------------------------------------------------------------- GD: the speed ring as a dashboard
@@ -283,32 +309,101 @@ def gd_down(night=False, still=False, slow=False):
     return pic('hero', light, None) + daylines(t, m) + rg + recp(mm(t - DAY)) + dash(v, t, mode=m, run=run, still=still) + hold()
 
 
+CCSS = """
+.H .cg{position:absolute;left:50%;bottom:92px;width:240px;height:240px;transform:translateX(-50%)}
+.H .cg .disc{position:absolute;inset:0;border-radius:50%}
+.H .cg svg{position:absolute;inset:0;overflow:visible}
+.H .cg .tk{stroke:var(--ink);stroke-linecap:round}
+.H .night .cg .tk{stroke:#DCE8FF;filter:drop-shadow(0 0 2px rgba(170,200,255,.55))}
+.H .cg .nm{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:500;color:var(--ink2);direction:ltr;font-variant-numeric:tabular-nums}
+.H .night .cg .nm{color:#B9C8E6}
+.H .cg .nd{transition:transform .3s cubic-bezier(.3,.7,.3,1)}
+.H .cg .rd{position:absolute;left:0;right:0;top:146px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.H .cg .rd b{font-size:48px;font-weight:300;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums;direction:ltr}
+.H .cg .rd span{font-size:12px;font-weight:700;color:var(--ink2)}
+.H .cg .rn{position:absolute;left:0;right:0;top:211px;display:flex;justify-content:center;align-items:center;gap:6px;font-size:12.5px;font-weight:700;transform:scale(.92)}
+"""
+G4.MB.CSS = G4.MB.CSS + CCSS
+
+
+def mix(c1, c2, t):
+    a = [int(c1[i:i + 2], 16) for i in (1, 3, 5)]; b = [int(c2[i:i + 2], 16) for i in (1, 3, 5)]
+    return '#%02X%02X%02X' % tuple(round(x + (y - x) * t) for x, y in zip(a, b))
+
+
+def rampc(mode, f):
+    r = D.RAMP[mode]; x = min(max(f, 0), 1) * (len(r) - 1); i = min(int(x), len(r) - 2)
+    return mix(r[i], r[i + 1], x - i)
+
+
+def car(v, mode='day', run='Sadzele 1', best=61, vmax=80):
+    """a quiet car speedometer (Pini, 25.11.2026: "a gentle, beautiful gauge, in the style of a car, that fits here"):
+    fine ticks on frosted glass, a thin needle in the colour of the speed, and the number small under the hub"""
+    cx = cy = 120; R = 104; a0 = 135; sw = 270
+    ang = lambda k: math.radians(a0 + sw * min(max(k / vmax, 0), 1))
+    o = []
+    for k in range(0, vmax + 1, 5):
+        mj = k % 20 == 0; a = ang(k); r1 = R - (12 if mj else 6)
+        o.append('<line class="tk" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke-width="%s" stroke-opacity="%s"/>'
+                 % (cx + R * math.cos(a), cy + R * math.sin(a), cx + r1 * math.cos(a), cy + r1 * math.sin(a), '2' if mj else '1', '.9' if mj else '.45'))
+    nums = ''.join('<span class="nm" style="left: %.0fpx; top: %.0fpx">%d</span>' % (cx + (R - 26) * math.cos(ang(k)), cy + (R - 26) * math.sin(ang(k)), k)
+                   for k in range(0, vmax + 1, 20))
+    f = min(v / vmax, 1); col = rampc(mode, f)
+    stops = ''.join('<stop offset="%d%%" stop-color="%s"/>' % (i * 25, c) for i, c in enumerate(D.RAMP[mode]))
+    C = 2 * math.pi * (R + 7)
+    trail = ('<defs><linearGradient id="cg%s" x1="0" y1="1" x2="1" y2="0">%s</linearGradient></defs>'
+             '<circle cx="%d" cy="%d" r="%d" fill="none" stroke="url(#cg%s)" stroke-width="3" stroke-linecap="round" stroke-dasharray="%.1f %.1f" transform="rotate(%d %d %d)" opacity=".9"/>'
+             % (mode, stops, cx, cy, R + 7, mode, C * sw / 360 * f, C, a0, cx, cy))
+    ab = ang(best); bx, by = cx + (R + 7) * math.cos(ab), cy + (R + 7) * math.sin(ab)
+    bmark = '<circle cx="%.1f" cy="%.1f" r="3" fill="none" stroke="var(--ink)" stroke-width="1.6"/>' % (bx, by)
+    an = math.degrees(ang(v))
+    needle = ('<g class="nd" style="transform-origin: %dpx %dpx; transform: rotate(%.1fdeg)">'
+              '<path d="M%d %.1f L%d %.1f L%d %.1f L%d %.1f Z" fill="%s"/>'
+              '<path d="M%d %d L%d %d" stroke="%s" stroke-width="6" stroke-linecap="round" opacity=".18"/></g>'
+              % (cx, cy, an, cx - 14, cy - 1.6, cx + R - 16, cy - .7, cx + R - 16, cy + .7, cx - 14, cy + 1.6, col, cx, cy, cx + R - 18, cy, col))
+    hub = '<circle cx="%d" cy="%d" r="7" fill="var(--bg)" stroke="%s" stroke-width="2.4"/>' % (cx, cy, col)
+    svg = '<svg width="240" height="240" viewBox="0 0 240 240">%s%s%s%s%s</svg>' % (''.join(o), trail, bmark, needle, hub)
+    return ('<div class="cg" role="img" aria-label="%d קמ״ש"><div class="disc glass"></div>%s%s<div class="rd"><b>%d</b><span>קמ״ש</span></div>'
+            '<div class="rn">%s<bdi>%s</bdi></div></div>' % (v, svg, nums, v, sign(run), run))
+
+
+def car_down(night=False, slow=False):
+    if slow:
+        d = D.DESC[2]; t = d['t0'] + 25000
+    else:
+        t = D.ST['max_at']['t'] - 3000
+    light = 'night' if night else 'morning'; m = 'night' if night else 'day'
+    rg, _ = me(t)
+    v = round(float(D.KMH[D.where(VH, t)[3]]))
+    run = 'Sadzele 1' if not slow else 'Goodaura 2'
+    return pic('hero', light, None) + daylines(t, m) + rg + recp(mm(t - DAY)) + car(v, mode=m, run=run) + hold()
+
+
 def gd_phones():
-    return {'GD1.dc.html': ('המסך החי · לוח מחוונים, מהר, ביום', gd_down(), 'day'),
-            'GD2.dc.html': ('המסך החי · לוח מחוונים, מהר, בלילה', gd_down(True), 'night'),
-            'GD3.dc.html': ('המסך החי · לוח מחוונים, לאט, ביום', gd_down(slow=True), 'day'),
-            'GD4.dc.html': ('המסך החי · לוח מחוונים, בהפחתת תנועה', gd_down(still=True), 'day')}
+    return {'GD1.dc.html': ('המסך החי · הטבעת הפשוטה (GS6), ביום', V.gs_down(), 'day'),
+            'GD2.dc.html': ('המסך החי · מד עדין, מהר, ביום', car_down(), 'day'),
+            'GD3.dc.html': ('המסך החי · מד עדין, מהר, בלילה', car_down(True), 'night'),
+            'GD4.dc.html': ('המסך החי · מד עדין, לאט, ביום', car_down(slow=True), 'day')}
 
 
-HGD = 760
+HGD = 500
 
 
 def gd00():
-    inner = ('<p class="sec">הערות על גרסה 56 · המסך החי, בירידה</p><h1>הטבעת כלוח מחוונים: ההר בפנים, והשלג עף לפי המהירות</h1>'
-             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>מה בתוך הטבעת</h2>%s</div>'
-             '<div class="card" style="flex: 1"><h2>ביושר</h2>%s</div></div>'
-             '<div class="card"><h2>ההחלטה שלי: כן, ליד הקיים (GS6, GS7)</h2>%s%s</div>' % (
-                 li('<b>חלון להר:</b> ההר המצויר של השעה, מקרוב, ואתה בתחתית החלון (הנקודה הכחולה). רואים איפה אתה בלי להוריד את העיניים מהמספר.',
-                    '<b>שלג שעף:</b> פתיתים חוצים את החלון. לאט הם יורדים רכים, ומהר הם נמתחים לפסים ועפים מהר. כך מרגישים את המהירות גם בלי לקרוא.',
-                    '<b>המספר נשאר הדבר הראשון:</b> החלון מואר מאחורי המספר ביום, ומוחשך בלילה, כדי שהספרות תמיד קריאות.',
-                    '<b>בהפחתת תנועה:</b> הפתיתים עומדים, והפסים קצרים לפי המהירות.'),
-                 li('<b>הפתיתים מדומים,</b> לא שלג אמיתי שיורד עכשיו. אם אין שלג בתחזית, אפשר לכבות אותם (שאלה 2).',
-                    '<b>נבדק ברינדור מקומי,</b> לא בטלפון. 26 פתיתים בתנועה עולים מעט סוללה; לבדוק בטלפון בינוני.',
-                    '<b>ההר בחלון</b> הוא התמונה המצוירת. במודל החי זה יהיה מבט מלמעלה על המקום שלך.'),
-                 li('זה מוסיף מה שהיה חסר בטבעת: תחושה של תנועה ומקום, בלי עוד טקסט. מתאים ליום הגלישה, שצריך להיות הכי מרהיב.',
-                    'הלוחות GD1 עד GD4 ליד המצבים הקיימים: מהר ביום ובלילה, לאט, ובהפחתת תנועה.'),
-                 q(1, '<b>לוח המחוונים או הטבעת הפשוטה?</b> <b>(ההמלצה: לוח המחוונים)</b>') + q(2, '<b>שלג תמיד, או רק כשיורד שלג בתחזית?</b> <b>(ההמלצה: תמיד; הוא אומר "מהירות", לא "מזג אוויר")</b>')))
-    wb('GD00-Dashboard.dc.html', 'המסך החי: הטבעת כלוח מחוונים', 1280, HGD, inner)
+    inner = ('<p class="sec">הערות על גרסה 56 · המסך החי, בירידה · סבב 3</p><h1>מד המהירות: הטבעת הפשוטה, או מד עדין כמו ברכב</h1>'
+             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>המד העדין</h2>%s</div>'
+             '<div class="card" style="flex: 1"><h2>ההמלצה: %s</h2>%s%s</div></div>' % (
+                 li('<b>שנתות דקות</b> כל 5 קמ״ש, ומספרים קטנים כל 20, על זכוכית. בלילה השנתות זוהרות קלות.',
+                    '<b>מחוג דק</b> בצבע של המהירות (אותו סולם של קווי האור), עם עקבה דקה מ-0 ועד המחוג. הוא נע ברכות, בלי לקפוץ.',
+                    '<b>המספר מתחת לציר,</b> קטן יותר מהיום (48 ולא 92). את המהירות קוראים מהמחוג במבט.',
+                    '<b>השיא של היום:</b> עיגול קטן על השנתות, בלי מספר.',
+                    '<b>בלי שלג ובלי חלון.</b> בהפחתת תנועה המחוג קופץ בלי תנועה.'),
+                 'מד עדין',
+                 li('הטבעת הפשוטה ברורה, אבל היא פס צבע עם מספר ענק. המד אומר "מד מהירות" מיד, ונראה כמו מכשיר מדויק ולא כמו גרף.',
+                    'הוא שקט יותר מלוח המחוונים: אין תנועה חוץ מהמחוג.',
+                    'החיסרון: המספר קטן יותר. בירידה, בכפפות, מבט מהיר על המחוג מספיק; אם פיני רוצה מספר גדול, אפשר להגדיל ל-60 בלי לשבור את המד.'),
+                 q(1, '<b>מד עדין או הטבעת הפשוטה (GS6)?</b> <b>(ההמלצה: מד עדין)</b>')))
+    wb('GD00-Dashboard.dc.html', 'מד המהירות: טבעת או מד עדין', 1280, HGD, inner)
 
 
 PREFIX = ('RX', 'TM', 'GD')
@@ -328,13 +423,12 @@ def main():
     y = max(v['y'] + v['h'] for v in j['boards'].values() if v.get('page') == PAGE) + 260
     V.PLACE.clear()
     for board, H, title, rows in [
-        ('RX00-RecButton2.dc.html', HRX, 'כפתור ההקלטה: בלי מילה, שלושה מקומות',
-         [('RX1', 'א · בסרגל, ביום'), ('RX2', 'א · בזמן הקלטה, בלילה'), ('RX3', 'ב · צף, ביום (ההמלצה)'), ('RX4', 'ב · בזמן הקלטה, בלילה'),
-          ('RX5', 'ג · באמצע הסרגל, ביום'), ('RX6', 'ג · בזמן הקלטה, בלילה')]),
-        ('TM00-Counter.dc.html', HTM, 'מסך החיפוש: מונה או בלי',
-         [('TM1d', 'עם מונה, ביום (ההמלצה)'), ('TM1n', 'עם מונה, אחרי 30 שניות, בלילה'), ('TM2d', 'בלי זמן, ביום'), ('TM2f', 'בלי זמן: המונה מתחיל ב-0:00')]),
-        ('GD00-Dashboard.dc.html', HGD, 'המסך החי: הטבעת כלוח מחוונים',
-         [('GD1', 'מהר, ביום'), ('GD2', 'מהר, בלילה'), ('GD3', 'לאט, ביום'), ('GD4', 'בהפחתת תנועה')])]:
+        ('RX00-RecButton2.dc.html', HRX, 'כפתור ההקלטה: הוחלט',
+         [('RX1', 'ביום'), ('RX2', 'בלילה'), ('RX3', 'בזמן הקלטה, ביום'), ('RX4', 'בזמן הקלטה, בלילה')]),
+        ('TM00-Counter.dc.html', HTM, 'מסך החיפוש: בלי מונה (הוחלט)',
+         [('TM1d', 'ביום'), ('TM1n', 'אחרי 30 שניות, בלילה'), ('TM2f', 'נמצא מיקום: 0:00')]),
+        ('GD00-Dashboard.dc.html', HGD, 'מד המהירות: טבעת או מד עדין',
+         [('GD1', 'הטבעת הפשוטה (GS6)'), ('GD2', 'מד עדין, מהר, ביום (ההמלצה)'), ('GD3', 'מד עדין, מהר, בלילה'), ('GD4', 'מד עדין, לאט, ביום')])]:
         V.PLACE.append((board, 0, y, 1280, H, title)); y += H + 140
         for i, (c, t) in enumerate(rows):
             V.PLACE.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))

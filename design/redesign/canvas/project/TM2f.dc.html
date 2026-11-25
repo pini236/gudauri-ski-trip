@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
 <meta charset="utf-8">
-<title>מסך החיפוש · בלי זמן: כשנמצא מיקום, המונה מתחיל ב-0:00</title>
+<title>נמצא מיקום: המסך החי, והמונה מתחיל ב-0:00</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -312,6 +312,15 @@ body{margin:0}
 .H .sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
 .H .sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .H .sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.H .35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.H .rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.H .30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.H .30);font-family:inherit;color:#fff}
+.H .night .rb{background:rgba(0,0,0,.H .40);box-shadow:0 6px 18px rgba(0,0,0,.H .45)}
+.H .rb .rg{position:absolute;inset:0;overflow:visible}
+.H .rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.H .25)}
+.H .rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.H .rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.H .rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.H .rb.still .dt,.H .rb.still .ar{animation:none!important}
 .H .sh.mid{width:56px;height:56px}
 .H .still .tk,.H .still .ar,.H .still.sh{animation:none!important}
 .H .nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
@@ -343,6 +352,19 @@ body{margin:0}
 .H .gd .v span{font-size:17px;font-weight:700;color:var(--ink2)}
 .H .gd .rn{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700}
 .H .gd .you{position:absolute;left:50%;top:84%;width:10px;height:10px;border-radius:50%;background:#2F7BFF;border:2px solid #fff;transform:translate(-50%,-50%)}
+
+.H .cg{position:absolute;left:50%;bottom:92px;width:240px;height:240px;transform:translateX(-50%)}
+.H .cg .disc{position:absolute;inset:0;border-radius:50%}
+.H .cg svg{position:absolute;inset:0;overflow:visible}
+.H .cg .tk{stroke:var(--ink);stroke-linecap:round}
+.H .night .cg .tk{stroke:#DCE8FF;filter:drop-shadow(0 0 2px rgba(170,200,255,.55))}
+.H .cg .nm{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:500;color:var(--ink2);direction:ltr;font-variant-numeric:tabular-nums}
+.H .night .cg .nm{color:#B9C8E6}
+.H .cg .nd{transition:transform .3s cubic-bezier(.3,.7,.3,1)}
+.H .cg .rd{position:absolute;left:0;right:0;top:146px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.H .cg .rd b{font-size:48px;font-weight:300;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums;direction:ltr}
+.H .cg .rd span{font-size:12px;font-weight:700;color:var(--ink2)}
+.H .cg .rn{position:absolute;left:0;right:0;top:211px;display:flex;justify-content:center;align-items:center;gap:6px;font-size:12.5px;font-weight:700;transform:scale(.92)}
 </style>
 </helmet>
 <div class="H" style="width: 390px; height: 844px; position: relative; overflow: hidden">
