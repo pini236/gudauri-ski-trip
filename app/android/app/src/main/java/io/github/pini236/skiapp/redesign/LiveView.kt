@@ -185,22 +185,7 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
             renderer.drape = b; requestRender(); Qa.log("redesign live drape ready")
         }
         // the far ground past the model's edge (LiveRing, the architect's option a); without it the model as it was
-        worker.execute {
-            val r = runCatching {
-                val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
-                val t = scene.terrain
-                LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev).also { r ->
-                    // the relief map (the sixth texture); without it the ring is drawn as before, never not at all
-                    r.relief = runCatching { LiveTex.decode(context, "ringrelief") }.onFailure { Qa.log("redesign ring relief failed") }.getOrNull()
-                    // the band of the front seam (step 4): the model's maps past its edge; without it the seam's shading is as before
-                    r.band = runCatching { band() }.onFailure { Qa.log("redesign ring band failed ${it.javaClass.simpleName}") }.getOrNull()
-                }
-            }.onFailure { Qa.log("redesign ring failed ${it.javaClass.simpleName}") }.getOrNull() ?: return@execute
-            ring = r
-            renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles} relief ${r.relief != null} band ${r.band != null}")
-            // the model's own shadow again, its last 1,500 m over the ring's ground (it bends to it), then the ring's
-            lightDir?.let { d -> modelShadow(d); ringShadow(r, d) }
-        }
+        worker.execute { loadRing(true) }
         // the opening: the designer's camera (peak-live.json), looking north the way the picture looks (LiveOpen):
         // a little further and lower first, then a slow approach
         val open = front()
@@ -353,6 +338,24 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     @Volatile private var ring: LiveRing? = null
     @Volatile private var lightDir: FloatArray? = null
 
+    /** The ring built and handed to the renderer (on the worker); [seam] false: the ring of before step 4, for the emulator. */
+    private fun loadRing(seam: Boolean) {
+        val r = runCatching {
+            val j = org.json.JSONObject(context.assets.open(LiveData.DIR + "ring.json").bufferedReader().use { it.readText() })
+            val t = scene.terrain
+            LiveRing.build(j, t.x0, t.y0, t.x1, t.y1, t::elev, seam).also { r ->
+                // the relief map (the sixth texture); without it the ring is drawn as before, never not at all
+                r.relief = runCatching { LiveTex.decode(context, "ringrelief") }.onFailure { Qa.log("redesign ring relief failed") }.getOrNull()
+                // the band of the front seam (step 4): the model's maps past its edge; without it the seam's shading is as before
+                r.band = if (!seam) null else runCatching { band() }.onFailure { Qa.log("redesign ring band failed ${it.javaClass.simpleName}") }.getOrNull()
+            }
+        }.onFailure { Qa.log("redesign ring failed ${it.javaClass.simpleName}") }.getOrNull() ?: return
+        ring = r
+        renderer.ring = r; requestRender(); Qa.log("redesign ring ready ${r.triangles} relief ${r.relief != null} band ${r.band != null}")
+        // the model's own shadow again, its last 1,500 m over the ring's ground (it bends to it), then the ring's
+        lightDir?.let { d -> modelShadow(d); ringShadow(r, d) }
+    }
+
     /** The model's cast shadow for the sun in [dir] (on the worker): with the ring, its edge over the ring's ground. */
     private fun modelShadow(dir: FloatArray) {
         val t = scene.terrain
@@ -407,6 +410,8 @@ class LiveView(context: Context, private val scene: MapScene) : GLSurfaceView(co
     fun showAir(on: Boolean) { renderer.airOn = on; requestRender(); Qa.log("redesign air ${if (on) "on" else "off"}") }
 
     /** The emulator's switch for the far ground (qa.redesign ring:off / ring:on), to measure the frames with and without it. */
+    /** The emulator's before and after of the front seam (qa.redesign seam:off, seam:on): the ring built again. */
+    fun qaSeam(on: Boolean) { worker.execute { loadRing(on); Qa.log("redesign seam ${if (on) "on" else "off"}") } }
     fun showRing(on: Boolean) { renderer.ringShown = on; requestRender(); Qa.log("redesign ring ${if (on) "on" else "off"}") }
     fun setShift(px: Float) { if (renderer.shiftPx != px) { renderer.shiftPx = px; requestRender() } }
     val shiftPx: Float get() = renderer.shiftPx

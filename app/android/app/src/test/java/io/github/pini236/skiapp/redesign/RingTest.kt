@@ -25,10 +25,10 @@ class RingTest {
         assertTrue("${relief.length()} bytes of relief", relief.length() <= LiveRing.MAX_RELIEF_BYTES)
         // the sixth texture: the whole set stays within 1 MB (the architect, 25.11.2026)
         val set = LiveData.TEXTURES.sumOf { File("src/main/assets/redesign/live/$it.webp").length() } + relief.length()
-        assertTrue("$set bytes of textures", set <= 1L shl 20)
-        // the band of the front seam (step 4): its own budget, until the architect's answer on the whole set
+        // the band of the front seam (step 4): the architect raised the set's ceiling to 1.2 MB for it (25.11.2026)
         val band = File("src/main/assets/redesign/live/ringband.webp").length()
         assertTrue("$band bytes of band", band in 1..LiveRing.MAX_BAND_BYTES.toLong())
+        assertTrue("${set + band} bytes of textures with the band", set + band <= LiveRing.MAX_SET_BYTES)
         assertTrue("${ring.triangles} triangles", ring.triangles <= LiveRing.MAX_TRIANGLES)
         assertTrue(ring.indices.all { it in 0 until ring.points })
         // the light option: 300 m out to 22 km, 1,400 m out to 42 km

@@ -1337,7 +1337,13 @@ redesign() {
     mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-${sh#*:}"
     mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-${sh#*:}"
   done
+  # and before step 4, the same two looks at noon (the architect's condition 4: the seam before and after)
   mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  mark; qa "--es qa.redesign seam:off"; waitlog "redesign seam off" 30 || fail "redesign: the seam's before did not build"
+  mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-noon-before"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-noon-before"
+  mark; qa "--es qa.redesign seam:on"; waitlog "redesign seam on" 30
+  note "seam: band shadow $(logline 'redesign ring band shadow' | sed 's/.*band shadow //')"
   mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10; rd_drawn
   # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
   # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure

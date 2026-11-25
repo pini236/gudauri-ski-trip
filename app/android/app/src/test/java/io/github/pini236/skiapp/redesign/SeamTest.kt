@@ -22,20 +22,17 @@ class SeamTest {
         LiveRing.build(JSONObject(File("src/main/assets/redesign/live/ring.json").readText()), terrain.x0, terrain.y0, terrain.x1, terrain.y1, terrain::elev)
     }
 
-    @Test fun noRunOrLiftStandsWhereTheGroundBends() {
-        var worst = 0f; var where = ""
-        for (p in scene.runs.pistes) for (l in scene.draped[p.key] ?: emptyList()) for (i in 0 until l.size / 3) {
-            val x = l[i * 3]; val z = l[i * 3 + 2]; val h = terrain.elev(x, z)
-            val d = abs(ring.bent(x, z, h) - h)
-            if (d > worst) { worst = d; where = "${p.key} at ${x.toInt()},${z.toInt()}, ${ring.inward(x, z).toInt()} m in" }
-        }
-        // lifts: their lines in projected metres, x and y pairs
-        for (lift in scene.runs.lifts) for (k in 0 until lift.pts.size / 2) {
-            val x = lift.pts[k * 2]; val z = lift.pts[k * 2 + 1]; val h = terrain.elev(x, z)
-            val d = abs(ring.bent(x, z, h) - h)
-            if (d > worst) { worst = d; where = "${lift.name} at ${x.toInt()},${z.toInt()}" }
-        }
-        // a line is drawn a few metres over the snow and lifted toward the eye: 4 m of bend is not seen
-        assertTrue("$worst m under $where", worst <= 4f)
+    @Test fun nothingToDrawOrTouchStandsWhereTheGroundBends() {
+        // the architect's condition 3: no run, lift, name or place to touch in the last 1,500 m of the model (the bend is
+        // only in the drawing; terrain.json and every height the app reads elsewhere stay as they are)
+        var near = Float.MAX_VALUE; var what = ""
+        fun at(x: Float, z: Float, name: String) { val d = ring.inward(x, z); if (d < near) { near = d; what = name } }
+        for (p in scene.runs.pistes) for (l in scene.draped[p.key] ?: emptyList()) for (i in 0 until l.size / 3) at(l[i * 3], l[i * 3 + 2], p.key)
+        for (lift in scene.runs.lifts) for (k in 0 until lift.pts.size / 2) at(lift.pts[k * 2], lift.pts[k * 2 + 1], lift.name)
+        for (pk in terrain.peaks) at(pk.x, pk.y, "peak ${pk.ele}")
+        // the picture's names (Sadzele, Bidara, Kudebi, New Gudauri) stand on peaks and the village: covered by both
+        val live = LiveData.parse(File("src/main/assets/redesign/live/peak-live.json").readText())
+        for (k in 0 until live.village.size / 3) at(live.village[k * 3], live.village[k * 3 + 2], "village light")
+        assertTrue("$what is ${near.toInt()} m inside the edge", near >= LiveRing.BEND)
     }
 }

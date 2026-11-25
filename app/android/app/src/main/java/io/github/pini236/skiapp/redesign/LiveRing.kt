@@ -27,6 +27,8 @@ class LiveRing private constructor(
     val reliefBox: FloatArray,
     /** The model's box (x0, y0, x1, y1) and its heights, for the cast shadow. */
     val model: FloatArray, private val elev: (Float, Float) -> Float,
+    /** The front seam of step 4 (the model bent to the ring, the band); false is the ring of before, for the emulator's "before". */
+    val seam: Boolean = true,
 ) {
     val triangles get() = indices.size / 3
     val points get() = vertices.size / STRIDE
@@ -65,6 +67,7 @@ class LiveRing private constructor(
      * two are one height, so the ground goes on as one, with no flat band and no step.
      */
     fun bent(x: Float, y: Float, h: Float): Float {
+        if (!seam) return h
         val d = inward(x, y)
         if (d >= BEND || d < 0f) return h
         val t = 1f - d / BEND; val w = t * t * (3f - 2f * t)
@@ -157,7 +160,7 @@ class LiveRing private constructor(
      * two shade as one at the edge; 400 m of hand-over into [raw] inside that. Before softening. Off the drawing thread.
      */
     fun modelBand(raw: FloatArray, nx: Int, ny: Int, gx0: Float, gy0: Float, sx: Float, sy: Float, dir: FloatArray): FloatArray {
-        if (dir[1] <= 0f) return raw
+        if (dir[1] <= 0f || !seam) return raw
         val out = raw.copyOf()
         val horiz = sqrt(dir[0] * dir[0] + dir[2] * dir[2]).coerceAtLeast(1e-4f)
         val ux = dir[0] / horiz; val uz = dir[2] / horiz; val rise = dir[1] / horiz
@@ -191,8 +194,10 @@ class LiveRing private constructor(
         const val BAND_HANDOVER = 400f
         /** Where the model's shader hands its maps over to the band (metres inside the edge). */
         const val SEAM_IN = 600f
-        /** The band's budget (the designer: 228 KB; the architect's answer pending). */
+        /** The band's budget (the designer: 228 KB). */
         const val MAX_BAND_BYTES = 240 * 1024
+        /** The packed textures of the live model with the ring's two (the architect, 25.11.2026: 1.2 MB with the band). */
+        const val MAX_SET_BYTES = 1_200_000L
         /** Where the outer ring is under the inner one it lies this far under it (metres). */
         const val UNDER_INNER = 30f
         /** The budget (the architect, 25.11.2026, the light option): the file, the triangles, the relief map. */
@@ -247,7 +252,7 @@ class LiveRing private constructor(
          * it is left out; an outer vertex inside the inner ring lies [UNDER_INNER] under it, and an outer cell two inner
          * cells inside the inner ring is left out.
          */
-        fun build(json: JSONObject, x0: Float, y0: Float, x1: Float, y1: Float, elev: (Float, Float) -> Float): LiveRing {
+        fun build(json: JSONObject, x0: Float, y0: Float, x1: Float, y1: Float, elev: (Float, Float) -> Float, seam: Boolean = true): LiveRing {
             check(json.getInt("schema") == 2) { "ring.json: schema ${json.getInt("schema")}" }
             val gi = grid(json.getJSONObject("inner")); val go = grid(json.getJSONObject("outer"))
             fun inModel(x: Float, y: Float, m: Float) = x > x0 + m && x < x1 - m && y > y0 + m && y < y1 - m
@@ -255,7 +260,13 @@ class LiveRing private constructor(
             val yi = FloatArray(gi.nx * gi.ny)
             for (j in 0 until gi.ny) for (i in 0 until gi.nx) {
                 val x = gi.x0 + i * gi.cell; val y = gi.y0 + j * gi.cell
-                yi[j * gi.nx + i] = gi.h[j * gi.nx + i] - if (inModel(x, y, 0f)) UNDER else 0f
+                yi[j * gi.nx + i] = if (seam) gi.h[j * gi.nx + i] - if (inModel(x, y, 0f)) UNDER else 0f
+                // before step 4 (the emulator's "before" picture only): 25 m under the model, a 900 m blend out of it
+                else if (inModel(x, y, 0f)) elev(x, y) - 25f else {
+                    val cx = x.coerceIn(x0, x1); val cy = y.coerceIn(y0, y1)
+                    val w = (sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / 900f).coerceIn(0f, 1f)
+                    elev(cx, cy) * (1 - w) + gi.h[j * gi.nx + i] * w
+                }
             }
             fun innerY(x: Float, y: Float): Float {
                 val c = ((x - gi.x0) / gi.cell).coerceIn(0f, gi.nx - 1.0001f); val r = ((y - gi.y0) / gi.cell).coerceIn(0f, gi.ny - 1.0001f)
@@ -291,7 +302,7 @@ class LiveRing private constructor(
             val rb = json.getJSONObject("relief")
             return LiveRing(v, idx.toIntArray(), (go.nx - 1) * go.cell / 2f, gi, go,
                 floatArrayOf(rb.getDouble("x0").toFloat(), rb.getDouble("y0").toFloat(), rb.getDouble("x1").toFloat(), rb.getDouble("y1").toFloat()),
-                floatArrayOf(x0, y0, x1, y1), elev)
+                floatArrayOf(x0, y0, x1, y1), elev, seam)
         }
     }
 }
