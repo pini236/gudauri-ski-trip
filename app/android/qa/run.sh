@@ -486,7 +486,7 @@ TRIP_EN='{"v":1,"out":{"date":"2027-01-10","flight":"GD 101","from":"TLV · Tel 
 
 home() {
   # a guest with no trip, early December at midday in Gudauri (H1)
-  qa "--es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 20
+  qa "--es qa.tab home --es qa.trip none --es qa.mode auto --es qa.time 2026-12-01T13:35"; waitlog "trip none" 40
   # the map loads in the background: on a slow emulator a drag before it is done lands as a tap on a sign
   waitlog "shadow ready" 90; sleep 2; shot home-guest
   drag $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 4)) 400; sleep 1; shot home-guest-signs

@@ -407,6 +407,10 @@ internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = nul
     val down = androidx.compose.runtime.rememberUpdatedState(onDown)
     val up = androidx.compose.runtime.rememberUpdatedState(onUp)
     val gone = androidx.compose.runtime.rememberUpdatedState(closes)
+    // the finger on the screen: how far down since it touched, and its speed (read in the first pass, never consumed)
+    var finger by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    var fingerV by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    var base by remember { androidx.compose.runtime.mutableStateOf<Float?>(null) }
     fun release(v: Float) {
         val to = PullRules.settle(y, v, h, dens, down.value != null, up.value != null)
         Qa.log("redesign pull ${to.name.lowercase()} y=${y.toInt()} v=${v.toInt()} h=${h.toInt()}")
@@ -425,22 +429,49 @@ internal fun Modifier.pullSheet(onDown: (() -> Unit)?, onUp: (() -> Unit)? = nul
         object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
                 // pulled down and now going back up: the sheet takes it first
-                if (y > 0f && available.y < 0f) { val t = maxOf(available.y, -y); y += t; return Offset(0f, t) }
+                if (y > 0f && available.y < 0f) {
+                    val b = base
+                    if (b != null) { val ny = maxOf(0f, finger - b); val t = ny - y; y = ny; return Offset(0f, maxOf(available.y, t)) }
+                    val t = maxOf(available.y, -y); y += t; return Offset(0f, t)
+                }
                 return Offset.Zero
             }
             override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
                 // the list is at its top and the finger still goes down: the sheet follows
-                if (available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput && down.value != null) { y += available.y; return Offset(0f, available.y) }
+                // follows the finger itself (its place on the screen, read outside the moving layer): the list inside
+                // sees the finger against a sheet that moves too, and only half of the pull reached it (the review of 24.11)
+                if (available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput && down.value != null) {
+                    if (base == null) base = finger - y
+                    y = maxOf(0f, finger - (base ?: 0f)); return Offset(0f, available.y)
+                }
                 return Offset.Zero
             }
             override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
-                if (y != 0f) { release(available.y); return available }
+                if (y != 0f) { base = null; release(maxOf(available.y, fingerV)); return available }
                 return androidx.compose.ui.unit.Velocity.Zero
             }
         }
     }
     return this
         .onSizeChanged { h = it.height.toFloat().coerceAtLeast(1f) }
+        .pointerInput(Unit) {
+            awaitEachGesture {
+                val first = awaitFirstDown(requireUnconsumed = false, pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                val vt = androidx.compose.ui.input.pointer.util.VelocityTracker()
+                val y0 = first.position.y
+                finger = 0f; fingerV = 0f; base = null
+                vt.addPosition(first.uptimeMillis, Offset(0f, y0))
+                while (true) {
+                    val e = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                    val c = e.changes.firstOrNull { it.id == first.id } ?: break
+                    // outside the moving layer (this modifier comes before it): the place on the screen
+                    val sy = c.position.y
+                    vt.addPosition(c.uptimeMillis, Offset(0f, sy))
+                    finger = sy - y0
+                    if (!c.pressed) { fingerV = vt.calculateVelocity().y; break }
+                }
+            }
+        }
         .nestedScroll(nested)
         .draggable(androidx.compose.foundation.gestures.rememberDraggableState { d -> y += d }, androidx.compose.foundation.gestures.Orientation.Vertical,
             onDragStopped = { v -> release(v) })
