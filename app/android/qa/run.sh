@@ -1427,6 +1427,13 @@ PY
   mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"
   rd_settled; shot redesign-meet-set-night
   mark; qa "--es qa.mode auto --es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
+  # a meeting point's link from the site (Pini, 25.11.2026: never the old screen): the app comes forward on the mountain,
+  # the meeting point open on that station
+  mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#meet/158744075b/0930/20270111' -p $PKG" > /dev/null
+  waitlog "redesign link meet:station:158744075b" 15 || fail "redesign: the meeting point's link did not reach the mountain"
+  if waitlog "redesign meet set 158744075b" 20; then rd_settled; shot redesign-meet-link; else fail "redesign: the meeting point's link did not open on its station"; fi
+  seen "meet ready" 2 && fail "redesign: the meeting point's link opened the old screen"
+  mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10; qa "--es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
   # a group's meetup today on the plain mountain (the flag from the phone's copy), then gone
   mark; qa "--es qa.redesign meet:flag"; waitlog "redesign meet flag" 10 || fail "redesign: no group flag"
   rd_settled; shot redesign-meet-group-flag
