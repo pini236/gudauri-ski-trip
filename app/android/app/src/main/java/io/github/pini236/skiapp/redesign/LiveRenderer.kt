@@ -96,20 +96,30 @@ void main(){ vPos=aPos; vNor=aNor; gl_Position=uMvp*vec4(aPos,1.0); }"""
 private const val RING_FS = """#version 300 es
 precision highp float;
 in vec3 vPos; in vec3 vNor;
+uniform sampler2D uTile;
 uniform vec3 uSun; uniform vec3 uLit; uniform vec3 uShade; uniform vec3 uRock; uniform vec3 uRockS; uniform vec3 uHor;
-uniform float uDirect; uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform vec4 uDim;
+uniform float uDirect; uniform float uGlow; uniform vec3 uCam; uniform vec3 uHaze; uniform float uValley; uniform vec4 uDim;
+uniform float uRingR;
 out vec4 o;
 void main(){
-  vec3 n=normalize(vNor);
+  // the designer's ring (live_ref.html, rfs, 25.11.2026): the model's wind ripples and rock streaks from its own tile
+  vec3 n0=normalize(vNor); vec2 s=-n0.xz/max(n0.y,0.2);
+  float deg=degrees(acos(clamp(n0.y,0.0,1.0)));
+  s+=(texture(uTile,vPos.xz/640.0).rg-0.5)*0.5*1.6*(1.0-smoothstep(30.0,40.0,deg));
+  vec3 n=normalize(vec3(-s.x,1.0,-s.y));
   float t=pow(max(dot(n,uSun),0.0)*uDirect+(1.0-uDirect)*0.55*n.y,0.85);
+  t*=mix(1.0,0.35+0.65*smoothstep(2350.0,3000.0,vPos.y),uGlow);
   vec3 col=uShade*(0.86+0.14*n.y)+(uLit-uShade*0.86)*t;
-  float deg=degrees(acos(clamp(n.y,0.0,1.0)));
-  col=mix(col,mix(uRockS,uRock,t),smoothstep(30.0,42.0,deg)*0.8);
+  float stk=texture(uTile,vPos.xz/160.0).b;
+  float rk=smoothstep(27.0,36.0,deg+(stk-0.5)*6.0)*0.8;
+  col=mix(col,mix(uRockS,uRock,t)*(0.75+0.5*stk),rk);
   col=mix(col,uDim.rgb,uDim.a);
   float d=length(vPos-uCam);
   float far=uHaze.z*(1.0-exp(-max(d-uHaze.x,0.0)/uHaze.y));
   float low=smoothstep(2300.0,1750.0,vPos.y)*uValley;
   col=mix(col,uHor,clamp(far+low*(1.0-far),0.0,0.97));
+  // its last 5 km go into the air, where the far horizon takes over
+  col=mix(col,uHor,smoothstep(uRingR-5000.0,uRingR-500.0,max(abs(vPos.x),abs(vPos.z))));
   col=clamp(col,0.0,1.0); col=col*col*(3.0-2.0*col)*0.55+col*0.45;
   o=vec4(col,1.0);
 }"""
@@ -589,6 +599,8 @@ class LiveRenderer(
             glUniform3fv(u(ringProg, "uLit"), 1, L.lit, 0); glUniform3fv(u(ringProg, "uShade"), 1, L.shade, 0)
             glUniform3fv(u(ringProg, "uRock"), 1, L.rock, 0); glUniform3fv(u(ringProg, "uRockS"), 1, L.rockS, 0); glUniform3fv(u(ringProg, "uHor"), 1, L.hor, 0)
             glUniform1f(u(ringProg, "uDirect"), L.direct); glUniform3fv(u(ringProg, "uCam"), 1, eye, 0)
+            glUniform1f(u(ringProg, "uGlow"), L.glow); glUniform1f(u(ringProg, "uRingR"), ringOn?.half ?: 1e9f)
+            glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, tex[2]); glUniform1i(u(ringProg, "uTile"), 2); glActiveTexture(GL_TEXTURE0)
             glUniform3f(u(ringProg, "uHaze"), D.haze[0] * s.dist, D.haze[1] * s.dist, D.haze[2]); glUniform1f(u(ringProg, "uValley"), D.valley)
             if (night) glUniform4f(u(ringProg, "uDim"), 2f / 255, 6f / 255, 18f / 255, .62f * dim)
             else glUniform4f(u(ringProg, "uDim"), 54f / 255, 78f / 255, 128f / 255, .42f * dim)

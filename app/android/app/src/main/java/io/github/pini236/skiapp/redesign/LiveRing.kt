@@ -17,6 +17,8 @@ class LiveRing private constructor(
     /** x, y, z, then the normal's x, y, z, for every vertex. */
     val vertices: FloatArray,
     val indices: IntArray,
+    /** Half the ring's side (metres from the middle): its last 5 km go into the air. */
+    val half: Float,
 ) {
     val triangles get() = indices.size / 3
 
@@ -24,6 +26,8 @@ class LiveRing private constructor(
         const val STRIDE = 6
         /** How far under the mesh the ring's middle lies (metres). */
         const val UNDER = 25f
+        /** Outside the model the ring comes from the model's edge to its own heights over this (the designer's soft seam). */
+        const val SEAM = 900f
         /** The budget (the architect): the file and the triangles. */
         const val MAX_BYTES = 64 * 1024
         const val MAX_TRIANGLES = 40_000
@@ -63,7 +67,13 @@ class LiveRing private constructor(
             val ys = FloatArray(nx * ny)
             for (j in 0 until ny) for (i in 0 until nx) {
                 val x = gx + i * cell; val y = gy + j * cell
-                ys[j * nx + i] = if (inside(x, y, 0f)) elev(x, y) - UNDER else h[j * nx + i].toFloat()
+                ys[j * nx + i] = if (inside(x, y, 0f)) elev(x, y) - UNDER else {
+                    // the soft seam: near the model, from its edge's height to the ring's own
+                    val cx = x.coerceIn(x0, x1); val cy = y.coerceIn(y0, y1)
+                    val off = sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy))
+                    val w = (off / SEAM).coerceIn(0f, 1f)
+                    elev(cx, cy) * (1 - w) + h[j * nx + i] * w
+                }
             }
             val v = FloatArray(nx * ny * STRIDE)
             for (j in 0 until ny) for (i in 0 until nx) {
@@ -84,7 +94,7 @@ class LiveRing private constructor(
                 // counter-clockwise seen from above (y up, z south), as the mesh's
                 idx += a; idx += c; idx += b; idx += b; idx += c; idx += d
             }
-            return LiveRing(v, idx.toIntArray())
+            return LiveRing(v, idx.toIntArray(), (nx - 1) * cell / 2f)
         }
     }
 }
