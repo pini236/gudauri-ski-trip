@@ -387,7 +387,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
     private val fade = Animatable(1f)
 
     private fun decode(file: String): ImageBitmap? = runCatching {
-        context.assets.open("redesign/img/$file").use { BitmapFactory.decodeStream(it) }!!.also { it.prepareToDraw() }.asImageBitmap()
+        context.assets.open("redesign/$file").use { BitmapFactory.decodeStream(it) }!!.also { it.prepareToDraw() }.asImageBitmap()
     }.onFailure { Redesign.fail("picture $file") }.getOrNull()
 
     /** the decoded pictures go (leaving the picture for the live model, condition 3) */
