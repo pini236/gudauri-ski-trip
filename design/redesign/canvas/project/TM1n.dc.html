@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
 <meta charset="utf-8">
-<title>מסך החיפוש · עם מונה, אחרי 30 שניות, בלילה</title>
+<title>מסך החיפוש · אחרי 30 שניות, בלילה</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -312,7 +312,24 @@ body{margin:0}
 .H .sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
 .H .sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .H .sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.H .35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.H .rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.H .30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.H .30);font-family:inherit;color:#fff}
+.H .night .rb{background:rgba(0,0,0,.H .40);box-shadow:0 6px 18px rgba(0,0,0,.H .45)}
+.H .rb .rg{position:absolute;inset:0;overflow:visible}
+.H .rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.H .25)}
+.H .rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.H .rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.H .rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.H .rb.still .dt,.H .rb.still .ar{animation:none!important}
 .H .sh.mid{width:56px;height:56px}
+.H .rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.H .rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.H .rq .o svg{position:absolute;inset:0}
+.H .rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.H .25)}
+.H .rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.H .rq.on{padding-inline-end:12px;background:rgba(229,53,43,.H .12)}
+.H .night .rq.on{background:rgba(255,116,104,.H .16)}
+.H .rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .H .still .tk,.H .still .ar,.H .still.sh{animation:none!important}
 .H .nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
 .H .nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.H .25)}
@@ -326,29 +343,12 @@ body{margin:0}
 .H .dock3.split .gap{flex:none;width:74px}
 
 .H .gtm{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;direction:ltr;color:var(--ink2)}
-
-@keyframes snf{0%{transform:translate(0,-30px)}100%{transform:translate(var(--dx),230px)}}
-.H .gd{position:absolute;left:50%;bottom:92px;width:252px;height:252px;transform:translateX(-50%)}
-.H .gd .win{position:absolute;inset:26px;border-radius:50%;overflow:hidden;box-shadow:0 10px 26px rgba(8,18,36,.35),inset 0 0 0 2px rgba(255,255,255,.7)}
-.H .night .gd .win{box-shadow:0 10px 26px rgba(0,0,0,.5),inset 0 0 0 2px rgba(176,206,255,.45)}
-.H .gd .win img{position:absolute;width:780px;height:1688px;max-width:none}
-.H .gd .win .vg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 46% at 50% 40%,rgba(255,255,255,.5) 0,rgba(255,255,255,.18) 70%,rgba(255,255,255,0) 100%)}
-.H .night .gd .win .vg{background:radial-gradient(ellipse 70% 46% at 50% 40%,rgba(6,12,26,.55) 0,rgba(6,12,26,.25) 70%,rgba(6,12,26,0) 100%)}
-.H .gd .sn{position:absolute;inset:0}
-.H .gd .sn i{position:absolute;top:0;width:3px;height:3px;border-radius:2px;background:#fff;opacity:.95;animation:snf linear infinite;box-shadow:0 0 0 1px rgba(70,92,125,.45),0 1px 3px rgba(40,60,90,.35)}
-.H .night .gd .sn i{box-shadow:0 0 3px rgba(255,255,255,.7)}
-.H .gd .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding-bottom:34px;box-sizing:border-box}
-.H .gd .v{display:flex;align-items:baseline;gap:6px;direction:ltr}
-.H .gd .v b{font-size:88px;font-weight:300;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums;text-shadow:0 0 16px var(--halo),0 0 4px var(--halo)}
-.H .gd .v span{font-size:17px;font-weight:700;color:var(--ink2)}
-.H .gd .rn{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700}
-.H .gd .you{position:absolute;left:50%;top:84%;width:10px;height:10px;border-radius:50%;background:#2F7BFF;border:2px solid #fff;transform:translate(-50%,-50%)}
 </style>
 </helmet>
 <div class="H" style="width: 390px; height: 844px; position: relative; overflow: hidden">
 <div class="night">
 <div class="scr" dir="rtl">
-<img class="pic" alt="" src="/_blob/b2127fcd841ba1e3a545cd20c07c5399" style="left: 0px; top: 0px; width: 390px; height: 844px"><div style="position: absolute; left: 0; right: 0; top: 0px; height: 844px; background: var(--veil)"></div><div class="gs " style="left: 195px; top: 360px"></div><div class="gs b" style="left: 195px; top: 360px"></div><div class="gs c" style="left: 195px; top: 360px"></div><div class="gsc glass" style="left: 195px; top: 360px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M12 2.500v3.200M12 18.300v3.200M2.500 12h3.200M18.300 12h3.200"/></svg></div><div class="gst" style="top: 510px"><b>מחפש מיקום</b><span class="gtm">0:41</span><span>בחוץ, מתחת לשמיים פתוחים,<br>זה לוקח בדרך כלל פחות מדקה</span></div><div class="hold glass"><i></i>החזקה לסיום</div>
+<img class="pic" alt="" src="/_blob/b2127fcd841ba1e3a545cd20c07c5399" style="left: 0px; top: 0px; width: 390px; height: 844px"><div style="position: absolute; left: 0; right: 0; top: 0px; height: 844px; background: var(--veil)"></div><div class="gs " style="left: 195px; top: 360px"></div><div class="gs b" style="left: 195px; top: 360px"></div><div class="gs c" style="left: 195px; top: 360px"></div><div class="gsc glass" style="left: 195px; top: 360px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M12 2.500v3.200M12 18.300v3.200M2.500 12h3.200M18.300 12h3.200"/></svg></div><div class="gst" style="top: 510px"><b>מחפש מיקום</b><span>בחוץ, מתחת לשמיים פתוחים,<br>זה לוקח בדרך כלל פחות מדקה</span></div><div class="hold glass"><i></i>החזקה לסיום</div>
 </div>
 </div>
 </div>

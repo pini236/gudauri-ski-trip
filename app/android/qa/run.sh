@@ -866,8 +866,11 @@ runview() {
   for i in 1 2 3 4; do xy=$(where "Sadzele 1"); [ -n "$xy" ] && break; drag $up; sleep 1; done
   mark; tapText "Sadzele 1" && waitlog "selected Sadzele 1" 10 && { sleep 3; shot run-from-list; }
   # a run's link from the site, while the app is open (A-31): the same app comes forward on that run
+  # (every link opens on the mountain now, the run chosen there: Pini, 24.11.2026); in the debug build the mountain
+  # opens only when asked, so the live mountain is opened over home first
+  qa "--es qa.run none --es qa.tab home"; sleep 2; mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"
+  seen "redesign live drawn" 60; qa "--es qa.redesign season:off"; sleep 1
   mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#map/run/Tatra%201' -p $PKG" > /dev/null
-  # (every link opens on the mountain now, the run chosen there: Pini, 24.11.2026)
   waitlog "redesign link pick:Tatra 1" 15 && waitlog "redesign live framed Tatra 1" 75 && { sleep 3; shot run-link; }
   # English: the same panel, left to right
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
@@ -1138,6 +1141,8 @@ rd_touch() { # rd_touch <run>: touch <run> where it is drawn now; the screen mus
 rd_back() { mark; adb shell input keyevent KEYCODE_BACK; waitlog "redesign cleared" 10; sleep 1; }
 # the same on the live model: where its line is drawn now (qa.redesign spot:<run>), a real tap, chosen; and let go
 rd_live_touch() { # rd_live_touch <run>
+  # before the season the first touch only closes the countdown (Pini's bug, 25.11.2026): close it first
+  qa "--es qa.redesign season:off"; sleep 1
   mark; qa "--es qa.redesign 'spot:$1'"; waitlog "redesign live spot $1" 20 || return 1
   local xy; xy=$(tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep "SkiQa.*redesign live spot $1" | tail -1 | sed 's/.*redesign live spot .* \([0-9]*\) \([0-9]*\)$/\1 \2/')
   case "$xy" in *none*|*spot*|"") fail "redesign: no place on the live model to touch $1"; return 1 ;; esac
@@ -1451,6 +1456,13 @@ PY
   mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"
   rd_settled; shot redesign-meet-set-night
   mark; qa "--es qa.mode auto --es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
+  # a meeting point's link from the site (Pini, 25.11.2026: never the old screen): the app comes forward on the mountain,
+  # the meeting point open on that station
+  mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#meet/158744075b/0930/20270111' -p $PKG" > /dev/null
+  waitlog "redesign link meet:station:158744075b" 15 || fail "redesign: the meeting point's link did not reach the mountain"
+  if waitlog "redesign meet set 158744075b" 20; then rd_settled; shot redesign-meet-link; else fail "redesign: the meeting point's link did not open on its station"; fi
+  seen "meet ready" 2 && fail "redesign: the meeting point's link opened the old screen"
+  mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10; qa "--es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
   # a group's meetup today on the plain mountain (the flag from the phone's copy), then gone
   mark; qa "--es qa.redesign meet:flag"; waitlog "redesign meet flag" 10 || fail "redesign: no group flag"
   rd_settled; shot redesign-meet-group-flag

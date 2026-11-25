@@ -5,9 +5,9 @@ name: iOS
 # Reviewed by the architect (docs/ARCHITECTURE.md, 21.10.2026) and DevOps (decision 66) before merge.
 on:
   push:
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/audio/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
   pull_request:
-    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
+    paths: ['app/ios/**', 'site/data/**', 'site/games/descent/**', 'site/games/thumbs/**', 'site/img/pano/**', 'site/audio/**', 'site/js/relief.js', 'site/css/site.css', 'tools/fixtures/**', 'tools/build-ios-data.py', 'tools/build-ios-strings.py', 'i18n/strings.json', '.github/workflows/ios.yml', 'tools/check-ios-variant.sh', 'tools/check-ios-isolation.sh', 'tools/check-ios-no-tests.sh']
   workflow_dispatch:
     inputs:
       variant:
@@ -54,11 +54,46 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set -u
-          if [ "$EVENT" = workflow_dispatch ] || [ "$REF" = refs/heads/main ]; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          if [ "$EVENT" = pull_request ]; then base="origin/$BASE_REF"; elif [ -n "$BEFORE" ] && ! echo "$BEFORE" | grep -q '^0*$' && git cat-file -e "$BEFORE^{commit}" 2> /dev/null; then base="$BEFORE"; else base=$(git merge-base origin/main HEAD); fi
+          if [ "$EVENT" = workflow_dispatch ]; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$EVENT" = pull_request ]; then base="origin/$BASE_REF"; elif [ -n "$BEFORE" ] && ! echo "$BEFORE" | grep -q '^0*$' && git cat-file -e "$BEFORE^{commit}" 2> /dev/null; then base="$BEFORE"; elif [ "$REF" = refs/heads/main ]; then echo "app=true" >> "$GITHUB_OUTPUT"; echo "main without a before commit: build"; exit 0; else base=$(git merge-base origin/main HEAD); fi
           files=$(git diff --name-only "$base" HEAD)
-          # the app's own code and the scripts that pack its data, strings and workflow; not the shared site data
-          if echo "$files" | grep -q -E '^(app/ios/|tools/build-ios-|\.github/workflows/ios\.yml)'; then echo "app=true" >> "$GITHUB_OUTPUT"; else echo "app=false" >> "$GITHUB_OUTPUT"; echo "the simulator build is skipped: no file of the app changed (run it by hand with workflow_dispatch)"; fi
+          # the app's own code and the scripts that pack its data, strings and workflow
+          if echo "$files" | grep -q -E '^(app/ios/|tools/build-ios-|tools/check-ios-|\.github/workflows/ios\.yml)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$REF" = refs/heads/main ]; then
+            # on main the data the app packs also counts (the shared site data, the relief and tokens it is tested against)
+            if echo "$files" | grep -q -E '^(site/data/|site/games/descent/|site/games/thumbs/|site/img/pano/|site/audio/|site/js/relief\.js|site/css/site\.css|tools/fixtures/)'; then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+            # the strings: a text edit or a new key cannot break the build; a removed key, or one whose placeholders or plural
+            # shape changed, can (the app's typed accessors, tools/build-ios-strings.py)
+            if echo "$files" | grep -q '^i18n/strings\.json$'; then
+              if python3 - "$base" <<'PYTHON'
+          import json, re, subprocess, sys
+          SKIP = re.compile(r"^(game\.[a-z]+\.friend_|tester\.|poc\.)")
+          PH = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
+          def load(text):
+              return json.loads(text)["strings"]
+          def shape(e):
+              ps = set()
+              for l in ("he", "en", "ru", "ka"):
+                  t = e.get(l)
+                  for form in (t.values() if isinstance(t, dict) else [t or ""]):
+                      ps.update(PH.findall(form))
+              return (isinstance(e.get("he"), dict), frozenset(ps))
+          try:
+              old = load(subprocess.run(["git", "show", sys.argv[1] + ":i18n/strings.json"], capture_output=True, text=True, check=True).stdout)
+              new = load(open("i18n/strings.json", encoding="utf-8").read())
+          except Exception as e:
+              print("cannot compare the strings, build:", e); sys.exit(0)
+          for k, e in old.items():
+              if SKIP.match(k):
+                  continue
+              if k not in new or shape(new[k]) != shape(e):
+                  print("a key the app reads was removed or changed in shape:", k); sys.exit(0)
+          sys.exit(1)
+          PYTHON
+              then echo "app=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+            fi
+          fi
+          echo "app=false" >> "$GITHUB_OUTPUT"; echo "the simulator build is skipped: nothing the app builds from changed (run it by hand with workflow_dispatch)"
 
   core:
     name: Logic (GudiCore) tests
@@ -68,6 +103,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Gate, no closure literal handed to a background-queue system API from a @MainActor file
         run: sh tools/check-ios-isolation.sh
+      - name: Gate, the strings the app is generated from (a new key can break the build too, with a name Swift rejects or two keys with one name)
+        run: python3 tools/build-ios-strings.py "$RUNNER_TEMP/ios-strings.json" "$RUNNER_TEMP/ios-strings.swift"
       - name: Select Xcode
         run: |
           ls -d /Applications/Xcode*.app
@@ -78,7 +115,7 @@ jobs:
         run: swift test --package-path app/ios/Packages/GudiCore
 
   app:
-    name: App build and simulator screenshot
+    name: App build and tests (screenshots by hand)
     needs: plan
     if: needs.plan.outputs.app == 'true'
     runs-on: macos-26
@@ -140,6 +177,8 @@ jobs:
       - name: Gate, the built app carries no test bundle
         run: sh tools/check-ios-no-tests.sh "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Gudi.app"
       - name: Run in a simulator and take a screenshot
+        # by hand only (workflow_dispatch): Pini, 25.11.2026, test only the app's core activity; a push builds and runs the tests
+        if: github.event_name == 'workflow_dispatch'
         timeout-minutes: 30
         run: |
           set -x
@@ -171,6 +210,7 @@ jobs:
           grep -E "error:|Test Case .* failed" "$RUNNER_TEMP/test.log" | sort -u | head -40 || true
           test "$RC" -eq 0
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: github.event_name == 'workflow_dispatch'
         with:
           name: ios-screenshots
           path: shots/

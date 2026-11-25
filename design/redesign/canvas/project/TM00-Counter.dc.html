@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
 <meta charset="utf-8">
-<title>מסך החיפוש: מונה או בלי</title>
+<title>מסך החיפוש: בלי מונה</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -43,7 +43,24 @@ body{margin:0}
 .sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
 .sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
 .sh.mid{width:56px;height:56px}
+.rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.rq .o svg{position:absolute;inset:0}
+.rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.25)}
+.rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.rq.on{padding-inline-end:12px;background:rgba(229,53,43,.12)}
+.night .rq.on{background:rgba(255,116,104,.16)}
+.rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
 .still .tk,.still .ar,.still.sh{animation:none!important}
 .nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
 .nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.25)}
@@ -60,9 +77,9 @@ body{margin:0}
 .HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
 </style>
 </helmet>
-<div class="HW" dir="rtl" style="width: 1280px; height: 540px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">הערות על גרסה 56 · מסך החיפוש, אחרי הבחירה ב-3</p><h1>מסך החיפוש: מונה או בלי</h1><div class="card"><table style="border-collapse: collapse; width: 100%; font-size: 15.5px; line-height: 1.45"><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 9px 10px; width: 24%"><b>עם מונה (ההמלצה)</b></td><td style="padding: 9px 10px">מתחת ל"מחפש מיקום", בלי מילה ליד. סופר מהנגיעה, וממשיך באותו מספר במסך החי. כך הקוד עובד היום (התיקון מ-13.11).</td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 9px 10px; width: 24%"><b>בלי זמן</b></td><td style="padding: 9px 10px">בזמן החיפוש אין מספר. כשנמצא מיקום המסך עובר למסך החי, והמונה מתחיל שם ב-0:00.</td></tr></table></div><div class="card"><h2>ההמלצה: עם מונה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>השאלה שלך הייתה איך יודעים שההקלטה התחילה. מספר שזז עונה על זה בלי מילה, גם כשהחיפוש לוקח דקה.</li><li>המונה סופר את הזמן מהנגיעה, אבל מה שנמדד (ירידות, מהירות) מתחיל רק כשיש מיקום. זה כבר כך היום.</li><li>בלי זמן, חיפוש ארוך נראה תקוע, ואז המונה במסך החי מתחיל ב-0:00 כאילו כלום לא קרה עד עכשיו.</li><li>השורה "בחוץ זה לוקח בדרך כלל פחות מדקה" מופיעה רק אחרי 30 שניות בלי מיקום, בשתי האפשרויות.</li></ul><div class="q"><span class="qn">1</span><span><b>מונה מהנגיעה, או בלי זמן עד שיש מיקום?</b> <b>(ההמלצה: מונה)</b></span></div></div></div>
+<div class="HW" dir="rtl" style="width: 1280px; height: 420px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">הערות על גרסה 56 · מסך החיפוש · הוחלט (פיני, 25.11.2026)</p><h1>מסך החיפוש: בלי מונה</h1><div class="card"><h2>מה החליט פיני</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>בזמן החיפוש אין מספר: רק הפעימה ו"מחפש מיקום".</li><li>כשנמצא מיקום, המסך עובר לבד למסך החי, והמונה מתחיל שם ב-0:00. הוא סופר מרגע שנמצא מיקום, לא מהנגיעה.</li><li>השורה "בחוץ זה לוקח בדרך כלל פחות מדקה" מופיעה רק אחרי 30 שניות בלי מיקום.</li><li>"החזקה לסיום" נשאר, כדי שאפשר לוותר.</li><li>המסירה עודכנה: <span dir="ltr">design/handoff/2026-11-25-redesign-search-pulse</span>.</li></ul></div></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":540}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":420}}'>
 class Component extends DCLogic {
 renderVals() {
 return {};

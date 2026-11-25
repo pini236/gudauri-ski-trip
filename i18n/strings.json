@@ -17218,18 +17218,6 @@
     "ka"
    ]
   },
-  "app.rec_soon": {
-   "he": "עד שמסיימים, או עד סוף היום.",
-   "en": "Until you finish, or the end of the day.",
-   "ru": "Пока не завершите, или до конца дня.",
-   "ka": "სანამ არ დაასრულებთ, ან დღის ბოლომდე.",
-   "where": "app/android",
-   "note": "יום הגלישה (סבב 29, החלטה 77): hint next to the finish button",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.rec_err_precise": {
    "he": "צריך מיקום מדויק. בהגדרות האפליקציה מאשרים \"מיקום מדויק\".",
    "en": "Precise location is needed. Allow \"Precise location\" in the app settings.",
@@ -19193,18 +19181,6 @@
    "ka": "გაზიარება",
    "where": "app/android",
    "note": "יום הגלישה (סבב 29, החלטה 77): share the story of the day",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.rec_gps_weak": {
-   "he": "אות GPS חלש. ההקלטה ממשיכה, ויהיה חור בקו.",
-   "en": "Weak GPS signal. Recording goes on, with a gap in the line.",
-   "ru": "Слабый сигнал GPS. Запись продолжается, на линии будет разрыв.",
-   "ka": "GPS სიგნალი სუსტია. ჩაწერა გრძელდება, ხაზში ხარვეზი იქნება.",
-   "where": "app/android",
-   "note": "יום הגלישה (סבב 29, החלטה 77): live screen: no fix for a while",
    "check": [
     "ru",
     "ka"
@@ -22024,18 +22000,6 @@
     "ka"
    ]
   },
-  "app.days_delete_hint": {
-   "he": "מחיקה של יום או של הכל: בהחלקה על השורה.",
-   "en": "To delete a day or everything: swipe the row.",
-   "ru": "Удалить день или всё: смахните строку.",
-   "ka": "დღის ან ყველაფრის წასაშლელად გაასრიალეთ სტრიქონი.",
-   "where": "app/android",
-   "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: ההערה בתחתית; באנדרואיד ובאייפון ההחלקה כבר ב-days_delete_sure (שתי נגיעות) ולכן הנוסח ל-L12 בלבד",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
   "app.sr_pill": {
    "he": "מצב ההר: {open} מתוך {all} רכבלים פתוחים, {temp}.",
    "en": "Mountain status: {open} of {all} lifts open, {temp}.",
@@ -23370,18 +23334,6 @@
    "ru": "Перетащите точку по полосе или по горе.",
    "ka": "გადაიტანეთ წერტილი ზოლზე ან მთაზე.",
    "where": "app/android, app/ios",
-   "check": [
-    "ru",
-    "ka"
-   ]
-  },
-  "app.ride_hint_haptic": {
-   "he": "רטט קצר בכל 100 מ׳ ירידה, חזק יותר בקטע תלול.",
-   "en": "A short buzz every 100 m of descent, stronger on a steep section.",
-   "ru": "Короткая вибрация каждые 100 м спуска, сильнее на крутом участке.",
-   "ka": "მოკლე ვიბრაცია ყოველ 100 მ დაშვებაზე, ციცაბო მონაკვეთზე უფრო ძლიერი.",
-   "where": "app/android, app/ios",
-   "note": "רק בטלפון שרוטט",
    "check": [
     "ru",
     "ka"
@@ -24741,6 +24693,185 @@
    "ka": "მდებარეობა ნაპოვნია. გაზომვა დაიწყო.",
    "where": "app/android",
    "note": "מסך החיפוש של מעקב הגלישה (25.11.2026, אושר על ידי פיני)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_rec_live": {
+   "he": "מקליט, {time}. פתיחת המסך החי.",
+   "en": "Recording, {time}. Open live screen.",
+   "ru": "Идёт запись, {time}. Открыть экран записи.",
+   "ka": "იწერება, {time}. ცოცხალი ეკრანის გახსნა.",
+   "where": "app/android, app/ios",
+   "note": "קורא מסך: כפתור ההקלטה בזמן הקלטה. {time} זמן שעבר במילים, נבנה בקוד הלקוח. הנגיעה פותחת את המסך החי."
+  },
+  "app.empty_title": {
+   "he": "הקלטה בלי ירידות",
+   "en": "Recording with no descents",
+   "ru": "Запись без спусков",
+   "ka": "ჩანაწერი დაშვებების გარეშე",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): כותרת הגיליון",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_when": {
+   "he": "היום · {time}",
+   "en": "Today · {time}",
+   "ru": "Сегодня · {time}",
+   "ka": "დღეს · {time}",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): {time} = שעת הסיום",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_rec": {
+   "he": "הוקלט",
+   "en": "Recorded",
+   "ru": "Записано",
+   "ka": "ჩაწერილია",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): תווית מתחת לזמן ההקלטה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_loc": {
+   "he": "מיקום",
+   "en": "Location",
+   "ru": "Место",
+   "ka": "მდებარეობა",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): תווית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_loc_found": {
+   "he": "נמצא",
+   "en": "Found",
+   "ru": "Найдено",
+   "ka": "ნაპოვნია",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'מיקום'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_loc_none": {
+   "he": "לא נמצא",
+   "en": "Not found",
+   "ru": "Не найдено",
+   "ka": "ვერ მოიძებნა",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'מיקום'",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_where": {
+   "he": "איפה",
+   "en": "Where",
+   "ru": "Где",
+   "ka": "სად",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): תווית",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_where_in": {
+   "he": "בגודאורי",
+   "en": "In Gudauri",
+   "ru": "В Гудаури",
+   "ka": "გუდაურში",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'איפה'. שם המקום קבוע, בלי משתנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_where_out": {
+   "he": "מחוץ לגודאורי",
+   "en": "Outside Gudauri",
+   "ru": "Вне Гудаури",
+   "ka": "გუდაურის გარეთ",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): ערך תחת 'איפה'; התא צר (כ-110 פיקסלים ב-16), ביטוי מלא בלי משתנה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_sample_title": {
+   "he": "יום על ההר",
+   "en": "A day on the mountain",
+   "ru": "День на горе",
+   "ka": "დღე მთაზე",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): כותרת כרטיס היום לדוגמה",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_sample_line": {
+   "he": {
+    "one": "ירידה אחת · {kmh} קמ״ש · {m} מ׳ ירידה",
+    "two": "{n} ירידות · {kmh} קמ״ש · {m} מ׳ ירידה",
+    "other": "{n} ירידות · {kmh} קמ״ש · {m} מ׳ ירידה"
+   },
+   "en": {
+    "one": "{n} descent · {kmh} km/h · {m} m down",
+    "other": "{n} descents · {kmh} km/h · {m} m down"
+   },
+   "ru": {
+    "one": "{n} спуск · {kmh} км/ч · {m} м вниз",
+    "few": "{n} спуска · {kmh} км/ч · {m} м вниз",
+    "many": "{n} спусков · {kmh} км/ч · {m} м вниз",
+    "other": "{n} спуска · {kmh} км/ч · {m} м вниз"
+   },
+   "ka": {
+    "one": "{n} დაშვება · {kmh} კმ/სთ · {m} მ დაშვება",
+    "other": "{n} დაშვება · {kmh} კმ/სთ · {m} მ დაშვება"
+   },
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (EM00 עד EM4): שורת המספרים בכרטיס היום לדוגמה, צורות רבים לפי {n}",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_sample_a11y": {
+   "he": "יום לדוגמה. פתיחה.",
+   "en": "Example day. Open.",
+   "ru": "Пример дня. Открыть.",
+   "ka": "მაგალითი დღე. გახსნა.",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): קורא מסך",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.empty_delete_confirm": {
+   "he": "למחוק?",
+   "en": "Delete?",
+   "ru": "Удалить?",
+   "ka": "წაშლა?",
+   "where": "app/android, app/ios",
+   "note": "הקלטה בלי ירידות (design/handoff/2026-11-25-redesign-empty-end, לוחות EM00 עד EM4): הכפתור אחרי הנגיעה הראשונה במחיקה, ברוחב חצי מסך",
    "check": [
     "ru",
     "ka"
