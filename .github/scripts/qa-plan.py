@@ -9,7 +9,7 @@ the short ones are paired (each pays about two minutes to start an emulator), th
 """
 import json, subprocess, sys
 
-ALL = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4".split(",")
+ALL = "map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5".split(",")
 SMOKE = "home"
 PAIRS = [("store", "lang"), ("status", "weather"), ("locate", "descent")]
 # a change in any of these runs everything
