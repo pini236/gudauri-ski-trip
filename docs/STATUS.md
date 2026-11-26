@@ -372,6 +372,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 
 ## Log
 - 26.11.2026: **Android (Sonnet implementer): first-run hints v2 and the countdown tile (B8) built (`HintSequence.kt`, `SeasonTile`).** Guided sequence: six on the mountain, two in the village sheet; tap anywhere advances, X with an 8 s ring closes, dots, pause on background; the pre-season count is a framed tile (opens once a day, tap opens the season sheet without the big number). Texts from `i18n/strings.json`. Not tested on a phone or emulator.
+- 26.11.2026: **Content: four hint texts shortened in en/ru/ka to fit three lines** (`hint_village`, `hint_trip`, `hint_group`, `hint_rec`; he unchanged). `check.py` green.
 - 26.11.2026: **Content (Opus): first-run hint texts v3 in `i18n/strings.json`, four languages.** Eight `app.hint_*` keys rewritten in plain Hebrew; the village hint now lists what is there, the trip hint says it is your flight dates and what they give. Key names unchanged; `app.hints_again` kept; wording pending Pini; `check.py` green.
 - 26.11.2026: **Product designer (Opus): hints sequence (v79) and countdown tile (v80) approved by Pini, marked in the canvas (version 82), handoff and STATUS.** B91 to B93 now show the 30 s search line as "עוד רגע ונמצא אותך." (Pini's pick; content updates `app.search_hint`). The implementer builds.
 - 26.11.2026: **Content: `app.search_hint` set to Pini's wording** ("עוד רגע ונמצא אותך.", four languages) and hint texts polished (find, rec, village, me, group; keys unchanged). `check.py` green.
