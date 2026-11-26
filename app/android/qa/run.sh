@@ -2011,7 +2011,16 @@ storesmoke() {
   rd_prep storesmoke
   mark; adb shell am start -W -n "$act" > /dev/null
   # the mountain: the record button is on the bottom bar from the start; the live model on the emulator takes a while
-  for i in $(seq 1 60); do uidump; xy=$(where "~^הקלטת גלישה"); [ -n "$xy" ] && break; sleep 2; done
+  # before the season (until 20 Dec) the opening board covers the bar: a touch on the mountain closes it, as a person does
+  local woke=0
+  for i in $(seq 1 60); do
+    uidump; xy=$(where "~^הקלטת גלישה"); [ -n "$xy" ] && break
+    if [ "$woke" -lt 2 ] && [ -n "$(where '~פתיחה מתוכננת|ימים לפתיחה')" ]; then
+      [ "$woke" -eq 0 ] && shot storesmoke-season
+      woke=$((woke + 1)); tap $((W / 2)) $((H / 4)); sleep 2
+    fi
+    sleep 2
+  done
   [ -n "$xy" ] || { fail "storesmoke: no record button on the store build's mountain"; seen_texts; shot storesmoke-no-button; return 1; }
   sleep 3; shot storesmoke-open
   tap $xy
