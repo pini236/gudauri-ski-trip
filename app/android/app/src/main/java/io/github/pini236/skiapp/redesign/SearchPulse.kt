@@ -8,6 +8,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.animateContentSize
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -101,12 +107,17 @@ internal fun SearchPulse(night: Boolean, hintShown: Boolean, ink: Color, halo: C
         }
         run {
             androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
-                Column(Modifier.align(Alignment.TopCenter).padding(top = maxHeight * (360f / 844f) + 150.dp - 18.dp).widthIn(max = 320.dp),
+                Column(Modifier.align(Alignment.TopCenter).padding(top = maxHeight * (360f / 844f) + 132.dp).widthIn(max = 300.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    val shadow = androidx.compose.ui.graphics.Shadow(halo, Offset.Zero, 18f)
-                    androidx.compose.material3.Text(title, style = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 26.sp, color = ink, shadow = shadow, textAlign = TextAlign.Center))
-                    androidx.compose.material3.Text(hint, Modifier.padding(top = 8.dp).alpha(if (hintShown) 1f else 0f),
-                        style = TextStyle(fontFamily = Gudi, fontSize = 15.sp, color = ink.copy(alpha = .8f), shadow = shadow, textAlign = TextAlign.Center))
+                    // B9/HN10 and B91: the title in a glass pill; after 30 seconds the same frame grows down to hold the hint
+                    val frame = RoundedCornerShape(20.dp)
+                    Column(Modifier.then(if (reduced) Modifier else Modifier.animateContentSize(androidx.compose.animation.core.tween(250, easing = androidx.compose.animation.core.FastOutSlowInEasing)))
+                        .heightIn(min = 40.dp).clip(frame).background(glass).padding(horizontal = 18.dp, vertical = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        androidx.compose.material3.Text(title, style = TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = TextAlign.Center))
+                        if (hintShown) androidx.compose.material3.Text(hint, Modifier.padding(top = 3.dp),
+                            style = TextStyle(fontFamily = Gudi, fontSize = 13.5.sp, color = ink.copy(alpha = .8f), textAlign = TextAlign.Center))
+                    }
                 }
             }
         }

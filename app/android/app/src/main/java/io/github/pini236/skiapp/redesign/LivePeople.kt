@@ -481,10 +481,12 @@ internal fun MeButton(me: Me?, night: Boolean, onClick: () -> Unit) {
     val k = remember(night) { SheetInk(night) }
     // part 8, section 2: "Me, {name}. Button." or "Me, guest." (the words say button, so no role is added)
     val aria = me?.name?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.app_sr_me, it) } ?: stringResource(R.string.app_sr_me_guest)
+    val hold = rememberNameHold()
     Box(Modifier.size(44.dp).shadow(10.dp, CircleShape, clip = false).clip(CircleShape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, CircleShape)
-        .clickable(onClick = onClick).clearAndSetSemantics { contentDescription = aria; onClick { onClick(); true } }, contentAlignment = Alignment.Center) {
+        .nameHold(hold, k, withClickSemantics = false, onClick = onClick).clearAndSetSemantics { contentDescription = aria; onClick { onClick(); true } }, contentAlignment = Alignment.Center) {
         val name = me?.name
         if (name.isNullOrBlank()) GuestAv(k, 36) else Av(name, me?.userId, 36)
+        NamePill(hold, stringResource(R.string.app_pass_me), k)
     }
 }
 
@@ -1580,6 +1582,8 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
             Small(stringResource(R.string.app_replay_details), k, Modifier.padding(top = 4.dp, bottom = 12.dp))
         }
         PBox(k) {
+            // the hints again (HN9): clears them all, closes the settings and the mountain starts them from the first
+            PRow(stringResource(R.string.app_hints_again), k, icon = Icons.bulb) { Hints.reset(ctx); Hints.again++; Qa.log("redesign hints again"); ui.close() }
             PRow(stringResource(when { done -> R.string.about_reset_done; armed -> R.string.about_reset_confirm; else -> R.string.about_reset }), k, danger = armed, last = true) {
                 if (armed) { armed = false; done = true; p.onResetBests(); Telemetry.event("best_reset") } else { armed = true; done = false }
             }

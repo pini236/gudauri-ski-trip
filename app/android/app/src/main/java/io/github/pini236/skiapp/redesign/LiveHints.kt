@@ -54,7 +54,12 @@ internal object Hints {
     fun seen(ctx: android.content.Context, id: String) = ctx.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE).getBoolean(id, false)
     fun done(ctx: android.content.Context, id: String) { ctx.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE).edit().putBoolean(id, true).apply(); Qa.log("redesign hint done $id") }
     /** The emulator's run starts it again (qa.redesign hint:reset). */
-    fun reset(ctx: android.content.Context) { ctx.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE).edit().remove(RUN).apply() }
+    fun reset(ctx: android.content.Context) {
+        val sp = ctx.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+        val e = sp.edit(); sp.all.keys.filter { it.startsWith("hint_") }.forEach { e.remove(it) }; e.apply()
+    }
+    /** Bumped by Settings' "show the hints again": the mountain starts its hints from the first again. */
+    var again by androidx.compose.runtime.mutableIntStateOf(0)
 }
 
 /**

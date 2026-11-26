@@ -23628,36 +23628,36 @@
    ]
   },
   "app.hint_run": {
-   "he": "נגיעה במסלול מדגישה אותו.",
-   "en": "Tap a run to highlight it.",
-   "ru": "Нажмите на трассу, чтобы выделить её.",
-   "ka": "ტრასაზე შეხება მას გამოკვეთს.",
+   "he": "נוגעים במסלול כדי לראות אותו מלמעלה למטה, עם האורך, הירידה והשיפוע.",
+   "en": "Tap a run to light it top to bottom, with its length, drop and slope.",
+   "ru": "Нажмите на трассу, чтобы увидеть её сверху вниз: длина, спуск и уклон.",
+   "ka": "შეეხეთ ტრასას, რომ ზემოდან ქვემოთ ნახოთ: სიგრძე, დაშვება და დახრილობა.",
    "where": "app/android",
-   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז ראשון",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
    ]
   },
   "app.hint_find": {
-   "he": "כל המסלולים במקום אחד, לפי צבע.",
-   "en": "All runs in one place, by color.",
-   "ru": "Все трассы в одном месте, по цвету.",
-   "ka": "ყველა ტრასა ერთ ადგილას, ფერის მიხედვით.",
+   "he": "כל המסלולים ברשימה אחת, לפי צבע. נגיעה במסלול מראה אותו על ההר.",
+   "en": "Every run in one list, by colour. Tap one to see it on the mountain.",
+   "ru": "Все трассы в одном списке, по цвету. Нажмите на трассу, чтобы увидеть её на горе.",
+   "ka": "ყველა ტრასა ერთ სიაში, ფერის მიხედვით. ტრასაზე შეხებით მას მთაზე იხილავთ.",
    "where": "app/android",
-   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז שני",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
    ]
   },
   "app.hint_village": {
-   "he": "בכפר: הטיול, הקבוצה וכרטיס הסקי.",
-   "en": "In the village: your trip, your group and the ski pass.",
-   "ru": "В деревне: поездка, группа и ски-пасс.",
-   "ka": "სოფელში: მოგზაურობა, ჯგუფი და სათხილამურო ბარათი.",
+   "he": "בכפר נמצאים הטיול ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל.",
+   "en": "The village has your trip and flight dates, your group and meeting point, the ski pass and food.",
+   "ru": "В деревне: поездка и даты рейса, друзья и место встречи, ски-пасс и еда.",
+   "ka": "სოფელში: მოგზაურობა და ფრენის თარიღები, მეგობრები და შეხვედრის ადგილი, სათხილამურო ბარათი და საჭმელი.",
    "where": "app/android",
-   "note": "סבב ההשלמה, חלק 4 (סעיף 11 ב-design/handoff/2026-11-23-redesign-on-mountain): רמז שלישי",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
@@ -24878,60 +24878,108 @@
    ]
   },
   "app.hint_rec": {
-   "he": "הקלטת גלישה: מהירות, ירידות ומסלולים.",
-   "en": "Record skiing: speed, descents and runs.",
-   "ru": "Запись катания: скорость, спуски и трассы.",
-   "ka": "სრიალის ჩაწერა: სიჩქარე, ჩასვლები და ტრასები.",
+   "he": "מקליטים את הגלישה עם הטלפון בכיס, ורואים מהירות, ירידות ומסלולים לאורך היום.",
+   "en": "Record skiing with the phone in your pocket, and see your speed, descents and runs all day.",
+   "ru": "Записывайте катание, пока телефон в кармане: скорость, спуски и трассы за весь день.",
+   "ka": "ჩაიწერეთ სრიალი, სანამ ტელეფონი ჯიბეშია: სიჩქარე, ჩასვლები და ტრასები მთელი დღის განმავლობაში.",
    "where": "app/android",
-   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
    ]
   },
   "app.hint_mode": {
-   "he": "תמונה של ההר, או הר חי שאפשר לסובב.",
-   "en": "A photo of the mountain, or a live one you can turn.",
-   "ru": "Фото горы или живая гора, которую можно вращать.",
-   "ka": "მთის ფოტო ან ცოცხალი მთა, რომელიც შეგიძლიათ დაატრიალოთ.",
+   "he": "אפשר לראות את ההר בתמונה, או להסתובב בו ולהטות אותו באצבע. מחליפים כאן.",
+   "en": "A photo of the mountain, or a live one you turn and tilt with a finger. Switch here.",
+   "ru": "Гору можно смотреть на фото или вращать и наклонять пальцем. Переключение здесь.",
+   "ka": "მთა შეგიძლიათ ფოტოზე ნახოთ ან თითით დაატრიალოთ და დახაროთ. გადართვა აქ არის.",
    "where": "app/android",
-   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
    ]
   },
   "app.hint_me": {
-   "he": "אני: חשבון, שפה והגדרות.",
-   "en": "Me: account, language and settings.",
-   "ru": "Я: аккаунт, язык и настройки.",
-   "ka": "მე: ანგარიში, ენა და პარამეტრები.",
+   "he": "כאן החשבון, השפה וההגדרות. כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש.",
+   "en": "Account, language and settings are here. Signing in keeps your groups on a new phone too.",
+   "ru": "Здесь аккаунт, язык и настройки. Вход в аккаунт сохранит ваши группы и на новом телефоне.",
+   "ka": "აქ არის ანგარიში, ენა და პარამეტრები. ანგარიშში შესვლა ჯგუფებს ახალ ტელეფონზეც შეგინახავთ.",
    "where": "app/android",
-   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
    ]
   },
   "app.hint_group": {
-   "he": "מזמינים חברים וקובעים איפה נפגשים.",
-   "en": "Invite friends and set where to meet.",
-   "ru": "Приглашайте друзей и назначайте место встречи.",
-   "ka": "მოიწვიეთ მეგობრები და დანიშნეთ შეხვედრის ადგილი.",
+   "he": "מזמינים חברים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה.",
+   "en": "Invite by link, set a meeting point on the mountain, and see who is on which flight.",
+   "ru": "Приглашайте друзей по ссылке, назначайте место встречи на горе и смотрите, кто каким рейсом летит.",
+   "ka": "მოიწვიეთ მეგობრები ბმულით, დანიშნეთ შეხვედრის ადგილი მთაზე და ნახეთ, ვინ რომელი რეისით მიფრინავს.",
    "where": "app/android",
-   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
    ]
   },
   "app.hints_again": {
-   "he": "להציג שוב את הרמזים",
+   "he": "הצגה מחדש של הרמזים",
    "en": "Show the hints again",
    "ru": "Показать подсказки снова",
    "ka": "მინიშნებების ხელახლა ჩვენება",
    "where": "app/android",
-   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_trip": {
+   "he": "מכניסים את תאריכי הטיסה, ורואים כמה ימים נשארו ומה התחזית לימי הסקי.",
+   "en": "Add your flight dates to see how many days are left and the forecast for your ski days.",
+   "ru": "Добавьте даты рейса и увидите, сколько дней осталось и какой прогноз на дни катания.",
+   "ka": "დაამატეთ ფრენის თარიღები და დაინახავთ, რამდენი დღე დარჩა და როგორია პროგნოზი სათხილამურო დღეებისთვის.",
+   "where": "app/android",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_step_a11y": {
+   "he": "רמז {n} מתוך {total}",
+   "en": "Hint {n} of {total}",
+   "ru": "Подсказка {n} из {total}",
+   "ka": "მინიშნება {n} {total}-დან",
+   "where": "app/android",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_next_a11y": {
+   "he": "לרמז הבא",
+   "en": "Next hint",
+   "ru": "К следующей подсказке",
+   "ka": "შემდეგ მინიშნებაზე",
+   "where": "app/android",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hints_skip_a11y": {
+   "he": "סגירת כל הרמזים",
+   "en": "Close all hints",
+   "ru": "Закрыть все подсказки",
+   "ka": "ყველა მინიშნების დახურვა",
+   "where": "app/android",
+   "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
     "ru",
     "ka"
