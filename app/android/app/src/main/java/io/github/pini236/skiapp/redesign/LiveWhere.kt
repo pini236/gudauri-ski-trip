@@ -156,7 +156,7 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, record
 @Composable
 private fun StageSwitch(k: SheetInk, night: Boolean, photo: Boolean, onPhoto: (Boolean) -> Unit) {
     val shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
-    Column(Modifier.width(44.dp).shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
+    Column(Modifier.width(44.dp).hintTarget("mode").shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
         .selectableGroup()) {
         for (pic in listOf(true, false)) {
             val on = photo == pic

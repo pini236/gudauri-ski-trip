@@ -237,6 +237,8 @@ internal fun BoxScope.Village(
             }
         }
         VillageSheet(scene, around, k, haptics, food, places != null, meetNow, onTrip, onSkipass, onFood, onPeople, onBack)
+        // the village's two hints (the sequence of two, once, the first time the sheet opens)
+        HintSequence(Hints.VILLAGE, listOf(HintStep("trip", R.string.app_hint_trip, 16f), HintStep("group", R.string.app_hint_group, 16f)), ready = true, night = night, again = Hints.again)
     }
 }
 
@@ -321,7 +323,7 @@ private fun BoxScope.VillageSheet(
                     else -> t.skiDayCount().let { n -> pluralStringResource(R.plurals.app_vill_trip_dates, n, tripSpan(t.out.date, t.ret?.date), n.toString()) }
                 }
             }
-            VRow(stringResource(R.string.app_home_trip), tripEnd, k) { haptics.tick(.3f); onTrip() }
+            Box(Modifier.hintTarget("trip")) { VRow(stringResource(R.string.app_home_trip), tripEnd, k) { haptics.tick(.3f); onTrip() } }
             val pr = around?.prices?.takeIf { it.valid(around.today) }
             val tripPrice = around?.let { tripSkipass(it, t) }
             val passEnd = when {
@@ -340,7 +342,7 @@ private fun BoxScope.VillageSheet(
                 g.size == 1 -> g[0].name
                 else -> pluralStringResource(R.plurals.app_vill_grp_n, g.size, g.size.toString())
             }
-            VRow(stringResource(R.string.app_grp_title), peopleEnd, k) { haptics.tick(.3f); onPeople(g) }
+            Box(Modifier.hintTarget("group")) { VRow(stringResource(R.string.app_grp_title), peopleEnd, k) { haptics.tick(.3f); onPeople(g) } }
             around?.onGames?.let { go -> VRow(stringResource(R.string.app_cabin_title), pluralStringResource(R.plurals.app_vill_cabin_n, around.games, around.games.toString()), k) { haptics.tick(.3f); go() } }
             Text(stringResource(R.string.app_vill_credit), Modifier.padding(top = 10.dp), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
         }

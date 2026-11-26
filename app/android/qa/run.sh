@@ -1719,8 +1719,10 @@ redesign2() {
   # S01 at night (the review of 24.11): the opening view, nothing chosen, the night picture
   mark; qa "--es qa.mode night"; sleep 3; rd_settled; shot redesign-live-night; qa "--es qa.mode auto"; sleep 1.5
   # S09: the first hint, a ring on a blue run near the middle (the debug build shows it only when asked)
-  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint run" 15 && { sleep 1; shot redesign-hint-run; }
-  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign hint done hint_run" 15 || fail "redesign: choosing a run did not end the first hint"
+  # (version 2: a guided sequence; a tap anywhere is the next hint, back closes it all)
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step run" 15 && { sleep 1; shot redesign-hint-run; }
+  mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint step find" 10 || fail "redesign: a tap did not move the hint on"
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_mountain" 10 || fail "redesign: back did not close the hints"
   mark; qa "--es qa.redesign unpick"; sleep 1; qa "--es qa.redesign home"; sleep 1
   # S05, S06: "the mountain now" on the weather tab, with a fresh forecast and with none
   mark; qa "--es qa.weather fresh --es qa.redesign weather"; waitlog "redesign weather fresh" 15 || fail "redesign: the weather tab did not open"; rd_settled; shot redesign-now-weather

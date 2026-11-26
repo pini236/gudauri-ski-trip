@@ -169,7 +169,7 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (onVillage != null) {
         val village = stringResource(R.string.app_sr_dock_village)
-        Row(Modifier.height(44.dp).clip(RoundedCornerShape(22.dp)).semantics { contentDescription = village; role = Role.Button }
+        Row(Modifier.height(44.dp).hintTarget("village").clip(RoundedCornerShape(22.dp)).semantics { contentDescription = village; role = Role.Button }
             .clickable { haptics.tick(.3f); onVillage() }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             Canvas(Modifier.size(20.dp)) { house(k.ink) }
             Text(stringResource(R.string.app_dock_village), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 1)
@@ -179,10 +179,10 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
         // in large text "where to?" keeps only its icon, in a 44 circle; its words stay for the screen reader (part 8)
         if (bigText()) {
             Box(Modifier.weight(1f))
-            Box(Modifier.size(44.dp).clip(CircleShape).background(k.line).semantics { contentDescription = find; role = Role.Button }
+            Box(Modifier.size(44.dp).hintTarget("find").clip(CircleShape).background(k.line).semantics { contentDescription = find; role = Role.Button }
                 .clickable { haptics.tick(.3f); onFind() }, contentAlignment = Alignment.Center) { Canvas(Modifier.size(18.dp)) { glass(k.ink2) } }
         } else
-        Row(Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(22.dp)).background(k.line).semantics { contentDescription = find; role = Role.Button }
+        Row(Modifier.weight(1f).height(44.dp).hintTarget("find").clip(RoundedCornerShape(22.dp)).background(k.line).semantics { contentDescription = find; role = Role.Button }
             .clickable { haptics.tick(.3f); onFind() }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Canvas(Modifier.size(18.dp)) { glass(k.ink2) }
             Text(stringResource(R.string.app_dock_find), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink2, maxLines = 1,
@@ -211,7 +211,7 @@ private fun RecordButton(k: SheetInk, haptics: Haptics, onRecord: () -> Unit) {
     val hold = rememberNameHold()
     val reduced = io.github.pini236.skiapp.ui.Motion.reduced(androidx.compose.ui.platform.LocalContext.current)
     val square by androidx.compose.animation.core.animateFloatAsState(if (recording) 1f else 0f, if (reduced) tween(0) else tween(200), label = "rec-square")
-    Row(Modifier.height(44.dp).then(if (reduced) Modifier else Modifier.animateContentSize(tween(200))).clip(RoundedCornerShape(22.dp))
+    Row(Modifier.height(44.dp).hintTarget("rec").then(if (reduced) Modifier else Modifier.animateContentSize(tween(200))).clip(RoundedCornerShape(22.dp))
         .background(if (recording) tint else Color.Transparent)
         .semantics { contentDescription = label; role = Role.Button }.nameHold(hold, k) { haptics.tick(.4f); onRecord() },
         verticalAlignment = Alignment.CenterVertically) {

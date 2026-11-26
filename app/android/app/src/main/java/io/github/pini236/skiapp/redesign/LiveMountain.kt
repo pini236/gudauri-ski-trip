@@ -149,7 +149,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q09): the ski pass over the mountain
     var skipassOpen by remember { mutableStateOf(false) }
     // part 2 (Q10): before the season the mountain opens on the count of days; closed, it comes back on the next opening
-    var seasonOn by remember { mutableStateOf(LiveSeasonRules.shown(around)) }
+    // B8 (CT00): the mountain opens free; the count is a tile, and the sheet opens from the tile (or the lifts' row)
+    var seasonOn by remember { mutableStateOf(false) }
+    var tileOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(around?.opening, around?.lateOpen) {
+        // once at the first opening of each day until the opening, for 3.5 s (the tile closes itself)
+        if (LiveSeasonRules.shown(around) && !Qa.enabled) {
+            val day = java.time.LocalDate.now(io.github.pini236.skiapp.meet.Meet.GUDAURI).toEpochDay()
+            val sp = context.getSharedPreferences("redesign", android.content.Context.MODE_PRIVATE)
+            if (sp.getLong("season_tile_day", -1L) != day) { sp.edit().putLong("season_tile_day", day).apply(); tileOpen = true }
+        }
+    }
     // part 3 (R01 to R15): the people, the account and the settings over the mountain
     val people = remember { PeopleUi() }
     val pp = around?.people
@@ -308,7 +318,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
-            c == "season:off" -> seasonOn = false
+            c == "season:off" -> { seasonOn = false; tileOpen = false; Qa.log("redesign season closed") }
             c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
             // part 3: the people's layers (the emulator's run, qa/run.sh), the first group of mine for "group" and "invite"
             c == "people:off" -> people.close()
@@ -317,7 +327,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "where:ask" -> where.asking = true
             c == "where:off" -> { where.asking = false; where.where.off() }
             c == "home" -> view.home()
-            c == "hint:reset" -> { Hints.reset(context); hintAgain++ }
+            c == "hint:reset" -> { Hints.reset(context); hintAgain++; Hints.again++ }
             c == "net:off" -> { qaNet = false; Qa.log("redesign edge net off") }
             c == "net:auto" -> qaNet = null
             c.startsWith("people:") && pp != null -> {
@@ -812,6 +822,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         AnimatedVisibility(chosen == null && lens == null && !villageOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
             enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             Box(Modifier.fillMaxSize()) {
+                if (around != null && LiveSeasonRules.shown(around)) SeasonTile(around, night, haptics, tileOpen, { tileOpen = it }, onOpenSheet = { tileOpen = false; seasonOn = true })
                 Dock(night, haptics, onVillage = { villageOpen = true; Qa.log("redesign dock village") }, onFind = { shelfOpen = true; Qa.log("redesign dock find") },
                     onRecord = around?.onRecord?.let { r -> { Qa.log("redesign dock record"); r() } })
             }
@@ -998,7 +1009,26 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (rotateHint && shows == StageRules.Shows.PICTURE) StageHint(night, onGo = { rotateHint = false; liveChosen = true; StagePrefs.setLive(context, true); Qa.log("redesign stage hint go") }, onOff = { rotateHint = false })
         // Z05: the live model for a moment, back to the picture after
         if (temp != null && shows == StageRules.Shows.LIVE) TempTag(night)
-        RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain + Hints.again)
+        // first-run hints (HN00): one guided sequence, once, when the mountain is quiet
+        val hintMids = remember(scene) {
+            scene.runs.pistes.filter { it.color == "blue" && it.named }.mapNotNull { p ->
+                val l = p.lines.maxByOrNull { it.size } ?: return@mapNotNull null
+                val n = l.size / 2; if (n < 2) null else floatArrayOf(l[(n / 2) * 2], l[(n / 2) * 2 + 1])
+            }
+        }
+        val hintRec = around?.onRecord != null
+        val hintMode = canLive && picture != null
+        val hintMe = pp != null
+        val hintSteps = remember(hintRec, hintMode, hintMe) {
+            listOfNotNull(HintStep("run", R.string.app_hint_run), HintStep("find", R.string.app_hint_find),
+                if (hintRec) HintStep("rec", R.string.app_hint_rec) else null, HintStep("village", R.string.app_hint_village),
+                if (hintMode) HintStep("mode", R.string.app_hint_mode, 22f) else null, if (hintMe) HintStep("me", R.string.app_hint_me) else null)
+        }
+        HintSequence(Hints.MOUNTAIN, hintSteps, ready = bare && !where.asking && mtnDrawn && lens == null && !lensRow && !tileOpen, night = night, again = hintAgain + Hints.again) { sz ->
+            val c = Offset(sz.width / 2f, sz.height / 2f)
+            hintMids.mapNotNull { m -> view.toScreen(m[0], m[1])?.let { Offset(it[0], it[1]) } }
+                .filter { it.x in 0f..sz.width.toFloat() && it.y in 0f..sz.height.toFloat() }.minByOrNull { kotlin.math.hypot(it.x - c.x, it.y - c.y) }
+        }
         if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
         androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
         // part 3 (R01 to R15) over everything of the mountain

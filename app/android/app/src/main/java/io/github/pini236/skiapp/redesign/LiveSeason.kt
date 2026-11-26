@@ -1,6 +1,15 @@
 package io.github.pini236.skiapp.redesign
 
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -59,31 +68,6 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
     val late = around.lateOpen
     val open = o?.open ?: late ?: return
     val date = shortDate(open)
-    val hero = if (night) Color.White else k.ink
-    // on the mountain, 150 from the top: the number and its caption, or the words of the day
-    val (big, sub, moved) = when {
-        o != null && o.kind == Season.Kind.OPENING_DAY -> Triple(stringResource(R.string.app_season_today), stringResource(R.string.app_season_today_sub), null)
-        o != null && o.days == 1 -> Triple(stringResource(R.string.app_season_tomorrow), stringResource(R.string.app_season_tomorrow_sub, date), null)
-        o != null -> Triple(o.days.toString(), pluralStringResource(R.plurals.app_season_days_caption, o.days),
-            if (o.postponed) stringResource(R.string.app_season_moved, date) else null)
-        else -> Triple(stringResource(R.string.app_season_late, date), stringResource(R.string.app_season_late_sub), null)
-    }
-    val number = o != null && o.kind == Season.Kind.COUNTDOWN && o.days > 1
-    val a11y = if (number) pluralStringResource(R.plurals.app_season_days_a11y, o!!.days, o.days.toString(), date) else "$big. $sub"
-    Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 150.dp - 24.dp).padding(horizontal = 24.dp)
-        .clearAndSetSemantics { contentDescription = a11y; role = Role.Button }
-        .clickable { haptics.tick(.3f); Qa.log("redesign season closed tap"); onClose() },
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        if (number) Text(big, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(112f), lineHeight = 112.sp, color = hero,
-            style = TextStyle(fontFeatureSettings = "tnum"))
-        else Text(big, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = if (o != null) 44.sp else 19.sp, lineHeight = if (o != null) 48.sp else 24.sp,
-            color = hero, textAlign = TextAlign.Center)
-        // a halo as the mountain's names have: with a large text the words reach down onto the runs (the review of 24.11, ק9)
-        val haloed = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, androidx.compose.ui.geometry.Offset.Zero, 10f))
-        Text(sub, fontFamily = Gudi, fontWeight = if (number) FontWeight.Bold else FontWeight.Medium, fontSize = if (number) 19.sp else 15.sp,
-            color = hero, textAlign = TextAlign.Center, style = haloed)
-        if (moved != null) Text(moved, Modifier.padding(top = 4.dp), fontFamily = Gudi, fontSize = 14.sp, color = hero.copy(alpha = .9f), textAlign = TextAlign.Center, style = haloed)
-    }
     // the sheet: pulled down, the usual mountain
     Box(Modifier.align(Alignment.BottomCenter).pullSheet(onDown = { Qa.log("redesign season closed pull"); onClose() })) {
         LiveSheet(k, opaque = true) {
@@ -131,4 +115,76 @@ private fun seasonTripLine(t: Trip): String? = skiLine(t)
 private fun daysToFlight(t: Trip, today: LocalDate): String? {
     val d = (t.out.date.toEpochDay() - today.toEpochDay()).toInt()
     return if (d > 0) pluralStringResource(R.plurals.common_days_to_flight, d, d.toString()) else null
+}
+
+
+/**
+ * B8 (handoff 2026-11-26-redesign-hints, section 6, boards CT1 to CT5): before the season the mountain opens free, and the
+ * count is a small framed tile on the start side: the days in a ring that fills from the announcement to the opening. A tap
+ * opens it (the words), a tap on the open tile opens the season sheet. [expanded] is the owner's (it opens by itself once a day).
+ */
+@Composable
+internal fun BoxScope.SeasonTile(around: Around, night: Boolean, haptics: Haptics, expanded: Boolean, onExpanded: (Boolean) -> Unit, onOpenSheet: () -> Unit) {
+    val k = remember(night) { SheetInk(night) }
+    val o = around.opening
+    val late = around.lateOpen
+    val open = o?.open ?: late ?: return
+    val date = shortDate(open)
+    val reduced = io.github.pini236.skiapp.ui.Motion.reduced(androidx.compose.ui.platform.LocalContext.current)
+    val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val number = o != null && o.kind == Season.Kind.COUNTDOWN && o.days > 1
+    val today = o != null && o.kind == Season.Kind.OPENING_DAY
+    val tomorrow = o != null && o.kind == Season.Kind.COUNTDOWN && o.days == 1
+    val title: String; val sub: String
+    when {
+        today -> { title = stringResource(R.string.app_season_today); sub = stringResource(R.string.app_season_today_sub) }
+        tomorrow -> { title = stringResource(R.string.app_season_tomorrow); sub = stringResource(R.string.app_season_tomorrow_sub, date) }
+        number -> { title = pluralStringResource(R.plurals.app_season_days_caption, o!!.days)
+            sub = if (o.postponed) stringResource(R.string.app_season_moved, date) else stringResource(R.string.app_season_tomorrow_sub, date) }
+        else -> { title = stringResource(R.string.app_season_late, date); sub = stringResource(R.string.app_season_late_sub) }
+    }
+    val a11y = if (number) pluralStringResource(R.plurals.app_season_days_a11y, o!!.days, o.days.toString(), date) else "$title. $sub"
+    val progress = when { o == null -> 1f; today -> 1f; else -> o.progress }
+    val full = o == null || today
+    // closes by itself after 3.5 s (longer when the system asks for it)
+    val am = androidx.compose.ui.platform.LocalContext.current.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
+    val stay = if (android.os.Build.VERSION.SDK_INT >= 29) am.getRecommendedTimeoutMillis(3500, android.view.accessibility.AccessibilityManager.FLAG_CONTENT_TEXT) else 3500
+    androidx.compose.runtime.LaunchedEffect(expanded) { if (expanded) { kotlinx.coroutines.delay(stay.toLong()); onExpanded(false) } }
+    val shape = RoundedCornerShape(18.dp)
+    Row(Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 12.dp, bottom = 90.dp)
+        .then(if (reduced) Modifier else Modifier.animateContentSize(androidx.compose.animation.core.tween(250, easing = androidx.compose.animation.core.FastOutSlowInEasing)))
+        .shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
+        .clearAndSetSemantics { contentDescription = a11y; role = Role.Button; onClick { Qa.log("redesign season tile sheet"); onOpenSheet(); true } }
+        .clickable { haptics.tick(.3f); if (expanded) { Qa.log("redesign season tile sheet"); onOpenSheet() } else { Qa.log("redesign season tile open"); onExpanded(true) } }
+        .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+            androidx.compose.foundation.Canvas(Modifier.size(48.dp)) {
+                val w = 3.dp.toPx(); val r = (size.minDimension - w) / 2
+                val tl = androidx.compose.ui.geometry.Offset(w / 2, w / 2); val sz = androidx.compose.ui.geometry.Size(2 * r, 2 * r)
+                drawArc(k.line, 0f, 360f, false, tl, sz, style = androidx.compose.ui.graphics.drawscope.Stroke(w))
+                drawArc(if (o == null) k.ink2 else k.acc, -90f, 360f * progress, false, tl, sz,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(w, cap = androidx.compose.ui.graphics.StrokeCap.Round))
+                val c = center; val ic = k.ink
+                if (o == null) { // a clock: the date went by with no report
+                    drawLine(ic, c, androidx.compose.ui.geometry.Offset(c.x, c.y - 10.dp.toPx()), 2.dp.toPx(), androidx.compose.ui.graphics.StrokeCap.Round)
+                    drawLine(ic, c, androidx.compose.ui.geometry.Offset(c.x + 7.dp.toPx(), c.y), 2.dp.toPx(), androidx.compose.ui.graphics.StrokeCap.Round)
+                } else if (today) { // a gondola: the cable and a cabin under it
+                    drawLine(ic, androidx.compose.ui.geometry.Offset(c.x - 12.dp.toPx(), c.y - 9.dp.toPx()), androidx.compose.ui.geometry.Offset(c.x + 12.dp.toPx(), c.y - 9.dp.toPx()), 1.8.dp.toPx())
+                    drawLine(ic, androidx.compose.ui.geometry.Offset(c.x, c.y - 9.dp.toPx()), androidx.compose.ui.geometry.Offset(c.x, c.y - 4.dp.toPx()), 1.8.dp.toPx())
+                    drawRoundRect(ic, androidx.compose.ui.geometry.Offset(c.x - 7.dp.toPx(), c.y - 4.dp.toPx()), androidx.compose.ui.geometry.Size(14.dp.toPx(), 11.dp.toPx()),
+                        androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()), style = androidx.compose.ui.graphics.drawscope.Stroke(1.8.dp.toPx()))
+                }
+            }
+            if (o != null && !today) Text((if (tomorrow) 1 else o.days).toString(), fontFamily = Gudi, fontWeight = FontWeight.SemiBold,
+                fontSize = if (o.days >= 100) 17.sp else 20.sp, color = k.ink, style = TextStyle(fontFeatureSettings = "tnum"), maxLines = 1)
+        }
+        if (expanded) {
+            Column(Modifier.widthIn(max = 190.dp)) {
+                Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 2)
+                Text(sub, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 2)
+            }
+            Text(if (rtl) "\u2039" else "\u203A", Modifier.padding(end = 4.dp), fontFamily = Gudi, fontSize = 18.sp, color = k.ink2)
+        }
+    }
 }
