@@ -3,6 +3,7 @@
 **When:** 26.11.2026, product designer (Opus). Design only, no code.
 **Status:** version 2 after Pini's notes (26.11.2026): a guided sequence and longer, clearer texts. Waiting for Pini. Built from `design/redesign/review-release.md` items B4 (hints), B8 (before the season), B9 (text without a frame) and B10 (buttons without words).
 **Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 76), page "רמזים לפעם הראשונה", boards `HN00` to `HN12`. Source: `design/redesign/tools/hn_boards.py`.
+**Approved already (Pini, 26.11.2026):** the reset row in Settings (section 4, `HN9`) and "מחפש מיקום" in a pill (section 7, `HN10`); these two can be built now. The rest waits.
 **Replaces:** section 7 of `design/handoff/2026-11-23-redesign-on-mountain/README.md` (S09, three hints).
 
 ## Summary (for the implementer)
