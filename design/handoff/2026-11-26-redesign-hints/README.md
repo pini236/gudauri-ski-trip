@@ -13,7 +13,7 @@
 3. A light dim with a hole around the target; the hole is the target ring.
 4. Each hint: an X inside a ring that drains over 8 s; at the end, the next hint. The X closes the whole sequence.
 5. Dots at the bottom of the bubble: how many hints and which one.
-6. Interrupted: resumes at the same hint next opening. Closed or finished: never again, unless "להציג שוב את הרמזים" in Settings.
+6. Interrupted: resumes at the same hint next opening. Closed or finished: never again, unless "הצגה מחדש של הרמזים" in Settings.
 7. Before the season the countdown is a framed tile (B8); "מחפש מיקום" in a pill (B9).
 8. Stored on the phone only, nothing measured. No architect review needed (no contract, data or measurement).
 
@@ -23,19 +23,19 @@ Mountain sequence, in this order (prefs `hints_mountain` = the next step, 1 to 6
 
 | # | Points at | Key | Text (Hebrew) |
 |---|---|---|---|
-| 1 | a named blue run nearest the screen centre | `app.hint_run` | נגיעה במסלול מדגישה אותו מלמעלה עד למטה, עם האורך, הירידה והשיפוע. |
+| 1 | a named blue run nearest the screen centre | `app.hint_run` | נוגעים במסלול כדי לראות אותו מלמעלה למטה, עם האורך, הירידה והשיפוע. |
 | 2 | "לאן יורדים?" | `app.hint_find` | כל המסלולים ברשימה אחת, לפי צבע. נגיעה במסלול מראה אותו על ההר. |
-| 3 | the record button (RX3) | `app.hint_rec` | הקלטת גלישה: הטלפון בכיס, ונמדדים מהירות, ירידות ומסלולים לאורך כל היום. |
-| 4 | "הכפר" | `app.hint_village` | בכפר: הטיול שלך ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל. |
-| 5 | the picture / live switch | `app.hint_mode` | תמונה של ההר, או הר חי שמסובבים ומטים באצבע. עוברים ביניהם כאן. |
-| 6 | "אני" | `app.hint_me` | אני: כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש. כאן גם שפה והגדרות. |
+| 3 | the record button (RX3) | `app.hint_rec` | מקליטים את הגלישה עם הטלפון בכיס, ורואים מהירות, ירידות ומסלולים לאורך היום. |
+| 4 | "הכפר" | `app.hint_village` | בכפר נמצאים הטיול ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל. |
+| 5 | the picture / live switch | `app.hint_mode` | אפשר לראות את ההר בתמונה, או להסתובב בו ולהטות אותו באצבע. מחליפים כאן. |
+| 6 | "אני" | `app.hint_me` | כאן החשבון, השפה וההגדרות. כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש. |
 
 Village sequence (prefs `hints_village`):
 
 | # | Points at | Key | Text (Hebrew) |
 |---|---|---|---|
-| 1 | the row "הטיול שלך" | `app.hint_trip` (new) | הטיול שלך: מכניסים את תאריכי הטיסה, ורואים כמה ימים נשארו ואת התחזית לימי הסקי. |
-| 2 | the row "החבר׳ה" | `app.hint_group` | החבר׳ה: מזמינים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה. |
+| 1 | the row "הטיול שלך" | `app.hint_trip` (new) | מכניסים את תאריכי הטיסה, ורואים כמה ימים נשארו ומה התחזית לימי הסקי. |
+| 2 | the row "החבר׳ה" | `app.hint_group` | מזמינים חברים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה. |
 
 ## 2. When the sequence starts
 
@@ -55,7 +55,7 @@ Village sequence (prefs `hints_village`):
 
 ## 4. Reset
 
-- **Settings,** row "להציג שוב את הרמזים" (`app.hints_again`), light-bulb icon, above "איפוס השיאים במשחקים" (`HN9`).
+- **Settings,** row "הצגה מחדש של הרמזים" (`app.hints_again`), light-bulb icon, above "איפוס השיאים במשחקים" (`HN9`).
 - A tap clears both sequences, closes Settings, returns to the mountain, and the mountain sequence starts from 1 after 1,200 ms. The village sequence comes back at the next village opening.
 - Reinstalling resets; changing the language does not.
 - QA: `qa.redesign hint:reset` clears both; the emulator build keeps each hint until a tap (no timer), as today.
@@ -100,14 +100,14 @@ Solved by hints 3, 5 and 6. The buttons stay without words.
 
 ## 9. Strings (sent to the content session)
 
-Version 2 of the eight texts in section 1 (`app.hint_run`, `app.hint_find`, `app.hint_rec`, `app.hint_village`, `app.hint_mode`, `app.hint_me`, `app.hint_group` change; `app.hint_trip` is new), and:
+The source of truth for the wording is `i18n/strings.json` (the content session smoothed my draft, `d3adee5b`; still pending Pini). Version 2 of the eight texts in section 1 (`app.hint_run`, `app.hint_find`, `app.hint_rec`, `app.hint_village`, `app.hint_mode`, `app.hint_me`, `app.hint_group` change; `app.hint_trip` is new), and:
 
 | Key | Hebrew | English |
 |---|---|---|
 | `app.hint_step_a11y` | רמז {n} מתוך {total} | Hint {n} of {total} |
 | `app.hint_next_a11y` | לרמז הבא | Next hint |
 | `app.hints_skip_a11y` | סגירת כל הרמזים | Close all hints |
-| `app.hints_again` | להציג שוב את הרמזים (exists) | Show the hints again |
+| `app.hints_again` | הצגה מחדש של הרמזים | Show the hints again |
 
 `app.hint_close_a11y` is no longer used.
 

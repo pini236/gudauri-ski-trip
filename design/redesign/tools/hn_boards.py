@@ -52,17 +52,10 @@ HCSS = """
 """
 G4.MB.CSS = G4.MB.CSS + HCSS
 
-T = {  # the hint texts (i18n/strings.json; version 2 after Pini, 26.11.2026: a bit longer, say what is there)
-    'run': 'נגיעה במסלול מדגישה אותו מלמעלה עד למטה, עם האורך, הירידה והשיפוע.',            # app.hint_run
-    'find': 'כל המסלולים ברשימה אחת, לפי צבע. נגיעה במסלול מראה אותו על ההר.',                # app.hint_find
-    'rec': 'הקלטת גלישה: הטלפון בכיס, ונמדדים מהירות, ירידות ומסלולים לאורך כל היום.',       # app.hint_rec
-    'village': 'בכפר: הטיול שלך ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל.',     # app.hint_village
-    'mode': 'תמונה של ההר, או הר חי שמסובבים ומטים באצבע. עוברים ביניהם כאן.',               # app.hint_mode
-    'me': 'אני: כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש. כאן גם שפה והגדרות.',        # app.hint_me
-    'trip': 'הטיול שלך: מכניסים את תאריכי הטיסה, ורואים כמה ימים נשארו ואת התחזית לימי הסקי.',  # app.hint_trip
-    'group': 'החבר׳ה: מזמינים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה.',     # app.hint_group
-}
-EN = {'rec': 'Record skiing: phone in your pocket, and your speed, descents and runs are measured all day.'}
+_S = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../i18n/strings.json'), encoding='utf8'))['strings']
+T = {k: _S['app.hint_' + k]['he'] for k in ('run', 'find', 'rec', 'village', 'mode', 'me', 'trip', 'group')}   # from i18n (content session)
+EN = {'rec': _S['app.hint_rec']['en']}
+AGAIN = _S['app.hints_again']['he']
 ORDER = ['run', 'find', 'rec', 'village', 'mode', 'me']
 
 
@@ -180,7 +173,7 @@ def settings():
           + rl(ic(G3.P_GLOBE, 20), 'שפה', 'לפי הטלפון', 'עברית' + CHL) + '</div>')
     o += ('<div class="glass box" style="position: absolute; left: 12px; right: 12px; top: 364px">' + rl(ic(G3.P_CHART, 20), 'מדידת שימוש ודיווח שגיאות', 'בלי שם ובלי עוגיות. עוזר לנו לתקן תקלות.', G3.sw(True))
           + rl('', 'מה נאסף', '', CHL) + '</div>')
-    o += ('<div class="glass box" style="position: absolute; left: 12px; right: 12px; top: 504px">' + rl(ic(P_BULB, 20), 'להציג שוב את הרמזים', '', CHL)
+    o += ('<div class="glass box" style="position: absolute; left: 12px; right: 12px; top: 504px">' + rl(ic(P_BULB, 20), AGAIN, '', CHL)
           + rl(ic(G3.P_UNDO, 20), 'איפוס השיאים במשחקים') + '</div>')
     return o
 
@@ -239,7 +232,7 @@ def phones():
         'HN11.dc.html': ('בכניסה הראשונה לכפר, 2 מתוך 2: החבר׳ה', village(2), None),
         'HN12.dc.html': ('הבועה: הזמן, הסגירה והנקודות', anatomy(), None),
         'HN8.dc.html': ('באנגלית: כפתור ההקלטה, משמאל לימין', en_screen(), 'day', 'en'),
-        'HN9.dc.html': ('הגדרות: "להציג שוב את הרמזים"', settings(), None),
+        'HN9.dc.html': ('הגדרות: "הצגה מחדש של הרמזים"', settings(), None),
         'HN10.dc.html': ('חיפוש מיקום: השורה בתוך גלולה (ב9)', search(), None),
     }
 
@@ -260,7 +253,7 @@ def hn00():
         ('כפר 2', 'השורה "החבר׳ה"', T['group'], k('app.hint_group')),
     ]
     tbl = ('<table style="border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.45"><tr style="color: #56606C; font-size: 13px">'
-           '<td style="padding: 6px 10px">#</td><td style="padding: 6px 10px">על מה מצביע</td><td style="padding: 6px 10px">הטקסט (גרסה 2, ארוך יותר ואומר מה יש)</td><td style="padding: 6px 10px">המפתח</td></tr>'
+           '<td style="padding: 6px 10px">#</td><td style="padding: 6px 10px">על מה מצביע</td><td style="padding: 6px 10px">הטקסט (גרסה 2, בניסוח של סשן התוכן)</td><td style="padding: 6px 10px">המפתח</td></tr>'
            + ''.join('<tr style="border-top: 1px solid #D9DEE4">%s</tr>' % ''.join('<td style="padding: 8px 10px; vertical-align: top">%s</td>' % c for c in r) for r in rows) + '</table>')
     flow = li('<b>סדרה אחת, בפתיחה הראשונה:</b> 1.2 שנ׳ אחרי שההר צויר ושקט, שישה רמזים ברצף, 1 עד 6. בלי מגבלת "שניים בפתיחה".',
               '<b>נגיעה בכל מקום במסך: לרמז הבא.</b> גם נגיעה ביעד עצמו מעבירה הלאה, ולא מפעילה אותו, כדי שגיליון לא ייפתח באמצע. גרירה וצביטה לא עושות כלום.',
@@ -270,7 +263,7 @@ def hn00():
               '<b>הנקודות</b> בתחתית הבועה: כמה רמזים יש ואיפה אנחנו. הנוכחית מוארכת.',
               '<b>הכפר:</b> סדרה קצרה משלה, שני רמזים (הטיול שלך, החבר׳ה), בפעם הראשונה שהגיליון נפתח, 600 מ״ש אחרי שנעצר. אותם כללים.',
               '<b>הפרעה</b> (רקע, קישור, התראה, הקלטה): הסדרה נעצרת, וממשיכה מאותו רמז בפתיחה הבאה. X או סוף הסדרה: לא חוזרת.',
-              '<b>"להציג שוב את הרמזים" בהגדרות:</b> חוזרים להר והסדרה מתחילה מ-1; גם הסדרה של הכפר תחזור בכניסה הבאה.',
+              '<b>"הצגה מחדש של הרמזים" בהגדרות:</b> חוזרים להר והסדרה מתחילה מ-1; גם הסדרה של הכפר תחזור בכניסה הבאה.',
               '<b>לפני העונה:</b> אותה סדרה; אריח הספירה נשאר מתחת לעמעום.')
     a11y = li('<b>קורא מסך:</b> בלי זמן. הטבעת מלאה ולא זזה. כל רמז נקרא כ"רמז 3 מתוך 6" ואחריו הטקסט, והמיקוד עובר לבועה. שתי פעולות: "לרמז הבא" ו"סגירת כל הרמזים".',
               '<b>זמן:</b> 8 שניות, או יותר כשבהגדרות הנגישות של אנדרואיד נבחר "זמן לביצוע פעולה" ארוך (' + k('getRecommendedTimeoutMillis') + ').',
