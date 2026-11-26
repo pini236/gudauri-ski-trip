@@ -1,9 +1,8 @@
 # First-run hints (Android redesign, for the store release)
 
 **When:** 26.11.2026, product designer (Opus). Design only, no code.
-**Status:** version 2 after Pini's notes (26.11.2026): a guided sequence and longer, clearer texts. Waiting for Pini. Built from `design/redesign/review-release.md` items B4 (hints), B8 (before the season), B9 (text without a frame) and B10 (buttons without words).
-**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 76), page "רמזים לפעם הראשונה", boards `HN00` to `HN12`. Source: `design/redesign/tools/hn_boards.py`.
-**Approved already (Pini, 26.11.2026):** the reset row in Settings (section 4, `HN9`) and "מחפש מיקום" in a pill (section 7, `HN10`); these two can be built now. The rest waits.
+**Status:** version 2 after Pini's notes (26.11.2026): a guided sequence and longer, clearer texts. **Approved in full (Pini, 26.11.2026): the sequence (canvas 79) and the countdown tile (canvas 80, all three questions yes). Build now.** Wording follows `i18n/strings.json` (content is polishing; the boards read it). Built from `design/redesign/review-release.md` items B4 (hints), B8 (before the season), B9 (text without a frame) and B10 (buttons without words).
+**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 82), page "רמזים לפעם הראשונה", boards `HN00` to `HN12`. Source: `design/redesign/tools/hn_boards.py`.
 **Replaces:** section 7 of `design/handoff/2026-11-23-redesign-on-mountain/README.md` (S09, three hints).
 
 ## Summary (for the implementer)
@@ -81,7 +80,7 @@ Village sequence (prefs `hints_village`):
 
 ## 6. Before the season (B8, version 2 after Pini, 26.11.2026; interim until the "before the season" round)
 
-Boards `CT00` to `CT5` (canvas version 80). Waiting for Pini.
+Boards `CT00` to `CT5` (canvas version 80). **Approved (Pini, 26.11.2026): the tile, opening by itself once a day, and the tap on the open tile opening the season sheet.**
 
 - **The mountain opens free, no sheet.** The countdown is a **square tile**, 64 × 64, glass, radius 18, padding 8, on the start side, 12 from the edge and 18 above the bar (top 690 on a 844 screen); clear of the runs.
 - **Inside: only the number, in a ring.** Ring 48, stroke 3: the track in `line`, the fill in `acc`, from the top, clockwise. The fill is how much of the wait has passed, from MTA's announcement to the opening (`season.announced` to `season.open` in `site/data/resorts.json`; today 55%). Number 20 / weight 600, tabular; 17 from 100 days.
