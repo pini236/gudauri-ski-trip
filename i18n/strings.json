@@ -23640,7 +23640,7 @@
    ]
   },
   "app.hint_find": {
-   "he": "כל המסלולים ברשימה אחת, לפי צבע. נגיעה במסלול מראה אותו על ההר.",
+   "he": "כל המסלולים ברשימה אחת, לפי צבע. נוגעים באחד ורואים אותו על ההר.",
    "en": "Every run in one list, by colour. Tap one to see it on the mountain.",
    "ru": "Все трассы в одном списке, по цвету. Нажмите на трассу, чтобы увидеть её на горе.",
    "ka": "ყველა ტრასა ერთ სიაში, ფერის მიხედვით. ტრასაზე შეხებით მას მთაზე იხილავთ.",
@@ -23652,10 +23652,10 @@
    ]
   },
   "app.hint_village": {
-   "he": "בכפר נמצאים הטיול ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל.",
-   "en": "The village has your trip and flight dates, your group and meeting point, the ski pass and food.",
-   "ru": "В деревне: поездка и даты рейса, друзья и место встречи, ски-пасс и еда.",
-   "ka": "სოფელში: მოგზაურობა და ფრენის თარიღები, მეგობრები და შეხვედრის ადგილი, სათხილამურო ბარათი და საჭმელი.",
+   "he": "בכפר יש את הטיול והטיסה שלך, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל.",
+   "en": "The village has your trip and flight, your group and meeting point, the ski pass and food.",
+   "ru": "В деревне ваша поездка и рейс, группа и место встречи, ски-пасс и еда.",
+   "ka": "სოფელში არის თქვენი მოგზაურობა და ფრენა, ჯგუფი და შეხვედრის ადგილი, სათხილამურო ბარათი და საჭმელი.",
    "where": "app/android",
    "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
@@ -24639,10 +24639,10 @@
    ]
   },
   "app.search_hint": {
-   "he": "בחוץ זה לוקח בדרך כלל פחות מדקה.",
-   "en": "Outdoors, this usually takes under a minute.",
-   "ru": "На открытом месте обычно меньше минуты.",
-   "ka": "გარეთ ეს ჩვეულებრივ ერთ წუთზე ნაკლებს საჭიროებს.",
+   "he": "עוד רגע ונמצא אותך.",
+   "en": "We'll find you in a moment.",
+   "ru": "Скоро найдём вас.",
+   "ka": "ცოტა ხანში გიპოვით.",
    "where": "app/android",
    "note": "מסך החיפוש של מעקב הגלישה (25.11.2026, אושר על ידי פיני)",
    "check": [
@@ -24878,10 +24878,10 @@
    ]
   },
   "app.hint_rec": {
-   "he": "מקליטים את הגלישה עם הטלפון בכיס, ורואים מהירות, ירידות ומסלולים לאורך היום.",
-   "en": "Record skiing with the phone in your pocket, and see your speed, descents and runs all day.",
-   "ru": "Записывайте катание, пока телефон в кармане: скорость, спуски и трассы за весь день.",
-   "ka": "ჩაიწერეთ სრიალი, სანამ ტელეფონი ჯიბეშია: სიჩქარე, ჩასვლები და ტრასები მთელი დღის განმავლობაში.",
+   "he": "מקליטים את הגלישה ומשאירים את הטלפון בכיס. בסוף היום רואים מהירות, ירידות ומסלולים.",
+   "en": "Start recording and keep the phone in your pocket. At the end of the day you see your speed, descents and runs.",
+   "ru": "Запустите запись и оставьте телефон в кармане. Вечером увидите скорость, спуски и трассы.",
+   "ka": "ჩართეთ ჩაწერა და ტელეფონი ჯიბეში გქონდეთ. დღის ბოლოს სიჩქარეს, ჩასვლებს და ტრასებს ნახავთ.",
    "where": "app/android",
    "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
@@ -24902,10 +24902,10 @@
    ]
   },
   "app.hint_me": {
-   "he": "כאן החשבון, השפה וההגדרות. כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש.",
-   "en": "Account, language and settings are here. Signing in keeps your groups on a new phone too.",
-   "ru": "Здесь аккаунт, язык и настройки. Вход в аккаунт сохранит ваши группы и на новом телефоне.",
-   "ka": "აქ არის ანგარიში, ენა და პარამეტრები. ანგარიშში შესვლა ჯგუფებს ახალ ტელეფონზეც შეგინახავთ.",
+   "he": "כאן החשבון, השפה וההגדרות. אחרי כניסה לחשבון הקבוצות שלך יחכו לך גם בטלפון חדש.",
+   "en": "Account, language and settings are here. After signing in, your groups wait for you on a new phone too.",
+   "ru": "Здесь аккаунт, язык и настройки. После входа ваши группы будут и на новом телефоне.",
+   "ka": "აქ არის ანგარიში, ენა და პარამეტრები. შესვლის შემდეგ თქვენი ჯგუფები ახალ ტელეფონზეც დაგხვდებათ.",
    "where": "app/android",
    "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
@@ -24914,10 +24914,10 @@
    ]
   },
   "app.hint_group": {
-   "he": "מזמינים חברים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה.",
-   "en": "Invite by link, set a meeting point on the mountain, and see who is on which flight.",
-   "ru": "Приглашайте друзей по ссылке, назначайте место встречи на горе и смотрите, кто каким рейсом летит.",
-   "ka": "მოიწვიეთ მეგობრები ბმულით, დანიშნეთ შეხვედრის ადგილი მთაზე და ნახეთ, ვინ რომელი რეისით მიფრინავს.",
+   "he": "מזמינים חברים בקישור, קובעים איפה נפגשים על ההר, ורואים מי טס באיזו טיסה.",
+   "en": "Invite friends by link, pick where to meet on the mountain, and see who is on which flight.",
+   "ru": "Приглашайте друзей по ссылке, выбирайте место встречи на горе и смотрите, кто каким рейсом летит.",
+   "ka": "მოიწვიეთ მეგობრები ბმულით, აირჩიეთ შეხვედრის ადგილი მთაზე და ნახეთ, ვინ რომელი რეისით მიფრინავს.",
    "where": "app/android",
    "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
    "check": [
