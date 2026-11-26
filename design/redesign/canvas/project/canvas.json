@@ -2418,94 +2418,6 @@
    "title": "בירידה, בלילה (GD2)",
    "page": "v56"
   },
-  "HN00-Hints.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1280,
-   "h": 1500,
-   "title": "רמזים לפעם הראשונה (HN00)",
-   "page": "hints"
-  },
-  "HN1.dc.html": {
-   "x": 0,
-   "y": 1640,
-   "w": 390,
-   "h": 844,
-   "title": "פתיחה 1: המסלול, והספירה באריח (HN1)",
-   "page": "hints"
-  },
-  "HN2.dc.html": {
-   "x": 470,
-   "y": 1640,
-   "w": 390,
-   "h": 844,
-   "title": "פתיחה 1: \"לאן יורדים?\" (HN2)",
-   "page": "hints"
-  },
-  "HN3.dc.html": {
-   "x": 940,
-   "y": 1640,
-   "w": 390,
-   "h": 844,
-   "title": "פתיחה 2: ההקלטה (HN3)",
-   "page": "hints"
-  },
-  "HN4.dc.html": {
-   "x": 1410,
-   "y": 1640,
-   "w": 390,
-   "h": 844,
-   "title": "פתיחה 2: הכפר (HN4)",
-   "page": "hints"
-  },
-  "HN5.dc.html": {
-   "x": 1880,
-   "y": 1640,
-   "w": 390,
-   "h": 844,
-   "title": "פתיחה 3: תמונה או חי, בלילה (HN5)",
-   "page": "hints"
-  },
-  "HN6.dc.html": {
-   "x": 2350,
-   "y": 1640,
-   "w": 390,
-   "h": 844,
-   "title": "פתיחה 3: \"אני\" (HN6)",
-   "page": "hints"
-  },
-  "HN7.dc.html": {
-   "x": 0,
-   "y": 2684,
-   "w": 390,
-   "h": 844,
-   "title": "בכפר: החבר׳ה (HN7)",
-   "page": "hints"
-  },
-  "HN8.dc.html": {
-   "x": 470,
-   "y": 2684,
-   "w": 390,
-   "h": 844,
-   "title": "באנגלית: ההקלטה (HN8)",
-   "page": "hints"
-  },
-  "HN9.dc.html": {
-   "x": 940,
-   "y": 2684,
-   "w": 390,
-   "h": 844,
-   "title": "הגדרות: להציג שוב (HN9)",
-   "page": "hints"
-  },
-  "HN10.dc.html": {
-   "x": 1410,
-   "y": 2684,
-   "w": 390,
-   "h": 844,
-   "title": "חיפוש מיקום בגלולה (ב9) (HN10)",
-   "page": "hints"
-  },
   "B900-Frame.dc.html": {
    "x": 0,
    "y": 0,
@@ -2577,6 +2489,94 @@
    "h": 844,
    "title": "לא מומלץ: מילים קבועות (BT4)",
    "page": "b10"
+  },
+  "HN00-Hints.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1720,
+   "title": "רמזים לפעם הראשונה, גרסה 2 (HN00)",
+   "page": "hints"
+  },
+  "HN1.dc.html": {
+   "x": 0,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "1 מתוך 6: המסלול, והספירה באריח (HN1)",
+   "page": "hints"
+  },
+  "HN2.dc.html": {
+   "x": 470,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "2 מתוך 6: \"לאן יורדים?\" (HN2)",
+   "page": "hints"
+  },
+  "HN3.dc.html": {
+   "x": 940,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "3 מתוך 6: ההקלטה (HN3)",
+   "page": "hints"
+  },
+  "HN4.dc.html": {
+   "x": 1410,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "4 מתוך 6: הכפר (HN4)",
+   "page": "hints"
+  },
+  "HN5.dc.html": {
+   "x": 1880,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "5 מתוך 6: תמונה או חי, בלילה (HN5)",
+   "page": "hints"
+  },
+  "HN6.dc.html": {
+   "x": 2350,
+   "y": 1860,
+   "w": 390,
+   "h": 844,
+   "title": "6 מתוך 6: \"אני\" (HN6)",
+   "page": "hints"
+  },
+  "HN7.dc.html": {
+   "x": 0,
+   "y": 2904,
+   "w": 390,
+   "h": 844,
+   "title": "בכפר: החבר׳ה (HN7)",
+   "page": "hints"
+  },
+  "HN8.dc.html": {
+   "x": 470,
+   "y": 2904,
+   "w": 390,
+   "h": 844,
+   "title": "באנגלית: ההקלטה (HN8)",
+   "page": "hints"
+  },
+  "HN9.dc.html": {
+   "x": 940,
+   "y": 2904,
+   "w": 390,
+   "h": 844,
+   "title": "הגדרות: להציג שוב (HN9)",
+   "page": "hints"
+  },
+  "HN10.dc.html": {
+   "x": 1410,
+   "y": 2904,
+   "w": 390,
+   "h": 844,
+   "title": "חיפוש מיקום בגלולה (ב9) (HN10)",
+   "page": "hints"
   }
  },
  "createdOnFiles": {
@@ -3460,6 +3460,15 @@
   "EM2.dc.html",
   "EM3.dc.html",
   "EM4.dc.html",
+  "B900-Frame.dc.html",
+  "B91.dc.html",
+  "B92.dc.html",
+  "B93.dc.html",
+  "BT00-NoWords.dc.html",
+  "BT1.dc.html",
+  "BT2.dc.html",
+  "BT3.dc.html",
+  "BT4.dc.html",
   "HN00-Hints.dc.html",
   "HN1.dc.html",
   "HN2.dc.html",
@@ -3470,16 +3479,7 @@
   "HN7.dc.html",
   "HN8.dc.html",
   "HN9.dc.html",
-  "HN10.dc.html",
-  "B900-Frame.dc.html",
-  "B91.dc.html",
-  "B92.dc.html",
-  "B93.dc.html",
-  "BT00-NoWords.dc.html",
-  "BT1.dc.html",
-  "BT2.dc.html",
-  "BT3.dc.html",
-  "BT4.dc.html"
+  "HN10.dc.html"
  ],
  "pages": [
   {

@@ -434,3 +434,5 @@ Canvas version 74, page "ב9 · טקסט במסגרת", boards `B900` to `B93`. 
 ### Buttons without words (B10), 26.11.2026
 
 Canvas version 75, page "כפתורים בלי מילים (ב10)", boards `BT00` to `BT4`. Source: `tools/b10_boards.py`. Handoff: `design/handoff/2026-11-26-redesign-b10/README.md`. The hints already name record, the switch and "אני"; for the rest (layers, "איפה אני", the compass, and any later column button) a long press shows the button's name in a small `ink` pill beside it. No permanent labels, no new strings. Waiting for Pini; not a release blocker.
+
+**Version 2 (26.11.2026, after Pini's notes; canvas 77, `HN00` to `HN12`):** a guided sequence instead of the quiet queue: six hints on the mountain at the first opening, two in the village sheet ("הטיול שלך", "החבר׳ה"); a tap anywhere moves on, the X inside a ring that drains over 8 s closes all, dots show the step, and a light dim with a hole marks the target. Longer texts that say what is there. Waiting for Pini.

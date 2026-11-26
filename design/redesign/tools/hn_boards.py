@@ -23,11 +23,26 @@ DAYS = (OPEN - TODAY).days      # 24
 HCSS = """
 @keyframes hnin{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:none}}
 @keyframes hrin{0%{transform:scale(1.18);opacity:0}100%{transform:none;opacity:1}}
-.H .hn{position:absolute;border-radius:16px;background:var(--ink);color:var(--bg);padding:10px 14px;box-sizing:border-box;font-size:14px;font-weight:500;line-height:1.35;box-shadow:0 8px 22px rgba(10,25,45,.3);width:max-content;max-width:266px;animation:hnin .2s ease-out both;z-index:5}
+.H .hn{position:absolute;border-radius:16px;background:var(--ink);color:var(--bg);padding:10px 14px 10px 8px;box-sizing:border-box;font-size:14px;font-weight:500;line-height:1.4;box-shadow:0 8px 22px rgba(10,25,45,.3);width:max-content;max-width:300px;animation:hnin .2s ease-out both;z-index:5;display:flex;flex-direction:column;gap:8px}
+.H [dir=ltr] .hn,.H .hn[dir=ltr]{padding:10px 8px 10px 14px}
+.H .hn .r{display:flex;align-items:flex-start;gap:10px}
+.H .hn .tx{flex:1;min-width:0;padding-top:4px}
+.H .hn .hx{position:relative;width:32px;height:32px;flex:none;border:0;background:none;padding:0;color:var(--bg);display:flex;align-items:center;justify-content:center}
+.H .hn .hx::before{content:'';position:absolute;inset:-6px}
+.H .hn .hx svg.rg{position:absolute;inset:0}
+.H .hn .hx .tr{stroke:currentColor;stroke-opacity:.22}
+.H .hn .hx .ar{stroke:currentColor;stroke-dasharray:1;animation:drain 8s linear infinite}
+.H .hn .hx.p50 .ar{animation:none;stroke-dashoffset:.5}.H .hn .hx.full .ar{animation:none;stroke-dashoffset:0}
+@keyframes drain{0%{stroke-dashoffset:0}100%{stroke-dashoffset:1}}
+.H .hn .dots{display:flex;gap:5px;align-items:center;padding-inline-start:0}
+.H .hn .dots span{width:6px;height:6px;border-radius:3px;background:currentColor;opacity:.32}
+.H .hn .dots span.on{width:16px;opacity:1}.H .hn .dots span.done{opacity:.6}
 .H .hn i{position:absolute;width:12px;height:12px;background:var(--ink);transform:rotate(45deg);border-radius:2px}
-.H .hr{position:absolute;box-sizing:border-box;border:2.5px solid var(--ink);box-shadow:0 0 0 2.5px rgba(255,255,255,.9),0 6px 18px rgba(10,25,45,.25);animation:hrin .6s ease-out both;pointer-events:none;z-index:4}
-.H .night .hr{box-shadow:0 0 0 2.5px rgba(6,11,22,.75),0 6px 18px rgba(0,0,0,.4)}
+.H .hr{position:absolute;box-sizing:border-box;border:2.5px solid var(--ink);box-shadow:0 0 0 2.5px rgba(255,255,255,.9),0 0 0 2400px rgba(8,16,30,.26);animation:hrin .6s ease-out both;pointer-events:none;z-index:4}
+.H .night .hr{box-shadow:0 0 0 2.5px rgba(6,11,22,.75),0 0 0 2400px rgba(0,0,0,.34)}
 .H .hr.run{background:rgba(255,255,255,.3)}
+.H .anl{position:absolute;left:16px;right:16px;font-size:13px;font-weight:700;color:var(--ink);display:flex;gap:8px;align-items:center}
+.H .anl b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:11px;background:var(--acc);color:var(--onacc);font-size:12px}
 .H .ctile{position:absolute;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 12px;border-radius:18px;box-sizing:border-box}
 .H .ctile .cn{font-size:34px;font-weight:300;line-height:1;direction:ltr;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .H .ctile .c{display:flex;flex-direction:column;gap:1px}
@@ -37,16 +52,19 @@ HCSS = """
 """
 G4.MB.CSS = G4.MB.CSS + HCSS
 
-T = {  # the hint texts as they are (or will be) in i18n/strings.json
-    'run': 'נגיעה במסלול מדגישה אותו.',                       # app.hint_run (exists)
-    'find': 'כל המסלולים במקום אחד, לפי צבע.',                # app.hint_find (exists)
-    'rec': 'הקלטת גלישה: מהירות, ירידות ומסלולים.',            # app.hint_rec (new)
-    'village': 'בכפר: הטיול, הקבוצה וכרטיס הסקי.',            # app.hint_village (exists)
-    'mode': 'תמונה של ההר, או הר חי שאפשר לסובב.',            # app.hint_mode (new)
-    'me': 'אני: חשבון, שפה והגדרות.',                        # app.hint_me (new)
-    'group': 'מזמינים חברים וקובעים איפה נפגשים.',           # app.hint_group (new)
+T = {  # the hint texts (i18n/strings.json; version 2 after Pini, 26.11.2026: a bit longer, say what is there)
+    'run': 'נגיעה במסלול מדגישה אותו מלמעלה עד למטה, עם האורך, הירידה והשיפוע.',            # app.hint_run
+    'find': 'כל המסלולים ברשימה אחת, לפי צבע. נגיעה במסלול מראה אותו על ההר.',                # app.hint_find
+    'rec': 'הקלטת גלישה: הטלפון בכיס, ונמדדים מהירות, ירידות ומסלולים לאורך כל היום.',       # app.hint_rec
+    'village': 'בכפר: הטיול שלך ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל.',     # app.hint_village
+    'mode': 'תמונה של ההר, או הר חי שמסובבים ומטים באצבע. עוברים ביניהם כאן.',               # app.hint_mode
+    'me': 'אני: כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש. כאן גם שפה והגדרות.',        # app.hint_me
+    'trip': 'הטיול שלך: מכניסים את תאריכי הטיסה, ורואים כמה ימים נשארו ואת התחזית לימי הסקי.',  # app.hint_trip
+    'group': 'החבר׳ה: מזמינים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה.',     # app.hint_group
 }
-EN = {'rec': 'Record skiing: speed, descents and runs.'}
+EN = {'rec': 'Record skiing: phone in your pocket, and your speed, descents and runs are measured all day.'}
+ORDER = ['run', 'find', 'rec', 'village', 'mode', 'me']
+
 
 P_BULB = '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.600 10.800c.8.600 1.100 1.300 1.100 2.200h5c0-.9.300-1.600 1.100-2.200A6 6 0 0 0 12 3z"/>'
 
@@ -59,13 +77,27 @@ def ring(x, y, w, h, r=None, run=False):
         ' run' if run else '', x, y, w, h, r)
 
 
-def bubble(text, side, ax, frm='left', **pos):
-    """the bubble; it takes its own width (up to 266) and is placed by any of left/right/top/bottom.
-    side = where the point is (down, up, left, right); ax = the point's centre from the bubble's edge frm"""
+def xring(state=''):
+    """the X inside a ring that drains over the hint's time (8 s); a tap closes all the hints"""
+    return ('<button class="hx %s" aria-label="סגירת כל הרמזים"><svg class="rg" viewBox="0 0 32 32" fill="none" aria-hidden="true">'
+            '<circle class="tr" cx="16" cy="16" r="14" stroke-width="2"/>'
+            '<circle class="ar" pathLength="1" cx="16" cy="16" r="14" stroke-width="2" stroke-linecap="round" transform="rotate(-90 16 16)"/></svg>'
+            '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style="position: relative"><path d="M2 2l8 8M10 2 2 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>' % state)
+
+
+def bubble(text, side, ax, frm='left', step=None, total=6, state='', **pos):
+    """the bubble; its own width up to 300, placed by left/right/top/bottom. side = where the point is;
+    ax = the point's centre from the bubble's edge frm. step: 1-based, for the dots"""
     pt = {'down': 'bottom: -5px', 'up': 'top: -5px', 'left': 'left: -5px', 'right': 'right: -5px'}[side]
     pt += '; %s: %dpx' % (frm, ax - 6)
     st = '; '.join('%s: %.0fpx' % (k, v) for k, v in pos.items())
-    return '<div class="hn" role="status" style="%s">%s<i style="%s"></i></div>' % (st, text, pt)
+    dots = ''
+    if step:
+        dots = '<div class="dots" aria-hidden="true">%s</div>' % ''.join(
+            '<span class="%s"></span>' % ('on' if i == step else ('done' if i < step else '')) for i in range(1, total + 1))
+    lab = ' aria-label="רמז %d מתוך %d"' % (step, total) if step else ''
+    return ('<div class="hn" role="status"%s style="%s"><div class="r"><span class="tx">%s</span>%s</div>%s<i style="%s"></i></div>'
+            % (lab, st, text, xring(state), dots, pt))
 
 
 # ---------------------------------------------------------------- the mountain screen as built (RX3, Stage, before the season)
@@ -89,47 +121,53 @@ def screen(light='morning', pre=True, mode='pic'):
 
 def run_hint():
     R = P.run_path(VH, 'Goodaura 1'); x, y, *_ = P.at(R, R['cum'][-1] * 0.45)
-    return ring(x - 23, y - 23, 46, 46, run=True) + bubble(T['run'], 'down', 60, 'left', left=x - 60, bottom=844 - (y - 23 - 12))
+    return ring(x - 23, y - 23, 46, 46, run=True) + bubble(T['run'], 'down', x - 66, 'left', step=1, left=66, bottom=844 - (y - 23 - 12))
 
 
 # targets measured on RX1/OP1: record 17,780,44,44 · find 69,780,207,44 · village 284,780,89,44
 # switch 12,566,46,90 · me 12,52,44,44
 def find_hint():
-    return ring(64, 775, 217, 54) + bubble(T['find'], 'down', 110, 'left', left=62, bottom=844 - 763)
+    return ring(64, 775, 217, 54) + bubble(T['find'], 'down', 110, 'left', step=2, left=62, bottom=844 - 763)
 
 
 def rec_hint():
-    return ring(12, 775, 54, 54) + bubble(T['rec'], 'down', 27, 'left', left=12, bottom=844 - 763)
+    return ring(12, 775, 54, 54) + bubble(T['rec'], 'down', 27, 'left', step=3, left=12, bottom=844 - 763)
 
 
 def village_hint():
-    return ring(279, 775, 99, 54) + bubble(T['village'], 'down', 50, 'right', right=12, bottom=844 - 763)
+    return ring(279, 775, 99, 54) + bubble(T['village'], 'down', 50, 'right', step=4, right=12, bottom=844 - 763)
 
 
 def mode_hint():
-    return ring(7, 561, 56, 100) + bubble(T['mode'], 'left', 22, 'top', left=75, top=589)
+    return ring(7, 561, 56, 100) + bubble(T['mode'], 'left', 22, 'top', step=5, left=75, top=589)
 
 
 def me_hint():
-    return ring(7, 47, 54, 54) + bubble(T['me'], 'up', 22, 'left', left=12, top=113)
+    return ring(7, 47, 54, 54) + bubble(T['me'], 'up', 22, 'left', step=6, left=12, top=113)
 
 
 # ---------------------------------------------------------------- the village, its sheet, and the group hint
-def village(night=False):
+ROW = {'trip': (578, 46), 'group': (730, 47)}   # measured in the render (top, height)
+
+
+def village(step=1, night=False):
     light = 'night' if night else 'morning'
     b = pic('vill', light, None) + base('vill')
     gx, gy, _, gz = P.pt(VV, *P.lift_ends(P.flift('Goodaura'))[0]); sx_, sy_, _, _ = P.pt(VV, *P.lift_ends(P.flift('Soliko'))[0])
     zx, zy, _, _ = P.pt(VV, *P.lift_ends(P.flift('Zuma'))[0])
     b += tag(gx + 30, gy - 58, 'Goodaura ↑', None) + tag(sx_ - 28, sy_ + 30, 'Soliko ↑', None) + tag(zx - 8, zy + 24, 'Zuma', None)
     b += '<div class="tag" style="left: 62px; top: 76px; height: 32px; border-radius: 16px; padding: 0 12px; direction: rtl; font-size: 13px">↑ חזרה להר</div>'
-    b += ('<div class="glass" style="position: absolute; left: 0; right: 0; bottom: 0; height: 296px; border-radius: 28px 28px 0 0; padding: 10px 18px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">'
+    b += ('<div class="glass" style="position: absolute; left: 0; right: 0; bottom: 0; height: 344px; border-radius: 28px 28px 0 0; padding: 10px 18px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">'
           '<div class="grab"></div><div style="margin: 6px 0 4px"><p class="ttl">הכפר</p><p class="sub"><span dir="ltr">New Gudauri</span> · <span dir="ltr">%s</span> מ׳ · 41 בניינים ממופים</p></div>'
-          '<div class="rw"><span style="font-weight: 700">כרטיס סקי</span><span class="r">4 ימים · 390 ₾</span></div>'
-          '<div class="rw"><span style="font-weight: 700">אוכל ושתייה</span><span class="r">15 מקומות עד 250 מ׳ מהבסיס</span></div>'
-          '<div class="rw"><span style="font-weight: 700">החבר׳ה</span><span class="r">הזמנה ומפגש</span></div>'
+          '<div class="rw"><span style="font-weight: 700">הטיול שלך</span><span class="r">מתי טסים?</span></div>'
+          '<div class="rw"><span style="font-weight: 700">כרטיס סקי</span><span class="r">יום · 120 ₾</span></div>'
+          '<div class="rw"><span style="font-weight: 700">אוכל ושתייה</span><span class="r">15 מקומות</span></div>'
+          '<div class="rw"><span style="font-weight: 700">החבר׳ה</span><span class="r">מצטרפים או פותחים קבוצה</span></div>'
           '<div class="rw"><span style="font-weight: 700">ערב בבקתה</span><span class="r">5 משחקים</span></div></div>') % ('{:,}'.format(int(round(gz / 10) * 10)))
-    # the row "החבר׳ה" sits at about y 734..780 (sheet top 548; header; two rows)
-    b += ring(8, 731, 374, 52, r=16) + bubble(T['group'], 'down', 44, 'right', right=12, bottom=844 - 719)
+    if step == 1:
+        b += ring(8, ROW['trip'][0] - 3, 374, ROW['trip'][1] + 6, r=16) + bubble(T['trip'], 'up', 44, 'right', step=1, total=2, right=12, top=ROW['trip'][0] + ROW['trip'][1] + 3 + 12)
+    else:
+        b += ring(8, ROW['group'][0] - 3, 374, ROW['group'][1] + 6, r=16) + bubble(T['group'], 'down', 44, 'right', step=2, total=2, right=12, bottom=844 - (ROW['group'][0] - 3 - 12))
     return b
 
 
@@ -168,7 +206,24 @@ def en_screen():
           % (ic(P_HOME, 20), ic(P_SRCH, 18), rc().replace('aria-label="%s"' % VB.WORD, 'aria-label="Record skiing"')))
     o += ('<button class="ctile glass" style="left: 12px; top: 636px"><span class="cn">%d</span>'
           '<span class="c"><b>days to opening</b><span>Lifts start <bdi>20.12</bdi></span></span></button>' % DAYS)
-    o += ring(324, 775, 54, 54) + bubble(EN['rec'], 'down', 27, 'right', right=12, bottom=844 - 763)
+    o += ring(324, 775, 54, 54) + bubble(EN['rec'], 'down', 27, 'right', step=3, right=12, bottom=844 - 763).replace('class="hn"', 'class="hn" dir="ltr"').replace('סגירת כל הרמזים', 'Close all hints').replace('רמז 3 מתוך 6', 'Hint 3 of 6')
+    return o
+
+
+def anatomy():
+    """the bubble in three moments: the time starts, half gone, and with a screen reader (no time, the ring full)"""
+    o = pic('hero', 'morning', 'night') + veil(0, 844, 'var(--veil)')
+    def lab(y, n, t):
+        return '<div class="anl" style="top: %dpx"><b>%d</b><span class="glass" style="border-radius: 14px; padding: 5px 12px">%s</span></div>' % (y, n, t)
+    t = T['rec']
+    o += lab(96, 1, 'מופיע: הטבעת מלאה, 8 שניות')
+    o += bubble(t, 'down', 40, 'right', step=3, state='full', right=16, top=136).replace('animation:', '')
+    o += lab(306, 2, 'חצי זמן. נגיעה בכל מקום: לרמז הבא')
+    o += bubble(t, 'down', 40, 'right', step=3, state='p50', right=16, top=346)
+    o += lab(516, 3, 'קורא מסך: בלי זמן, "הבא" ו"סגירה"')
+    o += bubble(t, 'down', 40, 'right', step=3, state='full', right=16, top=556)
+    o += ('<div class="anl" style="top: 700px"><span class="glass" style="border-radius: 14px; padding: 8px 12px; font-weight: 500; line-height: 1.45">'
+          'ה-X סוגר את כל הרמזים. הנקודות: איפה בסדרה. בסוף הזמן: הרמז הבא.</span></div>')
     return o
 
 
@@ -180,62 +235,68 @@ def phones():
         'HN4.dc.html': ('אחרי פעולה: הכפר', screen() + village_hint(), None),
         'HN5.dc.html': ('הפתיחה השלישית: תמונה או חי, בלילה', screen('night') + mode_hint(), 'night'),
         'HN6.dc.html': ('אחרי פעולה: "אני"', screen() + me_hint(), None),
-        'HN7.dc.html': ('בכניסה הראשונה לכפר: החבר׳ה', village(), None),
+        'HN7.dc.html': ('בכניסה הראשונה לכפר, 1 מתוך 2: הטיול שלך', village(1), None),
+        'HN11.dc.html': ('בכניסה הראשונה לכפר, 2 מתוך 2: החבר׳ה', village(2), None),
+        'HN12.dc.html': ('הבועה: הזמן, הסגירה והנקודות', anatomy(), None),
         'HN8.dc.html': ('באנגלית: כפתור ההקלטה, משמאל לימין', en_screen(), 'day', 'en'),
         'HN9.dc.html': ('הגדרות: "להציג שוב את הרמזים"', settings(), None),
         'HN10.dc.html': ('חיפוש מיקום: השורה בתוך גלולה (ב9)', search(), None),
     }
 
 
-HB = 1500
+HB = 1720
 
 
 def hn00():
+    k = lambda x: '<span dir="ltr">%s</span>' % x
     rows = [
-        ('1', 'מסלול כחול באמצע המסך (טבעת על הקו)', 'פתיחה 1, 1.2 שנ׳ אחרי שההר עלה', T['run'], '<span dir="ltr">app.hint_run</span>', 'קיים, בנוי'),
-        ('2', '"לאן יורדים?"', 'פתיחה 1, אחרי שנסגר גיליון של מסלול', T['find'], '<span dir="ltr">app.hint_find</span>', 'קיים'),
-        ('3', 'כפתור ההקלטה (RX3)', 'פתיחה 2', T['rec'], '<span dir="ltr">app.hint_rec</span>', '<b>חדש</b>'),
-        ('4', '"הכפר"', 'פתיחה 2, אחרי פעולה', T['village'], '<span dir="ltr">app.hint_village</span>', 'קיים'),
-        ('5', 'המתג תמונה / חי', 'פתיחה 3', T['mode'], '<span dir="ltr">app.hint_mode</span>', '<b>חדש</b>'),
-        ('6', '"אני"', 'פתיחה 3, אחרי פעולה', T['me'], '<span dir="ltr">app.hint_me</span>', '<b>חדש</b>'),
-        ('כ', 'השורה "החבר׳ה" בגיליון הכפר', 'בפעם הראשונה שהגיליון נפתח, למי שאין קבוצה', T['group'], '<span dir="ltr">app.hint_group</span>', '<b>חדש</b>'),
+        ('1', 'מסלול כחול באמצע המסך', T['run'], k('app.hint_run')),
+        ('2', '"לאן יורדים?"', T['find'], k('app.hint_find')),
+        ('3', 'כפתור ההקלטה', T['rec'], k('app.hint_rec')),
+        ('4', '"הכפר"', T['village'], k('app.hint_village')),
+        ('5', 'המתג תמונה / חי', T['mode'], k('app.hint_mode')),
+        ('6', '"אני"', T['me'], k('app.hint_me')),
+        ('כפר 1', 'השורה "הטיול שלך"', T['trip'], k('app.hint_trip') + ' <b>חדש</b>'),
+        ('כפר 2', 'השורה "החבר׳ה"', T['group'], k('app.hint_group')),
     ]
     tbl = ('<table style="border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.45"><tr style="color: #56606C; font-size: 13px">'
-           '<td style="padding: 6px 10px">#</td><td style="padding: 6px 10px">על מה מצביע</td><td style="padding: 6px 10px">מתי</td><td style="padding: 6px 10px">הטקסט</td><td style="padding: 6px 10px">המפתח</td><td style="padding: 6px 10px"></td></tr>'
+           '<td style="padding: 6px 10px">#</td><td style="padding: 6px 10px">על מה מצביע</td><td style="padding: 6px 10px">הטקסט (גרסה 2, ארוך יותר ואומר מה יש)</td><td style="padding: 6px 10px">המפתח</td></tr>'
            + ''.join('<tr style="border-top: 1px solid #D9DEE4">%s</tr>' % ''.join('<td style="padding: 8px 10px; vertical-align: top">%s</td>' % c for c in r) for r in rows) + '</table>')
-    rules = li('<b>אחד בכל פעם, ועד שניים בפתיחה.</b> הראשון 1.2 שנ׳ אחרי שהמסך שקט. השני רק אחרי שהמשתמש עשה משהו וחזר להר (סגר גיליון, בחר מסלול). כך ששת הרמזים נגמרים בשלוש פתיחות.',
-               '<b>פתיחה</b> = הפעלה מאפס, או חזרה לאפליקציה אחרי 30 דק׳ ומעלה.',
-               '<b>מסך שקט:</b> ההר צויר, מבט הפתיחה (לא צד Kobi), בלי גיליון ובלי חלון, לא בהקלטה, לא בסרט ולא ב"היום בדקה", המצלמה לא זזה, ואין נגיעה ב-1.2 השניות האחרונות.',
-               '<b>מה שכבר השתמשו בו לא מקבל רמז:</b> מי שבחר מסלול, פתח את המדף, נגע בהקלטה, נכנס לכפר, החליף מצב או פתח את "אני" לפני התור, הרמז שלו מסומן כנראה בשקט.',
-               '<b>נעלם:</b> בפעולה עצמה (נגיעה ביעד), בנגיעה בבועה, בכל נגיעה אחרת במסך, או אחרי 8 שנ׳. בכל אחד מהם הוא לא חוזר לעולם (נשמר בטלפון, בלי מדידה).',
-               '<b>לא מופיע</b> כשהאפליקציה נפתחה מקישור (הזמנה, מפגש) או מהתראה, עד הפתיחה הבאה.',
-               '<b>הרמז בכפר</b> מחוץ לתור: 600 מ״ש אחרי שהגיליון נעצר, פעם אחת. רק למי שאין קבוצה.',
-               '<b>הרמז על המתג</b> נחשב גם כשמופיעה הגלולה הקיימת "סיבוב והטיה זמינים רק במצב חי" (Z03): אחרי אחד מהם, השני לא מופיע.',
-               '<b>איפוס:</b> בהגדרות, "להציג שוב את הרמזים". הנגיעה מאפסת את כולם וחוזרת להר, והרמז הראשון מופיע אחרי 1.2 שנ׳. התקנה מחדש מאפסת גם היא. החלפת שפה לא.')
-    comp = li('<b>בועה:</b> רדיוס 16, רקע <span dir="ltr">ink</span>, טקסט בצבע <span dir="ltr">bg</span>, 14 במשקל 500, ריפוד 10 ו-14, ברוחב התוכן ועד 266 (בטקסט גדול עד שלוש שורות), צל <span dir="ltr">0 8 22 rgba(10,25,45,.3)</span>.',
-              '<b>חוד 12</b> שמצביע על מרכז היעד, 12 מהבועה עד הטבעת; לפחות 14 מפינת הבועה. הבועה לפחות 12 מקצה המסך.',
-              '<b>איפה הבועה:</b> מעל היעד. יעד ברבע העליון: מתחת. יעד בעמודת הכפתורים: לצדו, לכיוון מרכז המסך.',
-              '<b>טבעת סביב היעד:</b> 5 מחוץ לפקד, באותה צורה (עיגול, גלולה, שורה עם רדיוס 16): מסגרת 2.5 בצבע <span dir="ltr">ink</span> (כמו הבועה) וקו 2.5 לבן מבחוץ (בלילה כהה). על מסלול: עיגול 46, ובתוכו מילוי לבן 30%.',
-              '<b>תנועה:</b> הבועה עולה 6 ונגלית ב-200 מ״ש; הטבעת מתכווצת פעם אחת מ-1.18 ב-600 מ״ש. בלי פעימה חוזרת. בהפחתת תנועה: הופעה בלבד.',
-              '<b>קורא מסך:</b> נקרא פעם אחת, בנימוס; בלי 8 השניות; פעולה "סגירת הרמז" (<span dir="ltr">app.hint_close_a11y</span>).',
-              '<b>משמאל לימין:</b> הכל מתהפך, וגם צד הבועה ליד העמודה.')
-    rel = li('<b>ב4, הרמזים:</b> כל המערכת כאן. שלושה מפתחות קיימים, ארבעה חדשים.',
-             '<b>ב8, לפני העונה:</b> הספירה היא אריח קטן במסגרת, בצד ההתחלה מעל הסרגל, והר מלא מאחוריו. הרמז הראשון מופיע כרגיל. נגיעה באריח פותחת את הגיליון הקיים (התאריך, הטיול וכרטיס הסקי), בלי המספר הגדול; משיכה למטה סוגרת, והאריח נשאר. זה הביניים עד סבב "לפני העונה".',
-             '<b>ב9, טקסט בלי מסגרת:</b> הכלל: כל טקסט על ההר יושב במסגרת (גלולה, אריח, גיליון או בועה). כותרת של עמוד שלם עם רקע מעומעם (הגדרות, אודות, הספירה המלאה וכרטיס הסקי) מותרת. לכן: "מחפש מיקום" עובר לגלולה (HN10), והספירה על ההר עוברת לאריח (HN1).',
-             '<b>ב10, כפתורים בלי מילים:</b> נפתר ברמזים 3, 5 ו-6. הכפתורים נשארים בלי מילים.')
-    asks = li('<b>לאשר את שבעת הרמזים, הסדר והטקסטים?</b> (ההמלצה: כן)',
-              '<b>נגיעה באריח הספירה פותחת את גיליון העונה,</b> או אריח בלי פעולה? (פותחת: כל מה שבמסגרת נראה נגיע)',
-              '<b>"מחפש מיקום" בגלולה?</b> הלוח GS1 אושר בלי מסגרת. (בגלולה, כדי שהכלל יהיה אחד)')
-    inner = ('<p class="sec">רמזים לפעם הראשונה · לגרסה בחנות · 26.11.2026 · ממתין לפיני</p>'
-             '<h1>מערכת רמזים אחת: משתמש חדש מבין את האפליקציה בלי מדריך</h1>'
-             '<p class="lead">שישה רמזים על ההר, אחד בכפר, כולם באותה בועה עם חוד וטבעת סביב היעד. בלי מסכי הדרכה ובלי טקסט צף. גם הדברים שלא רואים מההר (הקבוצה, המפגש, החשבון והשפה) מקבלים רמז.</p>'
+    flow = li('<b>סדרה אחת, בפתיחה הראשונה:</b> 1.2 שנ׳ אחרי שההר צויר ושקט, שישה רמזים ברצף, 1 עד 6. בלי מגבלת "שניים בפתיחה".',
+              '<b>נגיעה בכל מקום במסך: לרמז הבא.</b> גם נגיעה ביעד עצמו מעבירה הלאה, ולא מפעילה אותו, כדי שגיליון לא ייפתח באמצע. גרירה וצביטה לא עושות כלום.',
+              '<b>עמעום קל</b> (26% ביום, 34% בלילה) עם חור סביב היעד. בלעדיו נגיעה במסלול ש"לא עושה כלום" נראית כמו תקלה.',
+              '<b>טבעת שמתרוקנת סביב ה-X:</b> 8 שניות לכל רמז, ובסופן הרמז הבא. אחרי השישי, הסדרה נגמרת.',
+              '<b>ה-X סוגר את כל הסדרה.</b> "הבא" כבר בנגיעה בכל מקום, אז ה-X הוא "די, הבנתי".',
+              '<b>הנקודות</b> בתחתית הבועה: כמה רמזים יש ואיפה אנחנו. הנוכחית מוארכת.',
+              '<b>הכפר:</b> סדרה קצרה משלה, שני רמזים (הטיול שלך, החבר׳ה), בפעם הראשונה שהגיליון נפתח, 600 מ״ש אחרי שנעצר. אותם כללים.',
+              '<b>הפרעה</b> (רקע, קישור, התראה, הקלטה): הסדרה נעצרת, וממשיכה מאותו רמז בפתיחה הבאה. X או סוף הסדרה: לא חוזרת.',
+              '<b>"להציג שוב את הרמזים" בהגדרות:</b> חוזרים להר והסדרה מתחילה מ-1; גם הסדרה של הכפר תחזור בכניסה הבאה.',
+              '<b>לפני העונה:</b> אותה סדרה; אריח הספירה נשאר מתחת לעמעום.')
+    a11y = li('<b>קורא מסך:</b> בלי זמן. הטבעת מלאה ולא זזה. כל רמז נקרא כ"רמז 3 מתוך 6" ואחריו הטקסט, והמיקוד עובר לבועה. שתי פעולות: "לרמז הבא" ו"סגירת כל הרמזים".',
+              '<b>זמן:</b> 8 שניות, או יותר כשבהגדרות הנגישות של אנדרואיד נבחר "זמן לביצוע פעולה" ארוך (' + k('getRecommendedTimeoutMillis') + ').',
+              '<b>הפחתת תנועה:</b> הבועה מופיעה בלי לעלות, והטבעת מתרוקנת בקפיצות של שנייה במקום בתנועה רציפה.',
+              '<b>יעדי מגע:</b> ה-X 32 בעין ו-44 במגע.')
+    comp = li('<b>בועה:</b> רדיוס 16, רקע ' + k('ink') + ', טקסט ' + k('bg') + ' 14 במשקל 500, ברוחב התוכן ועד 300, עד שלוש שורות; ריפוד 10, 14 בצד ההתחלה ו-8 בצד ה-X.',
+              '<b>X בטבעת:</b> 32, טבעת 2 (המסלול 22%, המילוי מלא), X של 12. בצד הסוף של השורה הראשונה.',
+              '<b>נקודות:</b> 6 על 6, רווח 5, 32%; הנוכחית 16 רוחב ומלאה; שעברו 60%.',
+              '<b>חוד וטבעת על היעד:</b> כמו בגרסה 1. הטבעת היא גם החור בעמעום.')
+    honest = li('<b>כן, זה הגיוני,</b> בשלושה תנאים: עמעום קל עם חור, כך שהנגיעה "בכל מקום" ברורה; נגיעה ביעד מעבירה הלאה ולא פותחת אותו; ו-X אחד שסוגר הכל.',
+                '<b>הסיכון:</b> סדרות כאלה נסגרות מהר. לכן שישה רמזים בלבד, 8 שניות כל אחד (פחות מדקה), טקסט של שתי שורות, ואפשר לראות שוב מההגדרות.',
+                '<b>מה שלא הייתי עושה:</b> מסך הדרכה לפני ההר, או סדרה של הכפר בתוך הסדרה של ההר (צריך לפתוח את הגיליון באמצע).')
+    asks = li('<b>הסדרה כפי שבלוחות</b> (שישה על ההר, שניים בכפר; נגיעה בכל מקום: הבא; X: סגירת הכל; 8 שנ׳)? (כן)',
+              '<b>שמונת הטקסטים</b> (גרסה 2)? (כן)',
+              '<b>נגיעה באריח הספירה</b> פותחת את גיליון העונה? (כן)',
+              '<b>"מחפש מיקום" בגלולה</b> (HN10, והמשך ב-B91 עד B93)? (כן)')
+    inner = ('<p class="sec">רמזים לפעם הראשונה · גרסה 2, אחרי ההערות של פיני · 26.11.2026 · ממתין לפיני</p>'
+             '<h1>סדרה אחת מודרכת: נגיעה בכל מקום ממשיכה, X סוגר</h1>'
+             '<p class="lead">ההר נשאר במסך, מעומעם קצת, ורק היעד מואר. כל רמז אומר מה יש ולמה, בשתי שורות. בכפר, שני רמזים משלו, וביניהם שורה ברורה ל"הטיול שלך".</p>'
              '<div class="card"><h2>הרמזים</h2>%s</div>'
-             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.15"><h2>מתי מופיע ומתי נעלם</h2>%s</div>'
-             '<div class="card" style="flex: 1"><h2>הרכיב, אחד לכולם</h2>%s</div></div>'
-             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.15"><h2>מה זה סוגר בדוח המוכנות</h2>%s</div>'
-             '<div class="card" style="flex: 1"><h2>לפיני</h2>%s<p class="cap">חמש מחרוזות חדשות (ארבעה רמזים ו"להציג שוב את הרמזים") נשלחו לסשן התוכן; האריח משתמש במחרוזות הקיימות של הספירה. נמדד בכלי העיצוב, לא בטלפון. המסירה: <span dir="ltr">design/handoff/2026-11-26-redesign-hints/</span></p></div></div>'
-             % (tbl, rules, comp, rel, asks))
-    wb('HN00-Hints.dc.html', 'רמזים לפעם הראשונה', 1280, HB, inner)
+             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.2"><h2>איך הסדרה עובדת</h2>%s</div>'
+             '<div class="card" style="flex: 1"><h2>נגישות</h2>%s<h2 style="margin-top: 8px">הרכיב</h2>%s</div></div>'
+             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.2"><h2>הדעה שלי, ביושר</h2>%s</div>'
+             '<div class="card" style="flex: 1"><h2>לפיני</h2>%s<p class="cap">ארבעה מפתחות חדשים (' + k('app.hint_trip') + ', ' + k('app.hint_step_a11y') + ', ' + k('app.hint_next_a11y') + ', ' + k('app.hints_skip_a11y') + ') וגרסה 2 של שמונת הטקסטים לסשן התוכן. נמדד בכלי העיצוב, לא בטלפון. המסירה: ' + k('design/handoff/2026-11-26-redesign-hints/') + '</p></div></div>'
+             ) % (tbl, flow, a11y, comp, honest, asks)
+    wb('HN00-Hints.dc.html', 'רמזים לפעם הראשונה, גרסה 2', 1280, HB, inner)
 
 
 def main():
@@ -248,10 +309,10 @@ def main():
     for fn in list(j['boards']):
         if fn.startswith('HN'): del j['boards'][fn]
     j['order'] = [f for f in j['order'] if not f.startswith('HN')]
-    place = [('HN00-Hints.dc.html', 0, 0, 1280, HB, 'רמזים לפעם הראשונה')]
+    place = [('HN00-Hints.dc.html', 0, 0, 1280, HB, 'רמזים לפעם הראשונה, גרסה 2')]
     y = HB + 140
-    names = [('HN1', 'פתיחה 1: המסלול, והספירה באריח'), ('HN2', 'פתיחה 1: "לאן יורדים?"'), ('HN3', 'פתיחה 2: ההקלטה'),
-             ('HN4', 'פתיחה 2: הכפר'), ('HN5', 'פתיחה 3: תמונה או חי, בלילה'), ('HN6', 'פתיחה 3: "אני"')]
+    names = [('HN1', '1 מתוך 6: המסלול, והספירה באריח'), ('HN2', '2 מתוך 6: "לאן יורדים?"'), ('HN3', '3 מתוך 6: ההקלטה'),
+             ('HN4', '4 מתוך 6: הכפר'), ('HN5', '5 מתוך 6: תמונה או חי, בלילה'), ('HN6', '6 מתוך 6: "אני"')]
     for i, (c, t) in enumerate(names):
         place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     y += 844 + 200
