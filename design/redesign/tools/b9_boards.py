@@ -18,7 +18,7 @@ CSS = """
 """
 G4.MB.CSS = G4.MB.CSS + CSS
 TITLE = 'מחפש מיקום'
-HINT = 'בחוץ זה לוקח בדרך כלל פחות מדקה.'   # app.search_hint, unchanged
+HINT = 'עוד רגע ונמצא אותך.'   # app.search_hint, Pini's pick (26.11.2026)
 
 
 def search(night=False, alt=False):

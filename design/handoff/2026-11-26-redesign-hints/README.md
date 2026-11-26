@@ -1,9 +1,8 @@
 # First-run hints (Android redesign, for the store release)
 
 **When:** 26.11.2026, product designer (Opus). Design only, no code.
-**Status:** version 2 after Pini's notes (26.11.2026): a guided sequence and longer, clearer texts. Waiting for Pini. Built from `design/redesign/review-release.md` items B4 (hints), B8 (before the season), B9 (text without a frame) and B10 (buttons without words).
-**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 76), page "רמזים לפעם הראשונה", boards `HN00` to `HN12`. Source: `design/redesign/tools/hn_boards.py`.
-**Approved already (Pini, 26.11.2026):** the reset row in Settings (section 4, `HN9`) and "מחפש מיקום" in a pill (section 7, `HN10`); these two can be built now. The rest waits.
+**Status:** version 2 after Pini's notes (26.11.2026): a guided sequence and longer, clearer texts. **Approved in full (Pini, 26.11.2026): the sequence (canvas 79) and the countdown tile (canvas 80, all three questions yes). Build now.** Wording follows `i18n/strings.json` (content is polishing; the boards read it). Built from `design/redesign/review-release.md` items B4 (hints), B8 (before the season), B9 (text without a frame) and B10 (buttons without words).
+**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 83), page "רמזים לפעם הראשונה", boards `HN00` to `HN12`. Source: `design/redesign/tools/hn_boards.py`.
 **Replaces:** section 7 of `design/handoff/2026-11-23-redesign-on-mountain/README.md` (S09, three hints).
 
 ## Summary (for the implementer)
@@ -24,18 +23,18 @@ Mountain sequence, in this order (prefs `hints_mountain` = the next step, 1 to 6
 | # | Points at | Key | Text (Hebrew) |
 |---|---|---|---|
 | 1 | a named blue run nearest the screen centre | `app.hint_run` | נוגעים במסלול כדי לראות אותו מלמעלה למטה, עם האורך, הירידה והשיפוע. |
-| 2 | "לאן יורדים?" | `app.hint_find` | כל המסלולים ברשימה אחת, לפי צבע. נגיעה במסלול מראה אותו על ההר. |
-| 3 | the record button (RX3) | `app.hint_rec` | מקליטים את הגלישה עם הטלפון בכיס, ורואים מהירות, ירידות ומסלולים לאורך היום. |
-| 4 | "הכפר" | `app.hint_village` | בכפר נמצאים הטיול ותאריכי הטיסה, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל. |
+| 2 | "לאן יורדים?" | `app.hint_find` | כל המסלולים ברשימה אחת, לפי צבע. נוגעים באחד ורואים אותו על ההר. |
+| 3 | the record button (RX3) | `app.hint_rec` | מקליטים את הגלישה ומשאירים את הטלפון בכיס. בסוף היום רואים מהירות, ירידות ומסלולים. |
+| 4 | "הכפר" | `app.hint_village` | בכפר יש את הטיול והטיסה שלך, החבר׳ה ונקודת המפגש, כרטיס הסקי ואוכל. |
 | 5 | the picture / live switch | `app.hint_mode` | אפשר לראות את ההר בתמונה, או להסתובב בו ולהטות אותו באצבע. מחליפים כאן. |
-| 6 | "אני" | `app.hint_me` | כאן החשבון, השפה וההגדרות. כניסה לחשבון שומרת את הקבוצות שלך גם בטלפון חדש. |
+| 6 | "אני" | `app.hint_me` | כאן החשבון, השפה וההגדרות. אחרי כניסה לחשבון הקבוצות שלך יחכו לך גם בטלפון חדש. |
 
 Village sequence (prefs `hints_village`):
 
 | # | Points at | Key | Text (Hebrew) |
 |---|---|---|---|
 | 1 | the row "הטיול שלך" | `app.hint_trip` (new) | מכניסים את תאריכי הטיסה, ורואים כמה ימים נשארו ומה התחזית לימי הסקי. |
-| 2 | the row "החבר׳ה" | `app.hint_group` | מזמינים חברים בקישור, קובעים נקודת מפגש על ההר, ורואים מי על איזו טיסה. |
+| 2 | the row "החבר׳ה" | `app.hint_group` | מזמינים חברים בקישור, קובעים איפה נפגשים על ההר, ורואים מי טס באיזו טיסה. |
 
 ## 2. When the sequence starts
 
@@ -81,7 +80,7 @@ Village sequence (prefs `hints_village`):
 
 ## 6. Before the season (B8, version 2 after Pini, 26.11.2026; interim until the "before the season" round)
 
-Boards `CT00` to `CT5` (canvas version 80). Waiting for Pini.
+Boards `CT00` to `CT5` (canvas version 80). **Approved (Pini, 26.11.2026): the tile, opening by itself once a day, and the tap on the open tile opening the season sheet.**
 
 - **The mountain opens free, no sheet.** The countdown is a **square tile**, 64 × 64, glass, radius 18, padding 8, on the start side, 12 from the edge and 18 above the bar (top 690 on a 844 screen); clear of the runs.
 - **Inside: only the number, in a ring.** Ring 48, stroke 3: the track in `line`, the fill in `acc`, from the top, clockwise. The fill is how much of the wait has passed, from MTA's announcement to the opening (`season.announced` to `season.open` in `site/data/resorts.json`; today 55%). Number 20 / weight 600, tabular; 17 from 100 days.

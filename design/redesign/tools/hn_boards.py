@@ -324,7 +324,7 @@ def hn00():
               '<b>שמונת הטקסטים</b> (גרסה 2)? (כן)',
               '<b>נגיעה באריח הספירה</b> פותחת את גיליון העונה? (כן)',
               '<b>"מחפש מיקום" בגלולה</b> (HN10, והמשך ב-B91 עד B93)? (כן)')
-    inner = ('<p class="sec">רמזים לפעם הראשונה · גרסה 2, אחרי ההערות של פיני · 26.11.2026 · ממתין לפיני</p>'
+    inner = ('<p class="sec">רמזים לפעם הראשונה · גרסה 2 · אושר (פיני, 26.11.2026)</p>'
              '<h1>סדרה אחת מודרכת: נגיעה בכל מקום ממשיכה, X סוגר</h1>'
              '<p class="lead">ההר נשאר במסך, מעומעם קצת, ורק היעד מואר. כל רמז אומר מה יש ולמה, בשתי שורות. בכפר, שני רמזים משלו, וביניהם שורה ברורה ל"הטיול שלך".</p>'
              '<div class="card"><h2>הרמזים</h2>%s</div>'
@@ -365,7 +365,7 @@ def ct00():
     spec = li('<b>ריבוע:</b> זכוכית, רדיוס 18, ריפוד 8; 12 מקצה המסך, 18 מעל הסרגל.',
               '<b>טבעת:</b> קוטר 48, קו 3; המסלול ב-' + k('line') + ', המילוי ב-' + k('acc') + ' מלמעלה, עם כיוון השעון. המספר 20 במשקל 600, ספרות שוות רוחב; מ-100 ימים, 17.',
               '<b>פתוח:</b> ברוחב התוכן; רווח 10; "ימים לפתיחה" 14 מודגש, השורה מתחת 12 ב-' + k('ink2') + '; חץ 18 בצד הסוף.')
-    inner = ('<p class="sec">רמזים לפעם הראשונה · ב8, גרסה 2 · 26.11.2026 · ממתין לפיני</p>'
+    inner = ('<p class="sec">רמזים לפעם הראשונה · ב8, גרסה 2 · אושר (פיני, 26.11.2026)</p>'
              '<h1>הספירה לפני העונה: ריבוע עם מספר, שנפתח בנגיעה</h1>'
              '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.4"><h2>איך זה עובד</h2>%s</div>'
              '<div class="card" style="flex: 1"><h2>מידות</h2>%s<h2 style="margin-top: 8px">לפיני</h2>%s</div></div>'
@@ -402,11 +402,12 @@ def main():
         place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     for fn, x, y_, w, h, t in place:
         code = fn.split('.dc.html')[0].split('-')[0]
+        t = t if '(אושר)' in t else t + ' (אושר)'
         j['boards'][fn] = dict(x=x, y=y_, w=w, h=h, title='%s (%s)' % (t, code), page=PAGE)
         j['order'].append(fn)
     if not any(pg['id'] == PAGE for pg in j['pages']):
         j['pages'].insert(0, dict(id=PAGE, name='רמזים לפעם הראשונה'))
-    j['notes']['t' + PAGE] = dict(kind='title1', maxW=1600, page=PAGE, x=0, w=1000, y=-200, text='רמזים לפעם הראשונה (26.11.2026)')
+    j['notes']['t' + PAGE] = dict(kind='title1', maxW=1600, page=PAGE, x=0, w=1000, y=-200, text='רמזים לפעם הראשונה, אושר (26.11.2026)')
     open(p, 'w', encoding='utf8').write(json.dumps(j, ensure_ascii=False, indent=1) + '\n')
     print('ok', len(ph))
 
