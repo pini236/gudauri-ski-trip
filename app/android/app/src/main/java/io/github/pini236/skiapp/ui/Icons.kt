@@ -64,6 +64,7 @@ object Icons {
     val info = line("info", false, circle(12f, 12f, 9f), "M12 11v6", "M12 7.5v.5")
     val sound = line("sound", true, "M4 9.5h4l5-4v13l-5-4H4z", "M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11")
     val vibrate = line("vibrate", false, "M8 3.5h8v17H8z", "M4 8v8M20 8v8")
+    val bulb = line("bulb", false, "M9 18h6M10 21h4", "M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z")
     val chart = line("chart", false, "M4 20h16", "M7 16v-5M12 16V7M17 16v-8")
     val chevron = line("chevron", true, "M9 6l6 6-6 6")
     val more = ImageVector.Builder("more", 24.dp, 24.dp, 24f, 24f).apply {

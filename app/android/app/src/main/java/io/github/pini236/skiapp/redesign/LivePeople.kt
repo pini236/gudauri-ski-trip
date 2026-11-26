@@ -1582,6 +1582,8 @@ private fun BoxScope.SettingsScreen(p: People, ui: PeopleUi, k: SheetInk) {
             Small(stringResource(R.string.app_replay_details), k, Modifier.padding(top = 4.dp, bottom = 12.dp))
         }
         PBox(k) {
+            // the hints again (HN9): clears them all, closes the settings and the mountain starts them from the first
+            PRow(stringResource(R.string.app_hints_again), k, icon = Icons.bulb) { Hints.reset(ctx); Hints.again++; Qa.log("redesign hints again"); ui.close() }
             PRow(stringResource(when { done -> R.string.about_reset_done; armed -> R.string.about_reset_confirm; else -> R.string.about_reset }), k, danger = armed, last = true) {
                 if (armed) { armed = false; done = true; p.onResetBests(); Telemetry.event("best_reset") } else { armed = true; done = false }
             }

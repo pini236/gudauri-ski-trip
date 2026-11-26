@@ -370,6 +370,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 26.11.2026: **Android (Sonnet implementer): hints settings row (HN9) and the search pill (HN10, B91).** "להציג שוב את הרמזים" in Settings clears the hint prefs and restarts them on the mountain; "מחפש מיקום" in a glass pill that grows to hold the 30 s line. Not tested on a phone.
 - 26.11.2026: **Android (Sonnet implementer): B10 built, long press on icon-only buttons shows the name in a pill (`NameHold.kt`).** Switch cells, layers, compass, where-am-I, record, "אני"; tap unchanged, no new strings. Not tested on a phone or emulator; no new QA stage.
 - 26.11.2026: **Content: hint texts v2 in `i18n/strings.json`** (7 changed, `app.hint_trip` and three a11y keys new, `app.hints_again` reworded), natural Hebrew without colons per Pini's notes; wording still pending his approval; `app.hint_close_a11y` now unused. `check.py` green.
 - 26.11.2026: **Product designer (Opus): first-run hints version 2, after Pini's notes (canvas 77, `HN00` to `HN12`).** A guided sequence: six on the mountain at the first opening and two in the village sheet; tap anywhere = next, X in a draining 8 s ring closes all, dots, light dim with a hole on the target; longer texts, a new hint for "הטיול שלך". Handoff updated; strings to content; waiting for Pini.

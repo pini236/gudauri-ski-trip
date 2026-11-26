@@ -998,7 +998,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         if (rotateHint && shows == StageRules.Shows.PICTURE) StageHint(night, onGo = { rotateHint = false; liveChosen = true; StagePrefs.setLive(context, true); Qa.log("redesign stage hint go") }, onOff = { rotateHint = false })
         // Z05: the live model for a moment, back to the picture after
         if (temp != null && shows == StageRules.Shows.LIVE) TempTag(night)
-        RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain)
+        RunHint(scene, view, night, free = bare && !where.asking, chosen = chosen != null, drawn = mtnDrawn, again = hintAgain + Hints.again)
         if (where.asking) WhereAsk(night, onGo = locateGo, onLater = { where.asking = false; Qa.log("redesign where ask later") })
         androidx.activity.compose.BackHandler(enabled = where.asking) { where.asking = false }
         // part 3 (R01 to R15) over everything of the mountain
