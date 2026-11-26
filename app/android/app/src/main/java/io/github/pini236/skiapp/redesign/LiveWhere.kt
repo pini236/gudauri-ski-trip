@@ -126,22 +126,28 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, record
         if (layersOn != null) {
             val ld = stringResource(R.string.app_map_layers_a11y)
             val ls = stringResource(if (layersOn) R.string.app_on else R.string.app_off)
-            Round(k, Modifier.semantics { contentDescription = ld; stateDescription = ls; role = Role.Switch }.clickable(onClick = onLayers), fill = if (layersOn) k.ink else null) {
+            val hold = rememberNameHold()
+            Round(k, Modifier.semantics { contentDescription = ld; stateDescription = ls; role = Role.Switch }.nameHold(hold, k, onClick = onLayers), fill = if (layersOn) k.ink else null) {
                 Canvas(Modifier.size(20.dp)) { layers(if (layersOn) (if (night) Color(0xFF0F1828) else Color.White) else k.ink) }
+                NamePill(hold, ld, k)
             }
         }
         AnimatedVisibility(away, enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             val home = stringResource(R.string.app_map_home_view_a11y)
-            Round(k, Modifier.semantics { contentDescription = home; role = Role.Button }.clickable(onClick = onHome)) {
+            val hold = rememberNameHold()
+            Round(k, Modifier.semantics { contentDescription = home; role = Role.Button }.nameHold(hold, k, onClick = onHome)) {
                 Canvas(Modifier.size(20.dp).rotate(north)) { compass(k.ink, Color(0xFFE5352B)) }
+                NamePill(hold, home, k)
             }
         }
         val on = ui.lit || recording
         val label = stringResource(R.string.loc_button)
         val st = stringResource(if (on) R.string.app_on else R.string.app_off)
+        val whereHold = rememberNameHold()
         Round(k, Modifier.semantics { contentDescription = label; stateDescription = st; role = Role.Switch }
-            .clickable(enabled = !recording, onClick = onLocate), fill = if (on) YOU_BLUE else null) {
+            .nameHold(whereHold, k, enabled = !recording, onClick = onLocate), fill = if (on) YOU_BLUE else null) {
             Canvas(Modifier.size(20.dp)) { locator(if (on) Color.White else k.ink, filled = on) }
+            NamePill(whereHold, label, k)
         }
     }
 }
@@ -156,10 +162,12 @@ private fun StageSwitch(k: SheetInk, night: Boolean, photo: Boolean, onPhoto: (B
             val on = photo == pic
             val name = stringResource(if (pic) R.string.app_mode_photo else R.string.app_mode_live)
             val bgc = if (night) Color(0xFF0F1828) else Color.White
+            val hold = rememberNameHold()
             Box(Modifier.size(44.dp).clip(CircleShape).background(if (on) k.ink else Color.Transparent)
                 .semantics { contentDescription = name; role = Role.RadioButton; selected = on }
-                .clickable { if (!on) onPhoto(pic) }, contentAlignment = Alignment.Center) {
+                .nameHold(hold, k) { if (!on) onPhoto(pic) }, contentAlignment = Alignment.Center) {
                 Canvas(Modifier.size(19.dp)) { if (pic) pictureMark(if (on) bgc else k.ink) else cubeMark(if (on) bgc else k.ink) }
+                NamePill(hold, name, k)
             }
         }
     }

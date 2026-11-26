@@ -481,10 +481,12 @@ internal fun MeButton(me: Me?, night: Boolean, onClick: () -> Unit) {
     val k = remember(night) { SheetInk(night) }
     // part 8, section 2: "Me, {name}. Button." or "Me, guest." (the words say button, so no role is added)
     val aria = me?.name?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.app_sr_me, it) } ?: stringResource(R.string.app_sr_me_guest)
+    val hold = rememberNameHold()
     Box(Modifier.size(44.dp).shadow(10.dp, CircleShape, clip = false).clip(CircleShape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, CircleShape)
-        .clickable(onClick = onClick).clearAndSetSemantics { contentDescription = aria; onClick { onClick(); true } }, contentAlignment = Alignment.Center) {
+        .nameHold(hold, k, withClickSemantics = false, onClick = onClick).clearAndSetSemantics { contentDescription = aria; onClick { onClick(); true } }, contentAlignment = Alignment.Center) {
         val name = me?.name
         if (name.isNullOrBlank()) GuestAv(k, 36) else Av(name, me?.userId, 36)
+        NamePill(hold, stringResource(R.string.app_pass_me), k)
     }
 }
 

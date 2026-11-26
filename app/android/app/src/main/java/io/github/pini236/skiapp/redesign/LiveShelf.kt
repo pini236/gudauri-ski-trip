@@ -208,12 +208,14 @@ private fun RecordButton(k: SheetInk, haptics: Haptics, onRecord: () -> Unit) {
     val red = Color(0xFFE5352B)
     val label = if (recording) stringResource(R.string.app_sr_rec_live, time ?: "0:00") else stringResource(R.string.app_rec_sign)
     val tint = if (k.night) Color(0x29FF7468) else Color(0x1FE5352B)
+    val hold = rememberNameHold()
     val reduced = io.github.pini236.skiapp.ui.Motion.reduced(androidx.compose.ui.platform.LocalContext.current)
     val square by androidx.compose.animation.core.animateFloatAsState(if (recording) 1f else 0f, if (reduced) tween(0) else tween(200), label = "rec-square")
     Row(Modifier.height(44.dp).then(if (reduced) Modifier else Modifier.animateContentSize(tween(200))).clip(RoundedCornerShape(22.dp))
         .background(if (recording) tint else Color.Transparent)
-        .semantics { contentDescription = label; role = Role.Button }.clickable { haptics.tick(.4f); onRecord() },
+        .semantics { contentDescription = label; role = Role.Button }.nameHold(hold, k) { haptics.tick(.4f); onRecord() },
         verticalAlignment = Alignment.CenterVertically) {
+        NamePill(hold, stringResource(R.string.app_rec_sign), k, above = true)
         Canvas(Modifier.size(44.dp)) {
             val c = center
             drawCircle(k.ink, 19.75.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
