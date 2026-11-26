@@ -371,6 +371,24 @@ body{margin:0}
 .H .ctile .c{display:flex;flex-direction:column;gap:1px}
 .H .ctile .c b{font-size:13.5px;font-weight:700;white-space:nowrap}
 .H .ctile .c span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.H .ct{position:absolute;right:12px;top:690px;height:64px;min-width:64px;border-radius:18px;display:flex;align-items:center;gap:10px;padding:0 8px;box-sizing:border-box;border:0;font-family:inherit;color:var(--ink)}
+.H [dir=ltr] .ct,.H .ct.ltr{right:auto;left:12px}
+.H .ct .cr{position:relative;width:48px;height:48px;flex:none;display:flex;align-items:center;justify-content:center}
+.H .ct .cr svg{position:absolute;inset:0}
+.H .ct .cr .tk{stroke:var(--line);stroke-width:3}
+.H .ct .cr .ac{stroke:var(--acc);stroke-width:3}
+.H .ct .cr b{position:relative;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;direction:ltr;letter-spacing:-.01em}
+.H .ct .cc{display:flex;flex-direction:column;gap:1px;text-align:start}
+.H .ct .cc b{font-size:14px;font-weight:700;white-space:nowrap}
+.H .ct .cc span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.H .ct .ch{color:var(--ink2);display:flex;padding-inline-end:4px}
+.H .ct.open{padding-inline-end:10px;animation:ctin .25s ease-out both}
+@keyframes ctin{0%{clip-path:inset(0 0 0 calc(100% - 64px) round 18px)}100%{clip-path:inset(0 0 0 0 round 18px)}}
+.H .ss{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 26px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px}
+.H .ss .h b{display:block;font-size:17px;font-weight:700}.H .ss .h span{font-size:12.5px;color:var(--ink2)}
+.H .ss .row{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--line)}
+.H .ss .row .t{flex:1;display:flex;flex-direction:column}.H .ss .row .t b{font-size:15px}.H .ss .row .t span{font-size:13px;color:var(--ink2)}
+.H .ss .row .e{font-size:15px;font-weight:700}.H .ss .row .e.acc{color:var(--acc);font-weight:500}
 .H .gpill{position:absolute;left:50%;transform:translateX(-50%);height:40px;border-radius:20px;display:flex;align-items:center;padding:0 18px;font-size:16px;font-weight:700;white-space:nowrap}
 </style>
 </helmet>

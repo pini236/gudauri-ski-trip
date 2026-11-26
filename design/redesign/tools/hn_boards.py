@@ -19,6 +19,8 @@ PAGE = 'hints'
 TODAY = datetime.date(2026, 11, 26)
 OPEN = datetime.date(2026, 12, 20)
 DAYS = (OPEN - TODAY).days      # 24
+ANN = datetime.date(2026, 10, 28)  # MTA's announcement (site/data/resorts.json)
+FRAC = (TODAY - ANN).days / (OPEN - ANN).days   # how much of the wait has passed
 
 HCSS = """
 @keyframes hnin{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:none}}
@@ -48,6 +50,24 @@ HCSS = """
 .H .ctile .c{display:flex;flex-direction:column;gap:1px}
 .H .ctile .c b{font-size:13.5px;font-weight:700;white-space:nowrap}
 .H .ctile .c span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.H .ct{position:absolute;right:12px;top:690px;height:64px;min-width:64px;border-radius:18px;display:flex;align-items:center;gap:10px;padding:0 8px;box-sizing:border-box;border:0;font-family:inherit;color:var(--ink)}
+.H [dir=ltr] .ct,.H .ct.ltr{right:auto;left:12px}
+.H .ct .cr{position:relative;width:48px;height:48px;flex:none;display:flex;align-items:center;justify-content:center}
+.H .ct .cr svg{position:absolute;inset:0}
+.H .ct .cr .tk{stroke:var(--line);stroke-width:3}
+.H .ct .cr .ac{stroke:var(--acc);stroke-width:3}
+.H .ct .cr b{position:relative;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;direction:ltr;letter-spacing:-.01em}
+.H .ct .cc{display:flex;flex-direction:column;gap:1px;text-align:start}
+.H .ct .cc b{font-size:14px;font-weight:700;white-space:nowrap}
+.H .ct .cc span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.H .ct .ch{color:var(--ink2);display:flex;padding-inline-end:4px}
+.H .ct.open{padding-inline-end:10px;animation:ctin .25s ease-out both}
+@keyframes ctin{0%{clip-path:inset(0 0 0 calc(100% - 64px) round 18px)}100%{clip-path:inset(0 0 0 0 round 18px)}}
+.H .ss{position:absolute;left:0;right:0;bottom:0;border-radius:28px 28px 0 0;padding:10px 20px 26px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px}
+.H .ss .h b{display:block;font-size:17px;font-weight:700}.H .ss .h span{font-size:12.5px;color:var(--ink2)}
+.H .ss .row{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--line)}
+.H .ss .row .t{flex:1;display:flex;flex-direction:column}.H .ss .row .t b{font-size:15px}.H .ss .row .t span{font-size:13px;color:var(--ink2)}
+.H .ss .row .e{font-size:15px;font-weight:700}.H .ss .row .e.acc{color:var(--acc);font-weight:500}
 .H .gpill{position:absolute;left:50%;transform:translateX(-50%);height:40px;border-radius:20px;display:flex;align-items:center;padding:0 18px;font-size:16px;font-weight:700;white-space:nowrap}
 """
 G4.MB.CSS = G4.MB.CSS + HCSS
@@ -98,10 +118,35 @@ def season_top():
     return top(text='פתיחה מתוכננת 20.12.2026 · לפי <bdi>MTA</bdi>', eg=False, dot='sd q')
 
 
-def tile(days=DAYS):
-    """B8: the countdown as a small framed tile on the start side, above the bar; never covers the mountain's runs"""
-    return ('<button class="ctile glass" aria-label="%d ימים לפתיחה, 20.12" style="right: 12px; top: 636px"><span class="cn">%d</span>'
-            '<span class="c"><b>ימים לפתיחה</b><span>הרכבלים עולים ב-<bdi>20.12</bdi></span></span></button>' % (days, days))
+CHV = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>'
+
+
+def cring(n, frac=FRAC):
+    """the number inside a ring: the ring fills as the wait passes (from MTA's announcement to the opening)"""
+    return ('<span class="cr"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle class="tk" cx="24" cy="24" r="21.5"/>'
+            '<circle class="ac" cx="24" cy="24" r="21.5" pathLength="1" stroke-dasharray="%.3f 1" stroke-linecap="round" transform="rotate(-90 24 24)"/></svg>'
+            '<b>%s</b></span>' % (frac, n))
+
+
+def tile(days=DAYS, open_=False, en=False):
+    """B8, version 2 (Pini, 26.11.2026): a small square with the number in a ring; a tap opens it to the caption for
+    3.5 s, a tap on the open tile opens the season sheet"""
+    lab = ('%d days to the planned opening, 20.12' % days) if en else ('%d ימים לפתיחה המתוכננת, 20.12' % days)
+    cls = 'ct glass' + (' open' if open_ else '') + (' ltr' if en else '')
+    inner = cring(days)
+    if open_:
+        cap = ('<b>days to opening</b><span>Lifts start <bdi>20.12</bdi></span>' if en else
+               '<b>ימים לפתיחה</b><span>הרכבלים עולים ב-<bdi>20.12</bdi></span>')
+        chv = CHV.replace('M15 6l-6 6 6 6', 'M9 6l6 6-6 6') if en else CHV
+        inner += '<span class="cc">%s</span><span class="ch">%s</span>' % (cap, chv)
+    return '<button class="%s" aria-label="%s">%s</button>' % (cls, lab, inner)
+
+
+def season_sheet():
+    return ('<div class="ss glass"><div class="grab"></div><div class="h" style="margin: 6px 0 6px"><b>פתיחה מתוכננת 20.12.2026</b>'
+            '<span>יום ראשון · לפי <bdi>MTA</bdi> · מתוכננת, יכולה להשתנות עם השלג</span></div>'
+            '<div class="row"><span class="t"><b>הטיול שלך</b></span><span class="e acc">מתי טסים?</span></div>'
+            '<div class="row"><span class="t"><b>כרטיס סקי</b><span>כרטיס יום · מבוגר</span></span><span class="e">120 ₾</span></div></div>')
 
 
 def screen(light='morning', pre=True, mode='pic'):
@@ -197,8 +242,7 @@ def en_screen():
     o += ctl_sw('pic').replace('class="mc"', 'class="mc" style="left: auto; right: 12px"')
     o += ('<div class="dock3 glass"><button class="vl">%s Village</button><div class="find">%s<span>Where to ski?</span></div>%s</div>'
           % (ic(P_HOME, 20), ic(P_SRCH, 18), rc().replace('aria-label="%s"' % VB.WORD, 'aria-label="Record skiing"')))
-    o += ('<button class="ctile glass" style="left: 12px; top: 636px"><span class="cn">%d</span>'
-          '<span class="c"><b>days to opening</b><span>Lifts start <bdi>20.12</bdi></span></span></button>' % DAYS)
+    o += tile(en=True)
     o += ring(324, 775, 54, 54) + bubble(EN['rec'], 'down', 27, 'right', step=3, right=12, bottom=844 - 763).replace('class="hn"', 'class="hn" dir="ltr"').replace('סגירת כל הרמזים', 'Close all hints').replace('רמז 3 מתוך 6', 'Hint 3 of 6')
     return o
 
@@ -292,16 +336,54 @@ def hn00():
     wb('HN00-Hints.dc.html', 'רמזים לפעם הראשונה, גרסה 2', 1280, HB, inner)
 
 
+def ct_phones():
+    base_ = lambda light='morning': ((pic('hero', 'morning', 'night') + base('hero', cabins=True)) if light == 'morning' else mtn(light)) + season_top() + ctl_sw('pic') + dock_a(rc())
+    en = en_screen()
+    en = en[:en.index('<div class="hr"')] if '<div class="hr"' in en else en
+    en = en.replace(tile(en=True), tile(en=True, open_=True))
+    return {
+        'CT1.dc.html': ('הספירה · סגור', base_() + tile(), None),
+        'CT2.dc.html': ('הספירה · נפתח אחרי נגיעה', base_() + tile(open_=True), None),
+        'CT3.dc.html': ('הספירה · גיליון העונה', base_() + veil(0, 844, 'rgba(6,11,22,.28)') + season_sheet(), None),
+        'CT4.dc.html': ('הספירה · סגור, בלילה', base_('night') + tile(), 'night'),
+        'CT5.dc.html': ('הספירה · באנגלית, פתוח', en, 'day', 'en'),
+    }
+
+
+HCT = 1120
+
+
+def ct00():
+    k = lambda x: '<span dir="ltr">%s</span>' % x
+    what = li('<b>ריבוע קטן, 64 על 64,</b> בצד ההתחלה מעל הסרגל. בתוכו רק המספר, בתוך טבעת שמתמלאת לאורך ההמתנה: מההודעה של <bdi>MTA</bdi> (28.10) עד הפתיחה (20.12). היום %d%% מהטבעת מלאה. מספר בטבעת שמתמלאת נקרא כספירה בלי מילה.' % round(FRAC * 100),
+              '<b>נגיעה:</b> הריבוע נפתח לצד מרכז המסך (250 מ״ש), ומראה "ימים לפתיחה" ו"הרכבלים עולים ב-20.12" עם חץ. נשאר פתוח 3.5 שניות (או לפי זמן הנגישות של אנדרואיד) ונסגר בחזרה.',
+              '<b>נגיעה בריבוע הפתוח:</b> גיליון העונה (התאריך, הטיול שלך וכרטיס הסקי), בלי המספר הגדול. משיכה למטה סוגרת, והריבוע נשאר.',
+              '<b>בפתיחה הראשונה של כל יום, עד הפתיחה:</b> הריבוע נפתח לבד פעם אחת ל-3.5 שניות ונסגר. כך ברור מה המספר בלי לגעת. ביום הראשון, סדרת הרמזים מתחילה אחרי שהוא נסגר.',
+              '<b>מחר / היום / נדחה / עבר התאריך:</b> מחר, 1 בטבעת וכיתוב "מחר פותחים"; היום, הטבעת מלאה וסמל קרון במקום מספר, "היום פותחים"; נדחה, המספר לפי התאריך החדש, "הפתיחה נדחתה ל-..."; עבר התאריך בלי דיווח, הטבעת מלאה בצבע ' + k('ink2') + ' וסמל שעון, "הפתיחה הייתה מתוכננת ל-...". כל הכיתובים קיימים (' + k('app.season_*') + ').',
+              '<b>נגישות:</b> כפתור אחד, נקרא "24 ימים לפתיחה המתוכננת, 20.12" (' + k('app.season_days_a11y') + '); הפעלה פותחת ישר את גיליון העונה. בהפחתת תנועה: בלי התרחבות, הכיתוב מופיע ונעלם.',
+              '<b>אין מחרוזת חדשה.</b>')
+    spec = li('<b>ריבוע:</b> זכוכית, רדיוס 18, ריפוד 8; 12 מקצה המסך, 18 מעל הסרגל.',
+              '<b>טבעת:</b> קוטר 48, קו 3; המסלול ב-' + k('line') + ', המילוי ב-' + k('acc') + ' מלמעלה, עם כיוון השעון. המספר 20 במשקל 600, ספרות שוות רוחב; מ-100 ימים, 17.',
+              '<b>פתוח:</b> ברוחב התוכן; רווח 10; "ימים לפתיחה" 14 מודגש, השורה מתחת 12 ב-' + k('ink2') + '; חץ 18 בצד הסוף.')
+    inner = ('<p class="sec">רמזים לפעם הראשונה · ב8, גרסה 2 · 26.11.2026 · ממתין לפיני</p>'
+             '<h1>הספירה לפני העונה: ריבוע עם מספר, שנפתח בנגיעה</h1>'
+             '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.4"><h2>איך זה עובד</h2>%s</div>'
+             '<div class="card" style="flex: 1"><h2>מידות</h2>%s<h2 style="margin-top: 8px">לפיני</h2>%s</div></div>'
+             % (what, spec, li('<b>הריבוע כפי שבלוחות?</b> (כן)', '<b>נפתח לבד פעם ביום עד הפתיחה?</b> (כן, כדי שלא צריך לנחש)',
+                               '<b>נגיעה בריבוע הפתוח פותחת את גיליון העונה?</b> (כן)')))
+    wb('CT00-Countdown.dc.html', 'הספירה לפני העונה', 1280, HCT, inner)
+
+
 def main():
-    ph = phones()
+    ph = phones(); ph.update(ct_phones())
     for fn, v in ph.items():
         title, body, fx = v[:3]; lang = v[3] if len(v) > 3 else 'he'
         PB.phone(fn, title, body, night=fx == 'night', fixed=fx, lang=lang)
     hn00()
     p = os.path.join(PROJ, 'canvas.json'); j = json.load(open(p, encoding='utf8'))
     for fn in list(j['boards']):
-        if fn.startswith('HN'): del j['boards'][fn]
-    j['order'] = [f for f in j['order'] if not f.startswith('HN')]
+        if fn.startswith(('HN', 'CT')): del j['boards'][fn]
+    j['order'] = [f for f in j['order'] if not f.startswith(('HN', 'CT'))]
     place = [('HN00-Hints.dc.html', 0, 0, 1280, HB, 'רמזים לפעם הראשונה, גרסה 2')]
     y = HB + 140
     names = [('HN1', '1 מתוך 6: המסלול, והספירה באריח'), ('HN2', '2 מתוך 6: "לאן יורדים?"'), ('HN3', '3 מתוך 6: ההקלטה'),
@@ -309,7 +391,14 @@ def main():
     for i, (c, t) in enumerate(names):
         place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     y += 844 + 200
-    for i, (c, t) in enumerate([('HN7', 'בכפר: החבר׳ה'), ('HN8', 'באנגלית: ההקלטה'), ('HN9', 'הגדרות: להציג שוב (אושר)'), ('HN10', 'חיפוש מיקום בגלולה, ב9 (אושר)')]):
+    for i, (c, t) in enumerate([('HN7', 'בכפר, 1 מתוך 2: הטיול שלך'), ('HN11', 'בכפר, 2 מתוך 2: החבר׳ה'), ('HN12', 'הבועה: זמן, סגירה ונקודות'),
+                                ('HN8', 'באנגלית: ההקלטה'), ('HN9', 'הגדרות: הצגה מחדש (אושר)'), ('HN10', 'חיפוש מיקום בגלולה, ב9 (אושר)')]):
+        place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
+    y += 844 + 260
+    ct00(); place.append(('CT00-Countdown.dc.html', 0, y, 1280, HCT, 'הספירה לפני העונה: ריבוע שנפתח בנגיעה'))
+    y += HCT + 140
+    for i, (c, t) in enumerate([('CT1', 'סגור: רק המספר בטבעת'), ('CT2', 'אחרי נגיעה: נפתח ל-3.5 שנ׳'), ('CT3', 'נגיעה בפתוח: גיליון העונה'),
+                                ('CT4', 'סגור, בלילה'), ('CT5', 'באנגלית, פתוח')]):
         place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     for fn, x, y_, w, h, t in place:
         code = fn.split('.dc.html')[0].split('-')[0]

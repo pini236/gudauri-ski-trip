@@ -79,12 +79,20 @@ Village sequence (prefs `hints_village`):
 - Time: 8 s, or longer by `AccessibilityManager.getRecommendedTimeoutMillis(8000, FLAG_CONTENT_TEXT | FLAG_CONTENT_CONTROLS)`.
 - Reduced motion: no rise and no hole movement (it jumps); the ring drains in one-second steps.
 
-## 6. Before the season (B8, interim until the "before the season" round)
+## 6. Before the season (B8, version 2 after Pini, 26.11.2026; interim until the "before the season" round)
 
-- The mountain opens free, no sheet. The countdown is a **tile** (`HN1`): glass, radius 18, padding 8 / 14 / 8 / 12, on the start side, 12 from the edge, its top at 636 (above the bar and clear of the runs); the number 34 light, tabular; beside it `app.season_days_caption` (13.5 bold) and `app.season_tomorrow_sub` with the date (12, `ink2`). The other states (tomorrow, today, late, moved) put the existing words in the same tile, up to two lines, max width 220.
-- **Tap on the tile:** opens the existing season sheet (planned date, your trip, ski pass) **without** the big number; pulling it down closes it; the tile stays. Screen reader: `app.season_days_a11y`.
-- The pill stays "פתיחה מתוכננת {date} · לפי MTA".
-- Hint 1 appears as on any day.
+Boards `CT00` to `CT5` (canvas version 80). Waiting for Pini.
+
+- **The mountain opens free, no sheet.** The countdown is a **square tile**, 64 × 64, glass, radius 18, padding 8, on the start side, 12 from the edge and 18 above the bar (top 690 on a 844 screen); clear of the runs.
+- **Inside: only the number, in a ring.** Ring 48, stroke 3: the track in `line`, the fill in `acc`, from the top, clockwise. The fill is how much of the wait has passed, from MTA's announcement to the opening (`season.announced` to `season.open` in `site/data/resorts.json`; today 55%). Number 20 / weight 600, tabular; 17 from 100 days.
+- **Tap on the closed tile:** it opens toward the screen centre in 250 ms (ease out): the ring, then `app.season_days_caption` (14 bold) over `app.season_tomorrow_sub` with the date (12, `ink2`), and a chevron 18 at the end. It stays 3.5 s (or `getRecommendedTimeoutMillis(3500, FLAG_CONTENT_TEXT)`) and closes in 250 ms.
+- **Tap on the open tile:** the existing season sheet (planned date, weekday and source, your trip, ski pass), **without** the big number (`CT3`). Pulling it down closes it; the tile stays.
+- **Opens by itself** once at the first opening of each day until the opening, for the same 3.5 s. On the very first opening the hint sequence starts after it closes.
+- **States:** tomorrow, `1` in the ring and `app.season_tomorrow`; the day itself, a full ring with a gondola icon instead of a number and `app.season_today`; moved, the number to the new date and `app.season_moved`; date passed with no report, a full ring in `ink2` with a clock icon and `app.season_late`.
+- **Screen reader:** one button, `app.season_days_a11y`; activating it opens the season sheet directly (no expanding).
+- **Reduced motion:** no widening; the caption fades in and out.
+- **Left to right:** the tile sits on the left, opens to the right, chevron points right (`CT5`).
+- No new strings. The pill stays "פתיחה מתוכננת {date} · לפי MTA".
 - This removes the big number and its haloed caption from the opening (`LiveSeason.kt`), and with them the bug where the first tap on the mountain went to the count.
 
 ## 7. Text without a frame (B9)
@@ -113,7 +121,7 @@ The source of truth for the wording is `i18n/strings.json` (the content session 
 
 ## 10. Boards
 
-`HN00` the system (version 2) · `HN1` to `HN6` the six mountain hints (`HN1` also the countdown tile, `HN5` at night) · `HN7`, `HN11` the village sequence · `HN12` the bubble: time, closing and dots · `HN8` English · `HN9` Settings · `HN10` the search pill.
+`HN00` the system (version 2) · `CT00` to `CT5` the countdown tile · `HN1` to `HN6` the six mountain hints (`HN1` also the countdown tile, `HN5` at night) · `HN7`, `HN11` the village sequence · `HN12` the bubble: time, closing and dots · `HN8` English · `HN9` Settings · `HN10` the search pill.
 
 ## 11. Honestly
 
