@@ -23653,9 +23653,9 @@
   },
   "app.hint_village": {
    "he": "כל מה שמחוץ למסלולים. הטיסה וימי הסקי, החבר׳ה ונקודת המפגש, מחיר כרטיס הסקי, אוכל ליד הרכבל ומשחקים.",
-   "en": "Everything off the slopes. Your flight and ski days, group and meeting point, ski pass prices, food by the lifts and games.",
-   "ru": "Всё, что вне трасс. Рейс и дни катания, группа и место встречи, цены на ски-пасс, еда у подъёмников и игры.",
-   "ka": "ყველაფერი ტრასების გარეთ. ფრენა და სათხილამურო დღეები, ჯგუფი და შეხვედრის ადგილი, ბარათის ფასები, საჭმელი საბაგიროსთან და თამაშები.",
+   "en": "Off the slopes: flight and ski days, group and meeting point, ski pass prices, food and games.",
+   "ru": "Всё вне трасс: рейс и дни катания, группа и место встречи, цены на ски-пасс, еда и игры.",
+   "ka": "ტრასების გარეთ: ფრენა, ჯგუფი და შეხვედრა, ბარათის ფასები, საჭმელი, თამაშები.",
    "where": "app/android",
    "note": "First-run hint v3 (content, Opus, 26.11.2026): clearer village and trip per Pini. Bubble up to 300dp, three lines; see design/handoff/2026-11-26-redesign-hints/README.md. Wording pending Pini.",
    "check": [
@@ -24879,9 +24879,9 @@
   },
   "app.hint_rec": {
    "he": "מפעילים כשמתחילים לגלוש ושמים את הטלפון בכיס. בסוף היום רואים את הירידות, המסלולים והמהירות.",
-   "en": "Start it when you start skiing and put the phone in your pocket. At the end of the day see your descents, runs and speed.",
-   "ru": "Включите, когда начинаете кататься, и уберите телефон в карман. Вечером увидите спуски, трассы и скорость.",
-   "ka": "ჩართეთ, როცა სრიალს იწყებთ, და ტელეფონი ჯიბეში ჩაიდეთ. დღის ბოლოს ნახავთ ჩასვლებს, ტრასებს და სიჩქარეს.",
+   "en": "Start it when you begin skiing and pocket the phone. In the evening see descents, runs and speed.",
+   "ru": "Включите перед катанием и уберите телефон в карман. Вечером увидите спуски, трассы и скорость.",
+   "ka": "ჩართეთ სრიალის წინ და ტელეფონი ჯიბეში ჩადეთ. საღამოს ნახავთ ჩასვლებს და სიჩქარეს.",
    "where": "app/android",
    "note": "First-run hint v3 (content, Opus, 26.11.2026): clearer village and trip per Pini. Bubble up to 300dp, three lines; see design/handoff/2026-11-26-redesign-hints/README.md. Wording pending Pini.",
    "check": [
@@ -24915,9 +24915,9 @@
   },
   "app.hint_group": {
    "he": "קבוצה לחברים שגולשים יחד. מזמינים בקישור, קובעים נקודת מפגש על ההר ורואים מי טס באיזו טיסה.",
-   "en": "A group for friends who ski together. Invite by link, set a meeting point on the mountain and see who is on which flight.",
-   "ru": "Группа для друзей, которые катаются вместе. Приглашайте по ссылке, назначайте место встречи на горе и смотрите, кто каким рейсом летит.",
-   "ka": "ჯგუფი ერთად მოსრიალე მეგობრებისთვის. მოიწვიეთ ბმულით, დანიშნეთ შეხვედრის ადგილი მთაზე და ნახეთ, ვინ რომელი რეისით მიფრინავს.",
+   "en": "A group for friends who ski together. Invite by link, set a meeting point and see who flies when.",
+   "ru": "Группа для друзей, что катаются вместе. Приглашайте по ссылке, назначайте встречу, смотрите рейсы.",
+   "ka": "ჯგუფი მეგობრებისთვის: მოიწვიეთ ბმულით, დანიშნეთ შეხვედრა და ნახეთ რეისები.",
    "where": "app/android",
    "note": "First-run hint v3 (content, Opus, 26.11.2026): clearer village and trip per Pini. Bubble up to 300dp, three lines; see design/handoff/2026-11-26-redesign-hints/README.md. Wording pending Pini.",
    "check": [
@@ -24939,9 +24939,9 @@
   },
   "app.hint_trip": {
    "he": "כאן מכניסים את תאריכי הטיסה. מהם יודעים מה ימי הסקי שלך, כמה ימים נשארו ומה התחזית לכל יום.",
-   "en": "Enter your flight dates here. From them the app knows your ski days, how many days are left and the forecast for each day.",
-   "ru": "Укажите здесь даты рейса. По ним приложение знает ваши дни катания, сколько дней осталось и прогноз на каждый день.",
-   "ka": "აქ შეიყვანეთ ფრენის თარიღები. მათით აპლიკაციამ იცის თქვენი სათხილამურო დღეები, რამდენი დღე დარჩა და ყოველი დღის პროგნოზი.",
+   "en": "Enter your flight dates here. They set your ski days, the countdown and the daily forecast.",
+   "ru": "Укажите здесь даты рейса. По ним считаются дни катания, обратный отсчёт и прогноз.",
+   "ka": "აქ შეიყვანეთ ფრენის თარიღები: მათგან გამოითვლება სათხილამურო დღეები და პროგნოზი.",
    "where": "app/android",
    "note": "First-run hint v3 (content, Opus, 26.11.2026): clearer village and trip per Pini. Bubble up to 300dp, three lines; see design/handoff/2026-11-26-redesign-hints/README.md. Wording pending Pini.",
    "check": [
