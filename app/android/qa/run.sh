@@ -2032,20 +2032,22 @@ storesmoke() {
       [ "$asked" -eq 0 ] && shot storesmoke-permission; asked=$((asked + 1)); tap $xy; sleep 2; continue
     fi
     xy=$(where "מתחילים"); [ -n "$xy" ] && { shot storesmoke-first; tap $xy; sleep 2; continue; }
-    [ -n "$(where 'להחזיק לסיום')" ] && { started=1; break; }
+    [ -n "$(where '~^(להחזיק לסיום|סיום)$')" ] && { started=1; break; }
     sleep 2
   done
   [ "$asked" -gt 0 ] || note "storesmoke: no system permission prompt appeared"
-  [ -n "$started" ] || { fail "storesmoke: the recording did not start (no 'hold to finish' on screen)"; seen_texts; shot storesmoke-not-started; return 1; }
+  [ -n "$started" ] || { fail "storesmoke: the recording did not start (no finish button on screen)"; seen_texts; shot storesmoke-not-started; return 1; }
   # a few readings down Tatra 2, then the live screen
   dayrec_walk 8; sleep 2; shot storesmoke-recording
-  # hold to finish (the fill takes a second)
-  uidump; xy=$(where "להחזיק לסיום")
-  if [ -n "$xy" ]; then set -- $xy; hold "$1" "$2" 1800; else fail "storesmoke: the finish button disappeared"; fi
-  # the saved day: the end screen of this recording ("your day", or "a recording with no descents" for readings that make none)
-  for i in $(seq 1 20); do
+  # finish: the live screen has "סיום" (a tap; it may ask first, then "להחזיק לסיום" is a one second hold); then the end screen of
+  # this recording ("your day", or "a recording with no descents" for readings that make none) is the saved day
+  local tapped=0
+  for i in $(seq 1 25); do
     uidump
     [ -n "$(where '~^(היום שלך|הקלטה בלי ירידות)$')" ] && { seen_end=1; break; }
+    xy=$(where "להחזיק לסיום")
+    if [ -n "$xy" ]; then set -- $xy; hold "$1" "$2" 1800; sleep 2; continue; fi
+    if [ "$tapped" -lt 2 ]; then xy=$(where "~^סיום$"); [ -n "$xy" ] && { tapped=$((tapped + 1)); tap $xy; sleep 2; continue; }; fi
     sleep 2
   done
   if [ -n "$seen_end" ]; then sleep 2; shot storesmoke-day; else fail "storesmoke: no saved day after the recording stopped"; seen_texts; shot storesmoke-after-stop; fi
