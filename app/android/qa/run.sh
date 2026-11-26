@@ -2122,9 +2122,9 @@ dayrecvideo() {
   vt "recording starts on the home screen"
   vguard
   # the start is a real tap on the entry "Record" (13.11.2026, Pini: the script started it by an extra and nothing on screen showed it)
-  waitwhere "Record skiing" 15 || fail "the record button (RX3) never showed"
-  vt "tap the record button"; tapText "Record skiing"; sleep 1
-  [ -n "$(where 'Start')" ] && { vt "tap Start in the first-time sheet"; tapText "Start"; }
+  waitwhere "Record" 15 || fail "the entry 'Record' never showed"
+  vt "tap Record"; tapText "Record"; sleep 1
+  [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
   waitwhere "One descent" 15 || fail "the live screen never showed after the tap on Record"
   vt "the live screen is up"
   sleep 8; note "video: the phone's last GPS fix: $(adb shell dumpsys location 2> /dev/null | grep -i -m2 'last location' | tr -d '\r' | cut -c1-260)"
@@ -2151,16 +2151,16 @@ dayrecvideo() {
   vguard
   recstart dayrec-video-2
   vt "recording starts on the home screen"
-  if waitwhere "Record skiing" 15; then
-    vt "tap the record button"; tapText "Record skiing"; sleep 1
-    [ -n "$(where 'Start')" ] && { vt "tap Start in the first-time sheet"; tapText "Start"; }
+  if waitwhere "Record" 15; then
+    vt "tap Record"; tapText "Record"; sleep 1
+    [ -n "$(where 'Continue')" ] && { vt "tap Continue"; tapText "Continue"; }
     waitwhere "One descent" 10 && {
       dayrec_walk 3; ctr; dayrec_walk 3; ctr
       vt "tap One descent"; tapText "One descent"; waitlog "dayrec mode run" 15 || fail "video: the switch to one descent did not reach the recorder"
       vt "the switch reached the recorder"
       ctr; for k in 1 2 3; do dayrec_walk 2; ctr; done; vguard
-      vt "hold to finish"; waitwhere "Hold to finish" 10 && { xy=$(where "Hold to finish"); hold $xy 1400; }; sleep 2; }
-  else fail "the record button (RX3) never showed"; fi
+      vt "tap Finish"; waitwhere "Finish" 10 && tapText "Finish"; sleep 2; }
+  else fail "the entry 'Record' never showed"; fi
   # Finish opens the recorded day itself (the day of this recording, not the example day: the manager saw "Example" when the script
   # opened days/sample here), so the video ends on the real summary
   vt "open the day's timeline"; sleep 6
