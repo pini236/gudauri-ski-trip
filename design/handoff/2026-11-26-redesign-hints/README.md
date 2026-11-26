@@ -92,6 +92,7 @@ The queue order is 1 to 6. Hint V is outside the queue and its pacing.
 - **The rule:** every text on the mountain sits in a frame: a pill, a tile, a sheet or the hint bubble. Text straight on the background is allowed only as the title of a whole page whose background is veiled (Settings, About, the ski pass page).
 - **The search screen** (`SearchPulse.kt`): "מחפש מיקום" moves into a glass pill, 40 high, padding 0 18, 16 bold, centred 132 under the pulse's centre (`HN10`). Everything else as GS1.
 - The countdown: solved by the tile (section 6).
+- After 30 s the pill grows into one frame with `app.search_hint` (B9 designer, boards `B91` to `B93`, `design/handoff/2026-11-26-redesign-b9/`); build it together with `HN10`.
 
 ## 8. Buttons without words (B10)
 
