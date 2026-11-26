@@ -83,10 +83,14 @@ CSS = """
 .H .mc button.lt{flex-direction:column;gap:0;line-height:1}
 .H .mc button.lt.on{background:var(--acc);color:var(--onacc);border-color:transparent}
 .H .mc button.lt b{font-size:11.5px;font-weight:700;direction:ltr}
-.H .hs{position:absolute;left:12px;right:12px;bottom:84px;height:76px;border-radius:26px;box-sizing:border-box}
+.H .lp{position:absolute;left:12px;width:366px;height:44px;border-radius:22px;box-sizing:border-box;overflow:hidden}
+.H .lp>svg{position:absolute;left:0;top:0}
+.H .lp .lt{position:absolute;left:0;top:0;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;border:0}
+.H .lp .lt{background:var(--acc);color:var(--onacc)}
+.H .lp .lt b{font-size:11.5px;font-weight:700;direction:ltr}
 .H .hs>svg{position:absolute;left:0;top:0;overflow:visible}
 .H .hs .rt{position:absolute;left:8px;top:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
-.H .hsi{position:relative;height:76px;width:366px;align-self:center;flex:none}
+.H .hsi{position:relative;height:44px;width:366px;align-self:center;flex:none}
 .H .hsi>svg{position:absolute;left:0;top:0;overflow:visible}
 .H .hsi .rt{position:absolute;left:8px;top:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
 .H .tabs2{display:flex;gap:8px}
@@ -102,53 +106,54 @@ CSS = """
 MB.CSS = MB.CSS + CSS
 
 
-def X(h):
-    return 64 + (h - 7) / 16.5 * 288
+SKY = [(7.0, '#1B2A52'), (8.4, '#8C6FB5'), (9.0, '#F2A98C'), (10.6, '#8EC5F2'), (13.0, '#5FA9F2'), (15.9, '#A9D0F2'),
+       (16.8, '#F6C37A'), (17.35, '#F08A5D'), (18.3, '#5C5BA8'), (19.5, '#1B2A52'), (23.5, '#0E1730')]
+TX0, TX1 = 60, 322     # the track inside the 366 by 44 pill
 
 
-def arcy(h):
-    return 56 - max(P.sun(h)[0], -10) * 0.65
+def TX(h):
+    return TX0 + (h - 7) / 16.5 * (TX1 - TX0)
 
 
-def strip_svg(h, now=None, past=False, night=False):
-    o = ['<svg width="366" height="76" viewBox="0 0 366 76" fill="none" aria-hidden="true">']
+def track_svg(h, now=None, past=False, back=True, uid='g'):
+    """the slider: the sky of the day as the track, one disc, nothing else (no numbers, no ticks)"""
+    o = ['<svg width="366" height="44" viewBox="0 0 366 44" fill="none" aria-hidden="true"><defs><linearGradient id="%s" x1="0" x2="1" y1="0" y2="0">' % uid]
+    for hh, c in SKY:
+        o.append('<stop offset="%.3f" stop-color="%s"/>' % ((hh - 7) / 16.5, c))
+    o.append('</linearGradient></defs>')
+    o.append('<rect x="%d" y="17" width="%d" height="10" rx="5" fill="url(#%s)"/>' % (TX0, TX1 - TX0, uid))
     if past and now:
-        o.append('<rect x="%.1f" y="56" width="%.1f" height="2" rx="1" fill="var(--ink2)" opacity=".18"/>' % (X(7), X(now) - X(7)))
-    pts = ['%.1f %.1f' % (X(a / 4 + 7), arcy(a / 4 + 7)) for a in range(0, 67)]
-    o.append('<path d="M%s" stroke="var(--ink2)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>' % ' L'.join(pts))
-    o.append('<path d="M%.1f 56H%.1f" stroke="var(--line)" stroke-width="1"/>' % (X(7), X(23.5)))
-    for n, kh, _, _ in KEYS:
-        o.append('<circle cx="%.1f" cy="%.1f" r="2.4" fill="var(--ink)" opacity=".6"/>' % (X(kh), arcy(kh)))
-    for t in (8, 12, 16, 20):
-        o.append('<text x="%.1f" y="72" font-size="10.5" font-weight="500" fill="var(--ink2)" text-anchor="middle" style="direction:ltr">%d</text>' % (X(t), t))
+        o.append('<rect x="%d" y="17" width="%.1f" height="10" rx="5" fill="var(--glass)" opacity=".62"/>' % (TX0, TX(now) - TX0))
     if now:
-        o.append('<path d="M%.1f 52v10" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>' % X(now))
-    x = X(h)
-    ay = arcy(h)
-    o.append('<path d="M%.1f 34V%.1f" stroke="var(--acc)" stroke-width="2"/><circle cx="%.1f" cy="%.1f" r="4" fill="var(--acc)" stroke="var(--bg)" stroke-width="1.5"/>' % (x, ay, x, ay))
+        o.append('<rect x="%.1f" y="13" width="2.4" height="18" rx="1.2" fill="var(--ink)" opacity=".75"/>' % (TX(now) - 1.2))
+    x = TX(h)
     gl = P_MOON if P.sun(h)[0] < -1 else P_SUN
-    o.append('<g transform="translate(%.1f 6)"><rect width="66" height="28" rx="14" fill="var(--acc)"/>'
-             '<g transform="translate(7 4) scale(.8)" stroke="var(--onacc)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">%s</g>'
-             '<text x="29" y="19.2" font-size="13.5" font-weight="700" fill="var(--onacc)" style="direction:ltr">%s</text></g>' % (x - 33, gl, hm(h)))
+    o.append('<circle cx="%.1f" cy="22" r="15" fill="var(--bg)" stroke="var(--acc)" stroke-width="2.4"/>'
+             '<g transform="translate(%.1f 12.5) scale(.8)" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">%s</g>' % (x, x - 9.6, gl))
+    if back:
+        o.append('<g transform="translate(335 12) scale(.8)" stroke="var(--ink2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">%s</g>' % P_BACK)
     o.append('</svg>')
     return ''.join(o)
 
 
-def strip(h, now=None, past=False):
-    return '<div class="hs glass"><button class="rt" aria-label="עכשיו">%s</button>%s</div>' % (ic(P_BACK, 20, 1.8), strip_svg(h, now, past))
+def pill(h, now=None, past=False, top=612):
+    """the light button opened in place: the same 44 button grows into a pill across the screen, nothing else moves"""
+    return ('<div class="lp glass" style="top: %dpx"><button class="lt on" aria-label="אור היום, %s"><b>%s</b></button>%s</div>'
+            % (top, hm(h), hm(h), track_svg(h, now, past)))
 
 
 def column(sel, light=None, open_=False, scrub=None):
     """the button column (OP1) with the light button under the picture/live switch; light = 'sun'|'moon'; scrub = hour shown on the button"""
     sw = ('<div class="msw glass" role="radiogroup" aria-label="תצוגת ההר"><span class="%s" role="radio" aria-label="תמונה">%s</span><span class="%s" role="radio" aria-label="חי">%s</span></div>'
           % ('on' if sel == 'pic' else '', ic(V.P_PIC, 19), 'on' if sel == 'live' else '', ic(V.P_CUBE, 19)))
-    if scrub is not None:
-        lt = '<button class="glass lt on" aria-label="אור היום, %s" aria-pressed="true">%s<b>%s</b></button>' % (hm(scrub), '', hm(scrub))
+    if open_:
+        lt = '<button class="lt" style="visibility: hidden" aria-hidden="true"></button>'
+    elif scrub is not None:
+        lt = '<button class="glass lt on" aria-label="אור היום, %s" aria-pressed="true"><b>%s</b></button>' % (hm(scrub), hm(scrub))
     else:
         lt = '<button class="glass lt" aria-label="אור היום" aria-pressed="false">%s</button>' % ic(P_MOON if light == 'moon' else P_SUN, 21, 1.7)
-    style = ' style="bottom: 168px"' if open_ else ''
-    return ('<div class="mc"%s>%s%s<button class="glass" aria-label="שכבות">%s</button><button class="glass" aria-label="איפה אני">%s</button></div>'
-            % (style, sw, lt, ic(V.P_LAY, 20), ic(V.P_LOC, 20, 1.8, 'none')))
+    return ('<div class="mc">%s%s<button class="glass" aria-label="שכבות">%s</button><button class="glass" aria-label="איפה אני">%s</button></div>'
+            % (sw, lt, ic(V.P_LAY, 20), ic(V.P_LOC, 20, 1.8, 'none')))
 
 
 def phone(fn, title, body, fixed='day'):
@@ -161,21 +166,21 @@ def screens():
     out['HR1.dc.html'] = ('אור היום · כפתור בעמודה, סגור (HR1)', PB.pic('hero', 'noon', None) + PB.base('hero', cabins=True) + top() + column('pic', 'sun') + dock2('dot'), 'day')
     # HR2: open, picture mode, 16:50 (golden hour: a new picture)
     out['HR2.dc.html'] = ('אור היום · פתוח, תמונה, 16:50 (HR2)',
-                          PB.pic('hero', 'golden', None) + PB.base('hero', cabins=True) + top() + column('pic', scrub=16.83, open_=True) + strip(16.83, now=13.33) + dock2('dot'), 'day')
+                          PB.pic('hero', 'golden', None) + PB.base('hero', cabins=True) + top() + column('pic', scrub=16.83, open_=True) + pill(16.83, now=13.33) + dock2('dot'), 'day')
     # HR3: open, live mode, 15:50 (the live model is continuous)
     out['HR3.dc.html'] = ('אור היום · פתוח, מצב חי, 15:50 (HR3)',
-                          '<img class="livei" alt="" src="%s">' % LIVE['open-after'] + top() + column('live', scrub=15.83, open_=True) + strip(15.83, now=13.33) + dock2('dot'), 'day')
+                          '<img class="livei" alt="" src="%s">' % LIVE['open-after'] + top() + column('live', scrub=15.83, open_=True) + pill(15.83, now=13.33) + dock2('dot'), 'day')
     # HR4: option B, the time row inside "ההר עכשיו"
     rows = ''.join('<div class="hr3%s"><b>%s</b><span class="v"><span>%s</span><span>%s</span><span>%s</span></span></div>'
                    % (' on' if on else '', t, a, b, c) for t, a, b, c, on in [
                        ('13:00', '−9°', '28', '0', False), ('14:00', '−9°', '31', '0.2', True), ('15:00', '−10°', '34', '0.6', False), ('16:00', '−11°', '36', '1.1', False)])
-    sheet = ('<div class="sheet glass" style="gap: 10px; bottom: 8px; height: 408px"><div class="grab"></div><div class="tabs2"><span>רכבלים</span><span class="on">מזג אוויר</span></div>'
-             '<div class="hsi"><button class="rt" aria-label="עכשיו">%s</button>%s</div>%s</div>' % (ic(P_BACK, 20, 1.8), strip_svg(14.0, now=13.33), rows))
+    sheet = ('<div class="sheet glass" style="gap: 10px; bottom: 8px; height: 336px"><div class="grab"></div><div class="tabs2"><span>רכבלים</span><span class="on">מזג אוויר</span></div>'
+             '<div class="hsi"><button class="lt on" style="position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 22px; border: 0; display: flex; align-items: center; justify-content: center; background: var(--acc); color: var(--onacc)"><b style="font-size: 11.5px; direction: ltr">14:00</b></button>%s</div>%s</div>' % (track_svg(14.0, now=13.33, uid='gb'), rows))
     out['HR4.dc.html'] = ('אור היום · חלופה ב, בתוך "ההר עכשיו" (HR4)',
                           PB.pic('hero', 'early', None) + PB.base('hero', cabins=True) + top() + veil(0, 844, 'var(--veil)') + sheet, 'day')
     # WX phones: the painter's own weather pictures stand for what the layers should look like
     out['WX1.dc.html'] = ('מזג אוויר · ים עננים, 8:30 (WX1)',
-                          PB.pic('hero', 'dawn-cloud', None) + PB.base('hero', cabins=True) + top() + column('pic', scrub=8.5, open_=True) + strip(8.5, now=7.8, past=True) + dock2('dot'), 'day')
+                          PB.pic('hero', 'dawn-cloud', None) + PB.base('hero', cabins=True) + top() + column('pic', scrub=8.5, open_=True) + pill(8.5, now=7.8, past=True) + dock2('dot'), 'day')
     flakes = ''.join('<circle cx="%d" cy="%d" r="%.1f"/>' % (hash((i, 'x')) % 390, hash((i, 'y')) % 844, 1 + (hash((i, 'r')) % 20) / 10) for i in range(0))
     rnd = __import__('random').Random(7)
     flakes = ''.join('<circle cx="%.0f" cy="%.0f" r="%.1f" opacity="%.2f"/>' % (rnd.random() * 390, rnd.random() * 844, 1.3 + rnd.random() * 2.2, .6 + rnd.random() * .4) for _ in range(190))
@@ -206,13 +211,13 @@ def hr00():
         'בבדיקת העיצוב מ-24.11 נשארו בראש רק הגלולה ו"אני", והסליידר "נפתח משם".',
         'בפועל הוא נפתח משורת בדיקה שקיימת <b>רק בגרסת הבדיקה</b>, תחת "אני". בגרסה שלך אין שום דרך לפתוח אותו.',
         'המסקנה: זה לא באג, חסר לו מקום. צריך כפתור שרואים.') + '</div>')
-    A = ('<div class="card" style="flex: 1; border: 3px solid #6B3FD4"><p class="sec">חלופה א · ההמלצה</p><h2>כפתור "אור היום" בעמודת הכפתורים</h2>' + li2(
-        '<b>איפה:</b> מתחת למתג תמונה / חי, מעל השכבות. אותה עמודה, אותו גודל (44). סמל שמש ביום וירח בלילה.',
-        '<b>פתיחה:</b> נגיעה אחת. מעל הסרגל התחתון עולה פס של היום: 7:00 עד 23:30, עם קשת השמש, נקודה לכל מצב אור, וגוש עם השעה.',
-        '<b>סגירה:</b> נגיעה בכפתור, או משיכה למטה. הכפתור מראה את השעה שנבחרה, בצבע הבחירה. החץ מחזיר לעכשיו.',
+    A = ('<div class="card" style="flex: 1; border: 3px solid #6B3FD4"><p class="sec">חלופה א · ההמלצה (עיצוב חדש, אחרי ההערה של פיני)</p><h2>כפתור "אור היום" שנפתח במקומו</h2>' + li2(
+        '<b>איפה:</b> בעמודת הכפתורים, מתחת למתג תמונה / חי. סמל שמש ביום וירח בלילה, אותו גודל (44) כמו שאר הכפתורים.',
+        '<b>פתיחה:</b> נגיעה אחת, והכפתור עצמו מתרחב במקומו לפס זכוכית בגובה 44. בלי שורה חדשה בתחתית ובלי להזיז כפתורים אחרים.',
+        '<b>הפס:</b> השמיים של היום כמסלול (לילה כחול, שחר ורוד, יום תכלת, שעת זהב, ערב סגול) וגלגל אחד עליו. בלי מספרים ובלי סימונים. השעה נכתבת בקצה הפס, בצבע הבחירה.',
+        '<b>סגירה:</b> נגיעה בקצה (השעה) או משיכה. החץ בקצה מחזיר לעכשיו, ונראה רק כשהאור לא על עכשיו.',
         '<b>בשני המצבים:</b> בתמונה ההר עובר בין מצבי האור (הצלבה של 450 מ״ש); בחי האור רציף, כי הצל מחושב.',
-        '<b>למה זה:</b> זה מראה ההר, לא מידע. המקום שלו ליד המתג שמשנה איך ההר נראה, ושני הדברים עובדים בלי להכיר את השני.',
-        '<b>המחיר:</b> כפתור רביעי בעמודה, והעמודה גבוהה ב-52 כשהפס פתוח.') + '</div>')
+        '<b>המחיר:</b> כפתור רביעי בעמודה, ובזמן הפתיחה פס של 44 על חלק מהמסך. אין צורך לפנות מקום בתחתית.') + '</div>')
     B = ('<div class="card" style="flex: 1"><p class="sec">חלופה ב</p><h2>שורת שעה בתוך "ההר עכשיו"</h2>' + li2(
         '<b>איפה:</b> הגלולה העליונה פותחת את הגיליון, ובלשונית מזג האוויר עולה שורת שעה: אותו פס, ומתחתיה התחזית של השעה.',
         '<b>יתרון:</b> אין כפתור חדש על ההר, והשעה והתחזית על אותו ציר. כשמזג האוויר יופיע על ההר, אותה שעה תנהל גם אותו.',
@@ -342,26 +347,23 @@ def hl00():
 
 def wx00():
     layers = [
-        ('ענני שמיים', 'קוד מזג האוויר <span dir="ltr">code</span> (0 עד 3): בהיר, חלקי, מעונן', 'שתי שכבות שקופות (כ-40KB; בהר החי כבר יש <span dir="ltr">cirrus.webp</span>), ותנועה איטית', 'לא', tag('ok', 'קל')),
-        ('ים עננים בעמק', 'שדה הראות בכפר נמוך (<span dir="ltr">vis</span>) ובגודאורי העליונה גבוה; או כפר קר מגודאורי', 'מסכה אחת למבט, כ-20KB, מטבלת העומק שכבר ב-<span dir="ltr">peak.json</span>; ציור: עננים מתחת ל-2,130 מ׳', 'לא', tag('ok', 'קל')),
-        ('שלג יורד', '<span dir="ltr">snow</span> (ס״מ בשעה) וקודים 71 עד 77, 85, 86; הכיוון לפי <span dir="ltr">dir</span> ו-<span dir="ltr">wind</span>', 'חלקיקים בקוד, בלי נכס. עוצר כשהמסך לא נראה, ובהפחתת תנועה: ערפל סטטי', 'לא', tag('ok', 'קל')),
-        ('ערפל וראות', '<span dir="ltr">vis</span> לפי גובה: כפר, גודאורי, Sadzele', 'מעבר צבע לפי גובה, בלי נכס', 'לא', tag('ok', 'קל')),
-        ('אור שטוח כשמעונן', '<span dir="ltr">code</span> 3 או שלג: שמש לא ישירה', 'מסנן צבע על התמונה (הצללים הציוריים נשארים חלשים). תמונה שטוחה אמיתית: עוד כ-150KB, יורדת', 'לא', tag('ask', 'בינוני')),
-        ('שלג טרי על הסלע', '<span dir="ltr">snow24</span> מעל 10 ס״מ', 'מסכת סלע אחת למבט, כ-25KB: הסלע הופך לבן', 'לא', tag('ask', 'בינוני')),
-        ('רוח ברכסים', 'משבים בנקודת Sadzele מעל 50 קמ״ש; כיוון <span dir="ltr">dir</span>', 'סמל עשן שלג אחד וטבלת קווי הרכס, כ-10KB', 'לא', tag('ask', 'בינוני')),
-        ('כמות עננים בפועל', 'אין היום בתשובה: יש רק <span dir="ltr">code</span>', 'אין נכס', '<b>כן:</b> שדה <span dir="ltr">cloud_cover</span> לשעה, תוספת בלבד', tag('new', 'שרת')),
+        ('שלג חדש', tag('ok', 'מעוצב ב-K03'), '<span dir="ltr">snow24</span> מעל 10 ס״מ (קיים בתשובה)', 'פחות סלע חשוף ונצנוץ. מסכת סלע אחת למבט, כ-25KB', 'לא'),
+        ('רוח ברכס', tag('ok', 'מעוצב ב-K03'), 'משבים בנקודת Sadzele מעל 50 קמ״ש, כיוון <span dir="ltr">dir</span> (קיים)', 'שלג שעף מהרכסים: סמל אחד וטבלת קווי הרכס, כ-10KB', 'לא'),
+        ('ים עננים', tag('ok', 'מעוצב ב-K03'), 'גובה בסיס הענן. <b>אין בתשובה</b>; אפשר להעריך מראות נמוכה בכפר וגבוהה למעלה, אבל זו הערכה חלשה', 'מסכה אחת למבט, כ-20KB, מטבלת העומק שב-<span dir="ltr">peak.json</span>', '<b>כן</b>: <span dir="ltr">cloud_base</span> (K03 כבר סימן את זה כשאלה לארכיטקט)'),
+        ('יום לבן ושלג יורד', tag('ok', 'מעוצב ב-K03'), '<span dir="ltr">code</span> ו-<span dir="ltr">vis</span> (קיימים)', 'אור שטוח (מסנן צבע) ושלג יורד כשכבה נעה (חלקיקים בקוד, בלי נכס). תמונה שטוחה אמיתית: כ-150KB, אופציונלי', 'לא'),
+        ('ענני שמיים וערפל לפי גובה', tag('ask', 'תוספת שלי'), '<span dir="ltr">code</span> (0 עד 3) ו-<span dir="ltr">vis</span> לפי גובה', 'כ-40KB (בהר החי כבר יש <span dir="ltr">cirrus.webp</span>), ומעבר צבע בלי נכס', 'לא'),
     ]
-    lt = tbl([(f'<b>{a}</b>', b, c, d, e) for a, b, c, d, e in layers], ['16%', '28%', '34%', '14%', '8%'], head=['שכבה', 'ממה היא נגזרת', 'מה היא עולה', 'שינוי בשרת', ''], size='13.5px')
+    lt = tbl([(f'<b>{a}</b>', b, c, d, e) for a, b, c, d, e in layers], ['14%', '13%', '28%', '30%', '15%'], head=['מצב', 'עיצוב', 'ממה נגזר (מהתשובה של השרת)', 'מה צריך לבנות', 'שינוי בשרת'], size='13.5px')
     cost = tbl([
         ('<b>ציור מלא</b> לכל שילוב של אור ומזג אוויר', '11 מצבי אור כפול 4 מצבי מזג אוויר: כ-44 תמונות, כ-7MB', tag('ask', 'לא ריאלי')),
         ('<b>שכבות על התמונה (ההמלצה)</b>', 'כ-100KB של נכסים (ענן, מסכות, עשן), שלג וערפל בקוד, ועוד תמונה שטוחה כ-150KB לבחירה', tag('ok', 'מומלץ')),
         ('ארוז, או מהאתר', 'הסט הארוז היום 1,673KB מתוך 1.75MB: 100KB לא נכנסים. מורידים מהאתר כמו צד Kobi, או מעלים את התקרה', tag('ask', 'להכרעה')),
     ], ['34%', '50%', '16%'], head=['דרך', 'מחיר', ''], size='14px')
     order = li2(
-        '<b>שלב 1 · התמונה:</b> שלג יורד, ערפל וים עננים, ענני שמיים. רק מהתשובה הקיימת של <span dir="ltr">/api/weather</span>. בלי שרת ובלי סקירת חוזה.',
-        '<b>שלב 2 · התמונה:</b> שלג טרי, רוח ברכסים ואור שטוח, ואז <span dir="ltr">cloud_cover</span> מהשרת.',
-        '<b>שלב 3 · ההר החי:</b> אותו דבר בשיידר (הענן של הים כמשטח בגובה 2,130 מ׳). עבודה נפרדת, אחרי שהתמונה עובדת.',
-        '<b>בכל שלב:</b> אם אין תחזית עדכנית, אין שכבה. לא מנחשים ולא מציירים "בהיר".')
+        '<b>שלב 1 · התמונה:</b> שלג חדש, רוח ברכס, יום לבן ושלג יורד. הנתונים כבר בתשובה של <span dir="ltr">/api/weather</span>. בלי שרת ובלי סקירת חוזה.',
+        '<b>שלב 2 · התמונה:</b> ים עננים, אחרי ש-<span dir="ltr">cloud_base</span> נכנס לתשובה (זה מה ש-K03 סימן כשאלה לארכיטקט).',
+        '<b>שלב 3 · ההר החי:</b> אותם מצבים בשיידר (הענן של הים כמשטח בגובה 2,130 מ׳). עבודה נפרדת, אחרי שהתמונה עובדת.',
+        '<b>בכל שלב:</b> אם אין תחזית עדכנית, התמונה הרגילה של השעה ו"אין מידע", כמו ב-K03. לא מנחשים.')
     rules = li2(
         'התחזית היא <b>שלוש נקודות</b> (כפר 2,170, גודאורי 2,710, Sadzele 3,240). השכבות נקבעות לפי גובה, לא לפי מקום על המפה.',
         'מזג האוויר הולך <b>עם הסליידר</b> בתוך 72 השעות שבתחזית. שעות שעברו: השכבות נעלמות, והחלק של הפס שלפני עכשיו מעומעם (נתון חסר, לא "בהיר").',
@@ -374,20 +376,20 @@ def wx00():
         '<b>ביצועים:</b> חלקיקים ותנועת ענן על מצב התמונה: תקציב פריימים, סוללה, חום, 30 פריימים בטלפון בינוני. <span dir="ltr">Stage</span> צריך שכבת מזג אוויר אחת לשני המימושים.',
         '<b>זיכרון:</b> שכבות הן עד שלוש מפות סיביות קטנות, מעל "שתי תמונות מפוענחות" הקיים: לוודא שזה נשאר בתקרה.',
         '<b>פרטיות ומדידה:</b> אין. בלי מיקום חדש ובלי מדידה חדשה.')
-    qs = (q(7, '<b>מזג אוויר על ההר בשלב שני,</b> בשכבות על התמונה ולא בציור לכל שילוב? <b>(ההמלצה: כן)</b>') +
-          q(8, '<b>הסדר:</b> קודם שלג, ערפל וים עננים (שלב 1), בלי לחכות לשרת? <b>(ההמלצה: כן)</b>') +
+    qs = (q(7, '<b>K03 (מאושר) נשלח לאפליקציה</b> כשכבות על התמונה ולא בציור לכל שילוב? <b>(ההמלצה: כן)</b>') +
+          q(8, '<b>הסדר:</b> קודם שלג חדש, רוח ברכס ויום לבן (שלב 1, בלי שרת), ואחר כך ים עננים? <b>(ההמלצה: כן)</b>') +
           q(9, '<b>שעות שעברו:</b> השכבות נעלמות והפס מעומעם, במקום להציג "בהיר"? <b>(ההמלצה: כן)</b>'))
-    inner = ('<p class="sec">שעת היום · מזג אוויר על ההר, שלב שני של החלטה 83 · מקור: <span dir="ltr">/api/weather</span></p><h1>מזג אוויר על ההר: ענן, שלג וערפל</h1>'
+    inner = ('<p class="sec">שעת היום · מזג אוויר על ההר, שלב שני של החלטה 83 · מקור: <span dir="ltr">/api/weather</span></p><h1>מזג אוויר על ההר: העיצוב כבר קיים</h1><p class="lead">פיני צדק: ארבעת המצבים כבר מעוצבים ומצוירים בקנבס, בעמוד "סבב 3", בלוח <b>K03</b> ("ההר נראה כמו היום שבחוץ"), ואושרו עם סבב 3 (החלטה 83: מזג אוויר על התמונה, בשלב שני). גם ארבע התמונות המצוירות קיימות (<span dir="ltr">design/redesign/assets/pk-hero-*</span>), אבל לא נארזו באפליקציה. כאן רק מה שנשאר: איך שולחים אותם, ומה זה עולה.</p>'
              '<div class="rowx" style="gap: 12px">%s%s%s%s</div>'
-             '<div class="card"><h2>איך זה נראה: ארבעה מצבים שהצייר כבר יודע לצייר</h2><p class="cap">התמונות הן ציורים של ההר בכל מצב, לא השכבות עצמן. השכבות צריכות להגיע לאותה תחושה: ים עננים (שחר), שלג טרי, רוח ברכס וסערה.</p></div>'
-             '<div class="card"><h2>השכבות, ומה כל אחת צריכה</h2>%s</div>'
+             '<div class="card"><h2>מה כבר קיים: K03, ארבע תמונות מצוירות</h2><p class="cap">אלה התמונות של K03, כל אחת באור אחד בלבד (שחר, בוקר, צהריים). בשביל כל שעה צריך את אותו מצב בכל אחד ממצבי האור, ולכן מציעים שכבות על התמונה הרגילה במקום ציור לכל שילוב.</p></div>'
+             '<div class="card"><h2>ארבעת המצבים של K03, ומה כל אחד צריך כדי להגיע לאפליקציה</h2>%s</div>'
              '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>שתי דרכים, ומה כל אחת עולה</h2>%s</div><div class="card" style="flex: 1"><h2>סדר העבודה</h2>%s</div></div>'
              '<div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>כללים</h2>%s</div><div class="card" style="flex: 1; border: 3px solid #6B3FD4"><p class="sec">מה צריך סקירת ארכיטקט</p>%s</div></div>'
              '<div class="card"><p class="sec">שאלות לפיני</p>%s<p class="cap" style="margin-top: 6px">הלוחות WX1 עד WX3 מציגים את התוצאה. ערכי הדוגמה (טמפרטורה, רכבלים) מומצאים להדמיה.</p></div>') % (
         V.shot2(PB.U('hero-dawn-cloud'), 270, 'ים עננים · שחר'), V.shot2(PB.U('hero-morning-fresh'), 270, 'שלג טרי · בוקר'),
         V.shot2(PB.U('hero-morning-wind'), 270, 'רוח ברכס · בוקר'), V.shot2(PB.U('hero-noon-storm'), 270, 'סערה · אור שטוח'),
         lt, cost, order, rules, review, qs)
-    MB_wide('WX00-Weather.dc.html', 'מזג אוויר על ההר', inner, 1280, 2560)
+    MB_wide('WX00-Weather.dc.html', 'מזג אוויר על ההר', inner, 1280, 2600)
 
 
 def build():
@@ -402,9 +404,9 @@ PLACEMENT = [('HR00-Hour.dc.html', 0, 0, 1280, 1160, 'איפה הסליידר ח
              ('HR1.dc.html', 0, 1320, 390, 844, 'אור היום · כפתור בעמודה, סגור'), ('HR2.dc.html', 470, 1320, 390, 844, 'אור היום · פתוח, תמונה, 16:50'),
              ('HR3.dc.html', 940, 1320, 390, 844, 'אור היום · פתוח, מצב חי, 15:50'), ('HR4.dc.html', 1410, 1320, 390, 844, 'אור היום · חלופה ב, בתוך "ההר עכשיו"'),
              ('HL00-Light.dc.html', 0, 2420, 1280, 3680, 'מצבי אור לאורך היום'),
-             ('WX00-Weather.dc.html', 0, 6240, 1280, 2560, 'מזג אוויר על ההר'),
-             ('WX1.dc.html', 0, 8940, 390, 844, 'מזג אוויר · ים עננים, 8:30'), ('WX2.dc.html', 470, 8940, 390, 844, 'מזג אוויר · שלג יורד, אור שטוח'),
-             ('WX3.dc.html', 940, 8940, 390, 844, 'מזג אוויר · רוח ברכס, שלג שעף')]
+             ('WX00-Weather.dc.html', 0, 6240, 1280, 2600, 'מזג אוויר על ההר'),
+             ('WX1.dc.html', 0, 9000, 390, 844, 'מזג אוויר · ים עננים, 8:30'), ('WX2.dc.html', 470, 9000, 390, 844, 'מזג אוויר · שלג יורד, אור שטוח'),
+             ('WX3.dc.html', 940, 9000, 390, 844, 'מזג אוויר · רוח ברכס, שלג שעף')]
 
 
 def place(canvas_path, out_path):

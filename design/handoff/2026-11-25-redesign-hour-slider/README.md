@@ -2,7 +2,7 @@
 
 Product designer (Sonnet), 25.11.2026, for Pini (via the manager session). **Design only; waits for Pini's approval (CLAUDE.md rule 7). Nothing here is built, and nothing is handed to an implementer yet.**
 
-Canvas: https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 71), page "שעת היום, מצבי אור ומזג אוויר". Boards (codes at the end of the titles): `HR00`, `HR1` to `HR4`, `HL00`, `WX00`, `WX1` to `WX3`. Tool: `design/redesign/tools/hr_boards.py` (writes the boards and the page into `canvas.json`).
+Canvas: https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 72), page "שעת היום, מצבי אור ומזג אוויר". Boards (codes at the end of the titles): `HR00`, `HR1` to `HR4`, `HL00`, `WX00`, `WX1` to `WX3`. Tool: `design/redesign/tools/hr_boards.py` (writes the boards and the page into `canvas.json`).
 
 ## 1. Why Pini cannot find the slider
 
@@ -10,15 +10,13 @@ Canvas: https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 71), page "ש
 
 ## 2. Where it lives (board `HR00`, phones `HR1` to `HR4`)
 
-| | A (recommended) | B |
-|---|---|---|
-| Place | a round "light of the day" button in the button column, under the picture/live switch, above layers (sun by day, moon by night) | a time row inside the "ההר עכשיו" sheet (weather tab), opened from the pill |
-| Open | one tap: a day strip (7:00 to 23:30, sun-height arc, a dot per light state, a time pill) rises above the bottom bar; the column moves up 84 | pill, then the sheet, then the row |
-| Picture and live | both: picture steps between light states (450 ms cross-fade), live is continuous | both |
-| Close | tap the button again or drag down; the button then shows the chosen hour in the selection colour; the arrow returns to now | close the sheet |
-| Cost | a fourth column button; no new text | two taps; the sheet dims the mountain, so the light cannot be seen while moving it |
+**Revised 26.11.2026 after Pini's note** (the first strip was ugly and took too much room: a 76px bar above the bottom bar, with a number scale, ticks and a separate return button, and it pushed the column up).
 
-Rules for both: the mountain stays under every layer; the day/night switch of the screen follows the light (scrub to 20:30 and the screen goes night); time runs left to right; no explanatory text (icon, hour, return arrow only); screen reader: "אור היום", value in hours and minutes, half-hour steps; opens on now every time (not saved). No server, data or measurement change. The column button needs a string for its screen-reader name (`app.sr_light` or similar) to the content session when approved.
+A (recommended): a round "light of the day" button in the button column, under the picture/live switch (sun by day, moon by night, 44). One tap and **the button itself grows in place into a glass pill, 44 high**, across the screen at the button's row: nothing else moves and nothing is added at the bottom. The track is the sky of the day (night blue, pink dawn, blue day, golden hour, violet dusk) with one disc on it; no numbers and no ticks. The chosen hour sits at the pill's end in the selection colour (tap it to close); a small return arrow at the other end shows only when the light is not on now. Closed, the column button shows the hour in the selection colour.
+
+B: a time row inside the "ההר עכשיו" weather tab (the same 44 track), opened from the pill. No new button, but two taps, and the sheet dims the mountain so the light cannot be watched while moving it.
+
+Rules for both: the mountain stays under every layer; the day/night switch of the screen follows the light; time runs left to right; no explanatory text; screen reader: "אור היום", value in hours and minutes, half-hour steps; opens on now every time (not saved); picture steps between light states (450 ms cross-fade), live is continuous. No server, data or measurement change. A screen-reader string for the button (`app.sr_light` or similar) goes to the content session when approved.
 
 Questions for Pini: 1 where (recommend A); 2 closing keeps the hour (recommend yes); 3 range 7:00 to 23:30, today only (recommend yes).
 
@@ -41,17 +39,17 @@ Questions: 4 add the four states (recommend yes, hero only first); 5 download, n
 
 ## 4. Weather on the mountain (board `WX00`, phones `WX1` to `WX3`)
 
-Second stage of decision 83. Proposal: **layers over the picture, not a painting per combination** (11 lights by 4 weathers is about 44 pictures, about 7MB). Layers and their drivers, all from the existing `/api/weather` answer (`code`, `snow`, `snow24`, `vis`, `wind`, `gust`, `dir`, three points: village 2,170, goodaura 2,710, sadzele 3,240): sky clouds (code 0 to 3, about 40KB, the live set already has `cirrus.webp`), sea of cloud (low `vis` at the village, high above; one mask per view, about 20KB, from the `depth` table already in `peak.json`), snowfall (particles in code, no asset), fog by height, flat light (colour grade; a true flat picture is about 150KB, optional), fresh snow on rock (`snow24` over 10 cm, mask about 25KB), ridge wind (gusts at sadzele over 50 km/h, about 10KB). Total about 100KB of assets (does not fit the packed set; download or raise the ceiling).
+**Corrected 26.11.2026 after Pini's note: the weather design already exists.** Canvas page "סבב 3", board `K03` ("ההר נראה כמו היום שבחוץ"): four states (fresh snow, ridge wind, sea of cloud, white day with falling snow), each with its data source, approved with round 3 (decision 83: weather on the picture, second stage). The four painted pictures exist in `design/redesign/assets/pk-hero-*` (fresh, wind, dawn-cloud, noon-storm), and `S05` already uses `morning-wind`. They are **not in the app**: only the seven light pictures are packed, and each weather picture exists for one light only. My first version of the board presented this as a new proposal; it now says so and only covers what is left: how to ship K03.
 
-Missing from the server: real cloud cover (only the WMO `code` today). Additive `cloud_cover` (and `cloud_cover_low`) hourly would help; that is a contract change for the server session and the architect (fixture `tools/fixtures/weather-m6.json`).
+Proposal: **layers over the normal picture of the hour, not a painting per combination** (11 lights by 4 weathers is about 44 pictures, about 7MB). Per K03 state: fresh snow (`snow24` over 10 cm; rock mask about 25KB), ridge wind (gusts at sadzele over 50 km/h, `dir`; about 10KB), sea of cloud (needs `cloud_base`, not in the answer today: K03 already marked it as a question for the architect; mask about 20KB from the `depth` table in `peak.json`), white day with falling snow (`code`, `vis`; colour grade plus particles in code; a true flat picture about 150KB, optional). My addition: sky clouds by `code` and fog by height (about 40KB). Total about 100KB of assets: does not fit the packed set (77KB free of 1.75MB), so download like Kobi or raise the ceiling.
 
-Order: stage 1 picture (snowfall, fog and sea of cloud, sky clouds) with the existing answer only; stage 2 picture (fresh snow, ridge wind, flat light, then `cloud_cover`); stage 3 live model (shader; separate work).
+Order: stage 1 picture (fresh snow, ridge wind, white day and falling snow; data already in `/api/weather`, no server change); stage 2 picture (sea of cloud, after `cloud_base`); stage 3 live model (shader; separate work).
 
-Rules: weather follows the slider hour inside the 72 forecast hours; for past hours the layers fade out and the past part of the strip is dimmed (missing data, never drawn as clear); 12 to 48 hours old keeps the layers and the pill says it is an old forecast (U06); over 48 hours: no layers; it is a forecast, not a measurement (Open-Meteo credit stays); pause when the screen is not visible, in power saving, in reduce-motion (static haze instead of flakes), and in "live for a moment".
+Rules (as in K03): no guessing. Weather follows the slider hour inside the 72 forecast hours; for past hours the layers fade out and the past part of the track is dimmed (missing data, never drawn as clear); 12 to 48 hours old keeps the layers and the pill says it is an old forecast (U06); over 48 hours or no forecast: the normal picture of the hour; it is a forecast, not a measurement (Open-Meteo credit stays); pause when the screen is not visible, in power saving, in reduce-motion (static haze instead of flakes), and in "live for a moment".
 
-**Architect review needed before code:** the `cloud_cover` contract change; new assets in `peak.json` (masks, clouds, with `rev`) and packed versus downloaded; per-frame cost, battery and heat of particles and cloud drift on picture mode (30 fps on a mid-range phone) and one weather layer hook in `Stage` for both implementations; memory (up to three small bitmaps over the "two decoded pictures" rule). No privacy or measurement change.
+**Architect review needed before code:** `cloud_base` in `/api/weather` (additive; fixture `tools/fixtures/weather-m6.json`; server session); new assets in `peak.json` (masks, with `rev`) and packed versus downloaded; per-frame cost, battery and heat of particles on picture mode (30 fps on a mid-range phone) and one weather layer hook in `Stage` for both implementations; memory (up to three small bitmaps over the "two decoded pictures" rule). No privacy or measurement change.
 
-Questions: 7 layers on the picture (recommend yes); 8 stage 1 without waiting for the server (recommend yes); 9 past hours fade out (recommend yes).
+Questions: 7 K03 shipped as layers (recommend yes); 8 order, stage 1 without the server (recommend yes); 9 past hours fade out (recommend yes).
 
 ## Honesty
 
