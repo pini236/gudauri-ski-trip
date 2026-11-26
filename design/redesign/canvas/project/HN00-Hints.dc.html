@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>רמזים לפעם הראשונה</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul,.HW ol{margin:0}
+.HW ul,.HW ol{padding-inline-start:20px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:14px;border:1px solid #D9DEE4;flex:none;background:#DCE6F2}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW .sec{font-size:13px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW h1{font-size:34px;font-weight:900;line-height:1.15}
+.HW h2{font-size:23px;font-weight:700;line-height:1.25}
+.HW .lead{font-size:18px;line-height:1.55}
+.HW .cap{font-size:13.5px;line-height:1.45;color:#3C4753}
+.HW .cap b{color:#10161D;font-size:15px}
+.HW .rowx{display:flex;gap:16px;align-items:flex-start}
+.HW .fr{display:flex;flex-direction:column;gap:8px;flex:none}
+.HW .tm{font-size:22px;font-weight:300;direction:ltr;display:inline-block}
+
+@keyframes tkd{0%{stroke-dashoffset:1;opacity:1}28%{stroke-dashoffset:0;opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arc{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes glo{0%,100%{box-shadow:inset 0 0 0 0 rgba(255,255,255,0)}50%{box-shadow:inset 0 0 14px 2px rgba(255,255,255,.45)}}
+.sh{position:relative;width:48px;height:48px;border-radius:50%;background:#E5352B;border:0;padding:0;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;box-sizing:border-box;font-family:inherit;box-shadow:0 2px 6px rgba(120,20,15,.28)}
+.sh .rg{position:absolute;inset:0;overflow:visible}
+.sh .tk{stroke-dasharray:1;stroke-dashoffset:0}
+.sh.idle .tk{animation:tkd 6s ease-out infinite}
+.sh.live{animation:glo 2.4s ease-in-out infinite}
+.sh.live .tk{animation:tkd 2.4s linear infinite}
+.sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
+.sh.mid{width:56px;height:56px}
+.rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.rq .o svg{position:absolute;inset:0}
+.rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.25)}
+.rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.rq.on{padding-inline-end:12px;background:rgba(229,53,43,.12)}
+.night .rq.on{background:rgba(255,116,104,.16)}
+.rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.still .tk,.still .ar,.still.sh{animation:none!important}
+.nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
+.nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.25)}
+
+.HW .stage{display:flex;align-items:center;justify-content:center;gap:24px;height:140px;border-radius:12px}
+.HW .stage.d{background:linear-gradient(#DDE8F3,#F4F7FA)}
+.HW .stage.n{background:linear-gradient(#0B1424,#16213A)}
+.HW .stage .z{zoom:1.7}
+.HW .opt{flex:1;min-width:0}
+.HW .opt h2 .k{display:inline-flex;width:34px;height:34px;border-radius:17px;background:#10161D;color:#fff;align-items:center;justify-content:center;font-size:18px;margin-inline-end:8px}
+.HW .opt.rec{border:3px solid #6B3FD4}
+.HW .pc{font-size:14.5px;line-height:1.5}
+.HW .pc b{display:inline-block;min-width:58px}
+.HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1280px; height: 1500px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">רמזים לפעם הראשונה · לגרסה בחנות · 26.11.2026 · ממתין לפיני</p><h1>מערכת רמזים אחת: משתמש חדש מבין את האפליקציה בלי מדריך</h1><p class="lead">שישה רמזים על ההר, אחד בכפר, כולם באותה בועה עם חוד וטבעת סביב היעד. בלי מסכי הדרכה ובלי טקסט צף. גם הדברים שלא רואים מההר (הקבוצה, המפגש, החשבון והשפה) מקבלים רמז.</p><div class="card"><h2>הרמזים</h2><table style="border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.45"><tr style="color: #56606C; font-size: 13px"><td style="padding: 6px 10px">#</td><td style="padding: 6px 10px">על מה מצביע</td><td style="padding: 6px 10px">מתי</td><td style="padding: 6px 10px">הטקסט</td><td style="padding: 6px 10px">המפתח</td><td style="padding: 6px 10px"></td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">1</td><td style="padding: 8px 10px; vertical-align: top">מסלול כחול באמצע המסך (טבעת על הקו)</td><td style="padding: 8px 10px; vertical-align: top">פתיחה 1, 1.2 שנ׳ אחרי שההר עלה</td><td style="padding: 8px 10px; vertical-align: top">נגיעה במסלול מדגישה אותו.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_run</span></td><td style="padding: 8px 10px; vertical-align: top">קיים, בנוי</td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">2</td><td style="padding: 8px 10px; vertical-align: top">"לאן יורדים?"</td><td style="padding: 8px 10px; vertical-align: top">פתיחה 1, אחרי שנסגר גיליון של מסלול</td><td style="padding: 8px 10px; vertical-align: top">כל המסלולים במקום אחד, לפי צבע.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_find</span></td><td style="padding: 8px 10px; vertical-align: top">קיים</td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">3</td><td style="padding: 8px 10px; vertical-align: top">כפתור ההקלטה (RX3)</td><td style="padding: 8px 10px; vertical-align: top">פתיחה 2</td><td style="padding: 8px 10px; vertical-align: top">הקלטת גלישה: מהירות, ירידות ומסלולים.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_rec</span></td><td style="padding: 8px 10px; vertical-align: top"><b>חדש</b></td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">4</td><td style="padding: 8px 10px; vertical-align: top">"הכפר"</td><td style="padding: 8px 10px; vertical-align: top">פתיחה 2, אחרי פעולה</td><td style="padding: 8px 10px; vertical-align: top">בכפר: הטיול, הקבוצה וכרטיס הסקי.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_village</span></td><td style="padding: 8px 10px; vertical-align: top">קיים</td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">5</td><td style="padding: 8px 10px; vertical-align: top">המתג תמונה / חי</td><td style="padding: 8px 10px; vertical-align: top">פתיחה 3</td><td style="padding: 8px 10px; vertical-align: top">תמונה של ההר, או הר חי שאפשר לסובב.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_mode</span></td><td style="padding: 8px 10px; vertical-align: top"><b>חדש</b></td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">6</td><td style="padding: 8px 10px; vertical-align: top">"אני"</td><td style="padding: 8px 10px; vertical-align: top">פתיחה 3, אחרי פעולה</td><td style="padding: 8px 10px; vertical-align: top">אני: חשבון, שפה והגדרות.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_me</span></td><td style="padding: 8px 10px; vertical-align: top"><b>חדש</b></td></tr><tr style="border-top: 1px solid #D9DEE4"><td style="padding: 8px 10px; vertical-align: top">כ</td><td style="padding: 8px 10px; vertical-align: top">השורה "החבר׳ה" בגיליון הכפר</td><td style="padding: 8px 10px; vertical-align: top">בפעם הראשונה שהגיליון נפתח, למי שאין קבוצה</td><td style="padding: 8px 10px; vertical-align: top">מזמינים חברים וקובעים איפה נפגשים.</td><td style="padding: 8px 10px; vertical-align: top"><span dir="ltr">app.hint_group</span></td><td style="padding: 8px 10px; vertical-align: top"><b>חדש</b></td></tr></table></div><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.15"><h2>מתי מופיע ומתי נעלם</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>אחד בכל פעם, ועד שניים בפתיחה.</b> הראשון 1.2 שנ׳ אחרי שהמסך שקט. השני רק אחרי שהמשתמש עשה משהו וחזר להר (סגר גיליון, בחר מסלול). כך ששת הרמזים נגמרים בשלוש פתיחות.</li><li><b>פתיחה</b> = הפעלה מאפס, או חזרה לאפליקציה אחרי 30 דק׳ ומעלה.</li><li><b>מסך שקט:</b> ההר צויר, מבט הפתיחה (לא צד Kobi), בלי גיליון ובלי חלון, לא בהקלטה, לא בסרט ולא ב"היום בדקה", המצלמה לא זזה, ואין נגיעה ב-1.2 השניות האחרונות.</li><li><b>מה שכבר השתמשו בו לא מקבל רמז:</b> מי שבחר מסלול, פתח את המדף, נגע בהקלטה, נכנס לכפר, החליף מצב או פתח את "אני" לפני התור, הרמז שלו מסומן כנראה בשקט.</li><li><b>נעלם:</b> בפעולה עצמה (נגיעה ביעד), בנגיעה בבועה, בכל נגיעה אחרת במסך, או אחרי 8 שנ׳. בכל אחד מהם הוא לא חוזר לעולם (נשמר בטלפון, בלי מדידה).</li><li><b>לא מופיע</b> כשהאפליקציה נפתחה מקישור (הזמנה, מפגש) או מהתראה, עד הפתיחה הבאה.</li><li><b>הרמז בכפר</b> מחוץ לתור: 600 מ״ש אחרי שהגיליון נעצר, פעם אחת. רק למי שאין קבוצה.</li><li><b>הרמז על המתג</b> נחשב גם כשמופיעה הגלולה הקיימת "סיבוב והטיה זמינים רק במצב חי" (Z03): אחרי אחד מהם, השני לא מופיע.</li><li><b>איפוס:</b> בהגדרות, "להציג שוב את הרמזים". הנגיעה מאפסת את כולם וחוזרת להר, והרמז הראשון מופיע אחרי 1.2 שנ׳. התקנה מחדש מאפסת גם היא. החלפת שפה לא.</li></ul></div><div class="card" style="flex: 1"><h2>הרכיב, אחד לכולם</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>בועה:</b> רדיוס 16, רקע <span dir="ltr">ink</span>, טקסט בצבע <span dir="ltr">bg</span>, 14 במשקל 500, ריפוד 10 ו-14, ברוחב התוכן ועד 266 (בטקסט גדול עד שלוש שורות), צל <span dir="ltr">0 8 22 rgba(10,25,45,.3)</span>.</li><li><b>חוד 12</b> שמצביע על מרכז היעד, 12 מהבועה עד הטבעת; לפחות 14 מפינת הבועה. הבועה לפחות 12 מקצה המסך.</li><li><b>איפה הבועה:</b> מעל היעד. יעד ברבע העליון: מתחת. יעד בעמודת הכפתורים: לצדו, לכיוון מרכז המסך.</li><li><b>טבעת סביב היעד:</b> 5 מחוץ לפקד, באותה צורה (עיגול, גלולה, שורה עם רדיוס 16): מסגרת 2.5 בצבע <span dir="ltr">ink</span> (כמו הבועה) וקו 2.5 לבן מבחוץ (בלילה כהה). על מסלול: עיגול 46, ובתוכו מילוי לבן 30%.</li><li><b>תנועה:</b> הבועה עולה 6 ונגלית ב-200 מ״ש; הטבעת מתכווצת פעם אחת מ-1.18 ב-600 מ״ש. בלי פעימה חוזרת. בהפחתת תנועה: הופעה בלבד.</li><li><b>קורא מסך:</b> נקרא פעם אחת, בנימוס; בלי 8 השניות; פעולה "סגירת הרמז" (<span dir="ltr">app.hint_close_a11y</span>).</li><li><b>משמאל לימין:</b> הכל מתהפך, וגם צד הבועה ליד העמודה.</li></ul></div></div><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.15"><h2>מה זה סוגר בדוח המוכנות</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>ב4, הרמזים:</b> כל המערכת כאן. שלושה מפתחות קיימים, ארבעה חדשים.</li><li><b>ב8, לפני העונה:</b> הספירה היא אריח קטן במסגרת, בצד ההתחלה מעל הסרגל, והר מלא מאחוריו. הרמז הראשון מופיע כרגיל. נגיעה באריח פותחת את הגיליון הקיים (התאריך, הטיול וכרטיס הסקי), בלי המספר הגדול; משיכה למטה סוגרת, והאריח נשאר. זה הביניים עד סבב "לפני העונה".</li><li><b>ב9, טקסט בלי מסגרת:</b> הכלל: כל טקסט על ההר יושב במסגרת (גלולה, אריח, גיליון או בועה). כותרת של עמוד שלם עם רקע מעומעם (הגדרות, אודות, הספירה המלאה וכרטיס הסקי) מותרת. לכן: "מחפש מיקום" עובר לגלולה (HN10), והספירה על ההר עוברת לאריח (HN1).</li><li><b>ב10, כפתורים בלי מילים:</b> נפתר ברמזים 3, 5 ו-6. הכפתורים נשארים בלי מילים.</li></ul></div><div class="card" style="flex: 1"><h2>לפיני</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>לאשר את שבעת הרמזים, הסדר והטקסטים?</b> (ההמלצה: כן)</li><li><b>נגיעה באריח הספירה פותחת את גיליון העונה,</b> או אריח בלי פעולה? (פותחת: כל מה שבמסגרת נראה נגיע)</li><li><b>"מחפש מיקום" בגלולה?</b> הלוח GS1 אושר בלי מסגרת. (בגלולה, כדי שהכלל יהיה אחד)</li></ul><p class="cap">חמש מחרוזות חדשות (ארבעה רמזים ו"להציג שוב את הרמזים") נשלחו לסשן התוכן; האריח משתמש במחרוזות הקיימות של הספירה. נמדד בכלי העיצוב, לא בטלפון. המסירה: <span dir="ltr">design/handoff/2026-11-26-redesign-hints/</span></p></div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
