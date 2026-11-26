@@ -24876,6 +24876,66 @@
     "ru",
     "ka"
    ]
+  },
+  "app.hint_rec": {
+   "he": "הקלטת גלישה: מהירות, ירידות ומסלולים.",
+   "en": "Record skiing: speed, descents and runs.",
+   "ru": "Запись катания: скорость, спуски и трассы.",
+   "ka": "სრიალის ჩაწერა: სიჩქარე, ჩასვლები და ტრასები.",
+   "where": "app/android",
+   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_mode": {
+   "he": "תמונה של ההר, או הר חי שאפשר לסובב.",
+   "en": "A photo of the mountain, or a live one you can turn.",
+   "ru": "Фото горы или живая гора, которую можно вращать.",
+   "ka": "მთის ფოტო ან ცოცხალი მთა, რომელიც შეგიძლიათ დაატრიალოთ.",
+   "where": "app/android",
+   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_me": {
+   "he": "אני: חשבון, שפה והגדרות.",
+   "en": "Me: account, language and settings.",
+   "ru": "Я: аккаунт, язык и настройки.",
+   "ka": "მე: ანგარიში, ენა და პარამეტრები.",
+   "where": "app/android",
+   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_group": {
+   "he": "מזמינים חברים וקובעים איפה נפגשים.",
+   "en": "Invite friends and set where to meet.",
+   "ru": "Приглашайте друзей и назначайте место встречи.",
+   "ka": "მოიწვიეთ მეგობრები და დანიშნეთ შეხვედრის ადგილი.",
+   "where": "app/android",
+   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hints_again": {
+   "he": "להציג שוב את הרמזים",
+   "en": "Show the hints again",
+   "ru": "Показать подсказки снова",
+   "ka": "მინიშნებების ხელახლა ჩვენება",
+   "where": "app/android",
+   "note": "First-run hint (hints designer, 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md section 9). Bubble up to 266dp.",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
