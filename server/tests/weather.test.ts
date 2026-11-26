@@ -152,7 +152,6 @@ Deno.test("a threshold change is written to the audit log", async () => {
   await sql`update private.weather_thresholds set kmh = 40 where key = 'low_max'`;
 });
 
-Deno.test("close", async () => { await sql.end(); });
 
 // --- The Open-Meteo fetch: retries, and a reason in the error (25.11.2026: a month of silent 503) ---
 
@@ -195,3 +194,5 @@ Deno.test("a failed fetch says why in the 502 body (for net._http_response)", as
   eq([r.status, b.error], [502, "fetch_failed"], "502");
   eq(String(b.reason).includes("open-meteo answered 503"), true, `reason says why (got ${JSON.stringify(b)})`);
 });
+
+Deno.test("close", async () => { await sql.end(); });
