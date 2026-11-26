@@ -316,7 +316,7 @@ def main():
     for i, (c, t) in enumerate(names):
         place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     y += 844 + 200
-    for i, (c, t) in enumerate([('HN7', 'בכפר: החבר׳ה'), ('HN8', 'באנגלית: ההקלטה'), ('HN9', 'הגדרות: להציג שוב'), ('HN10', 'חיפוש מיקום בגלולה (ב9)')]):
+    for i, (c, t) in enumerate([('HN7', 'בכפר: החבר׳ה'), ('HN8', 'באנגלית: ההקלטה'), ('HN9', 'הגדרות: להציג שוב (אושר)'), ('HN10', 'חיפוש מיקום בגלולה, ב9 (אושר)')]):
         place.append(('%s.dc.html' % c, 470 * i, y, 390, 844, t))
     for fn, x, y_, w, h, t in place:
         code = fn.split('.dc.html')[0].split('-')[0]
