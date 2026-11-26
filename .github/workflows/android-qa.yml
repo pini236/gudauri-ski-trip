@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: core (the one small part main will run; by hand until it is in run.sh on main), map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, bigtext, redesign, redesign2, redesign3, redesign4, redesign5, dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
+        description: 'auto (the parts the changed files need, .github/qa-parts.tsv; every part on main), all, one part, or several with commas: core (the one small part main will run; by hand until it is in run.sh on main), map, descent, games, school, snowball, home, group, meet, status, run, locate, weather, lang, phone, store, bigtext, redesign, redesign2, redesign3, redesign4, redesign5, storesmoke (the STORE build, clean install: permissions, record, stop, saved day; by hand only), dayrecvideo (the short video for the foreground-service declaration; by hand only, kept 30 days)'
         default: auto
       quick_debug:
         description: 'Diagnostic only: debug APK; skip final Sentry and release checks (choose a specific scenario) '
@@ -59,7 +59,7 @@ jobs:
         run: |
           python3 - <<'PYTHON'
           import json, os, subprocess
-          allowed = "core,map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5,dayrecvideo".split(",")
+          allowed = "core,map,descent,games,school,snowball,home,group,meet,status,run,locate,weather,lang,phone,store,bigtext,redesign,redesign2,redesign3,redesign4,redesign5,storesmoke,dayrecvideo".split(",")
           scenario = os.environ["QA_SCENARIO"].strip()
           quick = os.environ["QA_QUICK_DEBUG"] == "true"
           if quick and scenario in ("all", "auto"):
@@ -102,11 +102,14 @@ jobs:
           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           QA_QUICK_DEBUG: ${{ steps.plan.outputs.quick_debug }}
+          QA_PARTS: ${{ steps.plan.outputs.parts }}
         shell: bash
         run: |
           set -euo pipefail
           tasks=(:app:assemblePreviewDebug)
           [[ "$QA_QUICK_DEBUG" == true ]] || tasks+=(:app:assemblePreviewRelease)
+          # the manual part storesmoke installs the STORE flavor (clean install); no other run builds it
+          if [[ "$QA_PARTS" == *storesmoke* ]]; then tasks+=(:app:assembleStoreRelease); fi
           # These tasks compile APKs; no unit-test task is cached here.
           ./gradlew --no-daemon --build-cache "${tasks[@]}"
           test -f app/build/outputs/apk/preview/debug/app-preview-debug.apk
@@ -122,6 +125,15 @@ jobs:
           path: |
             app/android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
             app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
+      - name: The store APK (only when the part storesmoke is planned)
+        if: contains(steps.plan.outputs.parts, 'storesmoke')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apk-store
+          overwrite: true
+          retention-days: 14
+          if-no-files-found: error
+          path: app/android/app/build/outputs/apk/store/release/app-store-release.apk
 
   emulator:
     needs: build
@@ -144,6 +156,11 @@ jobs:
         with:
           name: apks
           path: app/android/app/build/outputs/apk/preview
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        if: contains(matrix.part, 'storesmoke')
+        with:
+          name: apk-store
+          path: app/android/app/build/outputs/apk/store/release
       - name: ffmpeg for the declaration video (touch circles and the 30 s cut)
         if: matrix.part == 'dayrecvideo'
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg

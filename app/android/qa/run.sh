@@ -22,7 +22,7 @@ else
     part="${part#"${part%%[![:space:]]*}"}"
     part="${part%"${part##*[![:space:]]}"}"
     case "$part" in
-      core|map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4|redesign5) ;;
+      core|map|descent|games|school|snowball|home|group|meet|status|run|locate|weather|lang|phone|store|bigtext|dayrecvideo|redesign|redesign2|redesign3|redesign4|redesign5|storesmoke) ;;
       *) echo "Unknown or empty QA scenario: '$part'" >&2; exit 2 ;;
     esac
     [[ -z "${selected[$part]+present}" ]] || { echo "Duplicate QA scenario: '$part'" >&2; exit 2; }
@@ -34,6 +34,9 @@ PKG=io.github.pini236.skiapp.test
 ACT=$PKG/io.github.pini236.skiapp.MainActivity
 APK=app/android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
 RELEASE_APK=app/android/app/build/outputs/apk/preview/release/app-preview-release.apk
+# the STORE flavor's release build (package without ".test"): only the manual part storesmoke installs it
+STORE_PKG=io.github.pini236.skiapp
+STORE_APK=app/android/app/build/outputs/apk/store/release/app-store-release.apk
 mkdir -p "$OUT/shots"
 FAILS=0
 n=0
@@ -1991,6 +1994,57 @@ store() {
   sleep 2; sshot story
   adb shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null
   adb shell wm size reset
+}
+
+# ---- the store build, clean install (manual part; not in ALL_SCENARIOS, main runs only core) ----
+# The STORE flavor (release, R8, no "qa." hooks and no SkiQa log lines), so everything is driven and read through the screen:
+# the permission prompts (notifications, location), the record button of the bottom bar, a few readings, "hold to finish",
+# and the saved day on the end screen. Screenshots only of the screens that change.
+storesmoke() {
+  [ -f "$STORE_APK" ] || { fail "storesmoke: no store APK ($STORE_APK)"; return 1; }
+  local act="$STORE_PKG/io.github.pini236.skiapp.MainActivity" i xy seen_end="" asked=0 started=""
+  adb uninstall "$STORE_PKG" > /dev/null 2>&1
+  adb install -r "$STORE_APK" > /dev/null || { fail "storesmoke: install of the store build"; return 1; }
+  adb shell cmd locale set-app-locales "$STORE_PKG" --locales he > /dev/null 2>&1 || note "storesmoke: could not set the app's language"
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  geo 42.482631 44.483401
+  rd_prep storesmoke
+  mark; adb shell am start -W -n "$act" > /dev/null
+  # the mountain: the record button is on the bottom bar from the start; the live model on the emulator takes a while
+  for i in $(seq 1 60); do uidump; xy=$(where "~^הקלטת גלישה"); [ -n "$xy" ] && break; sleep 2; done
+  [ -n "$xy" ] || { fail "storesmoke: no record button on the store build's mountain"; seen_texts; shot storesmoke-no-button; return 1; }
+  sleep 3; shot storesmoke-open
+  tap $xy
+  # the prompts, in the order the app asks them: notifications, then the sheet before the location prompt, then location
+  for i in $(seq 1 25); do
+    uidump
+    xy=$(where "~^(While using the app|Allow|בזמן השימוש באפליקציה|אפשר)$")
+    if [ -n "$xy" ] && adb shell dumpsys window 2> /dev/null | grep -q "permissioncontroller"; then
+      [ "$asked" -eq 0 ] && shot storesmoke-permission; asked=$((asked + 1)); tap $xy; sleep 2; continue
+    fi
+    xy=$(where "מתחילים"); [ -n "$xy" ] && { shot storesmoke-first; tap $xy; sleep 2; continue; }
+    [ -n "$(where 'להחזיק לסיום')" ] && { started=1; break; }
+    sleep 2
+  done
+  [ "$asked" -gt 0 ] || note "storesmoke: no system permission prompt appeared"
+  [ -n "$started" ] || { fail "storesmoke: the recording did not start (no 'hold to finish' on screen)"; seen_texts; shot storesmoke-not-started; return 1; }
+  # a few readings down Tatra 2, then the live screen
+  dayrec_walk 8; sleep 2; shot storesmoke-recording
+  # hold to finish (the fill takes a second)
+  uidump; xy=$(where "להחזיק לסיום")
+  if [ -n "$xy" ]; then set -- $xy; hold "$1" "$2" 1800; else fail "storesmoke: the finish button disappeared"; fi
+  # the saved day: the end screen of this recording ("your day", or "a recording with no descents" for readings that make none)
+  for i in $(seq 1 20); do
+    uidump
+    [ -n "$(where '~^(היום שלך|הקלטה בלי ירידות)$')" ] && { seen_end=1; break; }
+    sleep 2
+  done
+  if [ -n "$seen_end" ]; then sleep 2; shot storesmoke-day; else fail "storesmoke: no saved day after the recording stopped"; seen_texts; shot storesmoke-after-stop; fi
+  tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -A4 "FATAL EXCEPTION" | grep -q "Process: $STORE_PKG," && fail "storesmoke: the store build crashed"
+  adb shell pidof "$STORE_PKG" > /dev/null || fail "storesmoke: the store build is not running at the end"
+  adb shell am force-stop "$STORE_PKG"; adb uninstall "$STORE_PKG" > /dev/null 2>&1
+  # the shared closing checks read the test build: start it again
+  adb shell am start -W -n "$ACT" > /dev/null; sleep 3
 }
 
 # ---- the biggest text size (13.7): the system font at 2.0, the main screens must still show their words and work ----
