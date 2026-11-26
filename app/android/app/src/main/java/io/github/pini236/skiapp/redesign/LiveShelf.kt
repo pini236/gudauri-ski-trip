@@ -311,8 +311,11 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
             else -> pluralStringResource(R.plurals.app_shelf_group_rest, g.keys.size, g.keys.size.toString())
         }
         val shade = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 8f)
-        Text(title, Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink,
-            style = androidx.compose.ui.text.TextStyle(shadow = shade))
+        // the summary sits in a pill like the chips, not loose on the mountain (the release review, B2)
+        if (title.isNotEmpty()) Box(Modifier.padding(horizontal = 16.dp).heightIn(min = 28.dp).clip(RoundedCornerShape(14.dp)).background(k.surf.copy(alpha = 1f))
+            .border(1.dp, k.line, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+            Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
+        }
         if (noSun > 0) Text(stringResource(R.string.app_lens_no_sun), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2,
             style = androidx.compose.ui.text.TextStyle(shadow = shade))
         androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
@@ -351,7 +354,7 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
     val a11y = stringResource(R.string.app_shelf_card_a11y, r.title, colourWord(r.color), if (r.kind == "run") levelWord(r.color) else kind,
         lenShown + " " + (if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap)), nf.format(r.drop), back)
     val col = plate(r.color)
-    Row(modifier.width(232.dp).height(156.dp).shadow(14.dp, RoundedCornerShape(22.dp), clip = false).clip(RoundedCornerShape(22.dp))
+    Row(modifier.width(232.dp).heightIn(min = 156.dp).shadow(14.dp, RoundedCornerShape(22.dp), clip = false).clip(RoundedCornerShape(22.dp))
         .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(22.dp))
         .semantics(mergeDescendants = true) { contentDescription = a11y; role = Role.Button }.clickable(onClick = onClick)
         .padding(horizontal = 14.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

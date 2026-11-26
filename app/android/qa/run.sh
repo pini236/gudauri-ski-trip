@@ -1599,6 +1599,12 @@ PY
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
   mark; qa "--es qa.redesign people:gate"; waitlog "redesign people gate" 10; rd_settled; shot redesign-gate
   mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # row 18 of docs/QA.md section 5: the reminder opens the new design (Redesign.link), never today's home
+  mark; qa "--es qa.redesign people:off"; sleep 1
+  mark; qa "--es qa.remind next"; waitlog "reminder shown" 15 && { adb shell cmd statusbar expand-notifications
+    for _ in 1 2 3 4 5 6; do [ -n "$(where "~בעוד רבע שעה")" ] && break; sleep 1; done; sleep 0.5; shot redesign-reminder
+    mark; tapText "~בעוד רבע שעה" && { sleep 3; shot redesign-from-reminder
+      tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -q "SkiQa.*redesign" || fail "redesign: the reminder did not open the new design"; } || adb shell cmd statusbar collapse; }
 }
 # the redesign's second half (parts 4 to 8), its own emulator job: a run of its own from a cold start, as the first half
 redesign2() {

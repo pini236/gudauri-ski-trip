@@ -478,7 +478,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         // the picture is a fallback, not a second mountain: only the emulator's runs switch to it
         if (io.github.pini236.skiapp.BuildConfig.DEBUG) TestRow(stringResource(R.string.poc_peak_painted)) { people.close(); onPainted() }
         // only the emulator's runs may leave the mountain (the app has no other home, Pini 24.11.2026)
-        if (onLeave != null) TestRow(stringResource(R.string.poc_peak_leave)) { people.close(); onLeave() }
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && onLeave != null) TestRow(stringResource(R.string.poc_peak_leave)) { people.close(); onLeave() }
         // the field testers' tools (the manager, 24.11.2026: a row here, the test build only; empty in the store build)
         io.github.pini236.skiapp.fieldtools.FieldTools.AboutRow { t, c -> TestRow(t, c) }
         io.github.pini236.skiapp.fieldtools.FieldTools.DiagRow { t, c -> TestRow(t, c) }
