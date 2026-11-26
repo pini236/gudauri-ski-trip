@@ -426,3 +426,7 @@ python3 design/redesign/tools/peak_boards.py
 ### First-run hints (26.11.2026; waiting for Pini)
 
 Canvas version 73, page "רמזים לפעם הראשונה", boards `HN00` to `HN10`. Source: `tools/hn_boards.py`. Handoff: `design/handoff/2026-11-26-redesign-hints/README.md`. One bubble with a point and a ring on the target; six hints on the mountain (run, shelf, record, village, picture/live, "אני"), at most two per opening, and one in the village sheet ("החבר׳ה"); reset in Settings. Also closes B8 (the countdown as a framed tile, the mountain free), B9 (every text on the mountain in a frame; "מחפש מיקום" in a pill) and B10 of `review-release.md`. Measured in the design tool only.
+
+### B9: text in a frame (26.11.2026; waiting for Pini)
+
+Canvas version 74, page "ב9 · טקסט במסגרת", boards `B900` to `B93`. Source: `tools/b9_boards.py`. Handoff: `design/handoff/2026-11-26-redesign-b9/README.md`. Complements the hints round: search title pill (`HN10`) and countdown tile (`HN1`) were already there; added: after 30 s the search pill grows into one frame with `app.search_hint`. The ski pass head stays (whole page over a veil). No new strings.
