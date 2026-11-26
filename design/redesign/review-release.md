@@ -90,3 +90,23 @@
 **שאלה למנהל (לא החלטה שלי).** ב-25.11 פיני החליט לשחרר בלי הפתיחה על התמונה. Stage מוזג אחר כך, ולפי STATUS התמונה היא ברירת המחדל. צריך לוודא שזה מה שפיני רוצה בגרסה שתעלה לחנות.
 
 **לסיכום:** חוסם אחד (ריצה מלאה ומבט על שלושת המסכים שלא צולמו). חמישה תיקונים קטנים לפני החנות, בלי עיצוב חדש. שלושה פריטים לרשימת המעצב. לא נבדק בטלפון אמיתי.
+
+## 4. Final release check, `main` 8b5f1ff6 (in English from here, per the language rule)
+
+**Prepared 26.11.2026, before the runs.** Filled in when DevOps' full `android-qa` (all parts) and `ios.yml` runs on `8b5f1ff6` finish. Only the changed screens, against `design/handoff/2026-11-26-redesign-hints/README.md` (boards `HN00`-`HN12`, `CT00`-`CT5`, `B91`-`B93`).
+
+| # | Screen | Expected shot(s) in `run.sh` | Check against the board | Result |
+|---|---|---|---|---|
+| R1 | Hint sequence, mountain 6 and village 2 | only `redesign-hint-run` (step 1); steps 2-6 and village 1-2 have no shot, only log steps (`hint step find`, `hint done`) | bubble in `ink`, dots, ring hole on target, point side, 12 from edges | pending |
+| R2 | X with the draining ring | none (emulator build keeps each hint until a tap, no timer) | ring 14, X 12, 44 touch | pending |
+| R3 | Countdown tile closed / open / season sheet | `redesign-season`, `-season-night`, `-season-pill`, `-season-asleep`; open tile and sheet unclear | tile 64, ring in `acc`, open caption, sheet without the big number (`CT3`) | pending |
+| R4 | Search pill with "עוד רגע ונמצא אותך." | `redesign-rec-search`, `dayrec-live-search` | glass pill 40 high (`HN10`), grows with `app.search_hint` after 30 s (`B91`) | pending |
+| R5 | Long-press name pill (B10) | none found | pill readable, framed, not under the finger | pending |
+| R6 | Settings row "הצגה מחדש של הרמזים" | `redesign-settings` | light-bulb icon, above the games reset row (`HN9`) | pending |
+| B1 | Full run of all parts on one commit | the DevOps run itself | all parts green, RX3, pulsing search and EM shot | pending |
+| q3 | Pre-season release opened on the count, no pistes | `redesign-season`, `storesmoke-season` | the mountain opens free with pistes, tile only | pending |
+| q4 | Red button without words, group not found | covered by hints 3 and 4 (village) | needs R1 | pending |
+
+**Known coverage gaps before the run** (if no shot, I verify from code and mark it "code only", not a blocker by itself): hint steps 2-6, the village sequence, the draining ring, the long-press pill, and day/night × he/en for the hints (only one hint shot, in one mode).
+
+**Verdict:** pending.
