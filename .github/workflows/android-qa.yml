@@ -109,7 +109,11 @@ jobs:
           tasks=(:app:assemblePreviewDebug)
           [[ "$QA_QUICK_DEBUG" == true ]] || tasks+=(:app:assemblePreviewRelease)
           # the manual part storesmoke installs the STORE flavor (clean install); no other run builds it
-          if [[ "$QA_PARTS" == *storesmoke* ]]; then tasks+=(:app:assembleStoreRelease); fi
+          if [[ "$QA_PARTS" == *storesmoke* ]]; then
+            # QA never holds the store signing key (architect, R-10): the store flavor is signed with the debug key, only
+            [[ -z "${ANDROID_UPLOAD_KEYSTORE_PATH:-}" ]] || { echo "upload key present in android-qa: refusing"; exit 1; }
+            tasks+=(:app:assembleStoreRelease)
+          fi
           # These tasks compile APKs; no unit-test task is cached here.
           ./gradlew --no-daemon --build-cache "${tasks[@]}"
           test -f app/build/outputs/apk/preview/debug/app-preview-debug.apk
@@ -131,7 +135,7 @@ jobs:
         with:
           name: apk-store
           overwrite: true
-          retention-days: 14
+          retention-days: 3
           if-no-files-found: error
           path: app/android/app/build/outputs/apk/store/release/app-store-release.apk
 
