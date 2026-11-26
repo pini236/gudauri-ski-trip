@@ -432,6 +432,8 @@ internal class PictureStage(private val context: Context, private val scene: Map
                     val kFit = PeakGeo.fit(w, h, hero)
                     val nz = (z * zoom).coerceIn(1f, MAX_Z); val k = kFit * nz
                     z = nz; cx = before.x - (centroid.x - w / 2) / k - pan.x / k; cy = before.y - (centroid.y - h / 2 + raise) / k - pan.y / k
+                    // B1 (26.11.2026): at the fit the picture does not move at all (no pan up or down); it moves only once zoomed in
+                    if (nz <= 1.001f) { z = 1f; cx = hero.w / 2; cy = hero.h / 2 }
                     settle()
                 }
             }

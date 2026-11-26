@@ -372,6 +372,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 26.11.2026: **Android (Sonnet implementer): Pini's bugs B1-B3 fixed on branch `claude/android-redesign-bugs`, not tested on a phone.** B1 picture no longer pans at the fit; B2 no dot or camera move when the reading is over 2.5 km from every run and lift (`WhereRules.atResort`, TODO hook for the designer's message); B3 run framing no longer divides the width-limited distance by the free part, so a tap closes in.
 - 26.11.2026: **Android (Sonnet implementer): first-run hints v2 and the countdown tile (B8) built (`HintSequence.kt`, `SeasonTile`).** Guided sequence: six on the mountain, two in the village sheet; tap anywhere advances, X with an 8 s ring closes, dots, pause on background; the pre-season count is a framed tile (opens once a day, tap opens the season sheet without the big number). Texts from `i18n/strings.json`. Not tested on a phone or emulator.
 - 26.11.2026: **Content: four hint texts shortened in en/ru/ka to fit three lines** (`hint_village`, `hint_trip`, `hint_group`, `hint_rec`; he unchanged). `check.py` green.
 - 26.11.2026: **Content (Opus): first-run hint texts v3 in `i18n/strings.json`, four languages.** Eight `app.hint_*` keys rewritten in plain Hebrew; the village hint now lists what is there, the trip hint says it is your flight dates and what they give. Key names unchanged; `app.hints_again` kept; wording pending Pini; `check.py` green.
