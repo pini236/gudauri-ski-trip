@@ -191,5 +191,7 @@ Deno.test("fetchOpenMeteo: a 400 is not retried; a key moves the call to the cus
 Deno.test("a failed fetch says why in the 502 body (for net._http_response)", async () => {
   const d = deps(async () => { throw new Error("open-meteo answered 503: limit"); });
   const r = await handle(d, null, "fetch_weather", {}, { fetchAuthorized: true });
-  eq([r.status, (r.body as { error: string }).error, String((r.body as { reason?: string }).reason).includes("503")], [502, "fetch_failed", true], "502 with a reason");
+  const b = r.body as { error: string; reason?: string };
+  eq([r.status, b.error], [502, "fetch_failed"], "502");
+  eq(String(b.reason).includes("open-meteo answered 503"), true, `reason says why (got ${JSON.stringify(b)})`);
 });
