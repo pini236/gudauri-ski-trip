@@ -403,6 +403,7 @@
 הפערים: ההמשך של Soliko 2, החלק התחתון של Firni 1, העליון של Firni 2, הקטע המערבי של Shino, גבולות Baby ו-Bombora, הרכבלים Alpina ומעליות Baby ו-Bombora, ופערי גובה ב-Kikilo, New Goodaura, Kobi ו-Bombora.
 
 ## פריטים קטנים שאסור לפספס
+- (26.11.2026, B10) The long-press name pill on icon buttons (`design/handoff/2026-11-26-redesign-b10/`) also for iOS when the redesign reaches it, and for any new column button (for example the hour button, HR).
 
 - **First-run hints, not in the first set (26.11.2026, hints designer):** a hint for the lift-status pill, for "איפה אני", and for "הימים שלי" after the first recording; the same system on iOS when the redesign gets there. Decide after a phone test of the six.
 

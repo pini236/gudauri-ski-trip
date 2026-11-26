@@ -430,3 +430,7 @@ Canvas version 73, page "רמזים לפעם הראשונה", boards `HN00` to `
 ### B9: text in a frame (26.11.2026; waiting for Pini)
 
 Canvas version 74, page "ב9 · טקסט במסגרת", boards `B900` to `B93`. Source: `tools/b9_boards.py`. Handoff: `design/handoff/2026-11-26-redesign-b9/README.md`. Complements the hints round: search title pill (`HN10`) and countdown tile (`HN1`) were already there; added: after 30 s the search pill grows into one frame with `app.search_hint`. The ski pass head stays (whole page over a veil). No new strings.
+
+### Buttons without words (B10), 26.11.2026
+
+Canvas version 75, page "כפתורים בלי מילים (ב10)", boards `BT00` to `BT4`. Source: `tools/b10_boards.py`. Handoff: `design/handoff/2026-11-26-redesign-b10/README.md`. The hints already name record, the switch and "אני"; for the rest (layers, "איפה אני", the compass, and any later column button) a long press shows the button's name in a small `ink` pill beside it. No permanent labels, no new strings. Waiting for Pini; not a release blocker.
