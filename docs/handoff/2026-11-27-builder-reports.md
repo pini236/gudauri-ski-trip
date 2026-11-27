@@ -64,3 +64,4 @@ Pini asked every builder for a full account. Each report below is condensed: bui
 5. Manifest `<queries>` for the SKIPASS app: architect confirmation.
 6. Site `trip.title`, gendered keys, `app.me_title`: owners above.
 7. Not-built approved parts (story finale picture and DS5, in-card video controls, camera glide, pin label; hint dim fades; my-days tiles and tags): to be built in follow-up passes unless Pini drops them.
+8. Hint 2 wording (`app.hint_find`, content proposal, waits for Pini with the shelf build): old he "כל המסלולים ברשימה אחת, מסודרים לפי צבע. נוגעים באחד והוא מסומן על ההר." New he "כל המסלולים כאן, לפי רכבל, קושי או אורך. נוגעים באחד והוא מסומן על ההר." (en/ru/ka in the content session's message; ka to be corrected to include "by lift"). Not entered in `i18n/strings.json` until Pini approves.
