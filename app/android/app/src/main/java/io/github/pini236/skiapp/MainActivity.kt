@@ -1000,7 +1000,15 @@ class MainActivity : ComponentActivity() {
                     Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle,
                         onGroup = { id -> nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) }) { nav.toStart(); armReminders() }
                     // the games page (13.6, the site's #games, GP2), and the games the app has
-                    Route.Games -> GamesScreen(appGames(), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
+                    Route.Games -> {
+                        // UX pass part 6: "משחקים" on the new mountain; the group's table only for a member
+                        var myGroups by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<List<io.github.pini236.skiapp.group.GroupSummary>>(emptyList()) }
+                        androidx.compose.runtime.LaunchedEffect(Unit) { if (groupApi.ready) myGroups = runCatching { groupApi.myGroups() }.getOrDefault(emptyList()) }
+                        val grp = myGroups.firstOrNull()
+                        if (!io.github.pini236.skiapp.redesign.Redesign.games(dnMode, haptics, onOpen = { g -> nav.push(Route.Game(g)) }, tableName = grp?.name,
+                                onTable = grp?.let { gg -> { nav.push(Route.Group(gg.id, GroupTab.SCORES.key)) } }) { nav.back() })
+                            GamesScreen(appGames(), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
+                    }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }

@@ -24285,10 +24285,10 @@
    ]
   },
   "app.cabin_title": {
-   "he": "ערב בבקתה",
-   "en": "Evening in the cabin",
-   "ru": "Вечер в хижине",
-   "ka": "საღამო ქოხში",
+   "he": "משחקים",
+   "en": "Games",
+   "ru": "Игры",
+   "ka": "თამაშები",
    "where": "app/android",
    "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R11, הכפר: שם מקום באפליקציה, קצר בכל שפה",
    "check": [
@@ -24980,6 +24980,66 @@
    "ka": "ყველა მინიშნების დახურვა",
    "where": "app/android",
    "note": "First-run hint v2 (hints designer 26.11.2026, design/handoff/2026-11-26-redesign-hints/README.md). Bubble up to 300dp, three lines. Wording pending Pini.",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.games_offline": {
+   "he": "גם בלי קליטה",
+   "en": "Works offline",
+   "ru": "Работает без сети",
+   "ka": "მუშაობს კავშირის გარეშე",
+   "where": "app/android",
+   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.games_last": {
+   "he": "המשחק האחרון",
+   "en": "Last played",
+   "ru": "Последняя игра",
+   "ka": "ბოლო თამაში",
+   "where": "app/android",
+   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.games_continue": {
+   "he": "ממשיכים",
+   "en": "Continue",
+   "ru": "Продолжить",
+   "ka": "გაგრძელება",
+   "where": "app/android",
+   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.games_start_here": {
+   "he": "מתחילים כאן",
+   "en": "Start here",
+   "ru": "Начните здесь",
+   "ka": "დაიწყეთ აქ",
+   "where": "app/android",
+   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.games_play": {
+   "he": "לשחק",
+   "en": "Play",
+   "ru": "Играть",
+   "ka": "თამაში",
+   "where": "app/android",
+   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
    "check": [
     "ru",
     "ka"

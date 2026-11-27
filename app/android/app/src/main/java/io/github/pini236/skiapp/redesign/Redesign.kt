@@ -218,6 +218,15 @@ object Redesign {
         return true
     }
 
+    /** UX pass part 6: the games page ("משחקים"). False when the redesign is off, so the old page shows. */
+    @Composable
+    fun games(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, tableName: String?, onTable: (() -> Unit)?, onBack: () -> Unit): Boolean {
+        if (!on()) return false
+        if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.asked) return false
+        GamesPage(mode, haptics, onOpen, onTable, tableName, onBack)
+        return true
+    }
+
     @Composable
     fun BoxScope.Host(home: Boolean, mode: DayNight.Mode, haptics: Haptics, scene: MapScene?, status: io.github.pini236.skiapp.status.LiftStatus? = null,
                        inSeason: Boolean = false, forMe: Boolean = false, onForMe: (Boolean) -> Unit = {}, around: io.github.pini236.skiapp.home.Around? = null) {
