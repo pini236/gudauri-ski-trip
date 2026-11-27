@@ -1,5 +1,7 @@
 # Brief for the next designer session: four small items (Pini, 27.11.2026)
 
+**Done by `session_017QrNw9vE7tZwtoB5accqAi` (27.11.2026, canvas 95-98):** P.21 and P.16 (`SM00`, `SK`, `RM`), P.23 and P.24 (`MY`, `NS`, `RS`), P.25 top pill (`TP`), runs button v3 (`SW`). **P.19 and P.17 done by `session_017QrNw9EH2x45vKXTHehrt5` (canvas 100, `HM`, `KB`; handoffs `2026-11-27-redesign-hint-motion`, `-kobi-side`).** All items of this brief are designed.
+
 Not designed by the day-pages session (`session_017QrNw6xEaoKKLDQ36m6fXG`, past rule 12's size). Each item is in `docs/STATUS.md` section P. Canvas first, Pini approves (rule 7). Suggested order: P.19, P.21, P.16, P.17.
 
 **Tool chain:** the last section of `design/redesign/README.md`; `design/redesign/tools/dp_boards.py` is the newest example (helpers `icon`, `white_runs`, `backdrop`, the share sheet). Publishing to this typed canvas: `root` = a folder holding `project/`, `file_path` = its `project/canvas.json` (built from the live one, read first), boards in `files`; `index.html` is refused. For local looks: `--preview <dir> <blobs dir>`, where the blobs dir holds the `pk-*.jpg` assets linked under their hash names from `IMG` in `peak_boards.py`.

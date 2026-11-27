@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>רמזים: תנועה בין רמז לרמז</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul,.HW ol{margin:0}
+.HW ul,.HW ol{padding-inline-start:20px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:14px;border:1px solid #D9DEE4;flex:none;background:#DCE6F2}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW .sec{font-size:13px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW h1{font-size:34px;font-weight:900;line-height:1.15}
+.HW h2{font-size:23px;font-weight:700;line-height:1.25}
+.HW .lead{font-size:18px;line-height:1.55}
+.HW .cap{font-size:13.5px;line-height:1.45;color:#3C4753}
+.HW .cap b{color:#10161D;font-size:15px}
+.HW .rowx{display:flex;gap:16px;align-items:flex-start}
+.HW .fr{display:flex;flex-direction:column;gap:8px;flex:none}
+.HW .tm{font-size:22px;font-weight:300;direction:ltr;display:inline-block}
+
+@keyframes tkd{0%{stroke-dashoffset:1;opacity:1}28%{stroke-dashoffset:0;opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arc{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes glo{0%,100%{box-shadow:inset 0 0 0 0 rgba(255,255,255,0)}50%{box-shadow:inset 0 0 14px 2px rgba(255,255,255,.45)}}
+.sh{position:relative;width:48px;height:48px;border-radius:50%;background:#E5352B;border:0;padding:0;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;box-sizing:border-box;font-family:inherit;box-shadow:0 2px 6px rgba(120,20,15,.28)}
+.sh .rg{position:absolute;inset:0;overflow:visible}
+.sh .tk{stroke-dasharray:1;stroke-dashoffset:0}
+.sh.idle .tk{animation:tkd 6s ease-out infinite}
+.sh.live{animation:glo 2.4s ease-in-out infinite}
+.sh.live .tk{animation:tkd 2.4s linear infinite}
+.sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
+.sh.mid{width:56px;height:56px}
+.rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.rq .o svg{position:absolute;inset:0}
+.rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.25)}
+.rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.rq.on{padding-inline-end:12px;background:rgba(229,53,43,.12)}
+.night .rq.on{background:rgba(255,116,104,.16)}
+.rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.still .tk,.still .ar,.still.sh{animation:none!important}
+.nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
+.nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.25)}
+
+.HW .stage{display:flex;align-items:center;justify-content:center;gap:24px;height:140px;border-radius:12px}
+.HW .stage.d{background:linear-gradient(#DDE8F3,#F4F7FA)}
+.HW .stage.n{background:linear-gradient(#0B1424,#16213A)}
+.HW .stage .z{zoom:1.7}
+.HW .opt{flex:1;min-width:0}
+.HW .opt h2 .k{display:inline-flex;width:34px;height:34px;border-radius:17px;background:#10161D;color:#fff;align-items:center;justify-content:center;font-size:18px;margin-inline-end:8px}
+.HW .opt.rec{border:3px solid #6B3FD4}
+.HW .pc{font-size:14.5px;line-height:1.5}
+.HW .pc b{display:inline-block;min-width:58px}
+.HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1280px; height: 1720px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">P.19 · 27.11.2026 · ממתין לפיני</p><h1>מרמז לרמז: הטבעת מחליקה, הבועה מתחלפת בשקט</h1><p class="lead">היום הטבעת והבועה קופצות. ההצעה: תנועה אחת רציפה שמובילה את העין מהיעד הקודם לבא, ובועה שמופיעה רק כשיש לה לאן להצביע. בלי טקסט חדש.</p><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>למה זה קופץ היום (מהקוד)</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>הטבעת קופצת בגודל:</b> בכל רמז היא מתחילה גדולה פי 1.18 ומתכווצת ב-200 מ״ש. במעבר זה נראה כמו קפיצה, לא כמו תנועה.</li><li><b>הבועה נעלמת לפריים ונוחתת:</b> הגודל שלה נמדד מחדש בכל רמז, ועד המדידה היא שקופה. אחר כך היא מופיעה בבת אחת, ובמקרה של צד אחר (למשל ליד המתג) היא קופצת לצד השני.</li><li><b>על המסלול הטבעת רועדת:</b> היא מקבלת יעד חדש כל 100 מ״ש בזמן שההר מצטייר, ומתחילה תנועה חדשה כל פעם.</li><li><b>רמז שהיעד שלו לא על המסך</b> מחכה 900 מ״ש עם טבעת במקום ישן ובלי בועה, ואז מדלג.</li></ul></div><div class="card" style="flex: 1.35"><h2>ההצעה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>הטבעת מחליקה</b> מהיעד הקודם לבא, בקו ישר, ומשנה תוך כדי את הגודל והפינות. משך לפי המרחק: 360 עד 560 מ״ש (קפיצה קצרה בסרגל מהירה, מאמצע ההר אל הסרגל רגועה). עקומה: מאטה בסוף (<span dir="ltr">cubic-bezier(0.2, 0, 0, 1)</span>).</li><li><b>הבועה לא נוסעת:</b> הישנה נעלמת ב-120 מ״ש, והחדשה עולה 6 נקודות מתוך היעד ומתייצבת ב-220 מ״ש, כשהטבעת עברה 55% מהדרך. כך אין בועה שמכסה את ההר בדרך, והטקסט לא מתחלף באוויר.</li><li><b>נשימה אחת בהגעה:</b> הילה לבנה רכה יוצאת 10 נקודות מהטבעת ודועכת ב-420 מ״ש. במקום ההתכווצות של היום.</li><li><b>ההחשכה לא זזה.</b> רק החור שבה נוסע עם הטבעת. הנקודות בבועה החדשה כבר במקום הנכון.</li><li><b>ה-13 שניות מתחילות</b> רק כשהבועה החדשה במקום.</li><li><b>על המסלול:</b> הטבעת עוקבת אחרי הנקודה בקפיץ רך (בלי קפיצה כל 100 מ״ש), כמו מצלמה שמתייצבת.</li><li><b>נגיעה בזמן המעבר לא נספרת,</b> כדי שנגיעה כפולה לא תדלג על רמז. אחרי שהבועה החדשה התחילה לעלות, נגיעה עוברת לרמז הבא מהנקודה שבה הטבעת נמצאת.</li><li><b>יעד שאינו על המסך</b> נבדק לפני התנועה: הטבעת מחליקה ישר לרמז הבא שיש לו יעד.</li><li><b>פתיחה וסיום:</b> בפתיחה ההחשכה עולה ב-240 מ״ש, הטבעת מופיעה עם הנשימה, והבועה אחריה. בסיום (ה-X או הרמז האחרון) הבועה נעלמת ב-120 מ״ש, והטבעת וההחשכה דועכות יחד ב-240 מ״ש.</li></ul></div></div><div class="card" style="margin-top: 16px"><h2>מעבר אחד על ציר הזמן (412 מ״ש, מהמסלול אל הסרגל)</h2><svg width="1280" height="290" viewBox="0 0 1280 290" style="display: block; direction: ltr"><line x1="200" x2="200" y1="24" y2="260" stroke="#D9DEE4"/><text x="200" y="16" font-size="12" text-anchor="middle" fill="#3C4753">0</text><line x1="332" x2="332" y1="24" y2="260" stroke="#D9DEE4"/><text x="332" y="16" font-size="12" text-anchor="middle" fill="#3C4753">100</text><line x1="465" x2="465" y1="24" y2="260" stroke="#D9DEE4"/><text x="465" y="16" font-size="12" text-anchor="middle" fill="#3C4753">200</text><line x1="598" x2="598" y1="24" y2="260" stroke="#D9DEE4"/><text x="598" y="16" font-size="12" text-anchor="middle" fill="#3C4753">300</text><line x1="730" x2="730" y1="24" y2="260" stroke="#D9DEE4"/><text x="730" y="16" font-size="12" text-anchor="middle" fill="#3C4753">400</text><line x1="862" x2="862" y1="24" y2="260" stroke="#D9DEE4"/><text x="862" y="16" font-size="12" text-anchor="middle" fill="#3C4753">500</text><line x1="995" x2="995" y1="24" y2="260" stroke="#D9DEE4"/><text x="995" y="16" font-size="12" text-anchor="middle" fill="#3C4753">600</text><line x1="1128" x2="1128" y1="24" y2="260" stroke="#D9DEE4"/><text x="1128" y="16" font-size="12" text-anchor="middle" fill="#3C4753">700</text><line x1="1260" x2="1260" y1="24" y2="260" stroke="#D9DEE4"/><text x="1260" y="16" font-size="12" text-anchor="middle" fill="#3C4753">800</text><text x="186" y="53" font-size="15" font-weight="700" text-anchor="end" fill="#10161D">הבועה הישנה</text><rect x="200" y="34" width="159" height="26" rx="13" fill="#9AA6B4"/><text x="367" y="52" font-size="13" fill="#3C4753" text-anchor="start">נעלמת, מאיצה</text><text x="186" y="99" font-size="15" font-weight="700" text-anchor="end" fill="#10161D">הטבעת</text><rect x="200" y="80" width="546" height="26" rx="13" fill="#1E64C8"/><text x="754" y="98" font-size="13" fill="#3C4753" text-anchor="start">מחליקה, 360 עד 560 מ״ש לפי המרחק</text><text x="186" y="145" font-size="15" font-weight="700" text-anchor="end" fill="#10161D">הבועה החדשה</text><rect x="499" y="126" width="292" height="26" rx="13" fill="#6B3FD4"/><text x="799" y="144" font-size="13" fill="#3C4753" text-anchor="start">עולה 6 נק׳ מהיעד, מאטה</text><text x="186" y="191" font-size="15" font-weight="700" text-anchor="end" fill="#10161D">נשימה</text><rect x="636" y="172" width="556" height="26" rx="13" fill="#2BA36B"/><text x="646" y="190" font-size="13" fill="#fff" text-anchor="start">הילה של 10 נק׳ שדועכת</text><text x="186" y="237" font-size="15" font-weight="700" text-anchor="end" fill="#10161D">ה-X</text><rect x="791" y="218" width="469" height="26" rx="13" fill="#C77A00"/><text x="801" y="236" font-size="13" fill="#fff" text-anchor="start">הזמן של הרמז מתחיל רק כשהבועה במקום</text></svg></div><div class="rowx" style="align-items: stretch; margin-top: 16px"><div class="card" style="flex: 1"><h2>הפחתת תנועה ונגישות</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>הפחתת תנועה בטלפון:</b> בלי החלקה, בלי הזזה ובלי נשימה. הטבעת והבועה הישנות דוהות ב-100 מ״ש, והחדשות מופיעות במקומן ב-150 מ״ש. דהייה מותרת גם במצב הזה.</li><li><b>אנימציות כבויות לגמרי</b> (מהירות אנימציה 0 בהגדרות המפתח): החלפה מיידית.</li><li><b>קורא מסך:</b> בלי שינוי. הרמז החדש מוקרא כשהבועה מופיעה.</li></ul></div><div class="card" style="flex: 1"><h2>חלופה שלא בחרתי</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>הבועה נוסעת עם הטבעת</b> כיחידה אחת. נראה מרשים בקפיצה קצרה, אבל באמצע ההר היא מכסה את המסלולים בדרך, הטקסט מתחלף באוויר, ובמעבר אל המתג היא צריכה להתהפך לצד השני. לא המלצתי.</li></ul></div></div><div class="card" style="margin-top: 16px"><h2>לפיני</h2><p class="q"><span class="qn">1</span><span><b>הטבעת מחליקה, והבועה מתחלפת בדהייה</b> ליד היעד החדש (ולא נוסעת עם הטבעת)? (כן)</span></p><p class="q"><span class="qn">2</span><span><b>נשימה אחת</b> כשהטבעת מגיעה, במקום ההתכווצות של היום? (כן)</span></p><p class="q"><span class="qn">3</span><span><b>נגיעה בזמן המעבר לא נספרת</b>, כדי שלא ידלגו על רמז בטעות? (כן)</span></p></div><p class="cap">הלוחות HM1, HM3 ו-HM4 זזים: כל רמז מקוצר בהם ל-1.9 שניות, והמעברים בזמן האמיתי. הסדר והיעדים כמו בלוחות HN1 עד HN6; הסרגל של מעבר חוויית המשתמש (תפריט) לא משנה את התנועה. נבדק בכלי העיצוב, לא בטלפון. המסירה: <span dir="ltr">design/handoff/2026-11-27-redesign-hint-motion/</span>.</p></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1720}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

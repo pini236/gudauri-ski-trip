@@ -3106,6 +3106,182 @@
    "title": "גרסה 2: \"שלג חדש\" (SV6)",
    "page": "dock"
   },
+  "SW00-V3.dc.html": {
+   "x": 0,
+   "y": 8012,
+   "w": 1280,
+   "h": 1000,
+   "title": "גרסה 3: הכפתור (SW00)",
+   "page": "dock"
+  },
+  "SW1.dc.html": {
+   "x": 0,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א: סמל ההר, המילה והמספר (מומלץ) (SW1)",
+   "page": "dock"
+  },
+  "SW2.dc.html": {
+   "x": 470,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א: בלילה, בזמן הקלטה (SW2)",
+   "page": "dock"
+  },
+  "SW3.dc.html": {
+   "x": 940,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א: אתר עם 120 מסלולים, באנגלית (SW3)",
+   "page": "dock"
+  },
+  "SW4.dc.html": {
+   "x": 1410,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, ב: ארבעה צבעים, ארבעה מספרים (SW4)",
+   "page": "dock"
+  },
+  "SW5.dc.html": {
+   "x": 1880,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, ג: שורה חיה מהצ׳יפ האחרון (\"הארוכים\") (SW5)",
+   "page": "dock"
+  },
+  "SW6.dc.html": {
+   "x": 2350,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א, בתנועה: הכפתור נפתח אל המדף של גרסה 2 (SW6)",
+   "page": "dock"
+  },
+  "TP00-TopPill.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 980,
+   "title": "P.25: הפס העליון, מה ולמה (TP00)",
+   "page": "toppill"
+  },
+  "TP1.dc.html": {
+   "x": 0,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · בעונה, יום רגיל (TP1)",
+   "page": "toppill"
+  },
+  "TP2.dc.html": {
+   "x": 470,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · רוח, שני רכבלים עצרו (TP2)",
+   "page": "toppill"
+  },
+  "TP3.dc.html": {
+   "x": 940,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · בוקר אחרי שלג (TP3)",
+   "page": "toppill"
+  },
+  "TP4.dc.html": {
+   "x": 1410,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · ערב, הרכבלים סגורים (TP4)",
+   "page": "toppill"
+  },
+  "TP5.dc.html": {
+   "x": 0,
+   "y": 2184,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · אין נתון חי (TP5)",
+   "page": "toppill"
+  },
+  "TP6.dc.html": {
+   "x": 470,
+   "y": 2184,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · לפני העונה (TP6)",
+   "page": "toppill"
+  },
+  "TP7.dc.html": {
+   "x": 940,
+   "y": 2184,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · כל המצבים (TP7)",
+   "page": "toppill"
+  },
+  "SM00-Small.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 900,
+   "title": "P.21 ו-P.16: מה ולמה (SM00)",
+   "page": "small2711"
+  },
+  "SK1.dc.html": {
+   "x": 0,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "P.21 · כרטיס הסקי: ניווט לקופה ואפליקציית SKIPASS (SK1)",
+   "page": "small2711"
+  },
+  "SK2.dc.html": {
+   "x": 470,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "P.21 · בלילה, לחיצה ארוכה מראה את השם (SK2)",
+   "page": "small2711"
+  },
+  "RM1.dc.html": {
+   "x": 940,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "P.16 · לפני ההתחלה: בוחרים \"כל היום\" (RM1)",
+   "page": "small2711"
+  },
+  "RM2.dc.html": {
+   "x": 1410,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "P.16 · לפני ההתחלה: \"ירידה אחת\" (RM2)",
+   "page": "small2711"
+  },
+  "RM3.dc.html": {
+   "x": 1880,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "P.16 · בזמן ההקלטה: תווית קבועה, בלי בורר (RM3)",
+   "page": "small2711"
+  },
+  "RM4.dc.html": {
+   "x": 2350,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "P.16 · \"ירידה אחת\" בלילה, בזמן ההקלטה (RM4)",
+   "page": "small2711"
+  },
   "RK00-RunCard.dc.html": {
    "x": 0,
    "y": 0,
@@ -3143,7 +3319,7 @@
    "y": 1380,
    "w": 390,
    "h": 844,
-   "title": "בזמן הטיסה מעל המסלול: הנקודה יורדת על הפרופיל (RK4)",
+   "title": "קודם: בזמן הטיסה הכרטיס נשאר גדול (הוחלף ב-RK6) (RK4)",
    "page": "runcard"
   },
   "RK5.dc.html": {
@@ -3152,6 +3328,14 @@
    "w": 390,
    "h": 844,
    "title": "The run card in English (RK5)",
+   "page": "runcard"
+  },
+  "RK6.dc.html": {
+   "x": 2350,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "בזמן הטיסה: הכרטיס יורד לפס קטן, וההר מקבל את כל המסך (RK6)",
    "page": "runcard"
   },
   "DP00-DayPages.dc.html": {
@@ -3167,7 +3351,7 @@
    "y": 1480,
    "w": 390,
    "h": 844,
-   "title": "היום שלי: המסלולים בקו לבן דק מאחורי היום (DM1)",
+   "title": "היום שלי, אחרי: הקווים העמומים של היום, מעט חזקים יותר (45%) (DM1)",
    "page": "daypages"
   },
   "DM2.dc.html": {
@@ -3175,7 +3359,7 @@
    "y": 1480,
    "w": 390,
    "h": 844,
-   "title": "בלילה (DM2)",
+   "title": "אחרי, בלילה (40%) (DM2)",
    "page": "daypages"
   },
   "DM3.dc.html": {
@@ -3183,7 +3367,7 @@
    "y": 1480,
    "w": 390,
    "h": 844,
-   "title": "מקרוב, ונגיעה בקו לבן מראה את השם (DM3)",
+   "title": "לפני: כמו באפליקציה היום (32%), להשוואה (DM3)",
    "page": "daypages"
   },
   "DT1.dc.html": {
@@ -3191,7 +3375,7 @@
    "y": 2524,
    "w": 390,
    "h": 844,
-   "title": "הרכס של היום: המספרים, הרכס, לאן הלך היום, ותחילת ציר הזמן (DT1)",
+   "title": "הרכס של היום: המספרים, הרכס, לאן הלך היום, ותחילת ציר הזמן · אושר (DT1)",
    "page": "daypages"
   },
   "DT2.dc.html": {
@@ -3199,7 +3383,7 @@
    "y": 2524,
    "w": 390,
    "h": 844,
-   "title": "בגלילה: הרכס מתכווץ לפס למעלה, וההפסקה הארוכה (DT2)",
+   "title": "בגלילה: הרכס מתכווץ לפס למעלה, וההפסקה הארוכה · אושר (DT2)",
    "page": "daypages"
   },
   "DT3.dc.html": {
@@ -3207,7 +3391,7 @@
    "y": 2524,
    "w": 390,
    "h": 844,
-   "title": "טקסט גדול: השמות נשברים לשורה, אף פעם לא נחתכים (DT3)",
+   "title": "טקסט גדול: השמות נשברים לשורה, אף פעם לא נחתכים · אושר (DT3)",
    "page": "daypages"
   },
   "DT4.dc.html": {
@@ -3215,7 +3399,7 @@
    "y": 2524,
    "w": 390,
    "h": 844,
-   "title": "The ridge of the day in English (DT4)",
+   "title": "The ridge of the day in English · אושר (DT4)",
    "page": "daypages"
   },
   "DT5.dc.html": {
@@ -3223,7 +3407,7 @@
    "y": 2524,
    "w": 390,
    "h": 844,
-   "title": "כל סוגי השורות, והכלל של בית הקפה (DT5)",
+   "title": "כל סוגי השורות, והכלל של בית הקפה · אושר (DT5)",
    "page": "daypages"
   },
   "DS1.dc.html": {
@@ -3329,6 +3513,166 @@
    "h": 844,
    "title": "The share sheet in English, saved (DV8)",
    "page": "daypages"
+  },
+  "MY00-MyDays.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1040,
+   "title": "P.23 ו-P.24: מה ראית, ההצעה והשאלות (MY00)",
+   "page": "mydays"
+  },
+  "NS1.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · מחוץ לגודאורי, ביום (NS1)",
+   "page": "mydays"
+  },
+  "NS2.dc.html": {
+   "x": 470,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · בגודאורי, עלה ברכבל וירד בו (NS2)",
+   "page": "mydays"
+  },
+  "NS3.dc.html": {
+   "x": 940,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · בלילה, בלי מיקום (NS3)",
+   "page": "mydays"
+  },
+  "MY1.dc.html": {
+   "x": 0,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · הטיול (MY1)",
+   "page": "mydays"
+  },
+  "MY2.dc.html": {
+   "x": 470,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · סוף הרשימה והיום לדוגמה (MY2)",
+   "page": "mydays"
+  },
+  "MY3.dc.html": {
+   "x": 940,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · לפני היום הראשון (MY3)",
+   "page": "mydays"
+  },
+  "RS1.dc.html": {
+   "x": 0,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך (RS1)",
+   "page": "mydays"
+  },
+  "RS2.dc.html": {
+   "x": 470,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך · בלילה (RS2)",
+   "page": "mydays"
+  },
+  "RS3.dc.html": {
+   "x": 940,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך · עוד אין (RS3)",
+   "page": "mydays"
+  },
+  "HM00-HintMotion.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1720,
+   "title": "P.19: מה ולמה, והתזמון (HM00)",
+   "page": "hintmotion"
+  },
+  "HM1.dc.html": {
+   "x": 1400,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.19 · בתנועה: ששת הרמזים על ההר, ביום (HM1)",
+   "page": "hintmotion"
+  },
+  "HM3.dc.html": {
+   "x": 1870,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.19 · הפחתת תנועה: הצלבה בלבד (HM3)",
+   "page": "hintmotion"
+  },
+  "HM4.dc.html": {
+   "x": 2340,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.19 · בתנועה, בלילה (HM4)",
+   "page": "hintmotion"
+  },
+  "HM2-Frames.dc.html": {
+   "x": 0,
+   "y": 1880,
+   "w": 1400,
+   "h": 1300,
+   "title": "P.19: פריים אחרי פריים, והפחתת תנועה (HM2)",
+   "page": "hintmotion"
+  },
+  "KB00-KobiSide.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1720,
+   "title": "P.17: מה ולמה, והאיכות (KB00)",
+   "page": "kobiside"
+  },
+  "KB1.dc.html": {
+   "x": 1400,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · החזית: תגית \"צד Kobi\" על הרכס (KB1)",
+   "page": "kobiside"
+  },
+  "KB2.dc.html": {
+   "x": 1870,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · בתנועה: לצד של Kobi ובחזרה (KB2)",
+   "page": "kobiside"
+  },
+  "KB3.dc.html": {
+   "x": 2340,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · בצד: המצפן עם \"צד Kobi\", ביום (KB3)",
+   "page": "kobiside"
+  },
+  "KB4.dc.html": {
+   "x": 2810,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · בצד, בלילה: המצפן מקופל (KB4)",
+   "page": "kobiside"
   }
  },
  "createdOnFiles": {
@@ -3338,7 +3682,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "daypages"
+  "page": "kobiside"
  },
  "notes": {
   "tA": {
@@ -4052,6 +4396,78 @@
    "x": 0,
    "y": 4532,
    "text": "4 · הסרטון בכרטיס"
+  },
+  "tsw": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "dock",
+   "x": 0,
+   "y": 7712,
+   "text": "גרסה 3: כפתור \"מסלולים\" פשוט; המדף של גרסה 2 נשאר"
+  },
+  "tmydays": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": -300,
+   "text": "ימי הגלישה שלי והשיאים"
+  },
+  "tmydaysNS": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": 1120,
+   "text": "1 · הקלטה בלי ירידה: לא נשמרת"
+  },
+  "tmydaysMY": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": 2164,
+   "text": "2 · ימי הגלישה שלי"
+  },
+  "tmydaysRS": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": 3208,
+   "text": "3 · השיאים שלך"
+  },
+  "ttoppill": {
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "toppill",
+   "x": 0,
+   "y": -300,
+   "text": "הפס העליון: רכבלים ומזג אוויר"
+  },
+  "tsmall2711": {
+   "kind": "title1",
+   "maxW": 2800,
+   "page": "small2711",
+   "x": 0,
+   "y": -300,
+   "text": "כרטיס הסקי: הקופה, ומצב ההקלטה"
+  },
+  "thintmotion": {
+   "kind": "title1",
+   "maxW": 2800,
+   "page": "hintmotion",
+   "x": 0,
+   "y": -300,
+   "text": "רמזים: תנועה רכה בין רמז לרמז"
+  },
+  "tkobiside": {
+   "kind": "title1",
+   "maxW": 3200,
+   "page": "kobiside",
+   "x": 0,
+   "y": -300,
+   "text": "צד Kobi בתמונה: לעבור ולחזור"
   }
  },
  "order": [
@@ -4443,12 +4859,35 @@
   "SV4.dc.html",
   "SV5.dc.html",
   "SV6.dc.html",
+  "SW00-V3.dc.html",
+  "SW1.dc.html",
+  "SW2.dc.html",
+  "SW3.dc.html",
+  "SW4.dc.html",
+  "SW5.dc.html",
+  "SW6.dc.html",
+  "TP00-TopPill.dc.html",
+  "TP1.dc.html",
+  "TP2.dc.html",
+  "TP3.dc.html",
+  "TP4.dc.html",
+  "TP5.dc.html",
+  "TP6.dc.html",
+  "TP7.dc.html",
+  "SM00-Small.dc.html",
+  "SK1.dc.html",
+  "SK2.dc.html",
+  "RM1.dc.html",
+  "RM2.dc.html",
+  "RM3.dc.html",
+  "RM4.dc.html",
   "RK00-RunCard.dc.html",
   "RK1.dc.html",
   "RK2.dc.html",
   "RK3.dc.html",
   "RK4.dc.html",
   "RK5.dc.html",
+  "RK6.dc.html",
   "DP00-DayPages.dc.html",
   "DM1.dc.html",
   "DM2.dc.html",
@@ -4470,9 +4909,49 @@
   "DV5.dc.html",
   "DV6.dc.html",
   "DV7.dc.html",
-  "DV8.dc.html"
+  "DV8.dc.html",
+  "MY00-MyDays.dc.html",
+  "NS1.dc.html",
+  "NS2.dc.html",
+  "NS3.dc.html",
+  "MY1.dc.html",
+  "MY2.dc.html",
+  "MY3.dc.html",
+  "RS1.dc.html",
+  "RS2.dc.html",
+  "RS3.dc.html",
+  "HM00-HintMotion.dc.html",
+  "HM1.dc.html",
+  "HM3.dc.html",
+  "HM4.dc.html",
+  "HM2-Frames.dc.html",
+  "KB00-KobiSide.dc.html",
+  "KB1.dc.html",
+  "KB2.dc.html",
+  "KB3.dc.html",
+  "KB4.dc.html"
  ],
  "pages": [
+  {
+   "id": "kobiside",
+   "name": "צד Kobi בתמונה: לעבור ולחזור (27.11)"
+  },
+  {
+   "id": "hintmotion",
+   "name": "רמזים: תנועה רכה בין רמז לרמז (27.11)"
+  },
+  {
+   "id": "small2711",
+   "name": "כרטיס הסקי: הקופה, ומצב ההקלטה (27.11)"
+  },
+  {
+   "id": "toppill",
+   "name": "הפס העליון: רכבלים ומזג אוויר (27.11)"
+  },
+  {
+   "id": "mydays",
+   "name": "ימי הגלישה שלי והשיאים (27.11)"
+  },
   {
    "id": "daypages",
    "name": "עמודי היום: המפה, הרכס, הסיפור והשיתוף (27.11)"

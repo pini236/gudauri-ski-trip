@@ -25683,6 +25683,825 @@
     "ru",
     "ka"
    ]
+  },
+  "app.md_noride_title": {
+   "he": "לא נרשמה גלישה בהר",
+   "en": "No skiing was recorded on the mountain",
+   "ru": "На горе катание не записано",
+   "ka": "მთაზე სრიალი არ ჩაწერილა",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_nosave": {
+   "he": "ההקלטה לא נשמרה",
+   "en": "The recording was not saved",
+   "ru": "Запись не сохранена",
+   "ka": "ჩანაწერი არ შენახულა",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_title": {
+   "he": "ימי הגלישה שלי",
+   "en": "My ski days",
+   "ru": "Мои дни катания",
+   "ka": "ჩემი სათხილამურო დღეები",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_days": {
+   "he": "ימי גלישה",
+   "en": "Ski days",
+   "ru": "Дни катания",
+   "ka": "სათხილამურო დღეები",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_empty": {
+   "he": "עוד אין ימי גלישה",
+   "en": "No ski days yet",
+   "ru": "Дней катания пока нет",
+   "ka": "სათხილამურო დღეები ჯერ არ არის",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_record": {
+   "he": "להקליט יום גלישה",
+   "en": "Record a ski day",
+   "ru": "Записать день катания",
+   "ka": "სათხილამურო დღის ჩაწერა",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_sample_note": {
+   "he": "יום לדוגמה, לא נספר בשיאים",
+   "en": "Sample day, not counted in records",
+   "ru": "Пример дня, в рекорды не входит",
+   "ka": "დღის ნიმუში, რეკორდებში არ ითვლება",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_cut": {
+   "he": "נקטע ב-{time}",
+   "en": "Cut off at {time}",
+   "ru": "Прервано в {time}",
+   "ka": "შეწყდა {time}-ზე",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_days": {
+   "he": {
+    "one": "יום אחד",
+    "two": "{n} ימים",
+    "other": "{n} ימים"
+   },
+   "en": {
+    "one": "1 day",
+    "other": "{n} days"
+   },
+   "ru": {
+    "one": "{n} день",
+    "few": "{n} дня",
+    "many": "{n} дней",
+    "other": "{n} дня"
+   },
+   "ka": {
+    "one": "{n} დღე",
+    "other": "{n} დღე"
+   },
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_runs": {
+   "he": {
+    "one": "ירידה אחת",
+    "two": "{n} ירידות",
+    "other": "{n} ירידות"
+   },
+   "en": {
+    "one": "1 run",
+    "other": "{n} runs"
+   },
+   "ru": {
+    "one": "{n} спуск",
+    "few": "{n} спуска",
+    "many": "{n} спусков",
+    "other": "{n} спуска"
+   },
+   "ka": {
+    "one": "{n} დაშვება",
+    "other": "{n} დაშვება"
+   },
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_km": {
+   "he": "ק״מ גלישה",
+   "en": "Skiing km",
+   "ru": "Км катания",
+   "ka": "სრიალის კმ",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_steepest": {
+   "he": "הכי תלול",
+   "en": "Steepest",
+   "ru": "Самый крутой",
+   "ka": "ყველაზე ციცაბო",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_steep_seg": {
+   "he": "הקטע התלול",
+   "en": "Steepest section",
+   "ru": "Самый крутой участок",
+   "ka": "ყველაზე ციცაბო მონაკვეთი",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_private": {
+   "he": "רק מול עצמך. נשאר בטלפון.",
+   "en": "Only against yourself. Stays on your phone.",
+   "ru": "Только с самим собой. Остаётся на телефоне.",
+   "ka": "მხოლოდ საკუთარ თავთან. რჩება ტელეფონში.",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_card_a11y": {
+   "he": {
+    "one": "{day}, ירידה אחת, {m} מטר למטה",
+    "two": "{day}, {n} ירידות, {m} מטר למטה",
+    "other": "{day}, {n} ירידות, {m} מטר למטה"
+   },
+   "en": {
+    "one": "{day}, 1 run, {m} meters down",
+    "other": "{day}, {n} runs, {m} meters down"
+   },
+   "ru": {
+    "one": "{day}, {n} спуск, {m} метров вниз",
+    "few": "{day}, {n} спуска, {m} метров вниз",
+    "many": "{day}, {n} спусков, {m} метров вниз",
+    "other": "{day}, {n} спуска, {m} метров вниз"
+   },
+   "ka": {
+    "one": "{day}, {n} დაშვება, {m} მეტრი დაღმართი",
+    "other": "{day}, {n} დაშვება, {m} მეტრი დაღმართი"
+   },
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_title": {
+   "he": "הרכס של היום",
+   "en": "The day's ridge",
+   "ru": "Хребет дня",
+   "ka": "დღის ქედი",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_atop": {
+   "he": "בראש {lift}",
+   "en": "At the top of {lift}",
+   "ru": "На вершине {lift}",
+   "ka": "{lift}-ის თავზე",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_stops": {
+   "he": {
+    "one": "עצירה אחת",
+    "two": "{n} עצירות",
+    "other": "{n} עצירות"
+   },
+   "en": {
+    "one": "1 stop",
+    "other": "{n} stops"
+   },
+   "ru": {
+    "one": "{n} остановка",
+    "few": "{n} остановки",
+    "many": "{n} остановок",
+    "other": "{n} остановки"
+   },
+   "ka": {
+    "one": "{n} გაჩერება",
+    "other": "{n} გაჩერება"
+   },
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_hours": {
+   "he": "שעות על ההר",
+   "en": "Hours on the mountain",
+   "ru": "Часов на горе",
+   "ka": "საათი მთაზე",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_where": {
+   "he": "לאן הלך היום",
+   "en": "Where the day went",
+   "ru": "Куда ушёл день",
+   "ka": "სად წავიდა დღე",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_skiing": {
+   "he": "גלישה",
+   "en": "Skiing",
+   "ru": "Катание",
+   "ka": "სრიალი",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_lifts": {
+   "he": "ברכבלים",
+   "en": "On lifts",
+   "ru": "На подъёмниках",
+   "ka": "საბაგიროებზე",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_queues": {
+   "he": "בתורים",
+   "en": "In queues",
+   "ru": "В очередях",
+   "ka": "რიგებში",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.dt_breaks": {
+   "he": "הפסקות והליכה",
+   "en": "Breaks and walking",
+   "ru": "Перерывы и ходьба",
+   "ka": "შესვენებები და სიარული",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_watch": {
+   "he": "לצפות בסיפור",
+   "en": "Watch the story",
+   "ru": "Смотреть историю",
+   "ka": "ისტორიის ნახვა",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_more": {
+   "he": "עוד מהיום",
+   "en": "More from the day",
+   "ru": "Ещё за день",
+   "ka": "კიდევ დღიდან",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_picture": {
+   "he": "התמונה של היום",
+   "en": "Picture of the day",
+   "ru": "Картинка дня",
+   "ka": "დღის სურათი",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_i_of_n": {
+   "he": "{i} מתוך {n}",
+   "en": "{i} of {n}",
+   "ru": "{i} из {n}",
+   "ka": "{i} {n}-დან",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_see_mtn": {
+   "he": "לראות את היום על ההר",
+   "en": "See the day on the mountain",
+   "ru": "Посмотреть день на горе",
+   "ka": "დღის ნახვა მთაზე",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_preparing": {
+   "he": "מכינים",
+   "en": "Preparing",
+   "ru": "Готовим",
+   "ka": "ვამზადებთ",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_saving": {
+   "he": "שומרים",
+   "en": "Saving",
+   "ru": "Сохраняем",
+   "ka": "ვინახავთ",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_saved": {
+   "he": "נשמר בגלריה",
+   "en": "Saved to gallery",
+   "ru": "Сохранено в галерею",
+   "ka": "შენახულია გალერეაში",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_save_fail": {
+   "he": "לא נשמר · שוב",
+   "en": "Not saved · try again",
+   "ru": "Не сохранено · ещё раз",
+   "ka": "არ შეინახა · თავიდან",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_share_fail": {
+   "he": "לא הוכן · שוב",
+   "en": "Not ready · try again",
+   "ru": "Не готово · ещё раз",
+   "ka": "არ მომზადდა · თავიდან",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_pause": {
+   "he": "השהיה",
+   "en": "Pause",
+   "ru": "Пауза",
+   "ka": "პაუზა",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_play": {
+   "he": "הפעלה",
+   "en": "Play",
+   "ru": "Воспроизвести",
+   "ka": "დაკვრა",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.ds_again": {
+   "he": "שוב",
+   "en": "Again",
+   "ru": "Ещё раз",
+   "ka": "თავიდან",
+   "where": "app/android",
+   "note": "my days / day pages 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_lifts": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_open_of": {
+   "he": "{open} מתוך {total}",
+   "en": "{open} of {total}",
+   "ru": "{open} из {total}",
+   "ka": "{open} {total}-დან",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_open_label": {
+   "he": "רכבלים פתוחים",
+   "en": "lifts open",
+   "ru": "подъёмников открыто",
+   "ka": "საბაგირო ღიაა",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_all_open": {
+   "he": "כל הרכבלים פתוחים",
+   "en": "All lifts open",
+   "ru": "Все подъёмники открыты",
+   "ka": "ყველა საბაგირო ღიაა",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_wind": {
+   "he": {
+    "one": "רכבל אחד עצר ברוח",
+    "two": "שני רכבלים עצרו ברוח",
+    "other": "{n} רכבלים עצרו ברוח"
+   },
+   "en": {
+    "one": "1 lift stopped by wind",
+    "other": "{n} lifts stopped by wind"
+   },
+   "ru": {
+    "one": "{n} подъёмник остановлен ветром",
+    "few": "{n} подъёмника остановлены ветром",
+    "many": "{n} подъёмников остановлены ветром",
+    "other": "{n} подъёмника остановлены ветром"
+   },
+   "ka": {
+    "one": "1 საბაგირო გაჩერდა ქარის გამო",
+    "other": "{n} საბაგირო გაჩერდა ქარის გამო"
+   },
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_closed": {
+   "he": "סגורים",
+   "en": "Closed",
+   "ru": "Закрыто",
+   "ka": "დაკეტილია",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_opens_tomorrow": {
+   "he": "נפתחים מחר ב-{time}",
+   "en": "Opens tomorrow at {time}",
+   "ru": "Откроются завтра в {time}",
+   "ka": "ხვალ გაიხსნება {time}-ზე",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_no_data": {
+   "he": "אין מידע עדכני",
+   "en": "No current information",
+   "ru": "Нет свежих данных",
+   "ka": "განახლებული ინფორმაცია არ არის",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_days_to_open": {
+   "he": "ימים לפתיחה",
+   "en": "days to opening",
+   "ru": "дней до открытия",
+   "ka": "დღე გახსნამდე",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_lifts_up_on": {
+   "he": "הרכבלים עולים ב-{date}",
+   "en": "Lifts start on {date}",
+   "ru": "Подъёмники заработают {date}",
+   "ka": "საბაგიროები ამუშავდება {date}",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_fresh_snow": {
+   "he": "{n} ס״מ שלג טרי",
+   "en": "{n} cm of fresh snow",
+   "ru": "{n} см свежего снега",
+   "ka": "{n} სმ ახალი თოვლი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_gusts": {
+   "he": "משבים {n}",
+   "en": "Gusts {n}",
+   "ru": "Порывы {n}",
+   "ka": "ქარის ნაკადები {n}",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_snow_coming": {
+   "he": "שלג בדרך · {n} ס״מ",
+   "en": "Snow on the way · {n} cm",
+   "ru": "Ожидается снег · {n} см",
+   "ka": "თოვლი მოდის · {n} სმ",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_sun": {
+   "he": "שמש",
+   "en": "Sunny",
+   "ru": "Солнечно",
+   "ka": "მზიანი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_clear": {
+   "he": "בהיר",
+   "en": "Clear",
+   "ru": "Ясно",
+   "ka": "მოწმენდილი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_cloud": {
+   "he": "מעונן",
+   "en": "Cloudy",
+   "ru": "Облачно",
+   "ka": "ღრუბლიანი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_snow": {
+   "he": "שלג",
+   "en": "Snow",
+   "ru": "Снег",
+   "ka": "თოვლი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_wind": {
+   "he": "רוח",
+   "en": "Windy",
+   "ru": "Ветер",
+   "ka": "ქარიანი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_fog": {
+   "he": "ערפל",
+   "en": "Fog",
+   "ru": "Туман",
+   "ka": "ნისლი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_rain": {
+   "he": "גשם",
+   "en": "Rain",
+   "ru": "Дождь",
+   "ka": "წვიმა",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_sr_lifts": {
+   "he": "{open} מתוך {total} רכבלים פתוחים",
+   "en": "{open} of {total} lifts open",
+   "ru": "Открыто {open} из {total} подъёмников",
+   "ka": "ღიაა {open} საბაგირო {total}-დან",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_sr_weather": {
+   "he": "מזג האוויר, {temp}",
+   "en": "Weather, {temp}",
+   "ru": "Погода, {temp}",
+   "ka": "ამინდი, {temp}",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.start_all_sub": {
+   "he": "עד שעוצרים",
+   "en": "Until you stop",
+   "ru": "Пока не остановите",
+   "ka": "სანამ არ გააჩერებთ",
+   "where": "app/android",
+   "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.start_one_sub": {
+   "he": "נעצר לבד בתחתית",
+   "en": "Stops by itself at the bottom",
+   "ru": "Остановится сама внизу",
+   "ka": "თავისით გაჩერდება ქვემოთ",
+   "where": "app/android",
+   "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_office_nav": {
+   "he": "ניווט לקופה",
+   "en": "Navigate to the ticket office",
+   "ru": "Маршрут до кассы",
+   "ka": "ნავიგაცია სალაროსკენ",
+   "where": "app/android",
+   "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
