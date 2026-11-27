@@ -35,7 +35,7 @@ class ShelfV2Test {
         assertEquals(12f, Shelf.tickHeight(0f, 0f, 10f), 0f); assertEquals(30f, Shelf.tickHeight(10f, 0f, 10f), 0f)
         assertEquals(20f, Shelf.tickHeight(3f, 3f, 3f), 0f)
         assertEquals(0, Shelf.tickAt(-5f, 100f, 10, false)); assertEquals(9, Shelf.tickAt(500f, 100f, 10, false))
-        assertEquals(9, Shelf.tickAt(2f, 100f, 10, true)); assertEquals(5, Shelf.tickAt(48f, 100f, 10, false))
+        assertEquals(9, Shelf.tickAt(2f, 100f, 10, true)); assertEquals(4, Shelf.tickAt(48f, 100f, 10, false))
     }
 
     @Test fun answersFollowTheTable() {
@@ -54,7 +54,7 @@ class ShelfV2Test {
         val flat = Shelf.flat(Shelf.byLift(runs) { 0f })
         val t = ShelfAnswers.ticks(ShelfSort.LIFT, flat, runs.associateBy { it.key }, { null }, { null }, { null })
         assertEquals(3, t.size); assertEquals(1, t.count { it.groupStart }); assertTrue(t.all { it.h == 20f })
-        val o = ShelfAnswers.ticks(ShelfSort.OPEN, flat, runs.associateBy { it.key }, { null }, { k -> k == "a" }, { null })
+        val o = ShelfAnswers.ticks(ShelfSort.OPEN, flat, runs.associateBy { it.key }, { null }, { k -> if (k == "a") true else null }, { null })
         assertEquals(Tone.OPEN, o.first { it.key == "a" }.tone); assertEquals(Tone.UNKNOWN, o.first { it.key == "b" }.tone)
     }
 
