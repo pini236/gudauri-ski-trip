@@ -110,3 +110,18 @@ class StoryRulesTest {
         assertEquals(StoryRules.Film.PLAYING, StoryRules.toggle(StoryRules.Film.ENDED))
     }
 }
+
+class ShareCardSizeTest {
+    @org.junit.Test fun pictureIsFourByFive() {
+        val (w, h) = StoryRules.cardSize(300f, 400f, false)
+        org.junit.Assert.assertEquals(300f, w, .01f); org.junit.Assert.assertEquals(375f, h, .01f)
+    }
+    @org.junit.Test fun filmFillsFreeHeightAtNineBySixteen() {
+        val (w, h) = StoryRules.cardSize(300f, 400f, true)
+        org.junit.Assert.assertEquals(400f, h, .01f); org.junit.Assert.assertEquals(225f, w, .01f)
+    }
+    @org.junit.Test fun filmNeverWiderThanTheSpace() {
+        val (w, h) = StoryRules.cardSize(300f, 900f, true)
+        org.junit.Assert.assertEquals(300f, w, .01f); org.junit.Assert.assertEquals(533.33f, h, .01f)
+    }
+}

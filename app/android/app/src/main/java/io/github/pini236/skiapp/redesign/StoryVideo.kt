@@ -126,7 +126,20 @@ internal object StoryVideo {
     }
 
     /** One frame: the sky, the lifts and the lines drawn up to [now] (none in a hidden stretch), the pin, the words. */
-    private class Frame(val paint: DayPaint.Day, val hide: List<LongArray>, val night: Boolean, val words: Words,
+    /** The film drawn live into a card (DV1): the same [Frame] the encoder draws; [ms] is the video's own clock (0..SECONDS). */
+    class Scene internal constructor(private val frame: Frame, private val film: DayPaint.Film) {
+        fun draw(c: Canvas, ms: Long) {
+            c.save(); c.scale(c.width / W.toFloat(), c.height / H.toFloat())
+            frame.draw(c, film.at(ms * (film.length.toFloat() / (SECONDS * 1000f))))
+            c.restore()
+        }
+    }
+
+    fun scene(paint: DayPaint.Day, film: DayPaint.Film, hide: List<LongArray>, night: Boolean, words: Words,
+              display: Typeface?, body: Typeface?, rtl: Boolean, mountain: Mountain?): Scene =
+        Scene(Frame(paint, hide, night, words, display, body, rtl, W, H, null, mountain), film)
+
+    internal class Frame(val paint: DayPaint.Day, val hide: List<LongArray>, val night: Boolean, val words: Words,
                         val display: Typeface?, val body: Typeface?, val rtl: Boolean, val w: Int, val h: Int, val pin: FloatArray?,
                         val mountain: Mountain? = null) {
         private val u = w / 318f // the board's card is 318 wide

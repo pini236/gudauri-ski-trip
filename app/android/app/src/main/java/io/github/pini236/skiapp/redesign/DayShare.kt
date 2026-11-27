@@ -12,7 +12,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +47,12 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -112,21 +117,25 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     var pressed by remember { mutableStateOf<String?>(null) }
     var saved by remember { mutableStateOf(false) }
     var failKind by remember { mutableStateOf<String?>(null) }
-    var playing by remember { mutableStateOf<File?>(null) }
+    // the film plays at once in the card, drawn by the encoder's own scene (DV1); the file is made behind it for share and save
+    var started by remember { mutableStateOf(false) }
+    var scene by remember { mutableStateOf<StoryVideo.Scene?>(null) }
+    var panelPx by remember { mutableStateOf(0) }
     // the one waiting behind the running button (DV: the other button stays enabled and queues), and where the file was saved
     var queued by remember { mutableStateOf<String?>(null) }
     var savedUri by remember { mutableStateOf<Uri?>(null) }
     // the in-card video (DV1-DV3): its view, state and clock
-    var vv by remember { mutableStateOf<android.widget.VideoView?>(null) }
     var film by remember { mutableStateOf(StoryRules.Film.PLAYING) }
     var posMs by remember { mutableStateOf(0L) }
-    var durMs by remember { mutableStateOf(0L) }
+    val durMs = StoryVideo.SECONDS * 1000L
     val waiters = remember { mutableListOf<Pair<(File) -> Unit, () -> Unit>>() }
-    LaunchedEffect(vv) {
-        val v = vv ?: return@LaunchedEffect
+    LaunchedEffect(scene, film) {
+        if (scene == null || film != StoryRules.Film.PLAYING) return@LaunchedEffect
+        var last = withFrameNanos { it }
         while (true) {
-            if (film == StoryRules.Film.PLAYING) runCatching { posMs = v.currentPosition.toLong(); durMs = v.duration.toLong().coerceAtLeast(0L) }
-            kotlinx.coroutines.delay(100)
+            val now = withFrameNanos { it }
+            posMs = (posMs + (now - last) / 1_000_000L).coerceAtMost(durMs); last = now
+            if (posMs >= durMs) { film = StoryRules.Film.ENDED; break }
         }
     }
     LaunchedEffect(story) {
@@ -137,7 +146,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val top = pic?.second ?: "other"
     fun measure(method: String) { if (!sample) Telemetry.event("story_share", mapOf("method" to method, "top" to top)) }
     /** The video, made once (on a background thread), then kept for share and save. */
-    fun withVideo(onFail: () -> Unit = {}, then: (File) -> Unit) {
+    fun withVideo(onFail: () -> Unit = {}, then: (File) -> Unit = {}) {
         made?.let { if (it.isFile) { then(it); return } }
         // a second asker (the card's tap, then a button) waits for the same encode
         waiters += then to onFail
@@ -153,10 +162,22 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         }
     }
     fun toggleFilm() {
-        val v = vv ?: return
-        val next = StoryRules.toggle(film)
-        if (next == StoryRules.Film.PLAYING) { if (film == StoryRules.Film.ENDED) v.seekTo(0); v.start() } else v.pause()
-        film = next
+        if (scene == null) return
+        if (film == StoryRules.Film.ENDED) posMs = 0L
+        film = StoryRules.toggle(film)
+    }
+    fun startFilm() {
+        if (started) return
+        started = true; film = StoryRules.Film.PLAYING; posMs = 0L
+        scope.launch {
+            val lang = Lang.current(ctx.resources)
+            scene = withContext(Dispatchers.Default) {
+                runCatching { StoryVideo.scene(paint, DayPaint.film(paint, sm.maxAt), hide, night, shareWords(ctx, story, sm),
+                    Lang.typeface(ctx, lang, false), regular(ctx, lang), lang.rtl, mountainOf(ctx, night, elev)) }.getOrNull()
+            }
+            if (scene == null) started = false
+        }
+        withVideo()  // the encoder runs behind the live card; the buttons queue on it as before
     }
     fun openGallery() {
         val u = savedUri ?: return
@@ -185,28 +206,27 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }
-        Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 8.dp + 48.dp + 16.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally) {
+        val panelDp = with(LocalDensity.current) { panelPx.toDp() }
+        androidx.compose.foundation.layout.BoxWithConstraints(Modifier.align(Alignment.TopCenter).statusBarsPadding()
+            .padding(top = 8.dp + 48.dp + 16.dp, start = 36.dp, end = 36.dp, bottom = panelDp + 30.dp).fillMaxSize()) {
+          val linkDp = if (video && onSeeMountain != null) 58.dp else 0.dp
+          val (cw, ch) = StoryRules.cardSize(maxWidth.value, (maxHeight - linkDp).value, video)
+          Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             pic?.first?.let { b ->
                 // a tap on the card never reaches the dismiss layer; in video mode it plays the video inside the card, then
                 // toggles play and pause (DV1-DV3)
-                Box(Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp))
+                Box(Modifier.width(cw.dp).height(ch.dp).shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp))
+                    .background(Color(0xFF0B1220))
                     .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                        if (video && playing == null) withVideo { f -> film = StoryRules.Film.PLAYING; posMs = 0L; playing = f }
-                        else if (video) toggleFilm()
+                        if (video && !started) startFilm() else if (video) toggleFilm()
                     }, contentAlignment = Alignment.Center) {
-                    Image(b.asImageBitmap(), null, Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth)
-                    playing?.takeIf { video }?.let { f ->
-                        AndroidView(factory = { c ->
-                            android.widget.VideoView(c).apply {
-                                setVideoPath(f.absolutePath)
-                                // the last frame stays and the replay circle shows
-                                setOnCompletionListener { film = StoryRules.Film.ENDED; posMs = durMs }
-                                setOnErrorListener { _, _, _ -> playing = null; vv = null; true }
-                                post { vv = this }
-                                start()
-                            }
-                        }, modifier = Modifier.matchParentSize(), onRelease = { it.stopPlayback(); if (vv === it) vv = null })
+                    // the still only before the film starts and in picture mode; never behind or beside the film
+                    if (!(video && started)) Image(b.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = if (video) ContentScale.Crop else ContentScale.FillWidth)
+                    if (video && started) scene?.let { sc ->
+                        androidx.compose.foundation.Canvas(Modifier.matchParentSize()) {
+                            val t = posMs // read here so the canvas redraws with the clock
+                            drawIntoCanvas { c -> sc.draw(c.nativeCanvas, t) }
+                        }
                         val glassDark = Color(0x99080E1C)
                         val pauseLabel = stringResource(if (film == StoryRules.Film.PLAYING) R.string.app_ds_pause else R.string.app_ds_play)
                         if (film != StoryRules.Film.ENDED) Box(Modifier.align(Alignment.TopStart).padding(10.dp).size(44.dp).clip(CircleShape).background(glassDark)
@@ -236,7 +256,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                             }
                         }
                     }
-                    if (video && playing == null) androidx.compose.foundation.Canvas(Modifier.size(64.dp)) {
+                    if (video && !started) androidx.compose.foundation.Canvas(Modifier.size(64.dp)) {
                         drawCircle(Color(0x99080E1C))
                         val r = size.minDimension / 2
                         drawPath(androidx.compose.ui.graphics.Path().apply {
@@ -257,8 +277,10 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     Text(stringResource(R.string.app_ds_see_mtn), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
                 }
             }
+          }
         }
         Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(10.dp).fillMaxWidth()
+            .onSizeChanged { panelPx = it.height }
             .shadow(18.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(28.dp))
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
             .padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -268,7 +290,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     val sel = video == on
                     Text(stringResource(key), Modifier.weight(1f).heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
                         .background(if (sel) accent.copy(alpha = .1f) else Color.Transparent).border(1.5.dp, if (sel) accent else rule, RoundedCornerShape(18.dp))
-                        .clickable(role = Role.Button) { haptics.tick(.2f); video = on; if (!on) playing = null; Qa.log("redesign share ${if (on) "video" else "photo"}") }
+                        .clickable(role = Role.Button) { haptics.tick(.2f); video = on; if (!on) { started = false; scene = null; posMs = 0L }; Qa.log("redesign share ${if (on) "video" else "photo"}") }
                         .padding(vertical = 17.dp),
                         fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = if (sel) accent else ink, textAlign = TextAlign.Center)
                 }

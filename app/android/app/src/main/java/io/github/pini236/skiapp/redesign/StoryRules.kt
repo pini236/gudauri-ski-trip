@@ -103,4 +103,14 @@ internal object StoryRules {
 
     /** A tap on the card toggles play and pause; at the end it replays. */
     fun toggle(s: Film): Film = when (s) { Film.PLAYING -> Film.PAUSED; Film.PAUSED -> Film.PLAYING; Film.ENDED -> Film.PLAYING }
+
+    /**
+     * The share card's size in dp: the picture is 4:5 across the full width; the film is 9:16, as large as the free
+     * height allows (never wider than [maxW]).
+     */
+    fun cardSize(maxW: Float, maxH: Float, video: Boolean): Pair<Float, Float> {
+        if (!video) return maxW to maxW * 5f / 4f
+        val h = minOf(maxH, maxW * 16f / 9f).coerceAtLeast(0f)
+        return h * 9f / 16f to h
+    }
 }
