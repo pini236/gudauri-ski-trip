@@ -411,6 +411,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Manager: Pini approved Opus for the designer.** New designer `session_017QrNw9EH2x45vKXTHehrt5` takes P.19 (hint motion) and P.17 (Kobi side in picture); the other four topics were already drawn (v96-v98).
 - 27.11.2026: **Manager: Pini approved the share-video fix (P.13, play circle plays in place, taps never dismiss); builder `session_017QrNwA2Xd2WpQCVBwYSwqA`.** Junk days (P.23) left as is for now.
 - 27.11.2026: **Manager: Pini approved the day timeline "הרכס של היום" (P.11).** Run button v3 (`SW00`-`SW6`, v95) and P.10 (keep today's faint run lines, slightly stronger, no white lines) relayed to the new designer `session_017QrNw9vE7tZwtoB5accqAi`.
 - 27.11.2026: **DevOps: QA re-run on `30bd7454` (run 45951003604).** Green: storesmoke, games, redesign, redesign4, locate+descent; publish fixed. Red: `redesign2` film 99th percentile 2050 vs 2000 ms (borderline); `redesign3` and `store,lang` lose the emulator (likely runner memory kill, DevOps checking dmesg); the `redesign3` row/log misses ("ערב בבקתה" row gone with the UX-pass menu) are script-side, owner: Android implementer. Pre-store item P.14 stays open.
