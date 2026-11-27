@@ -162,7 +162,7 @@ internal fun LiftsSheet(lifts: List<Lift>, s: LiftStatus?, scene: MapScene, forM
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun LiftPanel(l: Lift, s: LiftStatus?, scene: MapScene, k: SheetInk, haptics: Haptics,
-                       onRun: (String) -> Unit, onMeet: (() -> Unit)?, onRuns: () -> Unit, onPlace: (io.github.pini236.skiapp.places.Place) -> Unit = {}) {
+                       onRun: (String) -> Unit, onMeet: (() -> Unit)?, onRuns: () -> Unit, onPlace: (io.github.pini236.skiapp.places.Place) -> Unit = {}, placesFirst: Boolean = false) {
     val fresh = s?.fresh == true
     val open = s?.isOpen(l.name)
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
@@ -247,7 +247,7 @@ private fun LiftPlacesLine(l: Lift, k: SheetInk, onPlace: (io.github.pini236.ski
         for ((st, head) in listOf(top to R.string.places_near_top, bottom to R.string.places_near_bottom)) {
             if (st == null) continue
             val near = places.near(st)
-            var all by androidx.compose.runtime.remember(st) { androidx.compose.runtime.mutableStateOf(false) }
+            var all by androidx.compose.runtime.remember(st) { androidx.compose.runtime.mutableStateOf(placesFirst) }
             // the emulator's check (qa.redesign places:bottom / places:top): the list sheet without scrolling to the line
             androidx.compose.runtime.LaunchedEffect(RedesignQa.seq) {
                 if (RedesignQa.cmd == "places:" + if (head == R.string.places_near_bottom) "bottom" else "top") all = true }
