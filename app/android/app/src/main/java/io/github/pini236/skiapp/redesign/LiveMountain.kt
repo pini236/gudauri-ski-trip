@@ -931,19 +931,16 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             // the form's veil (the review of 24.11, ש8)
             if (!tripForm) {
             Box(Modifier.fillMaxSize().background(sk.veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
-            if (t != null) LiveTripPass(around, t, nowL, night, haptics, tripSkipass(around, t), onField = { e -> tripEdit = e; Qa.log("redesign trip field $e") },
+            if (t != null) LiveTripPass(around, t, nowL, night, haptics, tripSkipass(around, t), editing = tripEdit, onForm = { haptics.tick(.3f); tripEdit = null; tripForm = true }, onField = { e -> tripEdit = e; Qa.log("redesign trip field $e") },
                 onSkipass = { Qa.log("redesign trip skipass"); skipassOpen = true })
             else LiveTripEmpty(night) { tripEdit = io.github.pini236.skiapp.trip.PassEdit.Dates }
-            // the top: back at the start, "edit" (the full form) at the end
+            // the top: back at the start; "edit" is in the card now (UX pass 2, TR1)
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val back = stringResource(R.string.app_g_back)
                 Box(Modifier.size(44.dp).semantics { contentDescription = back }.clickable { haptics.tick(.2f); tripOpen = false; tripEdit = null }, contentAlignment = Alignment.Center) {
                     Text(if (androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl) "›" else "‹", fontFamily = Gudi, fontSize = 24.sp, color = if (night) Color.White else sk.ink)
                 }
                 androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
-                if (t != null) Pill(Modifier.clickable { haptics.tick(.3f); tripEdit = null; tripForm = true }) {
-                    Text(stringResource(R.string.trip_edit), Modifier.padding(horizontal = 18.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = ink)
-                }
             }
             }
             val e = tripEdit

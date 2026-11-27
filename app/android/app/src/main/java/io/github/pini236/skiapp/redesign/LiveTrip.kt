@@ -41,6 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -124,6 +127,37 @@ private class NotchedPaper(val radius: Dp, val stubFromBottom: Dp, val r: Dp = 1
     }
 }
 
+/** The card's shape (UX pass 2, TR3): it ends at the perforation, square below, a half notch (r 10) at each bottom corner. */
+private class CardPaper(val radius: Dp, val r: Dp = 10.dp) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline = with(density) {
+        val rad = radius.toPx(); val rr = r.toPx()
+        val z = androidx.compose.ui.geometry.CornerRadius.Zero; val c = androidx.compose.ui.geometry.CornerRadius(rad)
+        val card = Path().apply { addRoundRect(RoundRect(Rect(0f, 0f, size.width, size.height), c, c, z, z)) }
+        val holes = Path().apply { addOval(Rect(Offset(0f, size.height), rr)); addOval(Rect(Offset(size.width, size.height), rr)) }
+        Outline.Generic(Path().apply { op(card, holes, PathOperation.Difference) })
+    }
+}
+
+/** The stub's shape: its own paper, bottom corners [radius], a half notch at each top corner. */
+private class StubPaper(val radius: Dp, val r: Dp = 10.dp) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline = with(density) {
+        val rad = radius.toPx(); val rr = r.toPx()
+        val z = androidx.compose.ui.geometry.CornerRadius.Zero; val c = androidx.compose.ui.geometry.CornerRadius(rad)
+        val stub = Path().apply { addRoundRect(RoundRect(Rect(0f, 0f, size.width, size.height), z, z, c, c)) }
+        val holes = Path().apply { addOval(Rect(Offset(0f, 0f), rr)); addOval(Rect(Offset(size.width, 0f), rr)) }
+        Outline.Generic(Path().apply { op(stub, holes, PathOperation.Difference) })
+    }
+}
+
+/** A value's field look (TR1): a dashed line under it, [acc] at 45 % (night 55 %); solid and 2 thick while its editor is open. */
+private fun Modifier.fieldLine(p: PassPaper, night: Boolean, active: Boolean, on: Boolean): Modifier = if (!on) this else
+    this.padding(bottom = 3.dp).drawBehind {
+        val y = size.height - 1.dp.toPx()
+        if (active) drawLine(p.acc, Offset(0f, y), Offset(size.width, y), 2.dp.toPx())
+        else drawLine(p.acc.copy(alpha = if (night) .55f else .45f), Offset(0f, y), Offset(size.width, y), 1.5.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx())))
+    }
+
 /** "יום א׳ · 10.1.2027" or "Sun · 10.1.2027". */
 private fun legDate(d: LocalDate, lang: String): String {
     val wd = if (lang == "he") "יום " + DateTimeFormatter.ofPattern("EEEEE", Locale.forLanguageTag("he")).format(d)
@@ -149,11 +183,12 @@ private fun stub(trip: Trip, now: LocalDateTime, night: Boolean): Pair<String?, 
 }
 
 @Composable
-private fun Field(label: String, value: String?, add: String?, p: PassPaper, modifier: Modifier, onClick: (() -> Unit)?) {
+private fun Field(label: String, value: String?, add: String?, p: PassPaper, modifier: Modifier, night: Boolean, active: Boolean, onClick: (() -> Unit)?) {
     Column(modifier.heightIn(min = 44.dp).let { m -> if (onClick != null) m.semantics { role = Role.Button }.clickable(onClick = onClick) else m }) {
         Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
-        if (value == null && add != null) Text(add, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.acc, maxLines = 1)
-        else Text(value ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.ink, maxLines = 1,
+        val line = Modifier.fieldLine(p, night, active, onClick != null)
+        if (value == null && add != null) Text(add, line, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = p.acc, maxLines = 1)
+        else Text(value ?: "—", line, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.5.sp, color = if (active) p.acc else p.ink, maxLines = 1,
             style = TextStyle(fontFeatureSettings = "tnum"))
     }
 }
@@ -167,16 +202,16 @@ private fun LegTag(text: String, p: PassPaper) {
 
 /** The two airports' codes and cities, the plane between them pointing the way of the flight. */
 @Composable
-private fun Codes(from: String?, fromCity: String, to: String?, toCity: String, p: PassPaper, toFaint: Boolean = false, onFrom: (() -> Unit)?, onTo: (() -> Unit)?) {
+private fun Codes(from: String?, fromCity: String, to: String?, toCity: String, p: PassPaper, toFaint: Boolean = false, night: Boolean = false, fromActive: Boolean = false, toActive: Boolean = false, onFrom: (() -> Unit)?, onTo: (() -> Unit)?) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f).let { m -> if (onFrom != null) m.clickable(onClick = onFrom) else m }) {
             Text(from ?: "—", fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(54f), color = p.ink, maxLines = 1)
-            Text(fromCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
+            Text(fromCity, Modifier.fieldLine(p, night, fromActive, onFrom != null), fontFamily = Gudi, fontSize = 11.5.sp, color = if (fromActive) p.acc else p.ink2, maxLines = 2)
         }
         Icon(Icons.plane, null, Modifier.padding(top = 22.dp).size(28.dp), tint = p.acc)
         Column(Modifier.weight(1f).let { m -> if (onTo != null) m.clickable(onClick = onTo) else m }, horizontalAlignment = Alignment.End) {
             Text(to ?: "—", Modifier.alpha(if (toFaint) .28f else 1f), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(54f), color = p.ink, maxLines = 1)
-            Text(toCity, fontFamily = Gudi, fontSize = 11.5.sp, color = p.ink2, maxLines = 2)
+            Text(toCity, Modifier.fieldLine(p, night, toActive, onTo != null), fontFamily = Gudi, fontSize = 11.5.sp, color = if (toActive) p.acc else p.ink2, maxLines = 2)
         }
     }
 }
@@ -189,64 +224,93 @@ private fun Perforation(p: PassPaper) {
     }
 }
 
-private const val HOLES = 11
+private const val HOLES = 12
 private val STUB_H = 100.dp
 
 /**
- * One pass (Q07): the strip, the codes, six fields and the stub. [tear] 0 to 1 down the perforation, [fall] then the
- * stub falling; [onField] opens a field's own sheet (round 20's rules), only on the card in front.
+ * One pass (Q07): the strip, the codes, six fields and, as its own piece of paper, the stub (UX pass 2, TR1 to TR3).
+ * [tear] 0 to 1 punches [holes] along the perforation and opens the stub; [fall] then drops it. [onField] opens a field's
+ * own sheet, only on the card in front; [editing] marks the field whose editor is open; [onForm] is "edit" (the full form).
  */
 @Composable
-private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Boolean, p: PassPaper, front: Boolean, tear: Float, fall: Float,
-                     passenger: io.github.pini236.skiapp.home.Passenger?, onTear: () -> Unit, onField: ((PassEdit) -> Unit)?) {
+private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Boolean, p: PassPaper, front: Boolean, tear: Float, fall: Float, holes: Int,
+                     editing: PassEdit?, passenger: io.github.pini236.skiapp.home.Passenger?, onTear: () -> Unit, onForm: (() -> Unit)?, onField: ((PassEdit) -> Unit)?) {
     val lang = io.github.pini236.skiapp.i18n.Lang.current(LocalContext.current.resources).tag
     val leg = if (isRet) trip.ret!! else trip.out
     fun on(e: PassEdit): (() -> Unit)? = if (front && onField != null) ({ onField(e) }) else null
-    Column(Modifier.fillMaxWidth().shadow(22.dp, NotchedPaper(22.dp, STUB_H), ambientColor = Color(0x4D0A192D), spotColor = Color(0x4D0A192D))
-        .background(p.paper, NotchedPaper(22.dp, STUB_H))) {
-        Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.trip_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
-                LegTag(if (isRet) stringResource(R.string.app_pass_ret) + " · ${leg.date.dayOfMonth}.${leg.date.monthValue}" else stringResource(R.string.app_pass_out), p)
-            }
-            Codes(leg.fromCode, leg.fromCity, leg.toCode, leg.toCity, p, onFrom = on(PassEdit.Place(from = !isRet)), onTo = on(PassEdit.Place(from = isRet)))
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Field(stringResource(R.string.trip_date), legDate(leg.date, lang), null, p, Modifier.weight(1.5f), on(PassEdit.Dates))
-                    Field(stringResource(R.string.ticket_departs), leg.departs?.toString(), stringResource(R.string.trip_add_time), p, Modifier.weight(1f), on(PassEdit.Time(isRet, departs = true)))
-                    Field(stringResource(R.string.ticket_arrives), leg.arrives?.toString(), stringResource(R.string.trip_add_time), p, Modifier.weight(1f), on(PassEdit.Time(isRet, departs = false)))
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Field(stringResource(R.string.app_pass_traveller), passenger?.let { it.name ?: stringResource(R.string.ticket_pax_guest) } ?: stringResource(R.string.ticket_pax_guest),
-                        null, p, Modifier.weight(1.5f), if (front) passenger?.onTap else null)
-                    Field(stringResource(R.string.ticket_flight), leg.flight.ifBlank { null }, stringResource(R.string.trip_add_number), p, Modifier.weight(1f), on(PassEdit.Flight(isRet)))
-                    // no baggage in "your trip" (Trip has none): the column stays, empty, so the grid keeps its widths
+    fun act(e: PassEdit) = front && editing == e
+    val shadow = Color(0x4D0A192D)
+    Column(Modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth().shadow(22.dp, CardPaper(22.dp), ambientColor = shadow, spotColor = shadow).background(p.paper, CardPaper(22.dp))) {
+            Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(stringResource(R.string.app_home_trip), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
+                    LegTag(if (isRet) stringResource(R.string.app_pass_ret) + " · ${leg.date.dayOfMonth}.${leg.date.monthValue}" else stringResource(R.string.app_pass_out), p)
                     Spacer(Modifier.weight(1f))
+                    // "edit" lives in the card, at the end of the first row (TR1): a chip, 32 high inside a 44 touch
+                    if (front && onForm != null) {
+                        val lbl = stringResource(R.string.trip_edit)
+                        Box(Modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable(onClick = onForm), contentAlignment = Alignment.Center) {
+                            Row(Modifier.height(32.dp).clip(RoundedCornerShape(16.dp)).background(p.skiDay).padding(horizontal = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Icon(Icons.edit, null, Modifier.size(15.dp), tint = p.acc)
+                                Text(lbl, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = p.acc, maxLines = 1)
+                            }
+                        }
+                    }
+                }
+                Codes(leg.fromCode, leg.fromCity, leg.toCode, leg.toCity, p, night = night, fromActive = act(PassEdit.Place(from = !isRet)), toActive = act(PassEdit.Place(from = isRet)),
+                    onFrom = on(PassEdit.Place(from = !isRet)), onTo = on(PassEdit.Place(from = isRet)))
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Field(stringResource(R.string.trip_date), legDate(leg.date, lang), null, p, Modifier.weight(1.5f), night, act(PassEdit.Dates), on(PassEdit.Dates))
+                        Field(stringResource(R.string.ticket_departs), leg.departs?.toString(), stringResource(R.string.trip_add_time), p, Modifier.weight(1f), night, act(PassEdit.Time(isRet, departs = true)), on(PassEdit.Time(isRet, departs = true)))
+                        Field(stringResource(R.string.ticket_arrives), leg.arrives?.toString(), stringResource(R.string.trip_add_time), p, Modifier.weight(1f), night, act(PassEdit.Time(isRet, departs = false)), on(PassEdit.Time(isRet, departs = false)))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Field(stringResource(R.string.app_pass_traveller), passenger?.let { it.name ?: stringResource(R.string.ticket_pax_guest) } ?: stringResource(R.string.ticket_pax_guest),
+                            null, p, Modifier.weight(1.5f), night, false, if (front) passenger?.onTap else null)
+                        Field(stringResource(R.string.ticket_flight), leg.flight.ifBlank { null }, stringResource(R.string.trip_add_number), p, Modifier.weight(1f), night, act(PassEdit.Flight(isRet)), on(PassEdit.Flight(isRet)))
+                        // no baggage in "your trip" (Trip has none, a model change that waits for the architect): the column stays, empty
+                        Spacer(Modifier.weight(1f))
+                    }
                 }
             }
         }
-        Perforation(p)
-        // the stub: the number of the stage and its words, the ski days under them; a tap tears it, hole by hole
+        // the stub: its own paper with its own shadow, meeting the card with no gap; a tap tears it, hole by hole (TR3)
         val sx = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
         val tearLabel = stringResource(R.string.ticket_tear_stub)
         // the way back's stub: the ski days, big, and their dates (handoff section 14.9, as Pass.kt today)
         val retDays = trip.skiDayCount().takeIf { isRet && it > 0 }
         val (num, words) = if (isRet) (retDays?.let { it.toString() to pluralStringResource(R.plurals.app_skipass_days_n, it) } ?: (null to null)) else stub(trip, now, night)
-        Row(Modifier.fillMaxWidth().height(STUB_H)
-            .let { m -> if (front) m.semantics { role = Role.Button; contentDescription = tearLabel }.clickable(onClick = onTear) else m }
+        Box(Modifier.fillMaxWidth().height(STUB_H).zIndex(if (tear > 0f) 1f else 0f)
             .graphicsLayer {
-                transformOrigin = TransformOrigin(if (sx < 0) 1f else 0f, 0f)
-                rotationZ = sx * (4f * tear + 18f * fall)
-                translationY = 2.dp.toPx() * tear + 260.dp.toPx() * fall * fall
+                // the hinge on the end side's top corner: the start side opens first, then the stub falls, unclipped
+                transformOrigin = TransformOrigin(if (sx > 0) 1f else 0f, 0f)
+                val ang = 5f * tear + 15f * fall
+                rotationZ = -sx * ang
+                translationY = 3.dp.toPx() * tear + 250.dp.toPx() * fall * fall
                 alpha = 1f - (fall * 1.4f - .4f).coerceIn(0f, 1f)
             }
-            .padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            if (num != null) Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(66f), color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
-            Column(Modifier.weight(1f)) {
-                if (words != null) Text(words, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = p.ink, maxLines = 2)
-                val r = trip.skiDays()
-                (if (retDays != null && r != null) stringResource(R.string.app_trip_range, "${r.start.dayOfMonth}", "${r.endInclusive.dayOfMonth}.${r.endInclusive.monthValue}") else skiLine(trip))
-                    ?.let { Text(it, fontFamily = Gudi, fontSize = 12.5.sp, color = p.ink2, maxLines = 1) }
+            .shadow(10.dp, StubPaper(22.dp), ambientColor = shadow, spotColor = shadow).background(p.paper, StubPaper(22.dp))
+            .let { m -> if (front) m.semantics { role = Role.Button; contentDescription = tearLabel }.clickable(onClick = onTear) else m }) {
+            Canvas(Modifier.fillMaxWidth().padding(horizontal = 14.dp).height(10.dp).align(Alignment.TopCenter)) {
+                val y = 1.dp.toPx()
+                drawLine(p.line, Offset(0f, y), Offset(size.width, y), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx())))
+                // the holes punch from the start side to the end side, 43 ms apart
+                for (i in 0 until holes.coerceAtMost(HOLES)) {
+                    val t = (i + .5f) / HOLES; val x = if (sx > 0) size.width * t else size.width * (1 - t)
+                    drawCircle(Color(0x8C28385A), 4.dp.toPx(), Offset(x, y))
+                }
+            }
+            Row(Modifier.fillMaxSize().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                if (num != null) Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = bigSp(66f), color = p.ink, style = TextStyle(fontFeatureSettings = "tnum"))
+                Column(Modifier.weight(1f)) {
+                    if (words != null) Text(words, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = p.ink, maxLines = 2)
+                    val r = trip.skiDays()
+                    (if (retDays != null && r != null) stringResource(R.string.app_trip_range, "${r.start.dayOfMonth}", "${r.endInclusive.dayOfMonth}.${r.endInclusive.monthValue}") else skiLine(trip))
+                        ?.let { Text(it, fontFamily = Gudi, fontSize = 12.5.sp, color = p.ink2, maxLines = 1) }
+                }
             }
         }
     }
@@ -259,7 +323,7 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
  */
 @Composable
 internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTime, night: Boolean, haptics: Haptics, skipassPrice: Int?,
-                                   onField: (PassEdit) -> Unit, onSkipass: () -> Unit) {
+                                   editing: PassEdit?, onForm: () -> Unit, onField: (PassEdit) -> Unit, onSkipass: () -> Unit) {
     val p = remember(night) { PassPaper(night) }
     val scope = rememberCoroutineScope()
     val hasRet = trip.ret != null
@@ -308,11 +372,11 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
             }) {
             if (hasRet) Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp).offset(y = (-50).dp).alpha(.78f)
                 .semantics { role = Role.Button; contentDescription = swapLabel }.clickable { swap() }) {
-                TripCard(trip, !frontRet, now, night, p, front = false, tear = 0f, fall = 0f, passenger = around.passenger, onTear = {}, onField = null)
+                TripCard(trip, !frontRet, now, night, p, front = false, tear = 0f, fall = 0f, holes = 0, editing = null, passenger = around.passenger, onTear = {}, onForm = null, onField = null)
             }
             Box(Modifier.graphicsLayer { translationY = swapA.value * 26.dp.toPx(); alpha = 1f - swapA.value * .5f }) {
-                TripCard(trip, frontRet, now, night, p, front = true, tear = tear.value, fall = fall.value, passenger = around.passenger,
-                    onTear = { tearIt() }, onField = onField)
+                TripCard(trip, frontRet, now, night, p, front = true, tear = tear.value, fall = fall.value, holes = holes, editing = editing, passenger = around.passenger,
+                    onTear = { tearIt() }, onForm = onForm, onField = onField)
             }
         }
     }
@@ -348,7 +412,7 @@ internal fun LiveTripEmpty(night: Boolean, onTap: () -> Unit) {
             .clickable(onClick = onTap)) {
             Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(stringResource(R.string.trip_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
+                    Text(stringResource(R.string.app_home_trip), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = p.ink2)
                     LegTag(stringResource(R.string.app_pass_out), p)
                 }
                 Codes("TLV", stringResource(R.string.ticket_city_tlv), "TBS", stringResource(R.string.trip_land_where), p, toFaint = true, onFrom = null, onTo = null)
