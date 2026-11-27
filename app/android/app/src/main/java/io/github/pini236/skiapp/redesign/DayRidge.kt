@@ -71,6 +71,7 @@ import java.util.Locale
 @Composable
 internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, segs: List<org.json.JSONObject>, runs: Runs?, night: Boolean, sample: Boolean, haptics: io.github.pini236.skiapp.fx.Haptics, onShare: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
+    val places = io.github.pini236.skiapp.places.LocalPlaces.current
     val zone = ZoneId.of(io.github.pini236.skiapp.dayrec.DayParams.TZ)
     val dens = context.resources.displayMetrics.density
     val bg = if (night) Color(0xFF0A1322) else Color(0xFFF2F5F9)
@@ -83,14 +84,21 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
     val hhmm = remember { DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT) }
     fun at(t: Long) = hhmm.format(Instant.ofEpochMilli(t).atZone(zone))
     LaunchedEffect(Unit) { Qa.log("redesign day ridge ${day.chapters.sumOf { it.items.size }}") }
-    val entries = remember(day, segs) {
+    val entries = remember(day, segs, places) {
         val lifts = segs.filter { it.optString("type") == "lift" }.map { o ->
             LiftRow(o.optLong("t0"), liftTitle(runs, o),
-                ((o.optLong("t1") - o.optLong("t0")) / 60_000L).toInt(), if (o.isNull("rise_m")) null else o.optDouble("rise_m"))
+                ((o.optLong("t1") - o.optLong("t0")) / 60_000L).toInt(), if (o.isNull("rise_m")) null else o.optDouble("rise_m"),
+                runs?.lifts?.firstOrNull { it.id == o.optString("lift") }?.kind)
         }
-        (day.chapters.flatMap { it.items } + lifts).sortedBy { (it as? DayModel.Item)?.t0 ?: (it as LiftRow).t0 }
-            .groupBy { e -> partOfDay(Instant.ofEpochMilli((e as? DayModel.Item)?.t0 ?: (e as LiftRow).t0).atZone(zone).hour) }
-            .toSortedMap().toList()
+        val placeList = places?.places.orEmpty()
+        val rows = DayTimelineRules.rows(day.chapters.flatMap { it.items },
+            lifts.map { DayTimelineRules.LiftIn(it.t0, it.name, it.kind, it.minutes, it.riseM) },
+            stopsOf = { d -> segOf(segs, d)?.optJSONArray("stops")?.length() ?: 0 }, topAt = day.summary.maxAt,
+            gapOf = { d -> minuteGap(paint, d.t0, d.t1) }) { t0, afterLift ->
+            val st = segs.firstOrNull { it.optString("type") == "stop" && it.optLong("t0") == t0 }
+            DayTimelineRules.breakKind(st?.takeIf { it.has("lat") && !it.isNull("lat") }?.optDouble("lat"), st?.takeIf { it.has("lon") && !it.isNull("lon") }?.optDouble("lon"), placeList, afterLift)
+        }
+        rows.groupBy { r -> partOfDay(Instant.ofEpochMilli(r.t0).atZone(zone).hour) }.toSortedMap().toList()
     }
     // one descent as a film (board L09), from a descent in the timeline
     var film by remember { androidx.compose.runtime.mutableStateOf<DayModel.Descent?>(null) }
@@ -107,6 +115,11 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
         // under a descent's film the timeline is hidden from the screen reader too (a row cut at the film's edge read as a
         // 9 dp target, round 4's check)
         LazyColumn(Modifier.fillMaxSize().statusBarsPadding().then(if (film != null) Modifier.clearAndSetSemantics { } else Modifier), contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 40.dp)) {
+            val tc = TlColors(ink, muted, rule, glass, night)
+            item {
+                val sm = day.summary
+                FourNumbers(sm.descents, sm.distM, sm.dropM, DayTimelineRules.hours(sm.start, sm.end), tc)
+            }
             item {
                 // the ridge (L07): ground faint, descents in the light, rides dotted, hours under it
                 val measurer = rememberTextMeasurer()
@@ -167,22 +180,25 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 // the scale and the rides' dotted piece, named (board L07's legend)
                 LightScale(night, muted, width = 120.dp, lift = true, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
             }
-            // the day's items with its lift rides between them (the analysis's lift segments), in chapters by the hour
+            // the day as a timeline (boards DT1-DT5): rows on a spine, chapters by the hour
+            item {
+                val ds = day.chapters.flatMap { it.items }.filterIsInstance<DayModel.Descent>()
+                val total = (day.summary.end - day.summary.start) / 1000.0
+                val sec = { type: String, kind: String? -> segs.filter { it.optString("type") == type && (kind == null || it.optString("kind") == kind) }.sumOf { (it.optLong("t1") - it.optLong("t0")) / 1000.0 } }
+                WhereBar(DayTimelineRules.where(total, ds.sumOf { if (it.movingS > 0) it.movingS else (it.t1 - it.t0) / 1000.0 }, sec("lift", null), sec("stop", "queue")), ramp, tc)
+            }
             for ((part, rows) in entries) {
-                item {
-                    Row(Modifier.padding(top = 14.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(when (part) { 0 -> R.string.app_day_morning; 1 -> R.string.app_day_noon; else -> R.string.app_day_afternoon }), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = muted)
-                        Text(stringResource(R.string.app_day_n_descents, rows.count { it is DayModel.Descent }), fontFamily = Gudi, fontSize = 12.sp, color = muted)
-                    }
-                }
-                items(rows) { e ->
-                    when (e) {
-                        is LiftRow -> LiftLine(e, at(e.t0), ink, muted, rule)
-                        is DayModel.Item -> TimelineRow(e, at(e.t0), runs, night, ink, muted, rule,
-                            top = e is DayModel.Descent && e.maxAt != null && e.maxAt == day.summary.maxAt,
-                            stops = (e as? DayModel.Descent)?.let { d -> segOf(segs, d)?.optJSONArray("stops")?.length() } ?: 0,
-                            gapAt = (e as? DayModel.Descent)?.let { d -> minuteGap(paint, d.t0, d.t1)?.let { g -> at(g) } }) {
-                            if (e is DayModel.Descent) { haptics.tick(.3f); film = e }
+                item { ChapterHead(when (part) { 0 -> R.string.app_day_morning; 1 -> R.string.app_day_noon; else -> R.string.app_day_afternoon }, rows.count { it is DayTimelineRules.Descent }, tc) }
+                items(rows) { r ->
+                    when (r) {
+                        is DayTimelineRules.Lift -> LiftRowView(r, at(r.t0), tc)
+                        is DayTimelineRules.Queue -> QueueRowView(r, at(r.t0), tc)
+                        is DayTimelineRules.Walk -> WalkRowView(r, at(r.t0), tc)
+                        is DayTimelineRules.Break -> BreakRowView(r, at(r.t0), at(r.t0 + r.minutes * 60_000L), tc)
+                        is DayTimelineRules.Descent -> {
+                            val strip = DayTimelineRules.strip(paint.track.t, paint.track.band, r.d.t0, r.d.t1, 32)
+                            DescentRowView(r, at(r.t0), r.gapAt?.let { g -> at(g) }, runs, strip, ramp,
+                                r.d.maxAt?.let { m -> if (r.d.t1 > r.d.t0) ((m - r.d.t0) * 32 / (r.d.t1 - r.d.t0)).toInt().coerceIn(0, 31) else -1 } ?: -1, tc) { haptics.tick(.3f); film = r.d }
                         }
                     }
                 }
@@ -210,7 +226,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
 }
 
 /** A lift ride in the timeline (board L07): from the analysis's lift segment. */
-internal class LiftRow(val t0: Long, val name: String, val minutes: Int, val riseM: Double?)
+internal class LiftRow(val t0: Long, val name: String, val minutes: Int, val riseM: Double?, val kind: String? = null)
 
 /** A lift segment's name: the lift's name in the data, by its id (as the live screen), else the segment's own. */
 internal fun liftTitle(runs: Runs?, o: org.json.JSONObject): String {
@@ -221,58 +237,8 @@ internal fun liftTitle(runs: Runs?, o: org.json.JSONObject): String {
 /** The analysis's segment of a descent (its stops, its top and bottom), by its start. */
 internal fun segOf(segs: List<org.json.JSONObject>, d: DayModel.Descent) = segs.firstOrNull { it.optString("type") == "descent" && it.optLong("t0") == d.t0 }
 
-@Composable
-private fun LiftLine(e: LiftRow, at: String, ink: Color, muted: Color, rule: Color) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Gudi, fontSize = 13.sp, color = muted)
-        Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.app_tl_lift_head, e.name), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
-            Text(stringResource(R.string.app_tl_lift_meta, e.minutes, e.riseM?.let { String.format(Locale.ROOT, "%,d", Math.round(it)) } ?: "—"),
-                fontFamily = Gudi, fontSize = 13.sp, color = muted)
-        }
-    }
-    Box(Modifier.fillMaxWidth().height(1.dp).background(rule))
-}
-
 /** A run's sign colour, as on the trail signs (board L07). */
-private fun signColor(c: String?) = when (c) { "green" -> Color(0xFF178A4A); "red" -> Color(0xFFD8362C); "black" -> Color(0xFF14171B); "blue" -> Color(0xFF1B6FDB); else -> Color(0xFF8A96A3) }
-
-@Composable
-private fun TimelineRow(it: DayModel.Item, at: String, runs: Runs?, night: Boolean, ink: Color, muted: Color, rule: Color, top: Boolean, stops: Int,
-                        gapAt: String? = null, onOpen: () -> Unit) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).let { m -> if (it is DayModel.Descent) m.clickable(role = Role.Button) { onOpen() } else m }.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(at, Modifier.width(44.dp).padding(top = 1.dp), fontFamily = Gudi, fontSize = 13.sp, color = muted)
-        Column(Modifier.weight(1f)) {
-            val meta = TextStyle(fontFamily = Gudi, fontSize = 13.sp, color = muted)
-            when (it) {
-                is DayModel.Descent -> {
-                    if (it.runs.isEmpty()) Text(stringResource(R.string.app_day_off), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
-                    else Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        it.runs.forEachIndexed { i, leg ->
-                            if (i > 0) Text("›", fontFamily = Gudi, fontSize = 14.sp, color = muted)
-                            val keys = leg.split(" · ")
-                            Box(Modifier.size(10.dp).clip(RoundedCornerShape(2.dp)).background(signColor(runs?.pistes?.firstOrNull { p -> p.key == keys[0] }?.color)))
-                            Text(shortRuns(keys.joinToString(" · ") { k -> titleOf(runs, k) }), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 1)
-                        }
-                    }
-                    Text(stringResource(R.string.app_tl_run_meta, String.format(Locale.ROOT, "%.1f", it.distM / 1000.0),
-                        metres(it.dropM), LiveNumbers.maxKmh(it.maxKmh)), style = meta)
-                    if (stops == 1) Text(stringResource(R.string.app_tl_one_stop), style = meta)
-                    // the descent where the day's top speed was (board L07)
-                    if (top) Text(stringResource(R.string.app_tl_top_speed, LiveNumbers.maxKmh(it.maxKmh),
-                        it.runs.firstOrNull()?.split(" · ")?.firstOrNull()?.let { k -> titleOf(runs, k) } ?: ""), style = meta)
-                    if (it.runs.isNotEmpty() && it.offRuns) Text(stringResource(R.string.app_day_off), style = meta)
-                    // a minute without reception in this descent (board L07; the film draws it dashed)
-                    gapAt?.let { g -> Text(stringResource(R.string.app_tl_gap_at, g), style = meta) }
-                }
-                is DayModel.Queue -> Text(stringResource(R.string.app_day_queue, it.minutes) + (it.lift?.let { l -> " · $l" } ?: ""), style = meta)
-                is DayModel.Rest -> Text(stringResource(if (it.long) R.string.app_day_lunch else R.string.app_day_rest, it.minutes), style = meta)
-                is DayModel.Walk -> Text(stringResource(R.string.app_tl_walk, Math.round(it.distM)), style = meta)
-            }
-        }
-    }
-    Box(Modifier.fillMaxWidth().height(1.dp).background(rule))
-}
+internal fun signColor(c: String?) = when (c) { "green" -> Color(0xFF178A4A); "red" -> Color(0xFFD8362C); "black" -> Color(0xFF14171B); "blue" -> Color(0xFF1B6FDB); else -> Color(0xFF8A96A3) }
 
 /**
  * The start of a gap of about a minute (30 to 90 s) between the day's lines inside [t0, t1], or null: the words say
