@@ -104,7 +104,7 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
     val nf = remember { NumberFormat.getIntegerInstance(Locale.getDefault()) }
     val km = remember { NumberFormat.getNumberInstance(Locale.getDefault()).apply { minimumFractionDigits = 1; maximumFractionDigits = 1 } }
     val screenH = LocalConfiguration.current.screenHeightDp
-    val sheetH = 296
+    val sheetH = 104 + 40
     val free = ((screenH - sheetH).toFloat() / screenH).coerceIn(.3f, .8f)
 
     var d by remember { mutableFloatStateOf(0f) }
@@ -229,84 +229,66 @@ internal fun BoxScope.RideFilm(key: String, title: String, sign: @Composable () 
         }
     }
 
-    // the rail on the left in every language: the line's slope colours from the top down, by distance; the handle
-    val railH = minOf(400, screenH - sheetH - 16 - 64 - 24).coerceAtLeast(120)
-    val colours = remember(line) {
-        val steps = 60
-        List(steps + 1) { i -> val c = SlopeColors.of(line.slopeAt(line.length * i / steps).toFloat()); Color(c[0], c[1], c[2]) }
-    }
+    // the flight strip (RK6): 76 high, 18 from the sides and 28 from the bottom: the sign and the name, a progress bar that
+    // fills from the start side with a dot at the camera's place (a finger on it moves the film), and a round stop button
+    val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val progressText = stringResource(R.string.app_ride_progress, km.format(d / 1000f), km.format(line.length / 1000f))
     val railA11y = stringResource(R.string.app_ride_rail_a11y, km.format(d / 1000f), km.format(line.length / 1000f))
     val nextNow = FilmRules.next(joins, d)
     val nextWords = nextNow?.let { stringResource(R.string.app_ride_next_join, nf.format(it.first), it.second) } ?: stringResource(R.string.app_ride_no_joins)
     val altWords = stringResource(R.string.app_ride_alt_cap)
     val slopeWords = stringResource(R.string.app_ride_slope_cap)
-    Box(Modifier.align(androidx.compose.ui.AbsoluteAlignment.TopLeft).statusBarsPadding().padding(top = 64.dp).absoluteOffset(x = 3.dp).width(44.dp).height(railH.dp)
-        .semantics {
-            contentDescription = railA11y
-            stateDescription = "${nf.format(line.altAt(d))} $altWords, ${line.slopeAt(d)}° $slopeWords, $nextWords"
-            progressBarRangeInfo = ProgressBarRangeInfo(d, 0f..line.length, (line.length / FilmRules.STEP_M).toInt())
-            setProgress { v -> scrub((v / FilmRules.STEP_M).roundToInt() * FilmRules.STEP_M); true }
-        }
-        .pointerInput(line) {
-            awaitPointerEventScope {
-                while (true) {
-                    val e = awaitPointerEvent()
-                    val c = e.changes.firstOrNull() ?: continue
-                    if (c.pressed) { scrub((c.position.y / size.height).coerceIn(0f, 1f) * line.length); c.consume() }
+    val stopWords = stringResource(R.string.app_run_film_stop)
+    val strip = RoundedCornerShape(28.dp)
+    // the end of the run brings the card back (a moment after the dot reaches the bottom)
+    LaunchedEffect(atEnd, playing) { if (atEnd && !playing && started == 0L && d > 0f) { kotlinx.coroutines.delay(500); close() } }
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    androidx.compose.animation.AnimatedVisibility(shown, Modifier.align(Alignment.BottomCenter),
+        enter = androidx.compose.animation.slideInVertically(androidx.compose.animation.core.tween(300)) { it } + androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200))) {
+    Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 18.dp, end = 18.dp, bottom = 28.dp).height(76.dp)
+        .shadow(8.dp, strip).clip(strip).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, strip).padding(start = 14.dp, end = 12.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        sign()
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("\u2066$title\u2069", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink, maxLines = 1)
+            Box(Modifier.fillMaxWidth().height(24.dp)
+                .semantics {
+                    contentDescription = railA11y
+                    stateDescription = "${nf.format(line.altAt(d))} $altWords, ${line.slopeAt(d)}° $slopeWords, $nextWords"
+                    progressBarRangeInfo = ProgressBarRangeInfo(d, 0f..line.length, (line.length / FilmRules.STEP_M).toInt())
+                    setProgress { v -> scrub((v / FilmRules.STEP_M).roundToInt() * FilmRules.STEP_M); true }
+                }
+                .pointerInput(line, rtl) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val e = awaitPointerEvent()
+                            val c = e.changes.firstOrNull() ?: continue
+                            if (c.pressed) {
+                                val f = (c.position.x / size.width).coerceIn(0f, 1f)
+                                scrub((if (rtl) 1f - f else f) * line.length); c.consume()
+                            }
+                        }
+                    }
+                }) {
+                Canvas(Modifier.fillMaxSize()) {
+                    val f = if (line.length > 0f) (d / line.length).coerceIn(0f, 1f) else 0f
+                    val cy = size.height / 2; val bh = 6.dp.toPx(); val r = 7.dp.toPx()
+                    val x0 = if (rtl) size.width - r else r; val x1 = if (rtl) r else size.width - r
+                    val px = x0 + (x1 - x0) * f
+                    drawRoundRect(k.line, Offset(0f, cy - bh / 2), androidx.compose.ui.geometry.Size(size.width, bh), androidx.compose.ui.geometry.CornerRadius(bh / 2))
+                    val fl = if (rtl) px - r else 0f; val fw = if (rtl) size.width - fl else px + r
+                    drawRoundRect(k.acc, Offset(fl, cy - bh / 2), androidx.compose.ui.geometry.Size(fw, bh), androidx.compose.ui.geometry.CornerRadius(bh / 2))
+                    drawCircle(k.acc, r, Offset(px, cy))
+                    drawCircle(Color.White, r - 3.dp.toPx(), Offset(px, cy))
                 }
             }
-        }) {
-        Box(Modifier.align(Alignment.Center).width(30.dp).fillMaxSize().clip(RoundedCornerShape(15.dp)).background(k.surf).border(1.dp, k.line, RoundedCornerShape(15.dp))) {
-            Box(Modifier.align(Alignment.Center).width(8.dp).fillMaxSize().padding(vertical = 12.dp).clip(RoundedCornerShape(4.dp)).background(Brush.verticalGradient(colours)))
-            val f = if (line.length > 0f) d / line.length else 0f
-            Canvas(Modifier.fillMaxSize().padding(vertical = 12.dp)) {
-                val y = size.height * f
-                drawCircle(Color.White, 9.dp.toPx(), Offset(size.width / 2, y))
-                drawCircle(YOU_BLUE, 9.dp.toPx(), Offset(size.width / 2, y), style = Stroke(3.dp.toPx()))
-            }
+        }
+        Box(Modifier.size(52.dp).clip(CircleShape).background(k.ink).semantics { role = Role.Button; contentDescription = stopWords }
+            .clickable { haptics.tick(.3f); Qa.log("redesign ride stopped"); close() }, contentAlignment = Alignment.Center) {
+            Box(Modifier.size(16.dp).clip(RoundedCornerShape(3.dp)).background(k.surf.copy(alpha = 1f)))
         }
     }
-
-    // the film's sheet: glass, 296 high, a handle, the sign and the name with how far, three numbers, the next meeting,
-    // the main button and the speed, the hint
-    Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(sheetH.dp).shadow(8.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-        .pullSheet(onDown = { close() })
-        .navigationBarsPadding().padding(start = 18.dp, end = 18.dp, top = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            sign()
-            Text("⁦$title⁩", Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = k.ink, maxLines = 1)
-            Text(progressText, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink2, style = tabular)
-        }
-        Row(Modifier.fillMaxWidth()) {
-            RideNumber(nf.format(line.altAt(d)), altWords, k, Modifier.weight(1f))
-            RideNumber("${line.slopeAt(d)}°", slopeWords, k, Modifier.weight(1f))
-            RideNumber(km.format((line.length - d).coerceAtLeast(0f) / 1000f), stringResource(R.string.app_ride_left_cap), k, Modifier.weight(1f))
-        }
-        Text(nextWords, fontFamily = Gudi, fontSize = 14.sp, color = k.ink, maxLines = 1)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            val main = when {
-                playing -> stringResource(R.string.run_fly_stop)
-                atEnd -> stringResource(R.string.app_ride_again)
-                else -> "▶ " + stringResource(R.string.app_ride_continue)
-            }
-            Box(Modifier.weight(1f).height(48.dp).clip(RoundedCornerShape(24.dp)).background(k.acc)
-                .semantics { role = Role.Button }.clickable { haptics.tick(.3f); if (playing) { playing = false; Qa.log("redesign ride stopped") } else play() },
-                contentAlignment = Alignment.Center) {
-                Text(main, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onAcc)
-            }
-            val speedA11y = stringResource(R.string.app_ride_speed_a11y, speed.toString())
-            Box(Modifier.width(64.dp).height(48.dp).clip(RoundedCornerShape(24.dp)).border(1.dp, k.line, RoundedCornerShape(24.dp))
-                .semantics { role = Role.Button; contentDescription = speedA11y }
-                .clickable { haptics.tick(.3f); speed = FilmRules.nextSpeed(speed); Qa.log("redesign ride speed $speed") },
-                contentAlignment = Alignment.Center) {
-                Text("⁦×$speed⁩", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink, style = tabular)
-            }
-        }
-        Text(stringResource(R.string.app_ride_hint), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, lineHeight = 15.sp)
     }
     // the emulator's switches (qa.redesign ride:<metres>, ride:play, ride:stop, ride:speed)
     LaunchedEffectQa { c ->

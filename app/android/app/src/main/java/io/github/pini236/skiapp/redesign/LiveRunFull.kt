@@ -1,6 +1,18 @@
 package io.github.pini236.skiapp.redesign
 
 import android.content.Intent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
@@ -76,8 +88,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * The run's two heights (S07): the low one is K10 as it was; a pull up, or "videos" in it, opens the full one. Sideways on
- * either: the next or the previous run in the shelf's order (towards the start: the next).
+ * The run card (RK1, RK2, RK5): a floating card 18 from the sides and 44 from the bottom, the previous and next runs' cards
+ * peeking 10 at both sides, the page dots under it. A drag sideways moves the card with its neighbours and settles the next
+ * one in the centre (towards the start: the next, so everything mirrors with the layout direction); a pull up opens it,
+ * a pull down returns it to the low height and then closes it.
  */
 @Composable
 internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scene: MapScene, videos: List<Video>, night: Boolean,
@@ -88,33 +102,79 @@ internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scen
     val nextA = next?.let { stringResource(R.string.run_nav_next_aria, it) }
     val prevA = prev?.let { stringResource(R.string.run_nav_prev_aria, it) }
     val vids = remember(videos, key) { Video.of(videos, key) }
-    var dx = 0f
-    Box(Modifier.semantics {
+    val k = remember(night) { SheetInk(night) }
+    val dens = LocalDensity.current
+    val scope = rememberCoroutineScope()
+    val dragX = remember { Animatable(0f) }
+    var wPx by remember { mutableFloatStateOf(0f) }
+    val gapPx = with(dens) { 8.dp.toPx() }
+    val limPx = with(dens) { 60.dp.toPx() }
+    // the next run's card sits at the start side (right in Hebrew, left in English); the previous one at the end side
+    val nextSign = if (rtl) 1f else -1f
+    // the new run is in the centre as soon as its key arrives
+    LaunchedEffect(key) { dragX.snapTo(0f) }
+    fun settle(to: String?, sign: Float) {
+        scope.launch {
+            if (to == null) { dragX.animateTo(0f, spring(.8f, 500f)); return@launch }
+            haptics.tick(.3f)
+            dragX.animateTo(sign * (wPx + gapPx), tween(300))
+            onPick(to)
+            kotlinx.coroutines.delay(600)
+            if (dragX.value != 0f) dragX.animateTo(0f, tween(200))
+        }
+    }
+    val card = RoundedCornerShape(28.dp)
+    val at = order.indexOf(key)
+    Column(Modifier.sheetWidth().navigationBarsPadding().semantics {
         customActions = listOfNotNull(
             nextA?.let { a -> CustomAccessibilityAction(a) { onPick(next); true } },
             prevA?.let { a -> CustomAccessibilityAction(a) { onPick(prev); true } })
-    }.pointerInput(key, full) {
-        detectHorizontalDragGestures(onDragStart = { dx = 0f }, onDragEnd = {
-            val lim = 60.dp.toPx()
-            // towards the start (right in Hebrew, left in English) is the next run
-            val toStart = if (rtl) dx > lim else dx < -lim
-            val toEnd = if (rtl) dx < -lim else dx > lim
-            when { toStart && next != null -> { haptics.tick(.3f); onPick(next) }; toEnd && prev != null -> { haptics.tick(.3f); onPick(prev) } }
-        }) { _, a -> dx += a }
-    }.pullSheet(
-        // the sheet follows the finger (Pini, 24.11.2026): down from the full one is the low one, down from the low one closes
-        onDown = if (full) ({ onFull(false); Qa.log("redesign run low") }) else onClose,
-        onUp = if (!full) ({ onFull(true); Qa.log("redesign run full") }) else null,
-        closes = !full)) {
-        RunFull(key, r, d, scene, vids, night, haptics, order, onRide, open = full,
-            onOpen = { haptics.tick(.3f); onFull(true); Qa.log("redesign run full") })
+    }) {
+        Box(Modifier.padding(horizontal = 18.dp).pointerInput(key, full, next, prev) {
+            detectHorizontalDragGestures(onDragEnd = {
+                val v = dragX.value
+                when {
+                    v * nextSign > limPx && next != null -> settle(next, nextSign)
+                    v * nextSign < -limPx && prev != null -> settle(prev, -nextSign)
+                    else -> settle(null, 0f)
+                }
+            }, onDragCancel = { settle(null, 0f) }) { change, a ->
+                change.consume()
+                var nv = dragX.value + a
+                if (nv * nextSign > 0f && next == null) nv = 0f
+                if (nv * nextSign < 0f && prev == null) nv = 0f
+                scope.launch { dragX.snapTo(nv) }
+            }
+        }.pullSheet(
+            // the sheet follows the finger (Pini, 24.11.2026): down from the full one is the low one, down from the low one closes
+            onDown = if (full) ({ onFull(false); Qa.log("redesign run low") }) else onClose,
+            onUp = if (!full) ({ onFull(true); Qa.log("redesign run full") }) else null,
+            closes = !full)) {
+            Box(Modifier.absoluteOffset { IntOffset(dragX.value.roundToInt(), 0) }) {
+                // the neighbours: the same shape, 8 from the card, 72% (only the edge shows)
+                if (next != null) Box(Modifier.matchParentSize().absoluteOffset { IntOffset((nextSign * (wPx + gapPx)).roundToInt(), 0) }
+                    .graphicsLayer { alpha = .72f }.clip(card).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, card))
+                if (prev != null) Box(Modifier.matchParentSize().absoluteOffset { IntOffset((-nextSign * (wPx + gapPx)).roundToInt(), 0) }
+                    .graphicsLayer { alpha = .72f }.clip(card).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, card))
+                Box(Modifier.onSizeChanged { wPx = it.width.toFloat() }) {
+                    RunFull(key, r, d, scene, vids, night, haptics, onRide, open = full,
+                        onOpen = { haptics.tick(.3f); onFull(true); Qa.log("redesign run full") })
+                }
+            }
+        }
+        // the dots sit under the card, outside it: 18 from the bottom, the current one 18 wide, at most seven
+        Spacer(Modifier.height(14.dp))
+        if (at >= 0) Row(Modifier.align(Alignment.CenterHorizontally).height(6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            for (i in NowRules.window(order.size, at)) Box(Modifier.size(if (i == at) 18.dp else 6.dp, 6.dp).clip(CircleShape).background(if (i == at) k.ink else k.ink.copy(alpha = .32f)))
+        } else Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(18.dp))
     }
 }
 
 /** S07, the full sheet: the head with sharing, the three numbers, the conditions at the top and the bottom, the videos, the dots. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun RunFull(key: String, r: PeakData.Run, d: PeakData, scene: MapScene, vids: List<Video>, night: Boolean, haptics: Haptics, order: List<String>,
+private fun RunFull(key: String, r: PeakData.Run, d: PeakData, scene: MapScene, vids: List<Video>, night: Boolean, haptics: Haptics,
                     onRide: (() -> Unit)? = null, open: Boolean, onOpen: () -> Unit) {
     val k = remember(night) { SheetInk(night) }
     val ctx = LocalContext.current
@@ -122,14 +182,13 @@ private fun RunFull(key: String, r: PeakData.Run, d: PeakData, scene: MapScene, 
     val piste = scene.runs.pistes.firstOrNull { it.key == key }
     val facts = remember(piste) { piste?.let { RunFacts.of(scene.terrain, it) } }
     val h = LocalConfiguration.current.screenHeightDp
-    val top = sheetShape()
+    val top = RoundedCornerShape(28.dp)
     LaunchedEffect(key, open) { if (open) Qa.log("redesign run full $key ${vids.size}") }
     val w = LocalWeather.current
     val f = w.usable
-    Column(Modifier.sheetWidth().then(if (open) Modifier.heightIn(max = (h - 236).coerceAtLeast(320).dp) else Modifier).shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
-        .navigationBarsPadding().verticalScroll(rememberScrollState()).padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
+    Column(Modifier.fillMaxWidth().then(if (open) Modifier.heightIn(max = (h - 112 - 44 - 38).coerceAtLeast(320).dp) else Modifier).shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
+        .navigationBarsPadding().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // the head: the run's plate, the name and the line under it, sharing
         val colour = stringResource(when (r.color) { "green" -> R.string.common_color_green; "blue" -> R.string.common_color_blue; "red" -> R.string.common_color_red; else -> R.string.common_color_black })
         val level = stringResource(when (r.color) { "green" -> R.string.map_difficulty_beginner; "blue" -> R.string.map_difficulty_easy; "red" -> R.string.map_difficulty_intermediate; else -> R.string.map_difficulty_hard })
@@ -175,11 +234,6 @@ private fun RunFull(key: String, r: PeakData.Run, d: PeakData, scene: MapScene, 
         val topNow = if (facts != null) f?.at(facts.top.toFloat(), w.local)?.temp else null
         if (!open) {
             if (RunCardRules.footRow(vids.size, f != null)) FootRow(vids, topNow, k, haptics, onOpen)
-            // the dots sit under the card's content: where this run is among all of them
-            val at0 = order.indexOf(key)
-            if (at0 >= 0) Row(Modifier.align(Alignment.CenterHorizontally), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                for (i in NowRules.window(order.size, at0)) Box(Modifier.size(6.dp).clip(CircleShape).background(if (i == at0) k.ink else k.ink.copy(alpha = .32f)))
-            }
             return@Column
         }
         // the conditions at the run's top and bottom (the interpolation by height, as today)
@@ -220,11 +274,6 @@ private fun RunFull(key: String, r: PeakData.Run, d: PeakData, scene: MapScene, 
         }
         if (!all && vids.size > 3) Text(pluralStringResource(R.plurals.app_run_videos_all, vids.size, vids.size.toString()),
             Modifier.heightIn(min = 44.dp).clickable { all = true }.padding(vertical = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = k.acc)
-        // the dots: where this run is among all of them
-        val at = order.indexOf(key)
-        if (at >= 0) Row(Modifier.align(Alignment.CenterHorizontally), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            for (i in NowRules.window(order.size, at)) Box(Modifier.size(6.dp).clip(CircleShape).background(if (i == at) k.ink else k.line))
-        }
     }
 }
 
@@ -262,9 +311,9 @@ private val THUMBS = java.util.concurrent.ConcurrentHashMap<String, Bitmap>()
 /** K12's way in, on the run's sheet: "to go down in a film", 48 high, the accent's outline. */
 @Composable
 internal fun RideButton(k: SheetInk, haptics: Haptics, onRide: () -> Unit) {
-    Box(Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(24.dp)).border(1.5.dp, k.acc, RoundedCornerShape(24.dp))
+    Box(Modifier.fillMaxWidth().height(50.dp).clip(RoundedCornerShape(25.dp)).background(k.acc)
         .semantics { role = Role.Button }.clickable { haptics.tick(.3f); onRide() }, contentAlignment = Alignment.Center) {
-        Text("\u25B6 " + stringResource(R.string.app_run_ride), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.acc)
+        Text("\u25B6 " + stringResource(R.string.app_run_ride), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onAcc)
     }
 }
 
