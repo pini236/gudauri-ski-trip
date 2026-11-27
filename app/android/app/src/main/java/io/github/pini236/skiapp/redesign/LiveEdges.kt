@@ -1,5 +1,8 @@
 package io.github.pini236.skiapp.redesign
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.border
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -160,6 +163,32 @@ internal fun LoadingRows(k: SheetInk, n: Int = 3) {
             }
         }
         Text(stringResource(R.string.app_loading), Modifier.semantics { liveRegion = LiveRegionMode.Polite }, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
+    }
+}
+
+/** A skeleton bar (GR3): radius 8, the line colour, a light sweep every 1.4 s; no sweep under reduced motion. */
+@Composable
+internal fun SkeletonBar(k: SheetInk, w: Int, h: Int, modifier: Modifier = Modifier) {
+    val still = reducedMotion()
+    val x = if (still) 0f else rememberInfiniteTransition(label = "sweep").animateFloat(-1f, 2f, infiniteRepeatable(tween(1400, easing = LinearEasing)), label = "sweep").value
+    val base = k.line
+    val light = Color.White.copy(alpha = .35f)
+    Box(modifier.width(w.dp).height(h.dp).clip(RoundedCornerShape(8.dp)).background(
+        if (still) Brush.horizontalGradient(listOf(base, base)) else Brush.horizontalGradient(
+            0f to base, (x - .25f).coerceIn(0f, 1f) to base, x.coerceIn(0f, 1f) to light, (x + .25f).coerceIn(0f, 1f) to base, 1f to base)))
+}
+
+/** GR3: the group sheet's body while the group loads, in the real sizes: a card of 150 and two rows of 60, so nothing jumps when it arrives. */
+@Composable
+internal fun GroupSkeletonBody(k: SheetInk) {
+    val loadingText = stringResource(R.string.app_loading)
+    Column(Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite; contentDescription = loadingText }, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, k.line, RoundedCornerShape(16.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            SkeletonBar(k, 150, 14); SkeletonBar(k, 220, 12); SkeletonBar(k, 110, 12)
+        }
+        for (i in 0 until 2) Column(Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(14.dp)).border(1.dp, k.line, RoundedCornerShape(14.dp)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SkeletonBar(k, listOf(160, 130)[i], 12); SkeletonBar(k, listOf(100, 120)[i], 10)
+        }
     }
 }
 

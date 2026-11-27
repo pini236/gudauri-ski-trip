@@ -961,13 +961,15 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
             // the head: the name, the members and the dates; "invite" at the end
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f).let { m -> if (g?.admin == true) m.clickable { ui.go(PLayer.Invite(id)) } else m }) {
-                    Text(g?.name ?: "…", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (g == null && !shown.gone && !shown.offline) Column(Modifier.height(48.dp), verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)) {
+                        SkeletonBar(k, 150, 22); SkeletonBar(k, 110, 13)
+                    } else Text(g?.name ?: "…", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (g != null) Small(listOfNotNull(pluralStringResource(R.plurals.app_g_members, g.members.size, g.members.size),
                         if (g.startsOn != null && g.endsOn != null) stringResource(R.string.app_trip_range, io.github.pini236.skiapp.season.shortDate(g.startsOn),
                             io.github.pini236.skiapp.season.shortDate(g.endsOn)) else null).joinToString(" · "), k)
                 }
-                Row(Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)).semantics { role = Role.Button }
-                    .clickable { ui.go(PLayer.Invite(id)) }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(Modifier.heightIn(min = 44.dp).alpha(if (g == null) .45f else 1f).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp)).semantics { role = Role.Button }
+                    .clickable(enabled = g != null) { ui.go(PLayer.Invite(id)) }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Icon(Icons.plus, null, Modifier.size(18.dp), tint = k.acc)
                     Text(stringResource(R.string.app_g_invite_short), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.acc)
                 }
@@ -996,7 +998,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                     }
                 }
                 // U11: the first time, rows in the shape of the content
-                g == null -> LoadingRows(k)
+                g == null -> GroupSkeletonBody(k)
             }
             if (g != null) {
                 // U07: shown from the phone, with the time it was kept
