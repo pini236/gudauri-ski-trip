@@ -496,8 +496,14 @@ internal fun MeButton(me: Me?, night: Boolean, onClick: () -> Unit) {
 private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
     val api = p.api
     var me by remember { mutableStateOf(api.me()) }
-    var groups by remember { mutableStateOf<List<MyGroup>?>(null) }
-    LaunchedEffect(ui.changes) { me = api.me(); groups = runCatching { api.myGroupRows() }.getOrNull() ?: groups ?: emptyList() }
+    val cacheCtx = androidx.compose.ui.platform.LocalContext.current
+    var groups by remember { mutableStateOf<List<MyGroup>?>(GroupListCache.read(cacheCtx)) }
+    LaunchedEffect(ui.changes) {
+        me = api.me()
+        val fresh = runCatching { api.myGroupRows() }.getOrNull()
+        if (fresh != null) GroupListCache.write(cacheCtx, fresh)
+        groups = fresh ?: groups ?: emptyList()
+    }
     val kind = PeopleRules.meKind(me, groups?.size ?: 0)
     LaunchedEffect(kind, groups?.size) { if (groups != null) Qa.log("redesign people me ${kind.name.lowercase()} ${groups?.size ?: 0}") }
     val act = rememberAct()

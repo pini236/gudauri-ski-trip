@@ -93,9 +93,17 @@ internal fun BoxScope.MenuSheet(
     // the veil over the mountain; a touch on it closes the menu
     Box(Modifier.fillMaxSize().alpha(enter.value).background(if (night) Color(0x5C020612) else Color(0x38283E6E))
         .pointerInput(Unit) { detectTapGestures { onClose() } })
-    val groups by produceState<List<io.github.pini236.skiapp.group.GroupSummary>?>(null, around?.people) {
-        value = runCatching { around?.people?.api?.myGroups() }.getOrNull()
+    val groups by produceState<List<io.github.pini236.skiapp.group.GroupSummary>?>(
+        GroupListCache.read(ctx)?.map { io.github.pini236.skiapp.group.GroupSummary(it.id, it.name, null, null) }, around?.people) {
+        val fresh = runCatching { around?.people?.api?.myGroups() }.getOrNull()
+        if (fresh != null) {
+            val old = GroupListCache.read(ctx).orEmpty().associateBy { it.id }
+            GroupListCache.write(ctx, fresh.map { io.github.pini236.skiapp.group.MyGroup(it.id, it.name, old[it.id]?.members, old[it.id]?.admin == true) })
+        }
+        value = fresh ?: value
     }
+    var groupWaiting by remember { mutableStateOf(false) }
+    LaunchedEffect(groups, groupWaiting) { if (groupWaiting && groups != null) { groupWaiting = false; actions.onGroup(groups) } }
     val days by produceState(0) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         runCatching { io.github.pini236.skiapp.dayrec.DayRec.store(ctx).days().size }.getOrDefault(0) } }
     val top = sheetShape()
@@ -129,7 +137,7 @@ internal fun BoxScope.MenuSheet(
         }
         val tiles = buildList<MTile> {
             add(MTile(Icons.map, stringResource(R.string.app_skipass_title), passLine, null, actions.onSkipass))
-            add(MTile(Icons.people, stringResource(R.string.app_grp_title), groupLine, "group") { actions.onGroup(g) })
+            add(MTile(Icons.people, stringResource(R.string.app_grp_title), groupLine, "group", { if (g == null && around?.people != null) groupWaiting = true else actions.onGroup(g) }, busy = groupWaiting))
             if (actions.onFood != null && food > 0) add(MTile(Icons.pin, stringResource(R.string.app_vill_food),
                 pluralStringResource(R.plurals.app_menu_food_n, food, food.toString()), null, actions.onFood))
             actions.onGames?.let { go -> add(MTile(Icons.trophy, stringResource(R.string.app_cabin_title),
@@ -153,12 +161,12 @@ internal fun BoxScope.MenuSheet(
     HintSequence(Hints.MENU, listOf(HintStep("trip", R.string.app_hint_trip, 16f), HintStep("group", R.string.app_hint_group, 16f)), ready = true, night = night, again = Hints.again)
 }
 
-private class MTile(val icon: ImageVector, val title: String, val line: String?, val hint: String?, val onTap: () -> Unit)
+private class MTile(val icon: ImageVector, val title: String, val line: String?, val hint: String?, val onTap: () -> Unit, val busy: Boolean = false)
 
 @Composable
 private fun Tile(m: MTile, k: SheetInk, bg: Color, tint: Color, haptics: Haptics) {
     val big = bigText()
-    Column(Modifier.fillMaxWidth().heightIn(min = if (big) 124.dp else 104.dp).clip(RoundedCornerShape(22.dp)).background(bg)
+    Column(Modifier.fillMaxWidth().alpha(if (m.busy) .6f else 1f).heightIn(min = if (big) 124.dp else 104.dp).clip(RoundedCornerShape(22.dp)).background(bg)
         .border(1.dp, k.line, RoundedCornerShape(22.dp))
         .semantics(mergeDescendants = true) { role = Role.Button }.clickable { haptics.tick(.3f); m.onTap() }.padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.SpaceBetween) {

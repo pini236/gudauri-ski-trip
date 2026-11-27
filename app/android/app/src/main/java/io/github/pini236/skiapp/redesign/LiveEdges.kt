@@ -167,6 +167,22 @@ internal fun LoadingRows(k: SheetInk, n: Int = 3) {
 }
 
 /** A skeleton bar (GR3): radius 8, the line colour, a light sweep every 1.4 s; no sweep under reduced motion. */
+/** The group list as the phone last saw it, so a screen opens with it at once and only the very first load shows bars. */
+internal object GroupListCache {
+    private fun sp(c: android.content.Context) = c.getSharedPreferences("group_list_cache", android.content.Context.MODE_PRIVATE)
+    fun read(c: android.content.Context): List<io.github.pini236.skiapp.group.MyGroup>? = runCatching {
+        val j = sp(c).getString("rows", null) ?: return null
+        val a = org.json.JSONArray(j)
+        (0 until a.length()).map { val o = a.getJSONObject(it)
+            io.github.pini236.skiapp.group.MyGroup(o.getString("id"), o.getString("name"), if (o.has("n")) o.getInt("n") else null, o.optBoolean("a")) }
+    }.getOrNull()
+    fun write(c: android.content.Context, rows: List<io.github.pini236.skiapp.group.MyGroup>) {
+        val a = org.json.JSONArray()
+        rows.forEach { a.put(org.json.JSONObject().put("id", it.id).put("name", it.name).put("a", it.admin).also { o -> it.members?.let { n -> o.put("n", n) } }) }
+        sp(c).edit().putString("rows", a.toString()).apply()
+    }
+}
+
 @Composable
 internal fun SkeletonBar(k: SheetInk, w: Int, h: Int, modifier: Modifier = Modifier) {
     val still = reducedMotion()
