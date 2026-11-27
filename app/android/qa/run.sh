@@ -299,8 +299,9 @@ games() {
   # A running app already completed startup in the previous scenario; it will not emit this line again.
   if [ -n "$cold" ]; then waitlog "shadow ready" 90 || return 1; fi
   sleep 1
-  drag $((W * 7 / 100)) $((H * 80 / 100)) $((W * 7 / 100)) $((H * 35 / 100)) 400; sleep 1
-  if tapText "משחקים"; then sleep 2; shot games-page; else fail "no games sign on home"; fi
+  # the UX pass: the games page is the menu's "משחקים" tile (the home page and its signs are gone); the hook opens the same route
+  qa "--es qa.tab games"; sleep 2
+  if [ -n "$(where '~משחקים')" ]; then shot games-page; else fail "no games page"; shot games-missing; fi
   tapText "איחוד כדורי שלג" && { sleep 2; shot merge-start; }
   # a swipe anywhere moves the board: a few, then undo
   mark; local d; for d in L U R D L D; do
@@ -1083,7 +1084,7 @@ dayrec_steps() {
       waitlog "dayrec stop user" 15 || fail "Stop in the notification did not stop the recording"
       sleep 4; dayrec_service_gone || fail "the recorder service is still running after Stop in the notification"
       adb shell cmd statusbar collapse; sleep 6; shot dayrec-live-stopped-outside
-      [ -n "$(where 'היום שלך')" ] || fail "after Stop in the notification the live screen did not go to the day that ended"
+      [ -n "$(where '~^(היום של[יך]|הקלטה בלי ירידות)$')" ] || fail "after Stop in the notification the live screen did not go to the day that ended"
     else
       adb shell cmd statusbar collapse; fail "no Stop button in the recording's notification"
       [ -n "$(where 'סיום')" ] && { tapText "סיום"; sleep 3; }
@@ -1406,7 +1407,8 @@ redesign() {
     note "ring $rg frames: $(sed -n 's/^Total frames rendered: //p' <<<"$gfx" | head -1) rendered, 50th $(sed -n 's/^50th percentile: //p' <<<"$gfx" | head -1), 90th $(sed -n 's/^90th percentile: //p' <<<"$gfx" | head -1), 99th $(sed -n 's/^99th percentile: //p' <<<"$gfx" | head -1)"
   done
   mark; qa "--es qa.redesign ring:on"; waitlog "redesign ring on" 10
-  mark; qa "--es qa.redesign hour:off"; qa "--es qa.redesign front"; waitlog "redesign live turned" 20
+  # (two intents back to back lost the turn's end on a busy emulator: let the first one's redraw settle, and give the turn longer)
+  mark; qa "--es qa.redesign hour:off"; sleep 3; qa "--es qa.redesign front"; waitlog "redesign live turned" 40
   # the air of height changes the mountain too: at the opening, at noon, the picture without it and with it
   # (the architect's condition 6: no difference to see); the mean difference over the screen noted
   mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
@@ -1662,7 +1664,9 @@ redesign2() {
   seen "redesign where run Tatra 2" 25 || { mark; geo 42.482631 44.483401; waitlog "redesign where run Tatra 2" 25; } || fail "redesign: where am I did not find Tatra 2"
   rd_settled; shot redesign-where-run
   mark; geo 41.7151 44.8271; waitlog "redesign where outside" 25 && { rd_settled; shot redesign-where-outside; }
-  mark; qa "--es qa.redesign where:off"; waitlog "redesign where off" 10
+  # since UX part 7 an outside reading turns the button off by itself after the far card (Far.kt), so "off" may already be logged
+  # and a second "off" is no state change (no log): both are fine
+  mark; qa "--es qa.redesign where:off"; seen "redesign where off" 10 || note "where: already off (the far card turned it off)"
   # S07: the run's full sheet (the conditions with a fresh forecast, the videos); then the compass once the view moved
   mark; qa "--es qa.weather fresh --es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20
   mark; qa "--es qa.redesign run:full"; waitlog "redesign run full Tatra 2" 15 || fail "redesign: the run's full sheet did not open"; sleep 2; rd_settled; shot redesign-run-full
@@ -1871,6 +1875,9 @@ redesign4() {
   # mountain before the emulator's first fix (about 4 s after the tap); the test build's meter bar off (qa.stats off)
   mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "redesign: the live screen on the mountain did not open"
   waitlog "redesign live drawn" 60 || fail "redesign: the mountain was not drawn under the live screen"
+  # the emulator's own place is in California: a first reading there is "far from the mountain" (UX part 7) and the far sheet
+  # covers the live screen, so the emulator is put on the mountain before the recording starts
+  geo 42.482631 44.483401
   mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "redesign: the recording did not start"
   # each command (an intent) pauses the activity and the GL context goes: the mountain is back once it is drawn again
   # (ש5 of the review of 24.11 was this gap: the shot came before it); before the emulator's first fix (~3.6 s)
@@ -2057,6 +2064,14 @@ storesmoke() {
   done
   [ -n "$xy" ] || { fail "storesmoke: no record button on the store build's mountain"; seen_texts; shot storesmoke-no-button; return 1; }
   sleep 3; shot storesmoke-open
+  # a clean install opens the first-run hints over the mountain: a tap anywhere is the next hint (six on the mountain), so the
+  # record button would only advance them (run 45945339159). Tap through them as a person does, then find the button again.
+  for i in $(seq 1 8); do
+    uidump; [ -n "$(where '~רמז [0-9]+ מתוך')" ] || break
+    tap $((W / 2)) $((H / 2)); sleep 1.5
+  done
+  uidump; xy=$(where "~^הקלטת גלישה") || true
+  [ -n "$xy" ] || { fail "storesmoke: the record button is gone after the hints"; shot storesmoke-no-button; return 1; }
   tap $xy
   # the prompts, in the order the app asks them: notifications, then the sheet before the location prompt, then location
   for i in $(seq 1 25); do
@@ -2091,7 +2106,7 @@ storesmoke() {
   # the saved day: the end screen of this recording ("your day", or "a recording with no descents" for readings that make none)
   for i in $(seq 1 20); do
     uidump
-    [ -n "$(where '~^(היום שלך|הקלטה בלי ירידות)$')" ] && { seen_end=1; break; }
+    [ -n "$(where '~^(היום של[יך]|הקלטה בלי ירידות)$')" ] && { seen_end=1; break; }
     sleep 2
   done
   # the mountain behind the end screen keeps animating and often defeats the screen dump (run 478: the screen was there, the dump
