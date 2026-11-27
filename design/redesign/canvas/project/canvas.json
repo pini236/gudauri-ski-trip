@@ -3287,7 +3287,47 @@
    "y": 4612,
    "w": 390,
    "h": 844,
-   "title": "שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מכין (DV3)",
+   "title": "שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מתמלא (DV3)",
+   "page": "daypages"
+  },
+  "DV4.dc.html": {
+   "x": 1410,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "תמונה: הדף בלי משפט ההסבר (DV4)",
+   "page": "daypages"
+  },
+  "DV5.dc.html": {
+   "x": 1880,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "שמירת סרטון: ההתקדמות בתוך הכפתור (DV5)",
+   "page": "daypages"
+  },
+  "DV6.dc.html": {
+   "x": 2350,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "נשמר: וי ו\"נשמר בגלריה\"; נגיעה פותחת (DV6)",
+   "page": "daypages"
+  },
+  "DV7.dc.html": {
+   "x": 2820,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "לא נשמר: אותו כפתור מנסה שוב (DV7)",
+   "page": "daypages"
+  },
+  "DV8.dc.html": {
+   "x": 3290,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "The share sheet in English, saved (DV8)",
    "page": "daypages"
   }
  },
@@ -4425,7 +4465,12 @@
   "DS5.dc.html",
   "DV1.dc.html",
   "DV2.dc.html",
-  "DV3.dc.html"
+  "DV3.dc.html",
+  "DV4.dc.html",
+  "DV5.dc.html",
+  "DV6.dc.html",
+  "DV7.dc.html",
+  "DV8.dc.html"
  ],
  "pages": [
   {
