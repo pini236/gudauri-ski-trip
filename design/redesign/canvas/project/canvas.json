@@ -3593,6 +3593,86 @@
    "h": 844,
    "title": "השיאים שלך · עוד אין (RS3)",
    "page": "mydays"
+  },
+  "HM00-HintMotion.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1720,
+   "title": "P.19: מה ולמה, והתזמון (HM00)",
+   "page": "hintmotion"
+  },
+  "HM1.dc.html": {
+   "x": 1400,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.19 · בתנועה: ששת הרמזים על ההר, ביום (HM1)",
+   "page": "hintmotion"
+  },
+  "HM3.dc.html": {
+   "x": 1870,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.19 · הפחתת תנועה: הצלבה בלבד (HM3)",
+   "page": "hintmotion"
+  },
+  "HM4.dc.html": {
+   "x": 2340,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.19 · בתנועה, בלילה (HM4)",
+   "page": "hintmotion"
+  },
+  "HM2-Frames.dc.html": {
+   "x": 0,
+   "y": 1880,
+   "w": 1400,
+   "h": 1300,
+   "title": "P.19: פריים אחרי פריים, והפחתת תנועה (HM2)",
+   "page": "hintmotion"
+  },
+  "KB00-KobiSide.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1720,
+   "title": "P.17: מה ולמה, והאיכות (KB00)",
+   "page": "kobiside"
+  },
+  "KB1.dc.html": {
+   "x": 1400,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · החזית: תגית \"צד Kobi\" על הרכס (KB1)",
+   "page": "kobiside"
+  },
+  "KB2.dc.html": {
+   "x": 1870,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · בתנועה: לצד של Kobi ובחזרה (KB2)",
+   "page": "kobiside"
+  },
+  "KB3.dc.html": {
+   "x": 2340,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · בצד: המצפן עם \"צד Kobi\", ביום (KB3)",
+   "page": "kobiside"
+  },
+  "KB4.dc.html": {
+   "x": 2810,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "P.17 · בצד, בלילה: המצפן מקופל (KB4)",
+   "page": "kobiside"
   }
  },
  "createdOnFiles": {
@@ -3602,7 +3682,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "mydays"
+  "page": "kobiside"
  },
  "notes": {
   "tA": {
@@ -4372,6 +4452,22 @@
    "x": 0,
    "y": -300,
    "text": "כרטיס הסקי: הקופה, ומצב ההקלטה"
+  },
+  "thintmotion": {
+   "kind": "title1",
+   "maxW": 2800,
+   "page": "hintmotion",
+   "x": 0,
+   "y": -300,
+   "text": "רמזים: תנועה רכה בין רמז לרמז"
+  },
+  "tkobiside": {
+   "kind": "title1",
+   "maxW": 3200,
+   "page": "kobiside",
+   "x": 0,
+   "y": -300,
+   "text": "צד Kobi בתמונה: לעבור ולחזור"
   }
  },
  "order": [
@@ -4823,9 +4919,27 @@
   "MY3.dc.html",
   "RS1.dc.html",
   "RS2.dc.html",
-  "RS3.dc.html"
+  "RS3.dc.html",
+  "HM00-HintMotion.dc.html",
+  "HM1.dc.html",
+  "HM3.dc.html",
+  "HM4.dc.html",
+  "HM2-Frames.dc.html",
+  "KB00-KobiSide.dc.html",
+  "KB1.dc.html",
+  "KB2.dc.html",
+  "KB3.dc.html",
+  "KB4.dc.html"
  ],
  "pages": [
+  {
+   "id": "kobiside",
+   "name": "צד Kobi בתמונה: לעבור ולחזור (27.11)"
+  },
+  {
+   "id": "hintmotion",
+   "name": "רמזים: תנועה רכה בין רמז לרמז (27.11)"
+  },
   {
    "id": "small2711",
    "name": "כרטיס הסקי: הקופה, ומצב ההקלטה (27.11)"
