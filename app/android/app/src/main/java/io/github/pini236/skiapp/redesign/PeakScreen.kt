@@ -777,7 +777,7 @@ internal fun RunSheet(r: PeakData.Run, d: PeakData, g: Glass, onClose: () -> Uni
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(r.name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, lineHeight = 25.sp, color = g.ink, style = TextStyle(textDirection = TextDirection.Ltr))
-                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Gudi, fontSize = 13.5.sp, color = g.ink2)
+                Text("$colour · $level", fontFamily = Gudi, fontSize = 13.5.sp, color = g.ink2)
             }
             Box(Modifier.size(44.dp).clip(CircleShape).clickable(onClick = onClose).semantics { contentDescription = closeLabel }, contentAlignment = Alignment.Center) {
                 Canvas(Modifier.size(13.dp)) {

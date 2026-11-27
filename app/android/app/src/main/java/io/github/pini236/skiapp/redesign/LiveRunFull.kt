@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -105,20 +106,16 @@ internal fun RunSheets(key: String, r: PeakData.Run, d: PeakData, g: Glass, scen
         onDown = if (full) ({ onFull(false); Qa.log("redesign run low") }) else onClose,
         onUp = if (!full) ({ onFull(true); Qa.log("redesign run full") }) else null,
         closes = !full)) {
-        if (!full) RunSheet(r, d, g, onClose) {
-            // K12: "to go down in a film", once it is built (part 4's handoff, section 14)
-            if (onRide != null) RideButton(SheetInk(night), haptics, onRide)
-            // the way to the videos from the low sheet: it opens the full one
-            Text(stringResource(R.string.app_run_videos_n, vids.size.toString()),
-                Modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable { haptics.tick(.3f); onFull(true); Qa.log("redesign run full") }
-                    .padding(vertical = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = SheetInk(night).acc)
-        } else RunFull(key, r, scene, vids, night, haptics, order, onRide)
+        RunFull(key, r, d, scene, vids, night, haptics, order, onRide, open = full,
+            onOpen = { haptics.tick(.3f); onFull(true); Qa.log("redesign run full") })
     }
 }
 
 /** S07, the full sheet: the head with sharing, the three numbers, the conditions at the top and the bottom, the videos, the dots. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Video>, night: Boolean, haptics: Haptics, order: List<String>, onRide: (() -> Unit)? = null) {
+private fun RunFull(key: String, r: PeakData.Run, d: PeakData, scene: MapScene, vids: List<Video>, night: Boolean, haptics: Haptics, order: List<String>,
+                    onRide: (() -> Unit)? = null, open: Boolean, onOpen: () -> Unit) {
     val k = remember(night) { SheetInk(night) }
     val ctx = LocalContext.current
     val nf = remember { NumberFormat.getIntegerInstance() }
@@ -126,8 +123,10 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
     val facts = remember(piste) { piste?.let { RunFacts.of(scene.terrain, it) } }
     val h = LocalConfiguration.current.screenHeightDp
     val top = sheetShape()
-    LaunchedEffect(key) { Qa.log("redesign run full $key ${vids.size}") }
-    Column(Modifier.sheetWidth().heightIn(max = (h - 236).coerceAtLeast(320).dp).shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
+    LaunchedEffect(key, open) { if (open) Qa.log("redesign run full $key ${vids.size}") }
+    val w = LocalWeather.current
+    val f = w.usable
+    Column(Modifier.sheetWidth().then(if (open) Modifier.heightIn(max = (h - 236).coerceAtLeast(320).dp) else Modifier).shadow(8.dp, top).clip(top).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, top)
         .navigationBarsPadding().verticalScroll(rememberScrollState()).padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(Modifier.align(Alignment.CenterHorizontally).size(38.dp, 5.dp).clip(RoundedCornerShape(3.dp)).background(k.line))
@@ -143,8 +142,16 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
                 Text(r.ref, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White, style = TextStyle(textDirection = TextDirection.Ltr))
             }
             Column(Modifier.weight(1f)) {
-                Text(r.name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink, style = TextStyle(textDirection = TextDirection.Ltr))
-                Text(colour + stringResource(R.string.run_color_official_suffix) + " · " + level, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
+                Text(r.name, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 23.sp, color = k.ink, style = TextStyle(textDirection = TextDirection.Ltr))
+                Row(Modifier.padding(top = 3.dp).height(22.dp).clip(RoundedCornerShape(11.dp)).background(k.line).padding(horizontal = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(Modifier.size(9.dp).clip(CircleShape).background(plate(r.color)))
+                    Text("$colour · $level", fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink, maxLines = 1)
+                }
+                val from = piste?.fromLifts?.firstOrNull()?.let { id -> scene.runs.lifts.firstOrNull { it.id == id }?.name }
+                val to = piste?.toLifts?.firstOrNull()?.let { id -> scene.runs.lifts.firstOrNull { it.id == id }?.name }
+                if (from != null && to != null) Text("$from \u2193 $to", Modifier.padding(top = 3.dp), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2,
+                    style = TextStyle(textDirection = TextDirection.Ltr), maxLines = 1)
             }
             Box(Modifier.size(44.dp).clip(CircleShape).border(1.dp, k.line, CircleShape).semantics { contentDescription = shareA; role = Role.Button }.clickable {
                 haptics.tick(.3f)
@@ -153,20 +160,29 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
                 Telemetry.event("run_share", mapOf("run" to key, "method" to "native"))
             }, contentAlignment = Alignment.Center) { androidx.compose.material3.Icon(io.github.pini236.skiapp.ui.Icons.share, null, Modifier.size(20.dp), tint = k.ink) }
         }
+        if (facts != null && facts.points.size > 1) RunProfile(facts, d.slope, k, k.surf.copy(alpha = 1f))
         // the three numbers
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             // the number alone, its unit in the line under it (S07: "km length", "m drop"; the review of 24.11)
             for ((v, c) in listOf("%.1f".format(r.len / 1000f) to stringResource(R.string.app_shelf_km_cap) + " " + stringResource(R.string.common_length_label),
                 nf.format(r.drop) to stringResource(R.string.app_shelf_drop_cap),
                 "${r.steep}°" to stringResource(R.string.run_stat_steep_label))) Column {
-                Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 30.sp, color = k.ink, maxLines = 1)
-                Text(c, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
+                Text(v, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 26.sp, color = k.ink, maxLines = 1)
+                Text(c, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
             }
         }
         if (onRide != null) RideButton(k, haptics, onRide)
+        val topNow = if (facts != null) f?.at(facts.top.toFloat(), w.local)?.temp else null
+        if (!open) {
+            if (RunCardRules.footRow(vids.size, f != null)) FootRow(vids, topNow, k, haptics, onOpen)
+            // the dots sit under the card's content: where this run is among all of them
+            val at0 = order.indexOf(key)
+            if (at0 >= 0) Row(Modifier.align(Alignment.CenterHorizontally), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                for (i in NowRules.window(order.size, at0)) Box(Modifier.size(6.dp).clip(CircleShape).background(if (i == at0) k.ink else k.ink.copy(alpha = .32f)))
+            }
+            return@Column
+        }
         // the conditions at the run's top and bottom (the interpolation by height, as today)
-        val w = LocalWeather.current
-        val f = w.usable
         var note by remember { mutableStateOf(false) }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(stringResource(R.string.run_cond_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
@@ -189,7 +205,7 @@ private fun RunFull(key: String, r: PeakData.Run, scene: MapScene, vids: List<Vi
             }
         }
         // the videos: up to three, and "all N"; a tap opens YouTube
-        Text(stringResource(R.string.app_run_videos_n, vids.size.toString()), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
+        Text(stringResource(R.string.app_run_vids_from), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink)
         var all by remember(key) { mutableStateOf(false) }
         if (vids.isEmpty()) {
             Text(stringResource(R.string.run_videos_empty), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
@@ -249,5 +265,47 @@ internal fun RideButton(k: SheetInk, haptics: Haptics, onRide: () -> Unit) {
     Box(Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(24.dp)).border(1.5.dp, k.acc, RoundedCornerShape(24.dp))
         .semantics { role = Role.Button }.clickable { haptics.tick(.3f); onRide() }, contentAlignment = Alignment.Center) {
         Text("\u25B6 " + stringResource(R.string.app_run_ride), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.acc)
+    }
+}
+
+/** The foot row of the low card: up to three video frames overlapping, the count, the temperature now, and a chevron that opens the card. */
+@Composable
+private fun FootRow(vids: List<Video>, topTemp: Int?, k: SheetInk, haptics: Haptics, onOpen: () -> Unit) {
+    val n = vids.size
+    val shape = RoundedCornerShape(18.dp)
+    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(shape).background(k.line).semantics(mergeDescendants = true) { role = Role.Button }
+        .clickable(onClick = onOpen).padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        val fr = RunCardRules.frames(n)
+        if (fr > 0) Box(Modifier.width((52 + (fr - 1) * 30).dp).height(34.dp)) {
+            for (i in 0 until fr) Box(Modifier.absoluteOffset(x = (i * 30).dp).size(52.dp, 34.dp).clip(RoundedCornerShape(8.dp)).border(1.5.dp, k.surf.copy(alpha = 1f), RoundedCornerShape(8.dp))) {
+                VideoThumb(vids[i], 52.dp, 34.dp)
+            }
+        }
+        Column(Modifier.weight(1f)) {
+            if (n > 0) Text(pluralStringResource(R.plurals.app_run_vids_n, n, n.toString()), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink)
+            if (topTemp != null) Text(deg(topTemp) + " · " + stringResource(R.string.app_run_cond_now), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
+        }
+        Box(Modifier.size(32.dp).clip(CircleShape).background(k.surf.copy(alpha = 1f)), contentAlignment = Alignment.Center) {
+            androidx.compose.foundation.Canvas(Modifier.size(14.dp)) {
+                val st = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round)
+                drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(size.width * .1f, size.height * .7f); lineTo(size.width * .5f, size.height * .3f); lineTo(size.width * .9f, size.height * .7f) }, k.ink, style = st)
+            }
+        }
+    }
+}
+
+/** A video's frame at a fixed size (the thumbnail cache is shared with the rows of the open card). */
+@Composable
+private fun VideoThumb(v: Video, w: androidx.compose.ui.unit.Dp, h: androidx.compose.ui.unit.Dp) {
+    var bmp by remember(v.url) { mutableStateOf<Bitmap?>(THUMBS[v.youtubeId ?: ""]) }
+    LaunchedEffect(v.url) {
+        val id = v.youtubeId ?: return@LaunchedEffect
+        if (bmp == null) bmp = withContext(Dispatchers.IO) {
+            runCatching { URL("https://i.ytimg.com/vi/$id/mqdefault.jpg").openStream().use { BitmapFactory.decodeStream(it) } }.getOrNull()?.also { THUMBS[id] = it }
+        }
+    }
+    Box(Modifier.size(w, h).background(Brush.linearGradient(listOf(Color(0xFF2B3440), Color(0xFF55616F))))) {
+        bmp?.let { Image(it.asImageBitmap(), null, Modifier.size(w, h), contentScale = ContentScale.Crop) }
     }
 }
