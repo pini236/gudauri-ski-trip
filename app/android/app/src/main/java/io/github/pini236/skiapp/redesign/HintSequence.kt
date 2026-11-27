@@ -8,7 +8,10 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateRectAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -34,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -141,11 +145,47 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
     }
     // a control that is not on the screen (or no run in sight): the step is skipped
     LaunchedEffect(on, cur?.id, rect == null) { if (on && rect == null) { delay(900); if (on) advance() } }
+    // P.19 motion: the ring glides (360-560 ms by distance), the old bubble fades out, the new one fades in at 55% of the glide
+    val lastTarget = remember { arrayOfNulls<Rect>(1) }
+    val glideMs = remember(cur?.id) {
+        val prev = lastTarget[0]
+        if (cur?.id == "run") 300
+        else if (prev == null || rect == null) 360
+        else with(dens) { ((300 + 0.4f * (rect.center - prev.center).getDistance() / density).toInt()).coerceIn(360, 560) }
+    }
+    if (rect != null) lastTarget[0] = rect
+    val rectNow by rememberUpdatedState(rect)
+    var shown by remember(again, steps.size) { mutableStateOf<HintStep?>(null) }
+    var shownRect by remember { mutableStateOf<Rect?>(null) }
+    var locked by remember { mutableStateOf(false) }
+    var settled by remember { mutableStateOf(false) }
+    val bubbleA = remember { Animatable(0f) }
+    val breath = remember { Animatable(1f) }
+    LaunchedEffect(on, cur?.id, rect != null) {
+        if (!on) { shown = null; locked = false; settled = false; bubbleA.snapTo(0f); return@LaunchedEffect }
+        if (cur == null || rectNow == null) return@LaunchedEffect
+        if (shown === cur) return@LaunchedEffect
+        settled = false
+        val inMs = if (reduced) 150 else 220
+        if (shown == null) {
+            shown = cur; shownRect = rectNow; bubbleA.snapTo(0f)
+        } else {
+            locked = true
+            bubbleA.animateTo(0f, tween(if (reduced) 100 else 120))
+            if (!reduced) delay((glideMs * 0.55f - 120f).toLong().coerceAtLeast(0L))
+            shown = cur; shownRect = rectNow; locked = false
+        }
+        bubbleA.animateTo(1f, tween(inMs))
+        settled = true
+    }
+    LaunchedEffect(on, cur?.id) {
+        if (on && !reduced) { breath.snapTo(1f); delay((glideMs * 0.8f).toLong()); breath.snapTo(0f); breath.animateTo(1f, tween(420, easing = CubicBezierEasing(0f, 0f, 0.2f, 1f))) }
+    }
     val progress = remember { Animatable(1f) }
     val total = if (Build.VERSION.SDK_INT >= 29) am.getRecommendedTimeoutMillis(13000, AccessibilityManager.FLAG_CONTENT_TEXT or AccessibilityManager.FLAG_CONTENT_CONTROLS) else 13000
-    LaunchedEffect(on, step, rect != null) {
+    LaunchedEffect(on, step, rect != null, settled) {
         progress.snapTo(1f)
-        if (on && rect != null && !Qa.enabled && !screenReader) {
+        if (on && rect != null && settled && !Qa.enabled && !screenReader) {
             if (reduced) { val secs = (total / 1000).coerceAtLeast(1); for (i in 1..secs) { delay(1000); progress.snapTo(1f - i / secs.toFloat()) } }
             else progress.animateTo(0f, tween(total, easing = LinearEasing))
             advance()
@@ -158,14 +198,18 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
     val bg = if (night) Color(0xFF0F1828) else Color(0xFFF7FAFD)
     val dim = if (night) Color(0x57000000) else Color(0x4208101E)
     val outer = if (night) Color(0xBF060B16) else Color.White
-    val hole by animateRectAsState(rect, if (reduced) snap<Rect>() else tween<Rect>(300, easing = FastOutSlowInEasing), label = "hint-hole")
-    val shrink = remember { Animatable(1.18f) }
-    LaunchedEffect(step) { shrink.snapTo(if (reduced) 1f else 1.18f); shrink.animateTo(1f, tween(200)) }
+    val hole by animateRectAsState(rect, when {
+        reduced -> snap<Rect>()
+        cur.id == "run" -> spring<Rect>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = 400f)
+        else -> tween<Rect>(glideMs, easing = CubicBezierEasing(0.2f, 0f, 0f, 1f))
+    }, label = "hint-hole")
+    val sh = shown ?: cur
+    val hb = if (sh === cur) rect else (shownRect ?: rect)
     val isRun = cur.id == "run"
     Canvas(Modifier.fillMaxSize().graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         drawRect(dim)
         val g = 5.dp.toPx()
-        val k = shrink.value
+        val k = 1f
         val w = (hole.width + 2 * g) * k; val h = (hole.height + 2 * g) * k
         val tl = Offset(hole.center.x - w / 2, hole.center.y - h / 2)
         val r = cur.radiusDp?.dp?.toPx() ?: (minOf(w, h) / 2f)
@@ -174,43 +218,46 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
         drawRoundRect(ink, tl, Size(w, h), CornerRadius(r), style = Stroke(2.5.dp.toPx()))
         val o = 2.5.dp.toPx()
         drawRoundRect(outer, Offset(tl.x - o, tl.y - o), Size(w + 2 * o, h + 2 * o), CornerRadius(r + o), style = Stroke(2.5.dp.toPx()))
+        val bz = breath.value
+        if (bz < 1f) { val e = 10.dp.toPx() * bz; drawRoundRect(Color.White.copy(alpha = .6f * (1f - bz)), Offset(tl.x - o - e, tl.y - o - e), Size(w + 2 * (o + e), h + 2 * (o + e)), CornerRadius(r + o + e), style = Stroke(2.dp.toPx())) }
     }
     // a tap anywhere: the next hint (consumed: nothing under it hears the touch)
-    Box(Modifier.fillMaxSize().pointerInput(Unit) { detectTapGestures { advance() } })
+    Box(Modifier.fillMaxSize().pointerInput(Unit) { detectTapGestures { if (!locked) advance() } })
     // the bubble: above the target, below it in the top quarter, beside it (toward the centre) for the button column
-    val text = stringResource(cur.text)
-    val n = step + 1
+    val text = stringResource(sh.text)
+    val n = steps.indexOf(sh) + 1
     val a11y = stringResource(R.string.app_hint_step_a11y, n.toString(), steps.size.toString()) + ". " + text
     val nextLabel = stringResource(R.string.app_hint_next_a11y)
     val skipLabel = stringResource(R.string.app_hints_skip_a11y)
-    var bw by remember(step) { mutableIntStateOf(0) }
-    var bh by remember(step) { mutableIntStateOf(0) }
+    var bw by remember(sh.id) { mutableIntStateOf(0) }
+    var bh by remember(sh.id) { mutableIntStateOf(0) }
     val edge = with(dens) { 12.dp.toPx() }
     val tip = with(dens) { 12.dp.toPx() }
     val pointH = with(dens) { 8.dp.toPx() }
     val gapAll = tip + pointH
-    val beside = cur.id == "mode"
-    val below = !beside && hole.center.y < size.height * .25f
-    val left = beside && hole.center.x > size.width / 2f
+    val beside = sh.id == "mode"
+    val below = !beside && hb.center.y < size.height * .25f
+    val left = beside && hb.center.x > size.width / 2f
+    val slide = with(dens) { 6.dp.toPx() } * (1f - bubbleA.value) * (if (below) 1f else -1f)
     val bx: Float; val by: Float
     if (beside) {
-        bx = if (left) hole.left - gapAll - bw else hole.right + gapAll
-        by = (hole.center.y - bh / 2f).coerceIn(edge, (size.height - bh - edge).coerceAtLeast(edge))
+        bx = if (left) hb.left - gapAll - bw else hb.right + gapAll
+        by = (hb.center.y - bh / 2f).coerceIn(edge, (size.height - bh - edge).coerceAtLeast(edge))
     } else {
-        bx = (hole.center.x - bw / 2f).coerceIn(edge, (size.width - bw - edge).coerceAtLeast(edge))
-        by = if (below) hole.bottom + gapAll else hole.top - gapAll - bh
+        bx = (hb.center.x - bw / 2f).coerceIn(edge, (size.width - bw - edge).coerceAtLeast(edge))
+        by = if (below) hb.bottom + gapAll else hb.top - gapAll - bh
     }
-    Canvas(Modifier.fillMaxSize()) {
+    Canvas(Modifier.fillMaxSize().graphicsLayer { alpha = bubbleA.value; translationY = if (beside) 0f else slide }) {
         if (bw == 0) return@Canvas
         val half = 7.dp.toPx()
         val p = Path()
         if (beside) {
-            val py = hole.center.y.coerceIn(by + 14.dp.toPx(), by + bh - 14.dp.toPx())
+            val py = hb.center.y.coerceIn(by + 14.dp.toPx(), by + bh - 14.dp.toPx())
             val baseX = if (left) bx + bw else bx
             val tipX = if (left) baseX + pointH else baseX - pointH
             p.moveTo(baseX, py - half); p.lineTo(baseX, py + half); p.lineTo(tipX, py)
         } else {
-            val px = hole.center.x.coerceIn(bx + 14.dp.toPx(), bx + bw - 14.dp.toPx())
+            val px = hb.center.x.coerceIn(bx + 14.dp.toPx(), bx + bw - 14.dp.toPx())
             val baseY = if (below) by else by + bh
             val tipY = if (below) baseY - pointH else baseY + pointH
             p.moveTo(px - half, baseY); p.lineTo(px + half, baseY); p.lineTo(px, tipY)
@@ -219,7 +266,7 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
         drawPath(p, ink)
     }
     Column(Modifier.atScreen { IntOffset(bx.toInt(), by.toInt()) }.widthIn(max = 300.dp).onSizeChanged { bw = it.width; bh = it.height }
-        .alpha(if (bw == 0) 0f else 1f)
+        .graphicsLayer { alpha = if (bw == 0) 0f else bubbleA.value; translationY = if (beside) 0f else slide }
         .shadow(22.dp, RoundedCornerShape(16.dp), ambientColor = Color(0x4D0A192D), spotColor = Color(0x4D0A192D))
         .clip(RoundedCornerShape(16.dp)).background(ink)
         .semantics(mergeDescendants = true) {
@@ -244,8 +291,8 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
         // the dots: how many, and which one
         Row(Modifier.padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
             for (i in steps.indices) {
-                Box(Modifier.size(if (i == step) 16.dp else 6.dp, 6.dp).clip(RoundedCornerShape(3.dp))
-                    .background(bg.copy(alpha = if (i == step) 1f else if (i < step) .6f else .32f)))
+                Box(Modifier.size(if (i == steps.indexOf(sh)) 16.dp else 6.dp, 6.dp).clip(RoundedCornerShape(3.dp))
+                    .background(bg.copy(alpha = if (i == steps.indexOf(sh)) 1f else if (i < steps.indexOf(sh)) .6f else .32f)))
             }
         }
     }
