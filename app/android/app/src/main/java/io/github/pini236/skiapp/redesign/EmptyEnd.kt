@@ -79,7 +79,7 @@ internal object EmptyRules {
  * "delete" takes two touches.
  */
 @Composable
-internal fun BoxScope.EmptyEnd(startMs: Long, endMs: Long, located: Boolean, anyInside: Boolean, night: Boolean, haptics: Haptics, onSample: () -> Unit,
+internal fun BoxScope.EmptyEnd(startMs: Long, endMs: Long, located: Boolean, anyInside: Boolean, night: Boolean, haptics: Haptics, notSaved: Boolean = false, onSample: () -> Unit,
                                onDelete: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val zone = ZoneId.of(DayParams.TZ)
@@ -104,7 +104,7 @@ internal fun BoxScope.EmptyEnd(startMs: Long, endMs: Long, located: Boolean, any
     LaunchedEffect(sure) { if (sure) { delay(3000); sure = false } }
     val hm = DateTimeFormatter.ofPattern("HH:mm")
     val whenText = stringResource(R.string.app_empty_when, hm.format(Instant.ofEpochMilli(endMs).atZone(zone)))
-    val title = stringResource(R.string.app_empty_title)
+    val title = stringResource(if (notSaved) R.string.app_md_noride_title else R.string.app_empty_title)
     val back = stringResource(R.string.app_vill_back)
     val exampleTag = stringResource(R.string.app_day_sample)
 
@@ -134,7 +134,17 @@ internal fun BoxScope.EmptyEnd(startMs: Long, endMs: Long, located: Boolean, any
         verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Box(Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(rule))
         Text(title, Modifier.semantics { heading() }, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink, textAlign = TextAlign.Center)
-        Text(whenText, fontFamily = Gudi, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
+        if (notSaved) {
+            // NS: a crossed-save icon and "not saved" under the title
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Canvas(Modifier.size(18.dp)) {
+                    val w = 1.6.dp.toPx()
+                    drawRoundRect(muted, Offset(w, w), androidx.compose.ui.geometry.Size(size.width - 2 * w, size.height - 2 * w), androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()), Stroke(w))
+                    drawLine(muted, Offset(0f, size.height), Offset(size.width, 0f), w, StrokeCap.Round)
+                }
+                Text(stringResource(R.string.app_md_nosave), fontFamily = Gudi, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
+            }
+        } else Text(whenText, fontFamily = Gudi, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
 
         // three facts in one frame
         val where = EmptyRules.where(located, anyInside)
@@ -179,7 +189,7 @@ internal fun BoxScope.EmptyEnd(startMs: Long, endMs: Long, located: Boolean, any
                 .clickable { haptics.tick(.4f); onBack() }, contentAlignment = Alignment.Center) {
                 Text(back, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = if (night) Color(0xFF0F1828) else Color.White, maxLines = 1)
             }
-            Box(Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(26.dp)).border(BorderStroke(1.5.dp, rule), RoundedCornerShape(26.dp)).semantics { role = Role.Button }
+            if (!notSaved) Box(Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(26.dp)).border(BorderStroke(1.5.dp, rule), RoundedCornerShape(26.dp)).semantics { role = Role.Button }
                 .clickable { haptics.tick(.4f); if (sure) onDelete() else sure = true }, contentAlignment = Alignment.Center) {
                 Text(stringResource(if (sure) R.string.app_empty_delete_confirm else R.string.app_days_delete), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = red, maxLines = 1)
             }
