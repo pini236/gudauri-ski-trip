@@ -154,7 +154,7 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
             val measurer = androidx.compose.ui.text.rememberTextMeasurer()
             val flew = top?.value?.let { stringResource(R.string.app_film_top_speed, LiveNumbers.maxKmh(it)) }
             val headA11y = if (top?.value == null) stringResource(R.string.app_records_empty_title) else
-                listOfNotNull(stringResource(R.string.app_md_rt_speed), "${LiveNumbers.maxKmh(top.value)} ${stringResource(R.string.app_md_unit_kmh)}",
+                listOfNotNull(stringResource(R.string.app_md_rt_speed), "${"%.1f".format(Locale.ROOT, top.value)} ${stringResource(R.string.app_md_unit_kmh)}",
                     top.runs.firstOrNull()?.let(::runName), dateOf(top), stringResource(R.string.app_run_estimate),
                     if (top.fresh) stringResource(R.string.app_records_new) else null).joinToString(", ")
             Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(260.dp).clip(RoundedCornerShape(22.dp)).alpha(if (empty) .55f else 1f)
@@ -165,7 +165,7 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
                     Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC080E1C))))
                         .padding(horizontal = 16.dp, vertical = 14.dp)) {
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text(LiveNumbers.maxKmh(top.value), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 52.sp, color = Color.White)
+                            Text("%.1f".format(Locale.ROOT, top.value), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 52.sp, color = Color.White)
                             Text(stringResource(R.string.app_md_unit_kmh), Modifier.padding(bottom = 10.dp), fontFamily = Gudi, fontSize = 14.sp, color = Color(0xE6FFFFFF))
                             if (top.fresh) Text(stringResource(R.string.app_records_new), Modifier.padding(bottom = 12.dp).clip(RoundedCornerShape(8.dp)).background(k.acc).padding(horizontal = 6.dp, vertical = 2.dp),
                                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = k.onAcc)
