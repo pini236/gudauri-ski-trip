@@ -3,7 +3,7 @@
 Same painter and the same seven lights as the front (peak.py, poc_export.py); the view looks south from
 the north, on the target of the live Kobi view (live handoff, section 10).
 Writes design/handoff/2026-11-25-redesign-kobi-picture/ :
-  img/kobi-<light>.webp   seven pictures, 1.5 px per point (585x1266), at most 350 KB together; downloaded from the site, not packed
+  img/kobi-<light>.webp   seven pictures, 3 px per point (1170x2532), at most 1.1 MB together and 180 KB each; downloaded from the site, not packed
   peak-kobi.json          one view in the shape of views.hero of peak-poc.json, plus the projection (for peak.json)
                           and check points (for tools/fixtures/peak-projection.json)
 Usage: PEAK_CACHE=<dir> python3 design/redesign/tools/kobi_export.py [--img]"""
@@ -14,13 +14,18 @@ import peak as P
 import poc_export as X
 from mountain import elev_raw
 OUT=os.path.join(P.ROOT,'design/handoff/2026-11-25-redesign-kobi-picture');os.makedirs(os.path.join(OUT,'img'),exist_ok=True)
-PX,Q=1.5,74                          # 585x1266: the architect caps the set at 350 KB (25.11.2026)
+PX,Q=3,80                            # 1170x2532, as sharp as the front (architect, 27.11.2026: set up to 1.1 MB, each picture up to 180 KB)
+CAP=179*1024                          # tune the quality before cutting the size: lower Q only for a picture over this
 
 def images():
     tot=0
     for l in X.LIGHTS:
-        V,im=P.render('kobi',l,out=2);P.save(V,'kobi');im=im.resize((round(390*PX),round(844*PX)),P.Image.LANCZOS);f=os.path.join(OUT,'img','kobi-%s.webp'%l);im.save(f,quality=Q,method=6)
-        tot+=os.path.getsize(f);print(l,im.size,os.path.getsize(f)//1024)
+        V,im=P.render('kobi',l,out=PX);P.save(V,'kobi');f=os.path.join(OUT,'img','kobi-%s.webp'%l);q=Q
+        while True:
+            im.save(f,quality=q,method=6)
+            if os.path.getsize(f)<=CAP or q<=60:break
+            q-=1
+        tot+=os.path.getsize(f);print(l,im.size,q,os.path.getsize(f)//1024)
     print('pictures: %d KB'%(tot//1024))
 
 def main():
@@ -46,7 +51,7 @@ def main():
         vis=bool(P.visible(V,np.array([u]),np.array([d]),np.array([float(P.elev(e,n))]))[0])
         chk.append(dict(what='%s, last end of the line (front side)'%nm,lat=g[0],lon=g[1],z=round(z,1),kobi=dict(x=round(float(x),1),y=round(float(y),1),seen=bool(vis and 0<=x<=V['W'] and 0<=y<=V['H']))))
     seen={k:v['seen'] for k,v in o['sel'].items()}
-    doc=dict(schema=0,note='Kobi side handoff (25.11.2026). Same units and shape as views.hero of peak-poc.json; the picture is 1.5 px per point. contract is the entry for site/data/peak.json.',
+    doc=dict(schema=0,note='Kobi side handoff (25.11.2026). Same units and shape as views.hero of peak-poc.json; the picture is 3 px per point. contract is the entry for site/data/peak.json.',
              sun_date='2027-01-12',tz_hours=4,view=o,check=chk,seen=seen)
     f=os.path.join(OUT,'peak-kobi.json');json.dump(doc,open(f,'w',encoding='utf8'),ensure_ascii=False,separators=(',',':'))
     print('peak-kobi.json %d KB'%(os.path.getsize(f)//1024));print('seen:',sorted(seen.items(),key=lambda t:-t[1])[:6]);print(chk)

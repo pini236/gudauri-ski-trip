@@ -26,7 +26,9 @@ class PeakContractTest {
         val k = peak.view("kobi")!!
         assertTrue(!k.packaged && k.rev != null && k.path == "img/peak/kobi/${k.rev}/")
         assertEquals(7, k.images.size)
-        assertTrue("the Kobi set is ${k.images.sumOf { it.bytes }} bytes", k.images.sumOf { it.bytes } <= 350 * 1024)
+        // the architect, 27.11.2026: the set up to 1.1 MB (3 px per point), each picture up to 180 KB
+        assertTrue("the Kobi set is ${k.images.sumOf { it.bytes }} bytes", k.images.sumOf { it.bytes } <= 1100 * 1024)
+        assertTrue("a Kobi picture is over 180 KB", k.images.all { it.bytes <= 180 * 1024 })
     }
 
     @Test fun pointsAreWhereTheTestValuesSay() {

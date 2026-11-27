@@ -23,6 +23,8 @@ class PeakData(
     val runs: Map<String, Run>,
     /** the handoff's points to check the projection by: lat, lon, height, and where each view draws them */
     val check: List<Check> = emptyList(),
+    /** lat0, lon0 and the metres per degree the views were made with */
+    val geo: DoubleArray = doubleArrayOf(0.0, 0.0, 1.0, 1.0),
 ) {
     class Check(val what: String, val lat: Double, val lon: Double, val z: Double, val hero: Offset, val zoom: Offset)
 
@@ -168,6 +170,13 @@ class PeakData(
         fun village(json: String): View = view(JSONObject(json).getJSONObject("village"), doubleArrayOf(0.0, 0.0, 1.0, 1.0))
         fun loadVillage(context: Context): View = village(context.assets.open("redesign/village/village.json").bufferedReader().use { it.readText() })
 
+        /**
+         * The Kobi side's live layer (assets/redesign/peak-kobi.json, made by tools/build-peak.py from the designer's
+         * handoff): one view in the form of the mountain's, {"view": {...}}, in the pictures' points; the pictures are not in it.
+         */
+        fun kobiView(json: String, geo: DoubleArray): View = view(JSONObject(json).getJSONObject("view"), geo)
+        fun loadKobiView(context: Context, geo: DoubleArray): View = kobiView(context.assets.open("redesign/peak-kobi.json").bufferedReader().use { it.readText() }, geo)
+
         fun load(context: Context): PeakData = parse(context.assets.open("redesign/peak-poc.json").bufferedReader().use { it.readText() })
 
         fun parse(json: String): PeakData {
@@ -187,7 +196,7 @@ class PeakData(
                 fun at(k: String) = c.getJSONObject(k).let { Offset(it.getDouble("x").toFloat(), it.getDouble("y").toFloat()) }
                 Check(c.optString("what"), c.getDouble("lat"), c.getDouble("lon"), c.getDouble("z"), at("hero"), at("zoom"))
             }
-            return PeakData(lights, slope, pal, view(views.getJSONObject("hero"), geo), view(views.getJSONObject("zoom"), geo), runs, check)
+            return PeakData(lights, slope, pal, view(views.getJSONObject("hero"), geo), view(views.getJSONObject("zoom"), geo), runs, check, geo)
         }
     }
 }

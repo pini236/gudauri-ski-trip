@@ -186,14 +186,19 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val contract by produceState<PeakContract?>(null) { value = withContext(Dispatchers.IO) { runCatching { PeakContract.load(context) }.onFailure { Redesign.fail("peak contract") }.getOrNull() } }
     val picture = remember(data, contract) {
         val d0 = data; val front = contract?.view("front")
-        if (d0 != null && front != null) PictureStage(context, scene, d0, front) else null
+        if (d0 != null && front != null) PictureStage(context, scene, d0, front, contract?.view("kobi")) else null
     }
     DisposableEffect(picture) { onDispose { picture?.release() } }
     var live by remember { mutableStateOf<LiveView?>(null) }
     // the picture's hint (Z03): a turn tried on it
     var rotateHint by remember { mutableStateOf(false) }
+    var kobiWait by remember { mutableStateOf(false) }
     LaunchedEffect(picture) {
-        picture?.onNeedLive = { k -> if (canLive) { tempPick = k; temp = "kobi"; Qa.log("redesign stage temp kobi $k") } }
+        picture?.onNeedLive = { k ->
+            if (canLive) { tempPick = k; temp = "kobi"; Qa.log("redesign stage temp kobi $k") }
+            // no live model here and the side's picture has not come: say so (app.kobi_side_wait)
+            else if (picture?.faceFor(k) == PictureStage.Face.KOBI) { kobiWait = true; Qa.log("redesign stage kobi wait") }
+        }
         picture?.onRotateTry = { if (canLive && !Hints.seen(context, "stage_rotate")) { Hints.done(context, "stage_rotate"); rotateHint = true; Qa.log("redesign stage rotate hint") } }
     }
     // the swap: a snapshot of the leaving stage's last frame over the coming one, 450 ms (at once with reduced motion)
@@ -587,7 +592,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             // "me" at the pill's end (section 1): the account, the settings, the language and about
             if (pp != null) MeButton(meNow, night) { haptics.tick(.3f); liftsOpen = false; liftSel = null; people.go(PLayer.Me) }
             }
-            AnimatedVisibility(kobiSide && riding == null, enter = fadeIn(), exit = fadeOut()) {
+            AnimatedVisibility(kobiSide && riding == null && shows == StageRules.Shows.LIVE, enter = fadeIn(), exit = fadeOut()) {
                 val aria = stringResource(R.string.poc_peak_front_aria)
                 Pill(Modifier.semantics { contentDescription = aria }.clickable { haptics.tick(.3f); view.backToFront() }) {
                     Text(stringResource(R.string.map_kobi_side), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
@@ -1024,7 +1029,14 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }, bottom = if (lens != null) 196.dp else 84.dp,
             // the switch shows the user's choice: in a moment of the live model (Z05) it does not move
             photo = if (canLive && picture != null) !liveChosen else null,
-            onPhoto = { p -> haptics.tick(.3f); temp = null; liveChosen = !p; StagePrefs.setLive(context, !p); rotateHint = false; Qa.log("redesign stage switch ${if (p) "photo" else "live"}") })
+            onPhoto = { p -> haptics.tick(.3f); temp = null; liveChosen = !p; StagePrefs.setLive(context, !p); rotateHint = false; Qa.log("redesign stage switch ${if (p) "photo" else "live"}") },
+            // P.17: on the Kobi side of the picture the compass turns back to the front
+            kobiBack = shows == StageRules.Shows.PICTURE && picture?.onKobi == true, onKobiBack = { haptics.tick(.3f); view.backToFront() })
+        // P.17 (KB1): the tag "צד Kobi" on the ridge of the front picture
+        if (bare && picture != null && shows == StageRules.Shows.PICTURE && !picture.onKobi && chosen == null && riding == null && mtnDrawn)
+            KobiTag(picture, night) { haptics.tick(.3f); Qa.log("redesign kobi tag"); view.pickKey("Kobi") }
+        if (!bare) KobiCompassFloating(shows == StageRules.Shows.PICTURE && picture?.onKobi == true, night) { haptics.tick(.3f); view.backToFront() }
+        if (kobiWait && shows == StageRules.Shows.PICTURE) KobiWait(night) { kobiWait = false }
         // Z03: a turn tried on the picture, once: the live model does it
         if (rotateHint && shows == StageRules.Shows.PICTURE) StageHint(night, onGo = { rotateHint = false; liveChosen = true; StagePrefs.setLive(context, true); Qa.log("redesign stage hint go") }, onOff = { rotateHint = false })
         // Z05: the live model for a moment, back to the picture after

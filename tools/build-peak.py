@@ -27,9 +27,12 @@ OUT = os.path.join(ROOT, 'site/data/peak.json')
 FIX = os.path.join(ROOT, 'tools/fixtures/peak-projection.json')
 APP_IMG = os.path.join(ROOT, 'app/android/app/src/main/assets/redesign/img')
 KOBI_SRC = os.path.join(ROOT, 'design/handoff/2026-11-25-redesign-kobi-picture')
+# the designer's live layer of the Kobi side (runs, lifts, details in the picture's points): packed in the app, without the pictures
+KOBI_LAYER = os.path.join(ROOT, 'app/android/app/src/main/assets/redesign/peak-kobi.json')
 LIGHTS = ['dawn', 'morning', 'noon', 'after', 'sunset', 'blue', 'night']
 CELL, TOL, RADIUS, STEP = 2, 60.0, 24.0, 10
-KOBI_BUDGET = 350 * 1024
+KOBI_BUDGET = 1100 * 1024      # the Kobi side's set (architect, 27.11.2026: 3 px per point; was 350 KB at 1.5)
+KOBI_EACH = 180 * 1024         # and each picture
 
 D = json.load(open(os.path.join(ROOT, 'site/data/runs-and-lifts.json')))
 T = json.load(open(os.path.join(ROOT, 'site/data/terrain.json')))
@@ -60,7 +63,7 @@ VIEWS = {
     'front': dict(src='hero', packaged=True, az=0, S=0.128, c=(CE + 110, CN + 250), near=5350, far=NORTH - (CN + 250) - 60,
                   W=390, H=844, y_c=452, p=(33, 5.5, 6500, 10800), zref=2652.07, px=3),
     'kobi': dict(src='kobi', packaged=False, az=180, S=0.21, c=(-60, 2596.1), near=3900, far=2596.1 - dm['y0'] - 60,
-                 W=390, H=844, y_c=530, p=(24, 4, 5800, 8200), zref=2437.97, px=1.5),
+                 W=390, H=844, y_c=530, p=(24, 4, 5800, 8200), zref=2437.97, px=3),
 }
 
 
@@ -188,6 +191,8 @@ def main(check=False):
             files = {l: os.path.join(KOBI_SRC, 'img', 'kobi-%s.webp' % l) for l in LIGHTS}
             total = sum(os.path.getsize(f) for f in files.values())
             if total > KOBI_BUDGET: sys.exit('%s: %d bytes, over %d' % (vid, total, KOBI_BUDGET))
+            big = [os.path.basename(f) for f in files.values() if os.path.getsize(f) > KOBI_EACH]
+            if big: sys.exit('%s: over %d bytes each: %s' % (vid, KOBI_EACH, ', '.join(big)))
         images = [dict(light=l, file=(os.path.basename(files[l]) if V['packaged'] else '%s-%s.webp' % (vid, l)),
                        alt=sun[l]['alt'], az=sun[l]['az'], night=sun[l]['night'],
                        bytes=os.path.getsize(files[l]), sha256=sha(files[l])) for l in LIGHTS]
@@ -235,13 +240,14 @@ def main(check=False):
     doc_s = json.dumps(doc, separators=(',', ':'))
     fix_s = json.dumps(dict(schema=1, note='made by tools/build-peak.py with site/data/peak.json; tolerance half a point',
                             tol=0.5, points=fix_pts, taps=fix_taps), indent=1)
+    layer_s = json.dumps(dict(view=json.load(open(os.path.join(KOBI_SRC, 'peak-kobi.json')))['view']), separators=(',', ':'))
     if check:
-        bad = [f for f, want in ((OUT, doc_s), (FIX, fix_s)) if not os.path.exists(f) or open(f).read() != want]
+        bad = [f for f, want in ((OUT, doc_s), (FIX, fix_s), (KOBI_LAYER, layer_s)) if not os.path.exists(f) or open(f).read() != want]
         bad += [dst for src, dst in copies if not os.path.exists(dst) or sha(dst) != sha(src)]
         if bad:
             sys.exit('build-peak --check: not as built, run python3 tools/build-peak.py:\n  ' + '\n  '.join(os.path.relpath(b, ROOT) for b in bad))
         print('build-peak --check: peak.json, the test values and %d pictures are as built' % len(copies)); return
-    open(OUT, 'w').write(doc_s); open(FIX, 'w').write(fix_s)
+    open(OUT, 'w').write(doc_s); open(FIX, 'w').write(fix_s); open(KOBI_LAYER, 'w').write(layer_s)
     for src, dst in copies:
         os.makedirs(os.path.dirname(dst), exist_ok=True); shutil.copyfile(src, dst)
     print('%s: %d KB' % (OUT, os.path.getsize(OUT) // 1024))
