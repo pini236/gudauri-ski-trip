@@ -489,6 +489,7 @@ class LiveRenderer(
     @Volatile var ring: LiveRing? = null
     @Volatile var ringShown = true
     private val RING_FROM = 7000f
+    private val RING_PITCH = 1.1f; private val RING_EDGE = 2500f
     private var ringProg = 0; private val ringVao = IntArray(1); private val ringBufs = IntArray(3)
     private var ringOn: LiveRing? = null; private var ringCount = 0
     private val ringTex = IntArray(1)
@@ -708,7 +709,9 @@ class LiveRenderer(
         ring?.let { r -> if (r !== ringOn) uploadRing(r) }
         // only when the eye can see past the model: from outside it (the opening stands south of it) or from far; low
         // in the model, as in the film, the mesh hides it and it would cost the frame for nothing (run 419)
-        val past = eye[0] < tt.x0 || eye[0] > tt.x1 || eye[2] < tt.y0 || eye[2] > tt.y1 || s.dist > RING_FROM
+        val past = eye[0] < tt.x0 || eye[0] > tt.x1 || eye[2] < tt.y0 || eye[2] > tt.y1 || s.dist > RING_FROM ||
+            // near the model's edge with the view not steep, the horizon shows the ring past it (Pini, 27.11.2026: it came and went)
+            (s.pitch < RING_PITCH && minOf(eye[0] - tt.x0, tt.x1 - eye[0], eye[2] - tt.y0, tt.y1 - eye[2]) < RING_EDGE)
         if (ringCount > 0 && ringShown && past) {
             glUseProgram(ringProg)
             glUniformMatrix4fv(u(ringProg, "uMvp"), 1, false, mvp, 0)
