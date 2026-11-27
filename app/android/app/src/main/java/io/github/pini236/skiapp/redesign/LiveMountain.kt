@@ -117,7 +117,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var lensRow by remember { mutableStateOf(false) }
     // K17 (the village): open over the mountain
     var villageOpen by remember { mutableStateOf(false) }
-    var menuOpen by remember { mutableStateOf(false) }
+    var menuOpen by remember { mutableStateOf(Redesign.reopenMenu.also { Redesign.reopenMenu = false }) }
     var foodFirst by remember { mutableStateOf(false) }
     // UX pass part 4: the food screen, and where back goes (the menu or the village)
     var foodOpen by remember { mutableStateOf(false) }
@@ -851,7 +851,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                         else -> people.go(PLayer.Me)
                     } } },
                     onFood = if (places != null) ({ menuOpen = false; foodFromMenu = true; foodOpen = true }) else null,
-                    onGames = around?.onGames?.let { go -> { menuOpen = false; go() } },
+                    onGames = around?.onGames?.let { go -> { menuOpen = false; Redesign.gamesFromMenu = true; go() } },
                     onDays = around?.people?.let { p -> { menuOpen = false; p.onDays() } },
                     onLifts = { menuOpen = false; foodFirst = false; liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true },
                     onAccount = if (pp != null) ({ menuOpen = false; people.go(PLayer.Me) }) else null,

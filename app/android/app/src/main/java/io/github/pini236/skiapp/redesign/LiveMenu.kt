@@ -147,7 +147,8 @@ internal fun BoxScope.MenuSheet(
                 if (days > 0) pluralStringResource(R.plurals.app_me_days_sub, days, days) else stringResource(R.string.app_menu_days_none), null, go)) }
             add(MTile(Icons.lift, stringResource(R.string.app_menu_lifts), liftsLine, null, actions.onLifts))
         }
-        tiles.chunked(2).forEach { row ->
+        // from font scale 1.3 the grid is one column (part 1)
+        tiles.chunked(if (bigText()) 1 else 2).forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 row.forEach { m -> Box(Modifier.weight(1f).let { if (m.hint != null) it.hintTarget(m.hint) else it }) { Tile(m, k, tile, tint, haptics) } }
                 if (row.size == 1) Box(Modifier.weight(1f))

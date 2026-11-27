@@ -151,7 +151,7 @@ internal fun FoodScreen(scene: MapScene, data: PeakData?, mode: DayNight.Mode, n
                 if (chosen != null) Text(stringResource(if (tab == 0) R.string.app_food_more_village else R.string.app_food_more_rest), Modifier.padding(top = 10.dp, bottom = 2.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
                 if (shown.isEmpty()) Text(stringResource(R.string.places_none), Modifier.padding(vertical = 14.dp), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
                 for (f in shown) if (f.place.id != sel) FoodRow(f, k) { haptics.tick(.3f); sel = f.place.id }
-                Text(stringResource(R.string.places_check) + " · " + "© OpenStreetMap", Modifier.padding(top = 10.dp), fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2)
+                Text(stringResource(R.string.places_check) + " · " + places?.attribution?.substringBefore(", http")?.replace("(c)", "©")?.takeIf { it.isNotBlank() } ?: "© OpenStreetMap", Modifier.padding(top = 10.dp), fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2)
             }
         }
     }

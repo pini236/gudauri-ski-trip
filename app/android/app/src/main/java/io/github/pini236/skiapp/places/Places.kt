@@ -26,7 +26,7 @@ class Station(
 /** [liftId]: the lift's OSM id as the data writes it; [bottom]: the lift's lower end (otherwise its top). */
 class StationEnd(val liftId: String, val bottom: Boolean)
 
-class Places private constructor(val stations: List<Station>, private val byId: Map<String, Place>, val places: List<Place>) {
+class Places private constructor(val stations: List<Station>, private val byId: Map<String, Place>, val places: List<Place>, val attribution: String = "") {
     /** The station at one end of a lift, or null for a lift that is on none (the unnamed conveyor and the like). */
     fun stationOf(liftId: String, bottom: Boolean): Station? =
         stations.firstOrNull { s -> s.ends.any { it.liftId == liftId && it.bottom == bottom } }
@@ -63,7 +63,7 @@ class Places private constructor(val stations: List<Station>, private val byId: 
                     s.getJSONArray("ends").objs().map { StationEnd(it.get("liftId").toString(), it.getString("end") == "bottom") },
                     s.optString("info"), s.optJSONArray("places")?.objs()?.map { it.getString("p") to it.optInt("d") }.orEmpty())
             }
-            Places(ss, ps.associateBy { it.id }, ps)
+            Places(ss, ps.associateBy { it.id }, ps, o.optString("attribution"))
         }.getOrNull()
 
         /** Whether resorts.json lists the feature for a resort. */

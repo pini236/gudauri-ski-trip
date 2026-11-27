@@ -59,6 +59,10 @@ object Redesign {
      */
     @Volatile internal var on: () -> Boolean = { true }
 
+    /** UX pass part 6: the games page was opened from the menu, so back from it reopens the menu over the mountain (once). */
+    @Volatile var gamesFromMenu = false
+    @Volatile var reopenMenu = false
+
     /**
      * Something of the redesign did not load ([what], for the log). The screen stays in the new design: the painted
      * mountain, or the sky's colour with the pill and the bar and "no recent data" with a retry; never today's screens.

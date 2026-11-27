@@ -1021,7 +1021,11 @@ class MainActivity : ComponentActivity() {
                         androidx.compose.runtime.LaunchedEffect(Unit) { if (groupApi.ready) myGroups = runCatching { groupApi.myGroups() }.getOrDefault(emptyList()) }
                         val grp = myGroups.firstOrNull()
                         if (!io.github.pini236.skiapp.redesign.Redesign.games(dnMode, haptics, onOpen = { g -> nav.push(Route.Game(g)) }, tableName = grp?.name,
-                                onTable = grp?.let { gg -> { nav.push(Route.Group(gg.id, GroupTab.SCORES.key)) } }) { nav.back() })
+                                onTable = grp?.let { gg -> { nav.push(Route.Group(gg.id, GroupTab.SCORES.key)) } }) {
+                                // back from the menu's games returns to the menu
+                                io.github.pini236.skiapp.redesign.Redesign.reopenMenu = io.github.pini236.skiapp.redesign.Redesign.gamesFromMenu
+                                io.github.pini236.skiapp.redesign.Redesign.gamesFromMenu = false
+                                nav.back() })
                             GamesScreen(appGames(), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
                     }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }

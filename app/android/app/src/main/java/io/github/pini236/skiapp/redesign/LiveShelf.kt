@@ -169,8 +169,11 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (onVillage != null) {
         val menu = stringResource(R.string.app_dock_menu)
+        // B10: a long press shows the name in a pill above the button (the pill is a popup, so it sits in a Box of its own)
+        val menuHold = rememberNameHold()
+        Box {
         Row(Modifier.height(44.dp).hintTarget("village").clip(RoundedCornerShape(22.dp)).background(k.ink).semantics { contentDescription = menu; role = Role.Button }
-            .clickable { haptics.tick(.3f); onVillage() }.padding(start = 13.dp, end = 15.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            .nameHold(menuHold, k) { haptics.tick(.3f); onVillage() }.padding(start = 13.dp, end = 15.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             val ic = if (night) Color(0xFF0F1828) else Color.White
             Canvas(Modifier.size(19.dp)) {
                 val c = size.width / 2f - 1.5.dp.toPx(); val st = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
@@ -178,6 +181,8 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
                     drawRoundRect(ic, androidx.compose.ui.geometry.Offset(x, y), androidx.compose.ui.geometry.Size(c, c), androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()), st)
             }
             Text(menu, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ic, maxLines = 1)
+        }
+        NamePill(menuHold, menu, k, above = true)
         }
         }
         val find = stringResource(R.string.app_sr_dock_find)
