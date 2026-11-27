@@ -76,6 +76,9 @@ import kotlin.math.hypot
  */
 internal class WhereUi(context: android.content.Context, scene: MapScene) {
     val where = WhereAmI(context.applicationContext, Locator(scene.runs, scene.terrain), scene.terrain)
+    private val box = WhereRules.resortBox(scene.runs)
+    /** B2: a reading near the runs and lifts; farther, the mountain shows no dot and does not move. TODO(designer): the "not at the mountain" state. */
+    fun near(x: Float, y: Float) = WhereRules.atResort(box, x, y)
     /** S02 over the mountain: the first switching on ever, before the phone asks. */
     var asking by mutableStateOf(false)
     /** "Out of the area" and "no permission" keep the button lit until it is tapped (section 3). */
@@ -217,7 +220,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.locator(c: Color, f
 @Composable
 internal fun BoxScope.WhereDot(ui: WhereUi, view: Stage) {
     val s = ui.where.state as? WhereAmI.State.Fixed ?: return
-    if (s.fix == Locator.Fix.Outside) return
+    if (s.fix == Locator.Fix.Outside || !ui.near(s.x, s.y)) return
     var at by remember { mutableStateOf<Pair<Offset, Float>?>(null) }
     LaunchedEffect(s) {
         while (true) {
@@ -323,7 +326,7 @@ internal fun rememberLocate(ui: WhereUi, view: Stage): Pair<() -> Unit, () -> Un
         // the log first: a newer fix cancels this effect while the view is still moving
         Qa.log("redesign where ${whereTag(st)}")
         if (st == WhereAmI.State.Off) centred = false
-        if (!centred && st is WhereAmI.State.Fixed && st.fix != Locator.Fix.Outside) { centred = true; view.center(st.x, st.y, 60 * context.resources.displayMetrics.density) }
+        if (!centred && st is WhereAmI.State.Fixed && st.fix != Locator.Fix.Outside && ui.near(st.x, st.y)) { centred = true; view.center(st.x, st.y, 60 * context.resources.displayMetrics.density) }
     }
     val toggle = {
         val w = ui.where
