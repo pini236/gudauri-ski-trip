@@ -240,6 +240,8 @@ private fun RecordTile(r: Records.Row, t: Tile?, mountain: StoryVideo.Mountain?,
         .clearAndSetSemantics { contentDescription = said; if (v != null) role = Role.Button }.padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            androidx.compose.material3.Icon(when (r.what) { "longest_m" -> RecIcons.ruler; "drop_m" -> RecIcons.down; "descents" -> RecIcons.mtn; else -> RecIcons.slope },
+                null, Modifier.size(15.dp), tint = k.ink2)
             Text(title, Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink2, maxLines = 1)
             if (r.fresh && v != null) Text(newWord, Modifier.clip(RoundedCornerShape(8.dp)).background(k.acc).padding(horizontal = 6.dp, vertical = 1.dp),
                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = k.onAcc)

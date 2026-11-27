@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import io.github.pini236.skiapp.data.Geo
 import io.github.pini236.skiapp.dayrec.DayLog
 import io.github.pini236.skiapp.dayrec.DayRec
@@ -78,4 +79,16 @@ internal fun MountainWindow(m: StoryVideo.Mountain?, win: WinData?, night: Boole
         }
         win.pin?.let { p -> if (!p[0].isNaN()) overDraw(Offset(f.ox + p[0] * f.k, f.oy + p[1] * f.k), f.k) }
     }
+}
+
+/** The record tiles' icons, from the boards (design/redesign/tools/md_boards.py and dp_boards.py): 24 grid, stroke 2. */
+internal object RecIcons {
+    private fun line(name: String, vararg d: String) = androidx.compose.ui.graphics.vector.ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f).apply {
+        for (p in d) addPath(androidx.compose.ui.graphics.vector.PathParser().parsePathString(p).toNodes(), stroke = androidx.compose.ui.graphics.SolidColor(Color.Black),
+            strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round, strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round)
+    }.build()
+    val ruler = line("ruler", "M4 17 17 4l3 3L7 20z", "m8 13 1.5 1.5M11 10l1.5 1.5M14 7l1.5 1.5")
+    val down = line("down", "M5 5.5 18.5 19", "M18.5 11.5V19H11")
+    val mtn = line("mtn", "M3 19 9.5 8l3.5 5.5L15.5 10 21 19z")
+    val slope = line("slope", "M3 19h18L5 7z", "M8 19a5 5 0 0 0-1.2-3.2")
 }
