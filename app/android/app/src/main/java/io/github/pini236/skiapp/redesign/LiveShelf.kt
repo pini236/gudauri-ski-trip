@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -91,7 +94,7 @@ internal object ShelfData {
         val f = RunFacts.of(scene.terrain, p)
         val back = p.toLifts.firstOrNull()
         ShelfRun(p.key, p.title, p.color, p.kind, p.len, f?.drop ?: 0, f?.let { RunFacts.deg(it.maxG) } ?: 0,
-            p.fromLifts.firstOrNull(), back, back?.let { b -> scene.runs.lifts.firstOrNull { it.name == b }?.dur })
+            p.fromLifts.firstOrNull(), back, back?.let { b -> scene.runs.lifts.firstOrNull { it.name == b }?.dur }, f?.top ?: 0)
     }
 
     /** Each named run with all its fromLifts (K06 gathers the runs of a station's lifts). */
@@ -254,27 +257,42 @@ internal fun Chip(text: String, on: Boolean, k: SheetInk, enabled: Boolean = tru
     }
 }
 
+/** What the mountain shows for the shelf's chip and middle card (the shelf reports it, the mountain paints it). */
+internal data class ShelfMode(val sort: ShelfSort, val lit: Set<String>, val lifts: Set<String>, val lens: LensKind?, val ranks: List<String>)
+
 /**
- * K07, the shelf (section 2): the chips of the four orders, the group's title, and the cards in one row, the middle one
- * lit on the mountain (raised 120 points over the shelf). [open] the run it opens on; [onCenter] the run in the middle
- * (its light and its lift); [onPick] a run chosen; [onClose] the shelf closed.
+ * K07, the shelf, version 2 (design/handoff/2026-11-27-redesign-shelf-layers, "Version 2"): the strip panel (chip name, group,
+ * position, one tick per run), six chips that each order the cards and paint the mountain, and the cards in one row, the middle
+ * one lit on the mountain. [runOpen] null when there is no fresh lift report; [snowCm] null when there is no forecast; [openHint]
+ * the line a tap on the dim "open" chip shows; [onMode] what to paint; [onPanel] the strip panel's rectangle (the runs button lands there).
  */
 @Composable
 internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, night: Boolean, haptics: Haptics, open: (List<Pair<String, ShelfGroup>>) -> Int,
                             closed: (String) -> Boolean, onCenter: (ShelfRun) -> Unit, onPick: (String) -> Unit, onClose: () -> Unit,
-                            onPanel: (androidx.compose.ui.geometry.Rect) -> Unit = {}) {
+                            onPanel: (androidx.compose.ui.geometry.Rect) -> Unit = {},
+                            runOpen: ((String) -> Boolean?)? = null, snowCm: ((ShelfRun) -> Double?)? = null, openHint: String = "",
+                            onMode: (ShelfMode) -> Unit = {}) {
     val context = LocalContext.current
     val k = remember(night) { SheetInk(night) }
     var chosenSort by remember { mutableStateOf(ShelfPrefs.sort(context)) }
     val sun = remember(night, view.lightTime / 600_000) { view.sunShares() }
-    // the sun down: "in the sun now" is off and the shelf is by lift (section 2)
-    val sort = if (chosenSort == ShelfSort.SUN && sun == null) ShelfSort.LIFT else chosenSort
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-    var noSun by remember { mutableStateOf(0) }
-    val bottoms = remember(scene) { ShelfData.bottoms(scene) }
-    val groups = remember(sort, runs, sun) { Shelf.groups(sort, runs, bottoms::get, sun?.let { m -> { key: String -> m[key] ?: 0f } }) }
-    val flat = remember(groups) { Shelf.flat(groups) }
     val byKey = remember(runs) { runs.associateBy { it.key } }
+    val snowOf = remember(snowCm, runs) { snowCm?.let { f -> runs.associate { it.key to f(it) } } }
+    val snowAny = snowOf != null && snowOf.values.any { (it ?: 0.0) >= 1.0 }
+    // the sun down: "in the sun now" is off; no lift report: "open" is off; both fall back to by lift (the empty answers never grey the mountain)
+    val sort = when {
+        chosenSort == ShelfSort.SUN && sun == null -> ShelfSort.LIFT
+        chosenSort == ShelfSort.OPEN && runOpen == null -> ShelfSort.LIFT
+        else -> chosenSort
+    }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var notice by remember { mutableStateOf<String?>(null) }
+    val noSunText = stringResource(R.string.app_lens_no_sun)
+    val bottoms = remember(scene) { ShelfData.bottoms(scene) }
+    val groups = remember(sort, runs, sun, runOpen, snowOf) {
+        Shelf.groups(sort, runs, bottoms::get, sun?.let { m -> { key: String -> m[key] ?: 0f } }, runOpen, snowOf?.let { m -> { key: String -> m[key] ?: 0.0 } }.takeIf { snowAny })
+    }
+    val flat = remember(groups) { Shelf.flat(groups) }
     val list = rememberLazyListState(initialFirstVisibleItemIndex = remember { open(flat) })
     var keep by remember { mutableStateOf<String?>(null) }
     // the opening's table (run button v4): the panel's first row fades 270 to 470 ms, the chips rise 14 from 140, the cards rise 46 from 160,
@@ -296,8 +314,14 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
             keep = key; byKey[key]?.let { onCenter(it) }; haptics.tick(.2f); Qa.log("redesign shelf center $key")
         }
     }
+    // what the mountain paints: the chip's lens, or the middle card's group (by lift, by colour) or the six longest
+    val group = flat.getOrNull(mid)?.second
+    val lens = when (sort) { ShelfSort.SNOW -> if (snowAny) LensKind.SNOW else null; else -> sort.lens }
+    LaunchedEffect(sort, group, flat, lens) {
+        onMode(ShelfMode(sort, Shelf.lit(sort, group, flat), setOfNotNull(group?.lift), lens, Shelf.ranks(sort, flat)))
+    }
     LaunchedEffect(Unit) { Qa.log("redesign shelf open ${sort.id} ${flat.size}") }
-    LaunchedEffect(noSun) { if (noSun > 0) { delay(2000); noSun = 0 } }
+    LaunchedEffect(notice) { if (notice != null) { delay(2000); notice = null } }
     androidx.activity.compose.BackHandler { onClose() }
     // the emulator's switches (qa.redesign shelf:sort:<id>, shelf:next)
     LaunchedEffect(RedesignQa.seq) {
@@ -306,48 +330,80 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
         if (c == "shelf:next") list.animateScrollToItem((mid + 1).coerceAtMost(flat.size - 1))
     }
     val screenW = LocalConfiguration.current.screenWidthDp.dp
+    val density = LocalDensity.current
+    val tickSpecs = remember(sort, flat, sun, runOpen, snowOf) {
+        ShelfAnswers.ticks(sort, flat, byKey, { key -> if (sun == null) null else (sun[key] ?: 0f) }, { key -> runOpen?.invoke(key) }, { key -> snowOf?.get(key) })
+    }
+    val runColour: (String) -> Color = { key -> byKey[key]?.let { plate(it.color) } ?: Color.Gray }
+    val chipName = stringResource(sortLabel(sort))
     Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(bottom = 22.dp)) {
-        // the group's title, with a halo as the peaks' names
-        val g = flat.getOrNull(mid)?.second
-        val title = when {
-            g == null -> ""
+        // the strip panel: the chip's name, the group or the count, the position, and the ticks
+        val g = group
+        val groupTitle: String? = when {
+            g == null -> null
             g.lift != null -> pluralStringResource(R.plurals.app_shelf_group_lift, g.keys.size, g.lift, g.keys.size.toString())
             g.color != null -> pluralStringResource(R.plurals.app_shelf_group_color, g.keys.size, stringResource(when (g.color) {
                 "green" -> R.string.app_shelf_colors_green; "blue" -> R.string.app_shelf_colors_blue; "red" -> R.string.app_shelf_colors_red; else -> R.string.app_shelf_colors_black }), g.keys.size.toString())
             g.sun == true -> stringResource(R.string.app_shelf_group_sun, g.keys.size.toString())
             g.sun == false -> stringResource(R.string.app_shelf_group_shade, g.keys.size.toString())
-            sort == ShelfSort.LONG -> stringResource(R.string.app_shelf_pos, (mid + 1).toString(), flat.size.toString())
+            g.open == true -> stringResource(R.string.status_lift_open) + " · " + g.keys.size
+            g.open == false -> stringResource(R.string.app_lens_closed_leg) + " · " + g.keys.size
+            sort == ShelfSort.LONG || sort == ShelfSort.SNOW -> null
             else -> pluralStringResource(R.plurals.app_shelf_group_rest, g.keys.size, g.keys.size.toString())
         }
-        val shade = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 8f)
-        // the summary sits in a pill like the chips, not loose on the mountain (the release review, B2)
-        if (title.isNotEmpty()) Box(Modifier.padding(horizontal = 16.dp).heightIn(min = 28.dp).onGloballyPositioned { onPanel(it.boundsInWindow()) }
-            .graphicsLayer { alpha = rise(270f, 200f) }.clip(RoundedCornerShape(14.dp)).background(k.surf.copy(alpha = 1f))
-            .border(1.dp, k.line, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
-            Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
+        val pos = if (flat.isEmpty()) "" else stringResource(R.string.app_shelf_pos, (mid + 1).toString(), flat.size.toString())
+        val noSnow = sort == ShelfSort.SNOW && !snowAny
+        val shape = RoundedCornerShape(22.dp)
+        Column(Modifier.padding(horizontal = 12.dp).fillMaxWidth().onGloballyPositioned { onPanel(it.boundsInWindow()) }
+            .graphicsLayer { alpha = rise(270f, 200f) }.shadow(10.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
+            .padding(start = 14.dp, end = 14.dp, top = 11.dp, bottom = 12.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.animation.Crossfade(notice ?: (if (noSnow) stringResource(R.string.app_shelf_snow_none) else chipName + (groupTitle?.let { " · $it" } ?: "")), animationSpec = tween(150), label = "strip-row") { t ->
+                    Text(t, Modifier.fillMaxWidth(.78f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+                androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+                Text(pos, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = k.ink2, maxLines = 1,
+                    style = androidx.compose.ui.text.TextStyle(fontFeatureSettings = "tnum"))
+            }
+            androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
+            val name = flat.getOrNull(mid)?.first?.let { byKey[it]?.title } ?: ""
+            RunStrip(tickSpecs, runColour, mid, k, stringResource(R.string.app_shelf_tick_a11y, name, (mid + 1).toString(), flat.size.toString())) { i, tap ->
+                if (i != mid && i in flat.indices) { haptics.tick(.2f); scope.launch { if (tap) list.animateScrollToItem(i) else list.scrollToItem(i) } }
+            }
         }
-        if (noSun > 0) Text(stringResource(R.string.app_lens_no_sun), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2,
-            style = androidx.compose.ui.text.TextStyle(shadow = shade))
         androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
+        // the chips: the row scrolls and the lit chip is always fully in view
+        val chipScroll = rememberScrollState()
+        val chipBox = remember { mutableMapOf<ShelfSort, Pair<Int, Int>>() }
+        LaunchedEffect(sort) {
+            chipBox[sort]?.let { (l, w) ->
+                val view0 = with(density) { screenW.roundToPx() }
+                if (l < chipScroll.value) chipScroll.animateScrollTo(l - 12) else if (l + w > chipScroll.value + view0) chipScroll.animateScrollTo(l + w - view0 + 12)
+            }
+        }
         Row(Modifier.fillMaxWidth().graphicsLayer { val r = rise(140f, 330f); alpha = r; if (!reduced) translationY = (1f - r) * 14.dp.toPx() }
-            .horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            .horizontalScroll(chipScroll).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             for (s in ShelfSort.values()) {
-                val label = stringResource(when (s) { ShelfSort.LIFT -> R.string.app_shelf_by_lift; ShelfSort.EASY -> R.string.app_shelf_easy_hard
-                    ShelfSort.LONG -> R.string.app_shelf_longest; ShelfSort.SUN -> R.string.app_shelf_sun })
-                Chip(label, sort == s, k, enabled = s != ShelfSort.SUN || sun != null, a11y = stringResource(R.string.app_shelf_sort_a11y, label)) {
-                    if (s == ShelfSort.SUN && sun == null) { noSun++; Qa.log("redesign shelf no sun"); return@Chip }
+                val label = stringResource(sortLabel(s))
+                val enabled = when (s) { ShelfSort.SUN -> sun != null; ShelfSort.OPEN -> runOpen != null; else -> true }
+                ShelfChip(s, label, sort == s, enabled, k, stringResource(R.string.app_shelf_sort_a11y, label),
+                    Modifier.onGloballyPositioned { c -> chipBox[s] = c.positionInParent().x.toInt() to c.size.width }) {
+                    if (s == ShelfSort.SUN && sun == null) { notice = noSunText; Qa.log("redesign shelf no sun"); return@ShelfChip }
+                    if (s == ShelfSort.OPEN && runOpen == null) { notice = openHint; Qa.log("redesign shelf no report"); return@ShelfChip }
                     haptics.tick(.3f); chosenSort = s; ShelfPrefs.setSort(context, s); Qa.log("redesign shelf sort ${s.id}")
                 }
             }
         }
-        androidx.compose.foundation.layout.Spacer(Modifier.height(14.dp))
+        androidx.compose.foundation.layout.Spacer(Modifier.height(10.dp))
         val side = ((screenW - 232.dp) / 2).coerceAtLeast(12.dp)
+        val rankOf = remember(flat) { flat.withIndex().associate { it.value.first to it.index + 1 } }
         LazyRow(Modifier.fillMaxWidth().pointerInput(Unit) { detectVerticalDragGestures { _, dy -> if (dy > 18f) onClose() } },
             state = list, contentPadding = PaddingValues(horizontal = side), horizontalArrangement = Arrangement.spacedBy(19.dp),
             flingBehavior = rememberSnapFlingBehavior(list)) {
             itemsIndexed(flat, key = { _, it -> it.first }) { i, (key, _) ->
                 val r = byKey[key] ?: return@itemsIndexed
-                ShelfCard(scene, r, k, closed(key), Modifier.graphicsLayer {
+                val ans = ShelfAnswers.answer(sort, r, rankOf[key] ?: 1, flat.size, sun?.get(key), runOpen?.invoke(key), snowOf?.get(key))
+                ShelfCard(scene, r, k, closed(key), sort, ans, Modifier.graphicsLayer {
                     val e = rise(160f + 45f * minOf(kotlin.math.abs(i - startMid), 5), 390f)
                     alpha = e * (if (i == mid) 1f else .72f); if (!reduced) translationY = (1f - e) * 46.dp.toPx()
                 }) {
@@ -355,12 +411,29 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
                 }
             }
         }
+        // the sources, only while the sun or snow chip is on (one line under the cards)
+        val source = when (sort) {
+            ShelfSort.SUN -> stringResource(R.string.app_lens_sun_note)
+            ShelfSort.SNOW -> if (snowAny) stringResource(R.string.app_lens_snow_note) + " Open-Meteo" else null
+            else -> null
+        }
+        if (source != null) Text(source, Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp), fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2,
+            style = androidx.compose.ui.text.TextStyle(shadow = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 8f)))
     }
 }
 
-/** One card (section 1): 232 by 156, radius 22; the run's shape at the start, then its sign and name, kind, two numbers and the way back. */
+private fun sortLabel(s: ShelfSort): Int = when (s) {
+    ShelfSort.LIFT -> R.string.app_shelf_by_lift; ShelfSort.EASY -> R.string.app_shelf_by_diff; ShelfSort.LONG -> R.string.app_shelf_longest
+    ShelfSort.SUN -> R.string.app_shelf_sun; ShelfSort.OPEN -> R.string.app_shelf_open; ShelfSort.SNOW -> R.string.app_wx_snow_cap
+}
+
+/**
+ * One card (version 2): 232 by 172, radius 24, padding 14 / 16. At the start a panel 52 wide, the run's colour at 12%, with its
+ * shape (40 by 110); beside it the sign and the name, the chip's answer as the big number (42 light) with its unit and a caption
+ * in the accent, and a foot line. The number rolls (digits slide 12 up, 200 ms) when the chip changes.
+ */
 @Composable
-private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean, modifier: Modifier, onClick: () -> Unit) {
+private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean, sort: ShelfSort, ans: ShelfAnswer, modifier: Modifier, onClick: () -> Unit) {
     val nf = remember { java.text.NumberFormat.getIntegerInstance() }
     val (len, km) = Shelf.length(r.len)
     val lenShown = if (km) java.text.NumberFormat.getNumberInstance().apply { minimumFractionDigits = 1; maximumFractionDigits = 1 }.format(r.len / 1000.0) else nf.format(len.toInt())
@@ -368,24 +441,44 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
     val a11y = stringResource(R.string.app_shelf_card_a11y, r.title, colourWord(r.color), if (r.kind == "run") levelWord(r.color) else kind,
         lenShown + " " + (if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap)), nf.format(r.drop), back)
     val col = plate(r.color)
-    Row(modifier.width(232.dp).heightIn(min = 156.dp).shadow(14.dp, RoundedCornerShape(22.dp), clip = false).clip(RoundedCornerShape(22.dp))
-        .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, RoundedCornerShape(22.dp))
+    val reduced = io.github.pini236.skiapp.ui.Motion.reduced(LocalContext.current)
+    val unitText = when (ans.unit) {
+        AUnit.MIN -> stringResource(R.string.app_shelf_unit_min); AUnit.DEG -> "°"; AUnit.KM -> stringResource(R.string.app_shelf_km_cap); AUnit.M -> stringResource(R.string.app_shelf_m_cap)
+        AUnit.PCT -> "%"; AUnit.CM -> stringResource(R.string.app_shelf_unit_cm); else -> ""
+    }
+    val big = when (ans.unit) { AUnit.WORD_OPEN -> stringResource(R.string.app_shelf_word_open); AUnit.WORD_CLOSED -> stringResource(R.string.app_shelf_word_closed); else -> ans.num }
+    val caption = when (ans.cap) {
+        Cap.BACK -> stringResource(R.string.app_shelf_cap_back, ans.a); Cap.STEEP -> stringResource(R.string.app_shelf_cap_steep)
+        Cap.RANK -> stringResource(R.string.app_shelf_cap_rank, ans.a, ans.b); Cap.SUN -> stringResource(R.string.app_shelf_cap_sun)
+        Cap.OPEN -> stringResource(R.string.app_shelf_cap_open, ans.a); Cap.CLOSED -> stringResource(R.string.app_shelf_cap_closed, ans.a)
+        Cap.SNOW -> stringResource(R.string.app_shelf_cap_snow); Cap.NONE -> ""
+    }
+    val lenFoot = lenShown + " " + (if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap))
+    val dropFoot = nf.format(r.drop) + " " + stringResource(R.string.app_shelf_drop_cap)
+    val steepFoot = stringResource(R.string.app_shelf_foot_steep, r.steep.toString())
+    val colourFoot = colourWord(r.color)
+    val foot = (if (sort == ShelfSort.LONG) listOf(dropFoot, steepFoot, colourFoot) else listOf(lenFoot, dropFoot, colourFoot)).joinToString(" · ")
+    val shape = RoundedCornerShape(24.dp)
+    Row(modifier.width(232.dp).height(172.dp).shadow(14.dp, shape, clip = false).clip(shape)
+        .background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
         .semantics(mergeDescendants = true) { contentDescription = a11y; role = Role.Button }.clickable(onClick = onClick)
-        .padding(horizontal = 14.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        val shape = remember(r.key) { ShelfData.shape(scene, r.key, 40f, 92f, 4f) }
-        Canvas(Modifier.width(40.dp).height(92.dp)) {
-            val s = density
-            for (l in shape) {
-                if (l.size < 4) continue
-                val p = Path().apply { moveTo(l[0] * s, l[1] * s); for (i in 1 until l.size / 2) lineTo(l[i * 2] * s, l[i * 2 + 1] * s) }
-                drawPath(p, col, style = Stroke(3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
-            }
-            shape.firstOrNull()?.takeIf { it.size >= 2 }?.let { l ->
-                val o = Offset(l[0] * s, l[1] * s)
-                drawCircle(Color.White, 2.6.dp.toPx(), o); drawCircle(col, 2.6.dp.toPx(), o, style = Stroke(1.6.dp.toPx()))
+        .padding(horizontal = 16.dp, vertical = 14.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        val pic = remember(r.key) { ShelfData.shape(scene, r.key, 40f, 110f, 4f) }
+        Box(Modifier.width(52.dp).fillMaxHeight().clip(RoundedCornerShape(16.dp)).background(col.copy(alpha = .12f)), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.width(40.dp).height(110.dp)) {
+                val s = density
+                for (l in pic) {
+                    if (l.size < 4) continue
+                    val p = Path().apply { moveTo(l[0] * s, l[1] * s); for (i in 1 until l.size / 2) lineTo(l[i * 2] * s, l[i * 2 + 1] * s) }
+                    drawPath(p, col, style = Stroke(3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+                }
+                pic.firstOrNull()?.takeIf { it.size >= 2 }?.let { l ->
+                    val o = Offset(l[0] * s, l[1] * s)
+                    drawCircle(Color.White, 2.6.dp.toPx(), o); drawCircle(col, 2.6.dp.toPx(), o, style = Stroke(1.6.dp.toPx()))
+                }
             }
         }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.weight(1f).fillMaxHeight()) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Box(Modifier.height(20.dp).width(6.dp).clip(RoundedCornerShape(3.dp)).background(col))
                 Text(r.title, Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = k.ink, maxLines = 1,
@@ -393,18 +486,21 @@ private fun ShelfCard(scene: MapScene, r: ShelfRun, k: SheetInk, closed: Boolean
                 if (closed) Text(stringResource(R.string.app_lens_closed_leg), Modifier.clip(RoundedCornerShape(9.dp)).background(k.red.copy(alpha = .14f)).padding(horizontal = 7.dp, vertical = 2.dp),
                     fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = k.red)
             }
-            Text(kind, fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                Column {
-                    Text(lenShown, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
-                    Text(if (km) stringResource(R.string.app_shelf_km_cap) else stringResource(R.string.app_shelf_m_cap), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
-                }
-                Column {
-                    Text(nf.format(r.drop), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 24.sp, color = k.ink)
-                    Text(stringResource(R.string.app_shelf_drop_cap), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2)
+            androidx.compose.foundation.layout.Spacer(Modifier.height(6.dp))
+            // the big number: digits slide 12 up in 200 ms when the chip changes
+            androidx.compose.animation.AnimatedContent(big to unitText, transitionSpec = {
+                if (reduced) androidx.compose.animation.fadeIn(tween(150)) togetherWith androidx.compose.animation.fadeOut(tween(150))
+                else (androidx.compose.animation.slideInVertically(tween(200)) { it / 3 } + androidx.compose.animation.fadeIn(tween(200))) togetherWith
+                    (androidx.compose.animation.slideOutVertically(tween(200)) { -it / 3 } + androidx.compose.animation.fadeOut(tween(120)))
+            }, label = "answer") { (num, unit) ->
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(num, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 42.sp, color = k.ink, maxLines = 1, style = androidx.compose.ui.text.TextStyle(fontFeatureSettings = "tnum"))
+                    if (unit.isNotEmpty()) Text(unit, Modifier.padding(bottom = 7.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink2, maxLines = 1)
                 }
             }
-            Text(back, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (caption.isNotEmpty()) Text(caption, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.acc, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+            Text(foot, fontFamily = Gudi, fontSize = 12.sp, color = k.ink2, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -436,6 +532,27 @@ internal fun RunTag(view: Stage, scene: MapScene, key: String, title: String, co
         Box(Modifier.size(8.dp).clip(CircleShape).background(plate(color)))
         Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = k.ink, maxLines = 1,
             style = androidx.compose.ui.text.TextStyle(textDirection = TextDirection.Ltr))
+    }
+}
+
+/**
+ * A rank on the mountain (version 2, "הארוכים"): a disc 22 with the number 1 to 6, ink with a 2 ring of the background,
+ * about a third of the way down the run's line.
+ */
+@Composable
+internal fun RankDisc(view: Stage, scene: MapScene, key: String, rank: Int, night: Boolean) {
+    val k = remember(night) { SheetInk(night) }
+    val pt = remember(key) {
+        scene.runs.pistes.firstOrNull { it.key == key }?.lines?.maxByOrNull { it.size }?.let { l -> val n = l.size / 2; if (n == 0) null else { val i = n / 3; floatArrayOf(l[i * 2], l[i * 2 + 1]) } }
+    } ?: return
+    var at by remember(key) { mutableStateOf<Offset?>(null) }
+    LaunchedEffect(key) { while (true) { withFrameNanos { }; at = view.toScreen(pt[0], pt[1])?.let { Offset(it[0], it[1]) } } }
+    val p = at ?: return
+    if (p.y < with(LocalDensity.current) { (TOP_GUARD_DP + 11).dp.toPx() }) return
+    val r = with(LocalDensity.current) { 11.dp.toPx() }
+    Box(Modifier.atScreen { IntOffset((p.x - r).toInt(), (p.y - r).toInt()) }.size(22.dp).border(2.dp, if (night) Color(0xFF0F1828) else Color.White, CircleShape)
+        .clip(CircleShape).background(k.ink), contentAlignment = Alignment.Center) {
+        Text(rank.toString(), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = if (night) Color(0xFF0F1828) else Color.White, maxLines = 1)
     }
 }
 

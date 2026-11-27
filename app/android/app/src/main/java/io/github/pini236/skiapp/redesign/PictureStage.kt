@@ -125,7 +125,9 @@ internal class PictureStage(private val context: Context, private val scene: Map
     private var w = 0f; private var h = 0f
     private var scope: CoroutineScope? = null
     private var cam: Job? = null
-    private fun place(): Place = PeakGeo.free(w, h, hero, z, Offset(cx, cy)).let { Place(it.k, it.x, it.y - raise) }
+    // P.6: the picture fills the screen under every sheet. Raising it by [raise] must never bring its bottom edge up into the
+    // screen, so it scales up about the top centre just enough (about 1.14 for 120 dp) and then rises: the bottom stays at the screen's.
+    private fun place(): Place = PeakGeo.free(w, h, hero, z, Offset(cx, cy)).let { b -> PeakGeo.raised(b, hero.h, w, h, raise) }
 
     // ---- the look
     private var epoch by mutableStateOf(System.currentTimeMillis())

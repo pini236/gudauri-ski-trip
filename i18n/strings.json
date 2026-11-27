@@ -26830,6 +26830,18 @@
     "ka"
    ]
   },
+  "app.shelf_unit_cm": {
+   "he": "ס״מ",
+   "en": "cm",
+   "ru": "см",
+   "ka": "სმ",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026: the unit of the snow chip's big number (the unit of app.wx_snow_n alone; added by the builder, content to confirm)",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.shelf_word_open": {
    "he": "פתוח",
    "en": "Open",
