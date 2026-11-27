@@ -48,7 +48,11 @@ import io.github.pini236.skiapp.ui.Motion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -108,6 +112,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
                 kobiHero = runCatching { PeakData.loadKobiView(context, d.geo) }.onFailure { Redesign.fail("kobi layer") }.getOrNull()
                 kobiSet?.scan()
                 kobiReady = kobiHero != null
+                Qa.log("redesign kobi init set=${kobiSet != null} rev=${kobiC.rev} path=${kobiC.path} images=${kobiC.images.size} layer=${kobiHero != null} have=${kobiSet?.arrived}")
             }
         }
     }
@@ -241,7 +246,24 @@ internal class PictureStage(private val context: Context, private val scene: Map
         tick++
     }
 
+    /** the Kobi pictures are on their way: a tap on the side waits for the first one (up to 5 s) instead of going live at once */
+    @Volatile private var kobiFetching = false
+
     override fun pickKey(key: String) {
+        val ks = kobiSet; val sc = scope
+        if (ks != null && sc != null && kobiFetching && !kobiUsable && faceFor(key) == Face.KOBI) {
+            Qa.log("redesign kobi waiting for the first picture")
+            sc.launch {
+                val got = withTimeoutOrNull(5000) { snapshotFlow { ks.arrived }.first { it > 0 } }
+                Qa.log("redesign kobi wait ${if (got != null) "done" else "timed out"}")
+                pickKeyNow(key)
+            }
+            return
+        }
+        pickKeyNow(key)
+    }
+
+    private fun pickKeyNow(key: String) {
         if (needsLive(key)) { Qa.log("redesign picture live for $key"); onNeedLive?.invoke(key); return }
         val f = faceFor(key)
         if (f != side) { turn(f, key); return }
@@ -522,13 +544,22 @@ internal class PictureStage(private val context: Context, private val scene: Map
         }
         // the Kobi side's pictures come in the background, once the first picture is drawn and while the app is on the screen
         // (the architect's conditions: the current light first, resumable, never in the background)
-        LaunchedEffect(kobiSet, kobiReady) {
-            val ks = kobiSet ?: return@LaunchedEffect
-            if (!kobiReady) return@LaunchedEffect
+        // (the fetch needs only the set: it no longer waits for the layer to parse, and it tries again after a failure)
+        LaunchedEffect(kobiSet) {
+            val ks = kobiSet ?: run { Qa.log("redesign kobi fetch: no set"); return@LaunchedEffect }
             while (!drawnOnce) withFrameNanos { }
             val lc = KobiSet.lifecycleOf(context)
-            if (lc == null) ks.fetchAll(want.name) { true }
-            else lc.repeatOnLifecycle(Lifecycle.State.STARTED) { ks.fetchAll(want.name) { lc.currentState.isAtLeast(Lifecycle.State.STARTED) } }
+            Qa.log("redesign kobi fetch start lifecycle=${lc != null}")
+            suspend fun round(active: () -> Boolean) {
+                for (attempt in 1..4) {
+                    kobiFetching = true
+                    val ok = try { ks.fetchAll(want.name, active) } finally { kobiFetching = false }
+                    if (ok || !active()) return
+                    delay(3000L * attempt)
+                }
+            }
+            if (lc == null) round { true }
+            else lc.repeatOnLifecycle(Lifecycle.State.STARTED) { round { lc.currentState.isAtLeast(Lifecycle.State.STARTED) } }
         }
         // the chosen run's moment (the light down it, 2 s), then still
         val ch = chosen
