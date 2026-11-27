@@ -1637,7 +1637,7 @@ PY
   mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
   # B10: a long press on a button without words shows its name (held down while the shot is taken)
   adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
-  xy=$(where "שכבות"); [ -n "$xy" ] && { hold $xy 2600 & sleep 1.3; shot redesign-name-pill; wait; } || note "name pill: no layers button on the screen"
+  xy=$(where "שכבות"); [ -n "$xy" ] && { hold $xy 2600 & hp=$!; sleep 1.3; shot redesign-name-pill; wait $hp; } || note "name pill: no layers button on the screen"
 }
 # the redesign's second half (parts 4 to 8), its own emulator job: a run of its own from a cold start, as the first half
 redesign2() {
