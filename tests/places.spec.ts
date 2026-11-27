@@ -79,7 +79,7 @@ test('places: the lift panel tells what is near the top and the bottom, three fi
   await expect(bottom.locator('summary')).toHaveText('All 5');
   await bottom.locator('summary').click();
   await expect(bottom).toContainText('Test Hut');
-  await expect(bottom).toContainText('Seasonal');
+  await expect(bottom).toContainText('Open in season only');
   await expect(bottom).toContainText('Worth checking on the spot'); // no opening hours in the data
   expect(errors).toEqual([]);
 });

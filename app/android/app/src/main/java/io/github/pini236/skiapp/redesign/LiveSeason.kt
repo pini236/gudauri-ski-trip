@@ -150,7 +150,7 @@ internal fun BoxScope.SeasonTile(around: Around, night: Boolean, haptics: Haptic
     // closes by itself after 3.5 s (longer when the system asks for it)
     val am = androidx.compose.ui.platform.LocalContext.current.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
     val stay = if (android.os.Build.VERSION.SDK_INT >= 29) am.getRecommendedTimeoutMillis(3500, android.view.accessibility.AccessibilityManager.FLAG_CONTENT_TEXT) else 3500
-    androidx.compose.runtime.LaunchedEffect(expanded) { if (expanded) { kotlinx.coroutines.delay(stay.toLong()); onExpanded(false) } }
+    androidx.compose.runtime.LaunchedEffect(expanded) { if (expanded && !Qa.enabled) { kotlinx.coroutines.delay(stay.toLong()); onExpanded(false) } }
     val shape = RoundedCornerShape(18.dp)
     Row(Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 12.dp, bottom = 90.dp)
         .then(if (reduced) Modifier else Modifier.animateContentSize(androidx.compose.animation.core.tween(250, easing = androidx.compose.animation.core.FastOutSlowInEasing)))

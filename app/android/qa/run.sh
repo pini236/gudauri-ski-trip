@@ -1608,6 +1608,38 @@ PY
     for _ in 1 2 3 4 5 6; do [ -n "$(where "~בעוד רבע שעה")" ] && break; sleep 1; done; sleep 0.5; shot redesign-reminder
     mark; tapText "~בעוד רבע שעה" && { sleep 3; shot redesign-from-reminder
       tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -q "SkiQa.*redesign" || fail "redesign: the reminder did not open the new design"; } || adb shell cmd statusbar collapse; }
+  # first-run hints v2 (HN00 to HN12): the emulator build has no timer, so a tap is the next hint and back closes them all
+  # (the draining ring cannot be shot). The village pair first (it opens with the village sheet), then the mountain's six.
+  # the mountain must be bare for the hints: the meeting sheet, the lifts and the season sheet closed first
+  mark; qa "--es qa.redesign people:off"; sleep 1
+  mark; qa "--es qa.redesign meet:off"; waitlog "redesign meet closed" 10; qa "--es qa.redesign lifts:off"; qa "--es qa.redesign season:off"; sleep 1
+  mark; qa "--es qa.redesign village"; waitlog "redesign village open" 20; sleep 1
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step trip" 15 && { sleep 1; shot redesign-hint-village-trip; }
+  mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint step group" 10 && { sleep 1; shot redesign-hint-village-group; }
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_village" 10 || note "hints: the village pair did not close"
+  mark; qa "--es qa.redesign village:off"; sleep 1
+  # the mountain's six, one shot each
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-1-run; }
+  for id in find rec village mode me; do
+    mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint step $id" 10 && { sleep 1; shot "redesign-hint-$id"; } || note "hints: no step $id"
+  done
+  mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint done hints_mountain" 10 || fail "redesign: the last hint did not end the sequence"
+  # one in the night, one in English
+  mark; qa "--es qa.mode night --es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-night; }
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_mountain" 10; qa "--es qa.mode auto"; sleep 1
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-en; }
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_mountain" 10
+  # the countdown tile (B8): closed, a tap opens its words, a tap on the open tile opens the season sheet (no big number)
+  mark; qa "--es qa.status none"; sleep 2; rd_settled; shot redesign-season-tile
+  if [ -n "$(where '~planned opening')" ]; then
+    mark; tapText "~planned opening"; sleep 1; shot redesign-season-tile-open
+    mark; tapText "~planned opening"; waitlog "redesign season tile sheet" 10 && { rd_settled; shot redesign-season-sheet-tile; }
+  else note "the countdown tile was not on the screen"; fi
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
+  # B10: a long press on a button without words shows its name (held down while the shot is taken)
+  adb shell cmd locale set-app-locales "$PKG" --locales he > /dev/null 2>&1; sleep 3
+  xy=$(where "שכבות"); [ -n "$xy" ] && { hold $xy 2600 & hp=$!; sleep 1.3; shot redesign-name-pill; wait $hp; } || note "name pill: no layers button on the screen"
 }
 # the redesign's second half (parts 4 to 8), its own emulator job: a run of its own from a cold start, as the first half
 redesign2() {
