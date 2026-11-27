@@ -440,3 +440,13 @@ Canvas version 75, page "כפתורים בלי מילים (ב10)", boards `BT00`
 ### UX pass after build 0.1.954 (26.11.2026; approved in full, Pini 27.11.2026)
 
 Canvas version 87, page "מעבר חוויית משתמש (26.11)", boards `UX00` (diagnosis, the rule, the ten items, five questions) and `MN1`-`MN6`, `TR1`-`TR4`, `SP1`-`SP2`, `FD1`-`FD3`, `GR1`-`GR4`, `GA1`-`GA2`, `NM1`-`NM3`. Source: `tools/ux_boards.py` (`--preview <dir> <assets dir>` writes plain pages for a local screenshot). Handoff, one file per part: `design/handoff/2026-11-26-redesign-ux-pass/`. A "תפריט" of live tiles replaces "the village as the menu" (changes decision 83; new decision in `docs/DECISIONS.md`); the village picture becomes the map of "אוכל ושתייה"; the pass stub is its own piece of paper; the ski pass is an object on a lanyard; the group and the games get names that say what they are; loading keeps the frame; far from the mountain the app shows distance and direction, never a dot. The repo copy of `canvas.json` lacks the pages another session added to the live canvas (`HR`, `HL`, `WX`); publish from the live index, as this tool was run.
+
+### The run picker in the bottom bar (27.11.2026; waiting for Pini)
+
+Canvas version 88, page "הסרגל: בחירת מסלול (27.11)", boards `DK00` to `DK6`. Source: `tools/dk_boards.py`. Handoff: `design/handoff/2026-11-27-redesign-dock-runs/README.md`. The search-like pill "לאן יורדים?" opens a list, so it should look like a button that opens a list: recommended A, "מסלולים" with four piste-colour dots, the count and an up chevron; B four colour buttons; C run cards peeking above the bar.
+
+### The shelf chips and the layers (27.11.2026; waiting for Pini)
+
+Canvas version 89, same page as `DK` (now "בוחרים מסלול: הכפתור, המדף והשכבות"), boards `SL00` to `SL8`. Source: `tools/sl_boards.py` (imports `dk_boards.py`). Handoff: `design/handoff/2026-11-27-redesign-shelf-layers/README.md`. One row of six chips in the shelf; every chip orders the cards and paints the mountain; a strip of one tick per run shows the order; the layers button leaves the column. `SL7`, `SL8`: the alternative that keeps the layers, with a legend bar in the bottom bar's slot.
+
+**Version 2 (27.11.2026, canvas 90, `SV00` to `SV6`, `tools/sv_boards.py`):** the chosen direction with more craft. The "מסלולים" button carries a micro strip of all runs that opens into the shelf's strip; the lit chip takes the colour of what it paints; the card's big number is the chip's answer; ranks are written on the mountain; `SV4` animates a chip change. Spec: the "Version 2" section of the shelf-layers handoff.
