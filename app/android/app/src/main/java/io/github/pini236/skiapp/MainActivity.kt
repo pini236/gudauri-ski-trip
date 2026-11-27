@@ -269,7 +269,7 @@ class MainActivity : ComponentActivity() {
     private val rawGroupApi: GroupApi by lazy {
         DevServer.create() ?: LiveGroupApi(server, PrefsSessionStore(this), tripSync, { Lang.current(resources).tag },
             ready = GoogleSignIn.WEB_CLIENT_ID.isNotEmpty(), saved = accountPrefs.getString("me", null),
-            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply() }, sync = Sync.of(this, Bests.GAMES))
+            keep = { v -> accountPrefs.edit().apply { if (v == null) remove("me") else putString("me", v) }.apply(); if (v == null) getSharedPreferences("group_list_cache", MODE_PRIVATE).edit().clear().apply() }, sync = Sync.of(this, Bests.GAMES))
     }
     private val groupApi: GroupApi by lazy { MeasuredGroupApi(rawGroupApi, getSharedPreferences("join_via", MODE_PRIVATE)) }
     private var justJoined by mutableStateOf(false)
