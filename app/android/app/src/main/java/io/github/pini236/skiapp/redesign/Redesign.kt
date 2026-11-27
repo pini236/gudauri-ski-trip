@@ -238,7 +238,7 @@ object Redesign {
     fun games(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, tableName: String?, onTable: (() -> Unit)?, onBack: () -> Unit): Boolean {
         if (!on()) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.asked) return false
-        GamesPage(mode, haptics, onOpen, onTable, tableName, onBack)
+        GamesPage(mode, haptics, onOpen, null, null, onBack) // table hidden until the new design exists (Pini 27.11)
         return true
     }
 
