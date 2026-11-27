@@ -66,4 +66,31 @@ class DayTimelineTest {
         assertEquals(listOf(2, 2, 2, 4), s.toList())
         assertEquals(0, DayTimelineRules.strip(t, band, 200, 300, 4).size)
     }
+
+    @Test fun gridLinesAreOnlyTheOnesInsideTheDaysHeights() {
+        assertEquals(listOf(2200, 2600, 3000), DayTimelineRules.gridLines(2100f, 3100f))
+        assertEquals(listOf(2600), DayTimelineRules.gridLines(2300f, 2900f))
+        assertEquals(emptyList<Int>(), DayTimelineRules.gridLines(2300f, 2500f))
+    }
+
+    @Test fun aTapOnTheStripIsATimeInsideTheDay() {
+        assertEquals(500L, DayTimelineRules.tapTime(50f, 100f, 0, 1000))
+        assertEquals(1000L, DayTimelineRules.tapTime(400f, 100f, 0, 1000))
+        assertEquals(0L, DayTimelineRules.tapTime(-5f, 100f, 0, 1000))
+    }
+
+    @Test fun theWindowRunsFromTheFirstVisibleRowToTheNextOneAndIsNeverInvisible() {
+        assertEquals(100L to 400L, DayTimelineRules.window(listOf(100, 200, 300), 400L, 0, 1000))
+        assertEquals(100L to 1000L, DayTimelineRules.window(listOf(100, 200), null, 0, 1000))
+        assertEquals(100L to 130L, DayTimelineRules.window(listOf(100), 101L, 0, 1000))
+        assertEquals(null, DayTimelineRules.window(emptyList(), null, 0, 1000))
+    }
+
+    @Test fun aTapScrollsToTheFirstRowAtOrAfterThatTime() {
+        val times = listOf<Long?>(null, null, null, null, 100L, 200L, null, 300L)
+        assertEquals(5, DayTimelineRules.scrollTarget(times, 150L))
+        assertEquals(7, DayTimelineRules.scrollTarget(times, 250L))
+        assertEquals(7, DayTimelineRules.scrollTarget(times, 999L))
+        assertEquals(null, DayTimelineRules.scrollTarget(listOf(null, null), 5L))
+    }
 }

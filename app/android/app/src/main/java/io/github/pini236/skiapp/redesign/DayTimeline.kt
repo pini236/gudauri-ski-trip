@@ -120,6 +120,30 @@ internal object DayTimelineRules {
         return out
     }
 
+    /** The altitude grid of the ridge chart (board DT1): the lines of 2,200 / 2,600 / 3,000 m that fall inside the day's heights. */
+    val GRID_M = listOf(2200, 2600, 3000)
+    fun gridLines(lo: Float, hi: Float): List<Int> = GRID_M.filter { it >= lo && it <= hi }
+
+    /** The time a tap at [x] of a strip [w] wide means, for a day from [t0] to [t1]. */
+    fun tapTime(x: Float, w: Float, t0: Long, t1: Long): Long = t0 + ((x / w.coerceAtLeast(1f)).coerceIn(0f, 1f) * (t1 - t0)).toLong()
+
+    /**
+     * The window of the scrolled strip (board DT2): from the first visible row's time to the one after the last visible row
+     * ([next], or the day's end), at least 3 percent of the day so it can be seen. Null when no row is visible.
+     */
+    fun window(visible: List<Long>, next: Long?, t0: Long, t1: Long): Pair<Long, Long>? {
+        if (visible.isEmpty()) return null
+        val a = visible.min(); val b = (next ?: t1).coerceAtLeast(visible.max())
+        val minLen = ((t1 - t0) * 0.03).toLong()
+        return a to maxOf(b, a + minLen).coerceAtMost(maxOf(t1, a + minLen))
+    }
+
+    /** The list index a tap on the strip scrolls to: the first row at or after [t], else the last row. [times]: row time per list index, null for heads and cards. */
+    fun scrollTarget(times: List<Long?>, t: Long): Int? {
+        val i = times.indexOfFirst { it != null && it >= t }
+        return if (i >= 0) i else times.indexOfLast { it != null }.takeIf { it >= 0 }
+    }
+
     /** Metres between two places (haversine). */
     fun distM(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val r = 6_371_000.0; val p = PI / 180

@@ -2,7 +2,9 @@ package io.github.pini236.skiapp.redesign
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +33,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -132,8 +137,8 @@ internal fun TimelineLine(time: String, node: Node, nodeColor: Color, spineColor
 private fun Modifier.fillMaxHeight1() = this.heightIn(min = 40.dp).fillMaxHeight()
 
 /** The glyphs, drawn small and plain (no stop type beyond the analysis's: lift, descent, break, walk, queue). */
-private fun DrawScope.drawNode(n: Node, col: Color) {
-    val w = size.width; val s = Stroke(width = w * .11f, cap = StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round)
+internal fun DrawScope.drawNode(n: Node, col: Color, w: Float = size.width) {
+    val s = Stroke(width = w * .11f, cap = StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round)
     fun line(x1: Float, y1: Float, x2: Float, y2: Float) = drawLine(col, Offset(w * x1, w * y1), Offset(w * x2, w * y2), s.width, StrokeCap.Round)
     when (n) {
         Node.Descent -> { line(.5f, .15f, .5f, .85f); line(.22f, .58f, .5f, .86f); line(.78f, .58f, .5f, .86f) }
@@ -220,6 +225,41 @@ internal fun DescentRowView(r: DayTimelineRules.Descent, at: String, gapAt: Stri
             gapAt?.let { chips += stringResource(R.string.app_tl_gap_at, it) }
             if (chips.isNotEmpty()) FlowRow(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 for (t in chips) Text(t, Modifier.clip(RoundedCornerShape(10.dp)).background(c.rule).padding(horizontal = 8.dp, vertical = 3.dp), fontFamily = Gudi, fontSize = 12.sp, color = c.ink)
+            }
+        }
+    }
+}
+
+/**
+ * The scrolled ridge strip (board DT2): the whole day's ridge in a 52 high glass strip under the pill, with a window (`acc`
+ * outline) over the rows on screen. A tap gives the time under the finger ([onTap]); the chart reads left to right in
+ * every language, so the x of a tap is the same in Hebrew and English.
+ */
+@Composable
+internal fun RidgeStrip(paint: DayPaint.Day, elev: FloatArray, ramp: IntArray, c: TlColors, window: Pair<Long, Long>?, modifier: Modifier = Modifier, onTap: (Long) -> Unit) {
+    val title = stringResource(R.string.app_dt_title)
+    val tr = paint.track
+    val lo = elev.minOrNull() ?: 0f; val hi = elev.maxOrNull() ?: 1f
+    val span = (paint.t1 - paint.t0).coerceAtLeast(1).toFloat()
+    Box(modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(16.dp)).background(c.glass).border(1.dp, c.rule, RoundedCornerShape(16.dp))
+        .semantics { contentDescription = title }
+        .pointerInput(paint) { detectTapGestures { o -> onTap(DayTimelineRules.tapTime(o.x, size.width.toFloat(), paint.t0, paint.t1)) } }) {
+        Canvas(Modifier.fillMaxWidth().height(52.dp)) {
+            if (tr.t.size < 2) return@Canvas
+            val top = 8.dp.toPx(); val bottom = size.height - 8.dp.toPx()
+            fun px(t: Long) = ((t - paint.t0) / span) * size.width
+            fun py(e: Float) = bottom - (e - lo) / (hi - lo).coerceAtLeast(1f) * (bottom - top)
+            val area = Path().apply { moveTo(px(tr.t[0]), bottom); for (i in tr.t.indices) lineTo(px(tr.t[i]), py(elev[i])); lineTo(px(tr.t.last()), bottom); close() }
+            drawPath(area, Color(0xFF000000.toInt() or ramp[0]), alpha = .30f)
+            for (i in 0 until tr.t.size - 1) {
+                val a = Offset(px(tr.t[i]), py(elev[i])); val b = Offset(px(tr.t[i + 1]), py(elev[i + 1]))
+                if (tr.down[i]) drawLine(Color(0xFF000000.toInt() or ramp[tr.band[i]]), a, b, 1.8.dp.toPx())
+                else drawLine(c.muted, a, b, 0.8.dp.toPx())
+            }
+            window?.let { (a, b) ->
+                val x0 = px(a).coerceIn(0f, size.width); val x1 = px(b).coerceIn(x0 + 2.dp.toPx(), size.width)
+                drawRoundRect(c.acc.copy(alpha = .14f), Offset(x0, 2.dp.toPx()), androidx.compose.ui.geometry.Size(x1 - x0, size.height - 4.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(6.dp.toPx()))
+                drawRoundRect(c.acc, Offset(x0, 2.dp.toPx()), androidx.compose.ui.geometry.Size(x1 - x0, size.height - 4.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(6.dp.toPx()), style = Stroke(2.dp.toPx()))
             }
         }
     }
