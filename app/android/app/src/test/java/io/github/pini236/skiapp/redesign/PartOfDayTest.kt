@@ -10,7 +10,7 @@ class PartOfDayTest {
         assertEquals(0, partOfDay(11))
         assertEquals(1, partOfDay(12))
         assertEquals(1, partOfDay(13))
-        assertEquals(2, partOfDay(14))
-        assertEquals(2, partOfDay(16))
+        assertEquals(1, partOfDay(14))
+        assertEquals(1, partOfDay(16))
     }
 }

@@ -17,7 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.translate
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -68,6 +78,7 @@ import java.util.Locale
  * in the new style. The rides come from the analysis's lift segments (DayModel has no lift item); the chapters are the board's
  * morning, midday and afternoon ([partOfDay]).
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, segs: List<org.json.JSONObject>, runs: Runs?, night: Boolean, sample: Boolean, haptics: io.github.pini236.skiapp.fx.Haptics, onShare: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
@@ -111,10 +122,23 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
         }
     }
 
+    // list index -> the row's time (null for the numbers, the ridge, the bar and the chapter heads), for the scrolled strip (DT2)
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val rowTimes = remember(entries) { buildList<Long?> { add(null); add(null); add(null); for ((_, rows) in entries) { add(null); rows.forEach { add(it.t0) } } } }
+    val showStrip by remember { derivedStateOf { listState.firstVisibleItemIndex >= 2 } }
+    val stripAlpha by animateFloatAsState(if (showStrip) 1f else 0f, label = "ridgeStrip")
+    val window by remember(rowTimes) { derivedStateOf {
+        val vis = listState.layoutInfo.visibleItemsInfo.map { it.index }.filter { it < rowTimes.size && rowTimes[it] != null }
+        val times = vis.map { rowTimes[it]!! }
+        val next = vis.maxOrNull()?.let { m -> rowTimes.drop(m + 1).firstOrNull { it != null } }
+        DayTimelineRules.window(times, next, paint.t0, paint.t1)
+    } }
+
     Box(Modifier.fillMaxSize().background(bg)) {
         // under a descent's film the timeline is hidden from the screen reader too (a row cut at the film's edge read as a
         // 9 dp target, round 4's check)
-        LazyColumn(Modifier.fillMaxSize().statusBarsPadding().then(if (film != null) Modifier.clearAndSetSemantics { } else Modifier), contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 40.dp)) {
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize().statusBarsPadding().then(if (film != null) Modifier.clearAndSetSemantics { } else Modifier), contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 40.dp)) {
             val tc = TlColors(ink, muted, rule, glass, night)
             item {
                 val sm = day.summary
@@ -126,7 +150,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 val sm = day.summary
                 val bubble = sm.maxAt?.let { stringResource(R.string.app_ridge_bubble, at(it), LiveNumbers.maxKmh(sm.maxKmh)) }
                 val breakWords = day.chapters.flatMap { it.items }.filterIsInstance<DayModel.Rest>().filter { it.long }
-                    .map { it to stringResource(R.string.app_day_lunch, it.minutes) }
+                    .map { it to stringResource(R.string.app_rec_minutes, it.minutes) }
                 val tr = paint.track
                 val lo = remember(elev) { elev.minOrNull() ?: 0f }; val hi = remember(elev) { elev.maxOrNull() ?: 1f }
                 val span = (paint.t1 - paint.t0).coerceAtLeast(1).toFloat()
@@ -135,6 +159,24 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                     val top = 34 * dens; val bottom = size.height - 18 * dens
                     fun px(t: Long) = ((t - paint.t0) / span) * size.width
                     fun py(e: Float) = bottom - (e - lo) / (hi - lo).coerceAtLeast(1f) * (bottom - top)
+                    val small = TextStyle(fontFamily = Gudi, fontSize = 11.sp, color = muted)
+                    // the altitude grid (2,200 / 2,600 / 3,000 m) with its labels in a halo of the page's colour
+                    val halo = TextStyle(fontFamily = Gudi, fontSize = 11.sp, color = muted, shadow = Shadow(bg, Offset.Zero, 6f))
+                    for (g in DayTimelineRules.gridLines(lo, hi)) {
+                        val y = py(g.toFloat())
+                        drawLine(rule, Offset(0f, y), Offset(size.width, y), 1f * dens)
+                        val tl = measurer.measure(String.format(Locale.ROOT, "%,d", g), halo)
+                        drawText(tl, topLeft = Offset(2 * dens, y - tl.size.height - 1 * dens))
+                    }
+                    // the long breaks as bands (rgba 242,193,61 at .18) with a bench and the minutes on top
+                    for ((r, w) in breakWords) {
+                        val x0 = px(r.t0).coerceIn(0f, size.width); val x1 = px(r.t0 + r.minutes * 60_000L).coerceIn(x0 + 2 * dens, size.width)
+                        drawRect(Color(0x2EF2C13D), Offset(x0, 0f), Size(x1 - x0, bottom))
+                        val tl = measurer.measure(w, small)
+                        val cx = ((x0 + x1) / 2).coerceIn(tl.size.width / 2f, (size.width - tl.size.width / 2f).coerceAtLeast(tl.size.width / 2f))
+                        translate(cx - 7 * dens, 2 * dens) { drawNode(Node.Bench, muted, 14 * dens) }
+                        drawText(tl, topLeft = Offset(cx - tl.size.width / 2f, 18 * dens))
+                    }
                     val area = Path().apply {
                         moveTo(px(tr.t[0]), bottom); for (i in tr.t.indices) lineTo(px(tr.t[i]), py(elev[i])); lineTo(px(tr.t.last()), bottom); close()
                     }
@@ -148,7 +190,6 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                             pathEffect = PathEffect.dashPathEffect(floatArrayOf(1.5f * dens, 3.5f * dens)), alpha = .75f)
                     }
                     // the hours
-                    val small = TextStyle(fontFamily = Gudi, fontSize = 11.sp, color = muted)
                     var h = Instant.ofEpochMilli(paint.t0).atZone(zone).withMinute(0).withSecond(0).withNano(0).plusHours(1)
                     while (h.toInstant().toEpochMilli() < paint.t1) {
                         val x = px(h.toInstant().toEpochMilli())
@@ -156,12 +197,6 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                         drawLine(rule, Offset(x, bottom), Offset(x, bottom + 3 * dens), 1f * dens)
                         drawText(tl, topLeft = Offset(x - tl.size.width / 2f, bottom + 4 * dens))
                         h = h.plusHours(1)
-                    }
-                    // the long breaks, named over the ground
-                    for ((r, w) in breakWords) {
-                        val x = px(r.t0 + r.minutes * 30_000L)
-                        val tl = measurer.measure(w, small)
-                        drawText(tl, topLeft = Offset((x - tl.size.width / 2f).coerceIn(0f, (size.width - tl.size.width).coerceAtLeast(0f)), top - tl.size.height - 2 * dens))
                     }
                     // the top speed's bubble
                     val mt = sm.maxAt
@@ -178,7 +213,13 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                     }
                 }
                 // the scale and the rides' dotted piece, named (board L07's legend)
-                LightScale(night, muted, width = 120.dp, lift = true, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
+                FlowRow(Modifier.padding(top = 4.dp, bottom = 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    LightScale(night, muted, width = 120.dp, lift = true)
+                    if (breakWords.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(Modifier.size(width = 18.dp, height = 10.dp).clip(RoundedCornerShape(3.dp)).background(Color(0x2EF2C13D)).border(1.dp, Color(0x66E2B13C), RoundedCornerShape(3.dp)))
+                        Text(stringResource(R.string.app_rec_break), fontFamily = Gudi, fontSize = 11.sp, color = muted)
+                    }
+                }
             }
             // the day as a timeline (boards DT1-DT5): rows on a spine, chapters by the hour
             item {
@@ -188,7 +229,7 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
                 WhereBar(DayTimelineRules.where(total, ds.sumOf { if (it.movingS > 0) it.movingS else (it.t1 - it.t0) / 1000.0 }, sec("lift", null), sec("stop", "queue")), ramp, tc)
             }
             for ((part, rows) in entries) {
-                item { ChapterHead(when (part) { 0 -> R.string.app_day_morning; 1 -> R.string.app_day_noon; else -> R.string.app_day_afternoon }, rows.count { it is DayTimelineRules.Descent }, tc) }
+                item { ChapterHead(if (part == 0) R.string.app_day_morning else R.string.app_day_noon, rows.count { it is DayTimelineRules.Descent }, tc) }
                 items(rows) { r ->
                     when (r) {
                         is DayTimelineRules.Lift -> LiftRowView(r, at(r.t0), tc)
@@ -221,6 +262,11 @@ internal fun DayRidge(paint: DayPaint.Day, elev: FloatArray, day: DayModel.Day, 
             if (sample) Text(stringResource(R.string.app_day_sample), Modifier.padding(end = 14.dp).clip(RoundedCornerShape(10.dp))
                 .background(Color(0x33A98BEE)).padding(horizontal = 8.dp, vertical = 2.dp), fontFamily = Gudi, fontSize = 12.sp, color = ink)
         }
+        // the scrolled ridge: the card collapses into a strip under the pill, a tap scrolls to that time (board DT2)
+        if (stripAlpha > 0.01f && film == null) RidgeStrip(paint, elev, ramp, TlColors(ink, muted, rule, glass, night), window,
+            Modifier.statusBarsPadding().padding(start = 16.dp, end = 16.dp, top = 64.dp).graphicsLayer { alpha = stripAlpha; translationY = -8.dp.toPx() * (1f - stripAlpha) }) { t ->
+            DayTimelineRules.scrollTarget(rowTimes, t)?.let { i -> haptics.tick(.2f); scope.launch { listState.animateScrollToItem(i, -(52 * dens).toInt()) } }
+        }
         film?.let { f -> RunFilm(f, segOf(segs, f), segs, paint, runs, night, haptics) { film = null } }
     }
 }
@@ -249,15 +295,7 @@ internal fun minuteGap(paint: DayPaint.Day, t0: Long, t1: Long): Long? {
     return inside.zipWithNext().firstOrNull { (a, b) -> (b.first - a.second) in 30_000L..90_000L }?.first?.second
 }
 
-/**
- * The timeline's three chapters (L07: morning, midday, afternoon). The board names "midday" without its hours; they are
- * decided here, and logged: 12:00 until 14:00.
- */
-internal fun partOfDay(hour: Int): Int = when {
-    hour < MIDDAY_START_HOUR -> 0
-    hour < MIDDAY_END_HOUR -> 1
-    else -> 2
-}
+/** The timeline's two chapters (board DT1): "בוקר" before 12:00 and "צהריים" from 12:00. */
+internal fun partOfDay(hour: Int): Int = if (hour < MIDDAY_START_HOUR) 0 else 1
 
 internal const val MIDDAY_START_HOUR = 12
-internal const val MIDDAY_END_HOUR = 14
