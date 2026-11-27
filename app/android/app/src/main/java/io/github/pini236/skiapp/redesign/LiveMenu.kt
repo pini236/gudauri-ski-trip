@@ -94,9 +94,10 @@ internal fun BoxScope.MenuSheet(
     Box(Modifier.fillMaxSize().alpha(enter.value).background(if (night) Color(0x5C020612) else Color(0x38283E6E))
         .pointerInput(Unit) { detectTapGestures { onClose() } })
     val groups by produceState<List<io.github.pini236.skiapp.group.GroupSummary>?>(
-        GroupListCache.read(ctx)?.map { io.github.pini236.skiapp.group.GroupSummary(it.id, it.name, null, null) }, around?.people) {
+        GroupListCache.read(ctx)?.map { r -> GroupListCache.dates(ctx)[r.id].let { io.github.pini236.skiapp.group.GroupSummary(r.id, r.name, it?.first, it?.second) } }, around?.people) {
         val fresh = runCatching { around?.people?.api?.myGroups() }.getOrNull()
         if (fresh != null) {
+            GroupListCache.writeDates(ctx, fresh)
             val old = GroupListCache.read(ctx).orEmpty().associateBy { it.id }
             GroupListCache.write(ctx, fresh.map { io.github.pini236.skiapp.group.MyGroup(it.id, it.name, old[it.id]?.members, old[it.id]?.admin == true) })
         }
@@ -173,8 +174,11 @@ private fun Tile(m: MTile, k: SheetInk, bg: Color, tint: Color, haptics: Haptics
         Box(Modifier.size(36.dp).clip(CircleShape).background(tint), contentAlignment = Alignment.Center) { Icon(m.icon, null, Modifier.size(20.dp), tint = k.acc) }
         Column {
             Text(m.title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (m.line == null) SkeletonBar(k, 90, 12, Modifier.padding(top = 4.dp))
-            else Text(m.line, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = if (big) 2 else 1, overflow = TextOverflow.Ellipsis)
+            // a changed line cross-fades in place (150 ms), the frame never moves
+            androidx.compose.animation.Crossfade(m.line, animationSpec = androidx.compose.animation.core.tween(150), label = "line") { line ->
+                if (line == null) SkeletonBar(k, 90, 12, Modifier.padding(top = 4.dp))
+                else Text(line, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = if (big) 2 else 1, overflow = TextOverflow.Ellipsis)
+            }
         }
     }
 }

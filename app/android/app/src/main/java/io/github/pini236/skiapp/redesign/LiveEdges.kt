@@ -176,6 +176,16 @@ internal object GroupListCache {
         (0 until a.length()).map { val o = a.getJSONObject(it)
             io.github.pini236.skiapp.group.MyGroup(o.getString("id"), o.getString("name"), if (o.has("n")) o.getInt("n") else null, o.optBoolean("a")) }
     }.getOrNull()
+    /** The dates kept beside the rows (id to start/end), so the menu line and the sheet opening tab need no wait. */
+    fun dates(c: android.content.Context): Map<String, Pair<java.time.LocalDate?, java.time.LocalDate?>> = runCatching {
+        val o = org.json.JSONObject(sp(c).getString("dates", "{}") ?: "{}")
+        o.keys().asSequence().associateWith { k -> val d = o.getJSONArray(k)
+            runCatching { java.time.LocalDate.parse(d.getString(0)) }.getOrNull() to runCatching { java.time.LocalDate.parse(d.getString(1)) }.getOrNull() }
+    }.getOrDefault(emptyMap())
+    fun writeDates(c: android.content.Context, g: List<io.github.pini236.skiapp.group.GroupSummary>) {
+        val o = org.json.JSONObject(); g.forEach { o.put(it.id, org.json.JSONArray().put(it.startsOn?.toString() ?: "").put(it.endsOn?.toString() ?: "")) }
+        sp(c).edit().putString("dates", o.toString()).apply()
+    }
     fun write(c: android.content.Context, rows: List<io.github.pini236.skiapp.group.MyGroup>) {
         val a = org.json.JSONArray()
         rows.forEach { a.put(org.json.JSONObject().put("id", it.id).put("name", it.name).put("a", it.admin).also { o -> it.members?.let { n -> o.put("n", n) } }) }
@@ -205,6 +215,8 @@ internal fun GroupSkeletonBody(k: SheetInk) {
         for (i in 0 until 2) Column(Modifier.fillMaxWidth().height(60.dp).clip(RoundedCornerShape(14.dp)).border(1.dp, k.line, RoundedCornerShape(14.dp)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SkeletonBar(k, listOf(160, 130)[i], 12); SkeletonBar(k, listOf(100, 120)[i], 10)
         }
+        // the bottom button, at 45% until the group arrives
+        Box(Modifier.fillMaxWidth().height(52.dp).alpha(.45f).clip(RoundedCornerShape(26.dp)).background(k.acc))
     }
 }
 
