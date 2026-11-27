@@ -2841,6 +2841,62 @@
    "h": 844,
    "title": "קרוב, אבל מחוץ להר (NM3)",
    "page": "ux"
+  },
+  "DK00-Runs.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1180,
+   "title": "למה זה מבלבל, שלוש חלופות וההמלצה (DK00)",
+   "page": "dock"
+  },
+  "DK1.dc.html": {
+   "x": 0,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "היום: נראה כמו שדה חיפוש (DK1)",
+   "page": "dock"
+  },
+  "DK2.dc.html": {
+   "x": 470,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "א (מומלץ): כפתור \"מסלולים\" (DK2)",
+   "page": "dock"
+  },
+  "DK3.dc.html": {
+   "x": 940,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "א בלילה, בזמן הקלטה (DK3)",
+   "page": "dock"
+  },
+  "DK4.dc.html": {
+   "x": 1410,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "A in English: Runs (DK4)",
+   "page": "dock"
+  },
+  "DK5.dc.html": {
+   "x": 1880,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "ב: ארבעת הצבעים (DK5)",
+   "page": "dock"
+  },
+  "DK6.dc.html": {
+   "x": 2350,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "ג: המסלולים מציצים מלמטה (DK6)",
+   "page": "dock"
   }
  },
  "createdOnFiles": {
@@ -2850,7 +2906,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "ux"
+  "page": "dock"
  },
  "notes": {
   "tA": {
@@ -3483,6 +3539,14 @@
    "x": 0,
    "y": -300,
    "text": "מעבר חוויית משתמש: איפה כל דבר, ומה הוא עושה"
+  },
+  "tdock": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "dock",
+   "x": 0,
+   "y": -300,
+   "text": "הסרגל התחתון: איך בוחרים מסלול"
   }
  },
  "order": [
@@ -3840,9 +3904,20 @@
   "GA2.dc.html",
   "NM1.dc.html",
   "NM2.dc.html",
-  "NM3.dc.html"
+  "NM3.dc.html",
+  "DK00-Runs.dc.html",
+  "DK1.dc.html",
+  "DK2.dc.html",
+  "DK3.dc.html",
+  "DK4.dc.html",
+  "DK5.dc.html",
+  "DK6.dc.html"
  ],
  "pages": [
+  {
+   "id": "dock",
+   "name": "הסרגל: בחירת מסלול (27.11)"
+  },
   {
    "id": "ux",
    "name": "מעבר חוויית משתמש (26.11) · אושר"
