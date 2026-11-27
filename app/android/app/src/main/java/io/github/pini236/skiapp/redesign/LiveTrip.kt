@@ -234,7 +234,7 @@ private val STUB_H = 100.dp
  */
 @Composable
 private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Boolean, p: PassPaper, front: Boolean, tear: Float, fall: Float, holes: Int,
-                     editing: PassEdit?, passenger: io.github.pini236.skiapp.home.Passenger?, onTear: () -> Unit, onForm: (() -> Unit)?, onField: ((PassEdit) -> Unit)?) {
+                     editing: PassEdit?, rise: Float = 1f, reduced: Boolean = false, passenger: io.github.pini236.skiapp.home.Passenger?, onTear: () -> Unit, onForm: (() -> Unit)?, onField: ((PassEdit) -> Unit)?) {
     val lang = io.github.pini236.skiapp.i18n.Lang.current(LocalContext.current.resources).tag
     val leg = if (isRet) trip.ret!! else trip.out
     fun on(e: PassEdit): (() -> Unit)? = if (front && onField != null) ({ onField(e) }) else null
@@ -287,10 +287,11 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
             .graphicsLayer {
                 // the hinge on the end side's top corner: the start side opens first, then the stub falls, unclipped
                 transformOrigin = TransformOrigin(if (sx > 0) 1f else 0f, 0f)
-                val ang = 5f * tear + 15f * fall
+                // reduced motion: no rotation or fall, the stub only fades out and in
+                val ang = if (reduced) 0f else 5f * tear + 15f * fall
                 rotationZ = -sx * ang
-                translationY = 3.dp.toPx() * tear + 250.dp.toPx() * fall * fall
-                alpha = 1f - (fall * 1.4f - .4f).coerceIn(0f, 1f)
+                translationY = (if (reduced) 0f else 3.dp.toPx() * tear + 250.dp.toPx() * fall * fall) + 34.dp.toPx() * (1f - rise)
+                alpha = (if (reduced) 1f - fall else 1f - (fall * 1.4f - .4f).coerceIn(0f, 1f)) * rise
             }
             .shadow(10.dp, StubPaper(22.dp), ambientColor = shadow, spotColor = shadow).background(p.paper, StubPaper(22.dp))
             .let { m -> if (front) m.semantics { role = Role.Button; contentDescription = tearLabel }.clickable(onClick = onTear) else m }) {
@@ -331,6 +332,8 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
     val swapA = remember { Animatable(0f) }
     val tear = remember { Animatable(0f) }
     val fall = remember { Animatable(0f) }
+    val rise = remember { Animatable(1f) }
+    val reduced = io.github.pini236.skiapp.status.reducedMotion()
     var busy by remember { mutableStateOf(false) }
     var holes by remember { mutableIntStateOf(0) }
     val frontRet = showRet && hasRet
@@ -349,17 +352,20 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
         if (busy) return@launch
         busy = true
         around.sounds.play("ticket-tear", .85f)
-        tear.animateTo(1f, tween(520, easing = LinearEasing)) {
+        if (reduced) { tear.snapTo(1f); holes = HOLES; haptics.tick(.5f) }
+        else tear.animateTo(1f, tween(520, easing = LinearEasing)) {
             val n = floor(value * HOLES).toInt().coerceAtMost(HOLES)
             if (n > holes) { repeat(n - holes) { haptics.tick(.35f + (it % 3) * .1f) }; holes = n }
         }
         haptics.click(1f)
         Telemetry.event("ticket_tear", mapOf("leg" to if (frontRet) "ret" else "out"))
         Qa.log("redesign trip torn")
-        fall.animateTo(1f, tween(620, easing = FastOutSlowInEasing))
+        fall.animateTo(1f, tween(if (reduced) 300 else 620, easing = FastOutSlowInEasing))
         delay(1500)
-        tear.snapTo(0f); fall.snapTo(0f); holes = 0
+        // step 4: a new stub rises 34 into place and fades in over 300 ms
+        rise.snapTo(0f); tear.snapTo(0f); fall.snapTo(0f); holes = 0
         around.sounds.play("ticket-land", .6f); haptics.click(.5f)
+        rise.animateTo(1f, tween(300, easing = FastOutSlowInEasing))
         busy = false
     }
     LaunchedEffectQa { c -> when (c) { "trip:swap" -> swap(); "trip:tear" -> tearIt() } }
@@ -375,7 +381,7 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
                 TripCard(trip, !frontRet, now, night, p, front = false, tear = 0f, fall = 0f, holes = 0, editing = null, passenger = around.passenger, onTear = {}, onForm = null, onField = null)
             }
             Box(Modifier.graphicsLayer { translationY = swapA.value * 26.dp.toPx(); alpha = 1f - swapA.value * .5f }) {
-                TripCard(trip, frontRet, now, night, p, front = true, tear = tear.value, fall = fall.value, holes = holes, editing = editing, passenger = around.passenger,
+                TripCard(trip, frontRet, now, night, p, front = true, tear = tear.value, fall = fall.value, holes = holes, editing = editing, rise = rise.value, reduced = reduced, passenger = around.passenger,
                     onTear = { tearIt() }, onForm = onForm, onField = onField)
             }
         }
