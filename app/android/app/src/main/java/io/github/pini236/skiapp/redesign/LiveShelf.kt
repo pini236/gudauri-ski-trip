@@ -358,7 +358,7 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
             .graphicsLayer { alpha = rise(270f, 200f) }.shadow(10.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
             .padding(start = 14.dp, end = 14.dp, top = 11.dp, bottom = 12.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                androidx.compose.animation.Crossfade(notice ?: (if (noSnow) stringResource(R.string.app_shelf_snow_none) else chipName + (groupTitle?.let { " · $it" } ?: "")), tween(150), label = "strip-row") { t ->
+                androidx.compose.animation.Crossfade(notice ?: (if (noSnow) stringResource(R.string.app_shelf_snow_none) else chipName + (groupTitle?.let { " · $it" } ?: "")), animationSpec = tween(150), label = "strip-row") { t ->
                     Text(t, Modifier.fillMaxWidth(.78f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.5.sp, color = k.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
                 androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
