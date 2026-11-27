@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -87,7 +88,7 @@ import java.util.Locale
 @Composable
 internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, track: () -> Track?,
                       name: (String) -> String, night: Boolean, sample: Boolean, haptics: Haptics,
-                      elev: ((Float, Float) -> Float)? = null, onBack: () -> Unit) {
+                      elev: ((Float, Float) -> Float)? = null, startVideo: Boolean = false, onBack: () -> Unit) {
     BackHandler { onBack() }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -97,11 +98,14 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val glass = if (night) Color(0xF20F1828) else Color(0xFAFFFFFF)
     val rule = if (night) Color(0x33FFFFFF) else Color(0x1F0E2233)
     val accent = Color(0xFF7C4FE0)
-    var video by remember { mutableStateOf(false) }
+    var video by remember { mutableStateOf(startVideo) }
     var pic by remember { mutableStateOf<Pair<Bitmap, String>?>(null) }
     var making by remember { mutableStateOf<Float?>(null) }
     var made by remember { mutableStateOf<File?>(null) }
-    var failed by remember { mutableStateOf(false) }
+    // the pressed button shows the progress, then a saved flash or a failure on itself (DV4-DV8); no dialog
+    var pressed by remember { mutableStateOf<String?>(null) }
+    var saved by remember { mutableStateOf(false) }
+    var failKind by remember { mutableStateOf<String?>(null) }
     var playing by remember { mutableStateOf<File?>(null) }
     LaunchedEffect(story) {
         // the board's picture (L11); the moment kind for the measure still comes from the store's picture's rules
@@ -119,16 +123,16 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val top = pic?.second ?: "other"
     fun measure(method: String) { if (!sample) Telemetry.event("story_share", mapOf("method" to method, "top" to top)) }
     /** The video, made once (on a background thread), then kept for share and save. */
-    fun withVideo(then: (File) -> Unit) {
+    fun withVideo(onFail: () -> Unit = {}, then: (File) -> Unit) {
         made?.let { if (it.isFile) { then(it); return } }
         if (making != null) return
-        making = 0f; failed = false
+        making = 0f
         scope.launch {
             val f = File(File(ctx.cacheDir, "share").apply { mkdirs() }, "day.mp4")
             val ok = withContext(Dispatchers.Default) { makeVideo(ctx, f, story, sm, paint, hide, night, mountainOf(ctx, night, elev)) { p -> making = p } }
             making = null
             Qa.log("redesign share video ${if (ok) "made ${f.length()}" else "failed"}")
-            if (ok) { made = f; then(f) } else failed = true
+            if (ok) { made = f; then(f) } else onFail()
         }
     }
     // the emulator's run makes the video and saves it (no chooser to drive)
@@ -187,36 +191,61 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             .shadow(18.dp, RoundedCornerShape(28.dp)).clip(RoundedCornerShape(28.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(28.dp))
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
             .padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            // picture or the one-minute video
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp)).padding(3.dp)) {
+            // what to send: two tiles, then two buttons; all four 56 high, radius 18, border 1.5, two equal columns (DV, fixes of 27.11)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 for ((on, key) in listOf(false to R.string.app_share_photo, true to R.string.app_share_video)) {
                     val sel = video == on
-                    Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
-                        .clickable(role = Role.Button) { haptics.tick(.2f); video = on; if (!on) playing = null; Qa.log("redesign share ${if (on) "video" else "photo"}") }.padding(vertical = 10.dp),
-                        fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
+                    Text(stringResource(key), Modifier.weight(1f).heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
+                        .background(if (sel) accent.copy(alpha = .1f) else Color.Transparent).border(1.5.dp, if (sel) accent else rule, RoundedCornerShape(18.dp))
+                        .clickable(role = Role.Button) { haptics.tick(.2f); video = on; if (!on) playing = null; Qa.log("redesign share ${if (on) "video" else "photo"}") }
+                        .padding(vertical = 17.dp),
+                        fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = if (sel) accent else ink, textAlign = TextAlign.Center)
                 }
             }
-            Text(stringResource(R.string.app_share_note), fontFamily = Gudi, fontSize = 13.5.sp, color = muted)
-            making?.let { p ->
-                Text("${(p * 100).toInt()}%", Modifier.fillMaxWidth(), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink,
-                    textAlign = if (rtl) TextAlign.Right else TextAlign.Left)
+            fun press(kind: String) {
+                if (pressed != null) return
+                failKind = null; pressed = kind
+                fun done(ok: Boolean) {
+                    pressed = null
+                    if (!ok) failKind = kind
+                    else if (kind == "save") { saved = true; scope.launch { kotlinx.coroutines.delay(4000); saved = false } }
+                }
+                if (!video) {
+                    val b = pic?.first
+                    if (b == null) { pressed = null; return }
+                    if (kind == "share") { io.github.pini236.skiapp.dayrec.ui.StoryImage.share(ctx, b, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share)); measure("native"); pressed = null }
+                    else scope.launch { val ok = withContext(Dispatchers.IO) { savePicture(ctx, b) }; Qa.log("redesign share saved photo $ok"); if (ok) measure("save"); done(ok) }
+                } else withVideo(onFail = { done(false) }) { f ->
+                    if (kind == "share") { shareVideo(ctx, f); measure("video"); pressed = null }
+                    else scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok"); if (ok) measure("save"); done(ok) }
+                }
             }
-            if (failed) Text(stringResource(R.string.app_err_general), fontFamily = Gudi, fontSize = 13.sp, color = Color(0xFFD1342B))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.app_day_share), Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).background(accent)
-                    .clickable(role = Role.Button) {
-                        haptics.tick(.4f)
-                        if (!video) pic?.first?.let { io.github.pini236.skiapp.dayrec.ui.StoryImage.share(ctx, it, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share)); measure("native") }
-                        else withVideo { f -> shareVideo(ctx, f); measure("video") }
-                    }.padding(vertical = 15.dp),
-                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, textAlign = TextAlign.Center)
-                Text(stringResource(R.string.app_share_save), Modifier.weight(1f).heightIn(min = 52.dp).clip(RoundedCornerShape(26.dp)).border(1.dp, rule, RoundedCornerShape(26.dp))
-                    .clickable(role = Role.Button) {
-                        haptics.tick(.3f)
-                        if (!video) pic?.first?.let { b -> scope.launch { val ok = withContext(Dispatchers.IO) { savePicture(ctx, b) }; Qa.log("redesign share saved photo $ok"); if (ok) measure("save") } }
-                        else withVideo { f -> scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok"); if (ok) measure("save") } }
-                    }.padding(vertical = 15.dp),
-                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink, textAlign = TextAlign.Center)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for ((kind, primary) in listOf("share" to true, "save" to false)) {
+                    val st = StoryRules.button(kind, pressed, saved, failKind)
+                    val busy = st == StoryRules.Btn.BUSY
+                    val good = Color(0xFF198549); val warn = Color(0xFFB8741A)
+                    val edge = when (st) { StoryRules.Btn.SAVED -> good; StoryRules.Btn.FAILED -> warn; else -> if (primary) Color.Transparent else rule }
+                    val label = when (st) {
+                        StoryRules.Btn.BUSY -> stringResource(if (kind == "share") R.string.app_ds_preparing else R.string.app_ds_saving) +
+                            if (video) " · " + (StoryRules.fill(true, making) * 100).toInt() + "%" else ""
+                        StoryRules.Btn.SAVED -> "✓ " + stringResource(R.string.app_ds_saved)
+                        StoryRules.Btn.FAILED -> "↻ " + stringResource(if (kind == "share") R.string.app_ds_share_fail else R.string.app_ds_save_fail)
+                        else -> stringResource(if (kind == "share") R.string.app_day_share else R.string.app_share_save)
+                    }
+                    Box(Modifier.weight(1f).heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
+                        .background(if (primary && st == StoryRules.Btn.IDLE) accent else Color.Transparent)
+                        .border(1.5.dp, edge, RoundedCornerShape(18.dp))
+                        .clickable(role = Role.Button) { haptics.tick(if (primary) .4f else .3f); press(kind) }, contentAlignment = Alignment.Center) {
+                        if (busy) Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterStart) {
+                            // the fill grows from the reading start
+                            Box(Modifier.fillMaxHeight().fillMaxWidth(StoryRules.fill(video, making)).background(if (primary) accent.copy(alpha = .55f) else accent.copy(alpha = .16f)))
+                        }
+                        Text(label, Modifier.padding(vertical = 17.dp, horizontal = 8.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 2,
+                            color = when { st == StoryRules.Btn.SAVED -> good; st == StoryRules.Btn.FAILED -> warn; primary && (st == StoryRules.Btn.IDLE) -> Color.White; else -> ink },
+                            textAlign = TextAlign.Center)
+                    }
+                }
             }
         }
     }
