@@ -51,6 +51,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.fx.Haptics
+import androidx.compose.foundation.gestures.detectTapGestures
 import io.github.pini236.skiapp.home.Around
 import io.github.pini236.skiapp.map.MapScene
 import io.github.pini236.skiapp.qa.Qa
@@ -90,7 +92,7 @@ internal fun BoxScope.MenuSheet(
     LaunchedEffect(Unit) { if (Hints.next(ctx, Hints.VILLAGE) == -1 && Hints.next(ctx, Hints.MENU) == 0) Hints.setNext(ctx, Hints.MENU, -1) }
     // the veil over the mountain; a touch on it closes the menu
     Box(Modifier.fillMaxSize().alpha(enter.value).background(if (night) Color(0x5C020612) else Color(0x38283E6E))
-        .pointerInput(Unit) { androidx.compose.foundation.gestures.detectTapGestures { onClose() } })
+        .pointerInput(Unit) { detectTapGestures { onClose() } })
     val groups by produceState<List<io.github.pini236.skiapp.group.GroupSummary>?>(null, around?.people) {
         value = runCatching { around?.people?.api?.myGroups() }.getOrNull()
     }
