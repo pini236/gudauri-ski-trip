@@ -10,7 +10,7 @@ import org.json.JSONObject
  * there is no information, never "there is nothing here". A kind this app does not know is ignored, a file with a higher
  * `schema` is not used, and nothing here says when anything is open.
  */
-class Place(val id: String, val kind: String, val name: String?, val lat: Double, val lon: Double, val seasonal: Boolean, val slope: Boolean)
+class Place(val id: String, val kind: String, val name: String?, val lat: Double, val lon: Double, val seasonal: Boolean, val slope: Boolean, val liftId: String = "")
 
 /** A place near a station, and how far, in metres. */
 class Near(val place: Place, val d: Int)
@@ -55,7 +55,7 @@ class Places private constructor(val stations: List<Station>, private val byId: 
             val ps = o.getJSONArray("places").objs().map { p ->
                 val ll = p.getJSONArray("ll")
                 Place(p.getString("id"), p.optString("kind"), p.optString("name").takeIf { it.isNotBlank() && !p.isNull("name") },
-                    ll.getDouble(0), ll.getDouble(1), p.optBoolean("seasonal", false), p.optBoolean("slope", false))
+                    ll.getDouble(0), ll.getDouble(1), p.optBoolean("seasonal", false), p.optBoolean("slope", false), p.opt("liftId")?.takeIf { it != org.json.JSONObject.NULL }?.toString().orEmpty())
             }
             val ss = o.getJSONArray("stations").objs().map { s ->
                 val ll = s.getJSONArray("ll")
