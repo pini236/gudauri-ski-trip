@@ -51,6 +51,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -71,7 +72,7 @@ import io.github.pini236.skiapp.skipass.Prices
  * tickets, up to 14 days, no information past `until`, GEL only, nothing bought here).
  */
 @Composable
-internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Haptics, onOffice: () -> Unit = {}) {
+internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Haptics) {
     val k = remember(night) { SheetInk(night) }
     val prices = around.prices
     val trip = around.trip
@@ -213,10 +214,7 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
                 // 3. three short rows: where to buy, the deposit, the night
                 Column {
                     InfoRow(RowIcon.Pin, stringResource(R.string.app_skipass_office), k, last = false) {
-                        Box(Modifier.heightIn(min = 44.dp).semantics { role = Role.Button }.clickable { haptics.tick(.3f); Qa.log("redesign skipass office"); onOffice() }.padding(horizontal = 4.dp),
-                            contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.app_skipass_office_where) + (if (isRtl()) " ‹" else " ›"), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = k.acc)
-                        }
+                        OfficeButtons(k, haptics)
                     }
                     prices.deposit?.let { InfoRow(RowIcon.Card, stringResource(R.string.app_skipass_deposit), k, value = stringResource(R.string.app_skipass_deposit_value, gel(it)), last = false) }
                     val nightPrice = if (child) prices.nightChild else prices.nightAdult
@@ -238,6 +236,51 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
 }
 
 private enum class RowIcon { Pin, Card, Moon }
+
+/** The ticket office's coordinate: "Ski Pass Office", OSM, medium certainty; to confirm on site in January (research/places.md). */
+private const val OFFICE_NAV = "https://www.google.com/maps/dir/?api=1&destination=42.470828,44.487555&travelmode=walking"
+private const val SKIPASS_PKG = "com.lemondo.skipass"
+
+/** P.21: two round buttons ending the office row: walking directions to the office, and the SKIPASS app (or its store page). */
+@Composable
+private fun OfficeButtons(k: SheetInk, haptics: Haptics) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        RoundAction(k, stringResource(R.string.app_sr_office_nav), stringResource(R.string.app_sr_office_nav), false) {
+            haptics.tick(.3f); Qa.log("redesign skipass office nav")
+            runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(OFFICE_NAV)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        }
+        val appName = stringResource(R.string.app_skipass_app, "Google Play")
+        RoundAction(k, appName, appName, true) {
+            haptics.tick(.3f); Qa.log("redesign skipass app")
+            val launch = ctx.packageManager.getLaunchIntentForPackage(SKIPASS_PKG)
+            val store = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=$SKIPASS_PKG"))
+            runCatching { ctx.startActivity((launch ?: store).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        }
+    }
+}
+
+/** A 40 round button (44 to touch) with a drawn icon: the arrow (navigation) or a phone (the app); a long press shows [name]. */
+@Composable
+private fun RoundAction(k: SheetInk, aria: String, name: String, phone: Boolean, onClick: () -> Unit) {
+    val hold = rememberNameHold()
+    Box(Modifier.size(44.dp).nameHold(hold, k, withClickSemantics = false, onClick = onClick)
+        .clearAndSetSemantics { contentDescription = aria; role = Role.Button; onClick { onClick(); true } }, contentAlignment = Alignment.Center) {
+        Box(Modifier.size(40.dp).clip(CircleShape).background(k.acc.copy(alpha = .13f)), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.size(19.dp)) {
+                val w = size.width; val st = Stroke(width = 1.8.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round)
+                if (phone) {
+                    drawRoundRect(k.acc, Offset(w * .27f, w * .05f), Size(w * .46f, w * .9f), CornerRadius(w * .1f), style = st)
+                    drawLine(k.acc, Offset(w * .43f, w * .8f), Offset(w * .57f, w * .8f), st.width, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                } else {
+                    val p = Path().apply { moveTo(w * .92f, w * .08f); lineTo(w * .1f, w * .45f); lineTo(w * .52f, w * .52f); lineTo(w * .6f, w * .92f); close() }
+                    drawPath(p, k.acc, style = st)
+                }
+            }
+        }
+        NamePill(hold, name, k, above = true)
+    }
+}
 
 @Composable
 private fun isRtl() = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl

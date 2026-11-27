@@ -157,15 +157,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // part 2 (Q10): before the season the mountain opens on the count of days; closed, it comes back on the next opening
     // B8 (CT00): the mountain opens free; the count is a tile, and the sheet opens from the tile (or the lifts' row)
     var seasonOn by remember { mutableStateOf(false) }
-    var tileOpen by remember { mutableStateOf(false) }
-    LaunchedEffect(around?.opening, around?.lateOpen) {
-        // once at the first opening of each day until the opening, for 3.5 s (the tile closes itself)
-        if (LiveSeasonRules.shown(around) && !Qa.enabled) {
-            val day = java.time.LocalDate.now(io.github.pini236.skiapp.meet.Meet.GUDAURI).toEpochDay()
-            val sp = context.getSharedPreferences("redesign", android.content.Context.MODE_PRIVATE)
-            if (sp.getLong("season_tile_day", -1L) != day) { sp.edit().putLong("season_tile_day", day).apply(); tileOpen = true }
-        }
-    }
+    // P.25: the count is the top pill's wait ring now; no tile, no once-a-day opening
     // part 3 (R01 to R15): the people, the account and the settings over the mountain
     val people = remember { PeopleUi() }
     val pp = around?.people
@@ -324,7 +316,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
-            c == "season:off" -> { seasonOn = false; tileOpen = false; Qa.log("redesign season closed") }
+            c == "season:off" -> { seasonOn = false; Qa.log("redesign season closed") }
             c == "skipass:off" -> { skipassOpen = false; Qa.log("redesign skipass closed") }
             // part 3: the people's layers (the emulator's run, qa/run.sh), the first group of mine for "group" and "invite"
             c == "people:off" -> people.close()
@@ -482,8 +474,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     val line = if (night) Color(0x33FFFFFF) else Color(0x220E2233)
     val acc = if (night) Color(0xFFFFD873) else Color(0xFF6B4FD8)
     @Composable fun Pill(modifier: Modifier = Modifier, h: Int = 44, content: @Composable () -> Unit) {
-        Box(modifier.height(h.dp).shadow(10.dp, RoundedCornerShape(22.dp), clip = false)
-            .clip(RoundedCornerShape(22.dp)).background(bg).border(1.dp, line, RoundedCornerShape(22.dp)), contentAlignment = Alignment.Center) { content() }
+        Box(modifier.height(h.dp).shadow(10.dp, RoundedCornerShape((h / 2).dp), clip = false)
+            .clip(RoundedCornerShape((h / 2).dp)).background(bg).border(1.dp, line, RoundedCornerShape((h / 2).dp)), contentAlignment = Alignment.Center) { content() }
     }
 
     val lightNow = PeakLight.clock(PeakLight.localHour(time))
@@ -564,39 +556,33 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                     }
                 }
             }
-            // the pill of the lifts (Q01, Q02): the report's summary, or no recent information, or none yet before the season
-            val (pillText0, pillLive) = LiftsPillText(status, inSeason)
-            // U05: no network known in the season and no live report: "no recent information · no signal"
-            val pillText1 = if (Online.pillOffline(qaNet ?: online, pillLive, inSeason)) stringResource(R.string.app_now_offline) else pillText0
-            // the count closed: it shrinks to a line in the pill ("29 days to the opening")
-            val ov0 = around?.opening
-            val pillText = if (!seasonOn && !pillLive && ov0 != null && ov0.kind == io.github.pini236.skiapp.season.Season.Kind.COUNTDOWN)
-                pluralStringResource(R.plurals.app_season_pill, ov0.days, ov0.days.toString()) else pillText1
-            // part 8, section 2: "Mountain status: 11 of 14 lifts open, -7°. Button." (the dot is not read)
-            val tpSr = io.github.pini236.skiapp.weather.LocalWeather.current.let { w -> w.usable?.now("goodaura", w.local)?.temp }
-            val pillSr = if (pillLive && status?.fresh == true) stringResource(R.string.app_sr_pill, status.open.toString(), status.names.size.toString(),
-                tpSr?.let { io.github.pini236.skiapp.weather.deg(it) } ?: "").replace(", .", ".") else null
+            // P.25, the top pill: the lifts part (ring, gondola, "open of total") and the weather part; before the season the lifts part
+            // is the wait ring that replaced the countdown tile. The lifts' ring is live only with a fresh report (TP5 otherwise).
+            val (_, pillLive) = LiftsPillText(status, inSeason)
+            val offlinePill = Online.pillOffline(qaNet ?: online, pillLive, inSeason)
+            val wx = io.github.pini236.skiapp.weather.LocalWeather.current
+            val tpAt = wx.local
+            val tpLifts = TopPillModel.lifts(status, around?.opening, around?.lateOpen, tpAt.hour)
+            val preSeason = tpLifts.kind in listOf(TopPillModel.LiftsKind.COUNT, TopPillModel.LiftsKind.TODAY, TopPillModel.LiftsKind.LATE)
+            val tpWeather = wx.usable?.let { f ->
+                TopPillModel.weather(f.now("goodaura", tpAt), f.code("goodaura", tpAt), tpAt, preSeason, f.snowAhead("goodaura", tpAt.toLocalDate(), 7))
+            }
+            val tpReduced = io.github.pini236.skiapp.ui.Motion.reduced(context)
+            val pillK = remember(night) { SheetInk(night) }
             // on a tablet the pill is 360 wide at the start side, by "me" (part 8)
             Row(if (isTabletUi()) Modifier.width((TabletUi.PILL + 52).dp) else Modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Pill(Modifier.weight(1f).semantics { if (pillSr != null) contentDescription = pillSr }.clickable {
-                haptics.tick(.3f); liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen
-                if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
-                Qa.log("redesign lifts ${if (liftsOpen) "open" else "closed"} ${if (pillLive) "live" else "none"}")
-            }) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                    val kk = remember(night) { SheetInk(night) }
-                    StateDot(if (pillLive) true else null, kk)
-                    Text(pillText, Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                    // the temperature at upper Goodaura (S01): from it to the pill's end opens the weather tab
-                    val wx = io.github.pini236.skiapp.weather.LocalWeather.current
-                    val tp = wx.usable?.now("goodaura", wx.local)?.temp
-                    if (tp != null) Box(Modifier.heightIn(min = 44.dp).semantics { role = androidx.compose.ui.semantics.Role.Button }
-                        .clickable { haptics.tick(.3f); liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true; Qa.log("redesign lifts open weather") },
-                        contentAlignment = Alignment.Center) {
-                        Text("· " + io.github.pini236.skiapp.weather.deg(tp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ink, maxLines = 1)
-                    }
-                }
+            Pill(Modifier.weight(1f), h = 52) {
+                TopPillContent(tpLifts, tpWeather, offlinePill, pillK, tpReduced,
+                    onLifts = {
+                        haptics.tick(.3f)
+                        if (preSeason) { Qa.log("redesign season tile sheet"); seasonOn = true }
+                        else {
+                            liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = !liftsOpen
+                            if (liftsOpen) io.github.pini236.skiapp.telemetry.Telemetry.event("status_view", if (status?.fresh == true) mapOf("state" to "fresh", "open" to status.open, "total" to status.names.size) else mapOf("state" to if (status?.report == null) "none" else "stale"))
+                            Qa.log("redesign lifts ${if (liftsOpen) "open" else "closed"} ${if (pillLive) "live" else "none"}")
+                        }
+                    },
+                    onWeather = { haptics.tick(.3f); liftSel = null; nowTab = NowTab.WEATHER; liftsOpen = true; Qa.log("redesign lifts open weather") })
             }
             // "me" at the pill's end (section 1): the account, the settings, the language and about
             if (pp != null) MeButton(meNow, night) { haptics.tick(.3f); liftsOpen = false; liftSel = null; people.go(PLayer.Me) }
@@ -828,7 +814,6 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         AnimatedVisibility(chosen == null && lens == null && !villageOpen && !menuOpen && !foodOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
             enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             Box(Modifier.fillMaxSize()) {
-                if (around != null && LiveSeasonRules.shown(around)) SeasonTile(around, night, haptics, tileOpen, { tileOpen = it }, onOpenSheet = { tileOpen = false; seasonOn = true })
                 Dock(night, haptics, onVillage = { menuOpen = true; Qa.log("redesign dock menu") }, onFind = { shelfOpen = true; Qa.log("redesign dock find") },
                     onRecord = around?.onRecord?.let { r -> { Qa.log("redesign dock record"); r() } })
             }
@@ -993,7 +978,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
-            LiveSkipass(around, night, haptics, onOffice = { skipassOpen = false; foodFromMenu = false; foodFocus = "tickets"; foodOpen = true; Qa.log("redesign skipass to office") })
+            LiveSkipass(around, night, haptics)
             // the top: back, and "ski pass" as the title by it (handoff section 14.10); ink by day, white at night
             val top = if (night) Color.White else SheetInk(night).ink
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -1059,7 +1044,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 if (hintRec) HintStep("rec", R.string.app_hint_rec) else null, HintStep("village", R.string.app_hint_menu),
                 if (hintMode) HintStep("mode", R.string.app_hint_mode, 22f) else null, if (hintMe) HintStep("me", R.string.app_hint_me) else null)
         }
-        HintSequence(Hints.MOUNTAIN, hintSteps, ready = bare && !where.asking && mtnDrawn && lens == null && !lensRow && !tileOpen, night = night, again = hintAgain + Hints.again) { sz ->
+        HintSequence(Hints.MOUNTAIN, hintSteps, ready = bare && !where.asking && mtnDrawn && lens == null && !lensRow, night = night, again = hintAgain + Hints.again) { sz ->
             val c = Offset(sz.width / 2f, sz.height / 2f)
             hintMids.mapNotNull { m -> view.toScreen(m[0], m[1])?.let { Offset(it[0], it[1]) } }
                 .filter { it.x in 0f..sz.width.toFloat() && it.y in 0f..sz.height.toFloat() }.minByOrNull { kotlin.math.hypot(it.x - c.x, it.y - c.y) }

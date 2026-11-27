@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -122,9 +123,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         if (LiveNumbers.endedOutside(wasRecording, recording, dayFile != null)) { wasRecording = false; onEnded(dayFile) }
         else if (recording) wasRecording = true
     }
-    var picked by remember { mutableStateOf<Boolean?>(null) }
-    val single = picked ?: DayRec.single
-    LaunchedEffect(now) { if (picked == DayRec.single) picked = null }
+    val single = DayRec.single
     val began = LiveNumbers.began(DayRec.tapAt, DayRec.startedAt)
     val searching = LiveNumbers.searching(recording, DayRec.lastFixAt)
     val weak = recording && !searching && LiveNumbers.weakGps(now, DayRec.lastFixAt, began)
@@ -255,25 +254,13 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                 .border(1.dp, rule, RoundedCornerShape(22.dp)).clickable(role = Role.Button) { haptics.tick(.3f); onBack() }.padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (recording) Box(Modifier.size(12.dp).clip(CircleShape).background(red))
-                // one descent says so in place of "recording" (completion part 1, P04)
                 val clock = LiveNumbers.elapsed(SearchRules.sinceFix(now, DayRec.since))
-                Text(if (single) stringResource(R.string.app_rec_one) + " · \u2066$clock\u2069" else stringResource(R.string.app_rec_now, clock),
+                Text(stringResource(R.string.app_rec_now, clock), Modifier.weight(1f),
                     fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ink)
-            }
-            // all day or one descent (L02, L03): one wide bar, the choice in purple, as on the board. Quiet in a descent and
-            // on the lift (L03, "quiet in a descent": only the speed, the run and finish); shown in the search and when
-            // standing. It fades, and keeps its place, so nothing below jumps
-            val quiet = toggleQuiet(searching, DayRec.live?.act)
-            val shown by androidx.compose.animation.core.animateFloatAsState(if (quiet) 0f else 1f, tween(300), label = "toggle")
-            Row(Modifier.fillMaxWidth().height(48.dp).graphicsLayer { alpha = shown }
-                .then(if (quiet) Modifier.clearAndSetSemantics { } else Modifier).clip(RoundedCornerShape(24.dp)).background(if (night) Color(0x33FFFFFF) else Color(0x330E2233))
-                .border(1.dp, rule, RoundedCornerShape(24.dp)).padding(3.dp)) {
-                for ((on, k) in listOf(!single to R.string.app_rec_all, single to R.string.app_rec_one)) {
-                    Box(Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(21.dp)).background(if (on) Color(0xFF7C4FE0) else Color.Transparent)
-                        .clickable(role = Role.Tab, enabled = !quiet) { if (!on) { val s1 = k == R.string.app_rec_one; picked = s1; onSwitch(s1) } }, contentAlignment = Alignment.Center) {
-                        Text(stringResource(k), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (on) Color.White else ink)
-                    }
-                }
+                // P.16: the mode is fixed while recording (no switch); to change it, finish and start again
+                Text(stringResource(if (single) R.string.app_rec_one else R.string.app_rec_all), Modifier.height(26.dp).clip(RoundedCornerShape(13.dp)).background(rule)
+                    .padding(horizontal = 10.dp).wrapContentHeight(Alignment.CenterVertically),
+                    fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = ink)
             }
         }
 

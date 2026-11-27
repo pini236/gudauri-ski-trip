@@ -467,6 +467,10 @@ Canvas version 96, new page "ימי הגלישה שלי והשיאים (27.11)" 
 
 Canvas version 95, same page as `DK`/`SV`, boards `SW00`, `SW1`-`SW6`. Pini keeps the version 2 shelf; only the bar button changes. Recommended A: a 36 round mountain glyph, "מסלולים" and the count, the chevron; B four colour counts, C a live line from the last chip. Source `tools/sw_boards.py`; handoff `design/handoff/2026-11-27-redesign-shelf-layers/` section "Version 3: the button".
 
+### The runs button, version 4 (27.11.2026; waiting for Pini's pick)
+
+Canvas version 101, new page "כפתור המסלולים, גרסה 4 (27.11)" (`runbtn4`), boards `RN00` (summary), `RN01` (close-ups, day and night), `RN11`-`RN53` (per option: day, night with recording, the opening loop). Pini found the version 3 glyph cheap; five different buttons, nothing drawn: A the app's own mountain picture fading into the button, in the light of the hour (recommended); B the real contour lines of Kudebi; C type only with a four-colour pole; D the bar as the shelf's handle (tap or pull); E the one dark primary button. Source `tools/rn_boards.py` (imports `sw_boards`; `contours()` computes the lines from `site/data/terrain.json`); handoff `design/handoff/2026-11-27-redesign-run-button-v4/`. For a local preview, save the two hero pictures from the canvas assets into a folder named by their blob ids and pass it to `--preview`.
+
 ### The run card (27.11.2026; waiting for Pini)
 
 Canvas version 92, page "כרטיס המסלול (27.11)", boards `RK00` to `RK5` (the code `RC` was already taken). Source: `tools/rc_boards.py`. Handoff: `design/handoff/2026-11-27-redesign-run-card/README.md`. A floating card with its neighbours peeking and the dots under it, the run's slope-coloured profile, "טיסה מעל המסלול", and a foot row that leads to the videos and the conditions.
