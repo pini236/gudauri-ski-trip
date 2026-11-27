@@ -637,3 +637,9 @@
 | Capability | Site | Android | iPhone | Note |
 |---|---|---|---|---|
 | "Where am I" outside the model: a card with the distance and a compass arrow to Gudauri, never a dot or a centring (NM1, NM3); recording far away asks first (sample day or record anyway, NM2); no dot, line or camera follow for a point outside the model (bug B2) | none (the site has no ski day; its "where am I" says "not in Gudauri") | built (27.11.2026, `redesign/Far.kt`), not tested on a phone | none yet: when the redesign reaches iOS, same rules | design: `design/handoff/2026-11-26-redesign-ux-pass/part-7-far.md` |
+
+## 25. Kobi side in picture mode (P.17, 27.11.2026)
+
+| Capability | Site | Android | iPhone | Note |
+|---|---|---|---|---|
+| Picture mode with a turn to the Kobi side: a "Kobi side" tag on the ridge, a compass that turns back, seven downloaded side pictures (rev-checked, up to 1.1 MB, 180 KB per file) | — | yes (`claude/android-kobi-side`, merged `f5ee429f`) | — | iPhone has no picture mode (no gap). Not phone-tested; no emulator step yet |
