@@ -451,6 +451,10 @@ Canvas version 89, same page as `DK` (now "בוחרים מסלול: הכפתור
 
 **Version 2 (27.11.2026, canvas 90, `SV00` to `SV6`, `tools/sv_boards.py`):** the chosen direction with more craft. The "מסלולים" button carries a micro strip of all runs that opens into the shelf's strip; the lit chip takes the colour of what it paints; the card's big number is the chip's answer; ranks are written on the mountain; `SV4` animates a chip change. Spec: the "Version 2" section of the shelf-layers handoff.
 
+### The runs button, version 3 (27.11.2026; waiting for Pini)
+
+Canvas version 95, same page as `DK`/`SV`, boards `SW00`, `SW1`-`SW6`. Pini keeps the version 2 shelf; only the bar button changes. Recommended A: a 36 round mountain glyph, "מסלולים" and the count, the chevron; B four colour counts, C a live line from the last chip. Source `tools/sw_boards.py`; handoff `design/handoff/2026-11-27-redesign-shelf-layers/` section "Version 3: the button".
+
 ### The run card (27.11.2026; waiting for Pini)
 
 Canvas version 92, page "כרטיס המסלול (27.11)", boards `RK00` to `RK5` (the code `RC` was already taken). Source: `tools/rc_boards.py`. Handoff: `design/handoff/2026-11-27-redesign-run-card/README.md`. A floating card with its neighbours peeking and the dots under it, the run's slope-coloured profile, "טיסה מעל המסלול", and a foot row that leads to the videos and the conditions.

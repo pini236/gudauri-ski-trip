@@ -3329,6 +3329,62 @@
    "h": 844,
    "title": "The share sheet in English, saved (DV8)",
    "page": "daypages"
+  },
+  "SW00-V3.dc.html": {
+   "x": 0,
+   "y": 8012,
+   "w": 1280,
+   "h": 1000,
+   "title": "גרסה 3: הכפתור (SW00)",
+   "page": "dock"
+  },
+  "SW1.dc.html": {
+   "x": 0,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א: סמל ההר, המילה והמספר (מומלץ) (SW1)",
+   "page": "dock"
+  },
+  "SW2.dc.html": {
+   "x": 470,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א: בלילה, בזמן הקלטה (SW2)",
+   "page": "dock"
+  },
+  "SW3.dc.html": {
+   "x": 940,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א: אתר עם 120 מסלולים, באנגלית (SW3)",
+   "page": "dock"
+  },
+  "SW4.dc.html": {
+   "x": 1410,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, ב: ארבעה צבעים, ארבעה מספרים (SW4)",
+   "page": "dock"
+  },
+  "SW5.dc.html": {
+   "x": 1880,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, ג: שורה חיה מהצ׳יפ האחרון (\"הארוכים\") (SW5)",
+   "page": "dock"
+  },
+  "SW6.dc.html": {
+   "x": 2350,
+   "y": 9152,
+   "w": 390,
+   "h": 844,
+   "title": "גרסה 3, א, בתנועה: הכפתור נפתח אל המדף של גרסה 2 (SW6)",
+   "page": "dock"
   }
  },
  "createdOnFiles": {
@@ -3338,7 +3394,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "daypages"
+  "page": "dock"
  },
  "notes": {
   "tA": {
@@ -4052,6 +4108,14 @@
    "x": 0,
    "y": 4532,
    "text": "4 · הסרטון בכרטיס"
+  },
+  "tsw": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "dock",
+   "x": 0,
+   "y": 7712,
+   "text": "גרסה 3: כפתור \"מסלולים\" פשוט; המדף של גרסה 2 נשאר"
   }
  },
  "order": [
@@ -4470,7 +4534,14 @@
   "DV5.dc.html",
   "DV6.dc.html",
   "DV7.dc.html",
-  "DV8.dc.html"
+  "DV8.dc.html",
+  "SW00-V3.dc.html",
+  "SW1.dc.html",
+  "SW2.dc.html",
+  "SW3.dc.html",
+  "SW4.dc.html",
+  "SW5.dc.html",
+  "SW6.dc.html"
  ],
  "pages": [
   {

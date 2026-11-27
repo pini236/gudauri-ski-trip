@@ -91,3 +91,18 @@ Orders, lengths, slopes and shade on the boards are computed from `site/data`; t
 - **Scrubbing the strip:** a drag along the ticks changes the lit run on the mountain under the finger and brings its card to the centre, with a light haptic tick per run.
 
 Everything else (what each chip orders and paints, the empty answers, what is removed) is as in the sections above.
+
+## Version 3: the button (27.11.2026; waiting for Pini)
+
+**Why:** Pini loves the version 2 shelf (chips, sorting, the card re-order on a tap) and keeps it exactly as `SV3`-`SV6`. He does not like the button: the micro strip (one mark per run) is not understood and does not scale past 28 runs. Boards `SW00`, `SW1`-`SW6` (same canvas page), source `design/redesign/tools/sw_boards.py`. **Only the bar button changes; per-run marks live only inside the shelf.**
+
+**Recommended, A: the mountain glyph (`SW1`, `SW2` night and recording, `SW3` 120 runs in English).** Bar 64, button 48, radius 24, `tile`, border 1 `line`, padding 6 start (around the glyph) and 8 end, gap 10.
+- At the start a 36 round glyph: a drawn mountain with three runs (blue, red, black, stroke 1.8) on a sky gradient; day `#5E9BDB` to `#B9D7F4`, night `#22345A` to `#3A5384`; inset ring 1 `rgba(10,25,45,.12)`. A fixed vector asset, the same for any resort and any number of runs.
+- "מסלולים" 16 / 700, the count beside it 13 / 700 `ink2` (`28`, `120`: digits only change). At the end the 32 circle with the up chevron (17).
+- Narrow (recording with the clock, English, large text): the chevron circle drops first, then the count; the glyph and the word stay.
+- Screen reader: "מסלולים, 28" (existing wording; no new string).
+- **Opening (350 ms, `SW6` loops it):** the button's own surface grows into the strip panel of the shelf (one shared container, from the button rect to 12 / 12 / bottom 246 / height 74, radius 24 to 22); the glyph scales up and fades into it; then the ticks, the chips and the cards arrive as in version 2 (cards 40 ms apart). Closing is the reverse. Reduced motion: 150 ms cross-fade.
+
+**Not recommended:** B, four colour counts under the word (`SW4`; true information, but four numbers are still busy and say little about what opens); C, a live line from the last chip, e.g. "הכי ארוך: Tatra 1" (`SW5`; lively, but a changing line in a fixed bar distracts, truncates in en/ru/large text, and needs six new strings in four languages).
+
+**Scale:** A is identical at 28 and 120 runs (only the count). B goes to two-digit counts and still fits. C is unchanged in content but is the most fragile when narrow.

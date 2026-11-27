@@ -406,6 +406,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Product designer (Opus 5.5): runs button version 3 in the canvas (version 95, `SW00`-`SW6`), waiting for Pini.** The v2 shelf stays; the micro strip leaves the button. Recommended A: a mountain glyph, "מסלולים" and the count (same at 28 or 120 runs); B colour counts and C a live line drawn too. Handoff: shelf-layers README, "Version 3".
 - 27.11.2026: **Product designer (Opus 5.5): the share sheet (P.15, task 4 add-on) in the canvas (version 94, `DV4`-`DV8`), waiting for Pini.** Two tiles instead of the toggle, no explanatory sentence, progress inside the pressed button, "נשמר בגלריה" with a check, "לא נשמר · שוב".
   P.16, P.17, P.19 and P.21 not designed here (session size, rule 12): brief in `design/handoff/2026-11-27-redesign-day-pages/BRIEF-next.md`.
 - 27.11.2026: **Product designer (Opus 5.5): Pini's four day-page items in the canvas (version 93, `DP00`, `DM1`-`DM3`, `DT1`-`DT5`, `DS1`-`DS5`, `DV1`-`DV3`), waiting for Pini.** White runs behind the day line; the ridge as a timeline with icons (café only from `places.json`); every story moment tappable with a player and the picture as finale.
