@@ -58,6 +58,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.map.Locator
@@ -121,12 +122,15 @@ internal fun rememberWhere(scene: MapScene): WhereUi {
 @Composable
 internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, recording: Boolean, onLocate: () -> Unit, onHome: () -> Unit,
                                  layersOn: Boolean? = null, onLayers: () -> Unit = {}, bottom: androidx.compose.ui.unit.Dp = 84.dp,
-                                 photo: Boolean? = null, onPhoto: (Boolean) -> Unit = {}) {
+                                 photo: Boolean? = null, onPhoto: (Boolean) -> Unit = {},
+                                 kobiBack: Boolean = false, onKobiBack: () -> Unit = {}) {
     val k = remember(night) { SheetInk(night) }
     var away by remember { mutableStateOf(false) }
     var north by remember { mutableStateOf(0f) }
     LaunchedEffect(view) { while (true) { withFrameNanos { }; val a = view.awayFromHome(); if (a != away) { away = a; Qa.log("redesign compass ${if (a) "shown" else "gone"}") }; if (a) north = view.northDeg(); kotlinx.coroutines.delay(120) } }
-    Column(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 12.dp, bottom = bottom), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 12.dp, bottom = bottom), verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.End) {
+        // P.17 (KB3, KB4): on the Kobi side the compass sits above the picture/live switch
+        KobiCompass(kobiBack, night, onKobiBack)
         // the picture or the live model (the opening's handoff, OP1): at the column's top, two cells of 44, the chosen one full
         if (photo != null) StageSwitch(k, night, photo, onPhoto)
         // K08: the layers button (the lenses' row); lit while the row is open, the mark in the background's colour
@@ -139,7 +143,7 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, record
                 NamePill(hold, ld, k)
             }
         }
-        AnimatedVisibility(away, enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
+        AnimatedVisibility(away && !kobiBack, enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             val home = stringResource(R.string.app_map_home_view_a11y)
             val hold = rememberNameHold()
             Round(k, Modifier.semantics { contentDescription = home; role = Role.Button }.nameHold(hold, k, onClick = onHome)) {
@@ -157,6 +161,44 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, record
             NamePill(whereHold, label, k)
         }
     }
+}
+
+/**
+ * P.17 (KB3, KB4): the compass of the Kobi side. Its needle points down (north is behind you), "צד Kobi" shows beside it
+ * for 3.5 s as it comes, and a tap turns back to the front. Screen reader: "צד Kobi. סיבוב חזרה למבט מדרום".
+ */
+@Composable
+internal fun KobiCompass(visible: Boolean, night: Boolean, onBack: () -> Unit) {
+    val k = remember(night) { SheetInk(night) }
+    AnimatedVisibility(visible, enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
+        val side = stringResource(R.string.map_kobi_side)
+        val aria = side + ". " + stringResource(R.string.map_compass)
+        val hold = rememberNameHold()
+        val reduced = io.github.pini236.skiapp.ui.Motion.reduced(LocalContext.current)
+        val needle = remember { androidx.compose.animation.core.Animatable(if (reduced) 180f else 0f) }
+        var label by remember { mutableStateOf(true) }
+        LaunchedEffect(Unit) { needle.animateTo(180f, tween(if (reduced) 1 else 450)) }
+        LaunchedEffect(Unit) { kotlinx.coroutines.delay(3500); label = false }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AnimatedVisibility(label, enter = fadeIn(tween(150)), exit = fadeOut(tween(250))) {
+                val shape = RoundedCornerShape(22.dp)
+                Box(Modifier.height(44.dp).shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
+                    Text(side, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 1)
+                }
+            }
+            Round(k, Modifier.semantics { contentDescription = aria; role = Role.Button }.nameHold(hold, k, onClick = onBack)) {
+                Canvas(Modifier.size(20.dp).rotate(needle.value)) { compass(k.ink, Color(0xFFE5352B)) }
+                NamePill(hold, aria, k)
+            }
+        }
+    }
+}
+
+/** The same compass where a run's sheet hides the column of buttons: at the height the handoff gives (510 of 844), at the screen's end. */
+@Composable
+internal fun BoxScope.KobiCompassFloating(visible: Boolean, night: Boolean, onBack: () -> Unit) {
+    val h = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    Box(Modifier.align(Alignment.TopEnd).padding(end = 12.dp, top = (h * 510f / 844f).dp)) { KobiCompass(visible, night, onBack) }
 }
 
 /** OP1: the picture above, the live model below, in one glass of 44 wide; a tap on a cell only (no swipe, no gesture). */

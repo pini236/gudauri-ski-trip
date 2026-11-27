@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -35,6 +36,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import io.github.pini236.skiapp.R
 import io.github.pini236.skiapp.home.DayNight
 import io.github.pini236.skiapp.map.MapScene
@@ -62,25 +65,49 @@ import kotlin.math.pow
  * A run that the front picture shows less than half of (the Kobi side), or one the picture has no marking for, asks
  * [onNeedLive]: the layers then go to the live model for that moment (Z05).
  *
+ * The Kobi side (P.17, 27.11.2026, design/handoff/2026-11-27-redesign-kobi-side/): a second face of the same stage, with
+ * its own picture (downloaded, [KobiSet]), its own projection and its own layer; a run belongs to the face that shows
+ * more of it, and choosing one of the other face turns to it (450 ms, the front moves 36 pt and fades, the side comes in).
+ * Without a picture of the side yet the run goes to the live model for a moment, as before.
+ *
  * Memory (condition 3): at most two decoded pictures, only while [Draw] is on the screen; leaving it frees them.
  */
-internal class PictureStage(private val context: Context, private val scene: MapScene, private val d: PeakData, private val v: PeakContract.View) : Stage {
-    private val hero = d.hero
+internal class PictureStage(private val context: Context, private val scene: MapScene, private val d: PeakData, private val front: PeakContract.View, private val kobiC: PeakContract.View? = null) : Stage {
+    enum class Face { FRONT, KOBI }
+    /** the Kobi side's live layer (parsed off the main thread) and its pictures */
+    @Volatile private var kobiHero: PeakData.View? = null
+    private var kobiReady by mutableStateOf(false)
+    private val kobiSet: KobiSet? = kobiC?.takeIf { !it.packaged && it.rev != null }?.let { KobiSet(context, it) }
+    /** the face on the screen now */
+    private var side by mutableStateOf(Face.FRONT)
+    private fun heroOf(f: Face): PeakData.View = if (f == Face.KOBI) kobiHero ?: d.hero else d.hero
+    private fun viewOf(f: Face): PeakContract.View = if (f == Face.KOBI) kobiC ?: front else front
+    private val hero: PeakData.View get() = heroOf(side)
+    private val v: PeakContract.View get() = viewOf(side)
     private val density = context.resources.displayMetrics.density
     private val reduced = Motion.reduced(context)
 
     /** a run's draped lines in the picture's points, and whether each point is seen there (worked out once, off the main thread) */
     class PicLine(val key: String, val xy: FloatArray, val seen: BooleanArray)
-    @Volatile private var pic: List<PicLine>? = null
+    @Volatile private var picF: List<PicLine>? = null
+    @Volatile private var picK: List<PicLine>? = null
+    private val pic: List<PicLine>? get() = if (side == Face.KOBI) picK else picF
     private val worker = Executors.newSingleThreadExecutor()
+    private fun linesFor(cv: PeakContract.View): List<PicLine> = scene.runs.pistes.flatMap { p ->
+        scene.draped[p.key].orEmpty().map { l ->
+            val n = l.size / 3; val xy = FloatArray(n * 2); val ok = BooleanArray(n)
+            for (i in 0 until n) { val s = cv.project(l[i * 3].toDouble(), l[i * 3 + 2].toDouble(), l[i * 3 + 1].toDouble()); xy[i * 2] = s.x; xy[i * 2 + 1] = s.y; ok[i] = cv.visible(s) }
+            PicLine(p.key, xy, ok)
+        }
+    }
     init {
         worker.execute {
-            pic = scene.runs.pistes.flatMap { p ->
-                scene.draped[p.key].orEmpty().map { l ->
-                    val n = l.size / 3; val xy = FloatArray(n * 2); val ok = BooleanArray(n)
-                    for (i in 0 until n) { val s = v.project(l[i * 3].toDouble(), l[i * 3 + 2].toDouble(), l[i * 3 + 1].toDouble()); xy[i * 2] = s.x; xy[i * 2 + 1] = s.y; ok[i] = v.visible(s) }
-                    PicLine(p.key, xy, ok)
-                }
+            picF = linesFor(front)
+            if (kobiC != null) {
+                picK = linesFor(kobiC)
+                kobiHero = runCatching { PeakData.loadKobiView(context, d.geo) }.onFailure { Redesign.fail("kobi layer") }.getOrNull()
+                kobiSet?.scan()
+                kobiReady = kobiHero != null
             }
         }
     }
@@ -155,7 +182,19 @@ internal class PictureStage(private val context: Context, private val scene: Map
         return Math.toDegrees(atan2((b[0] - a[0]).toDouble(), (a[1] - b[1]).toDouble())).toFloat()
     }
     override fun awayFromHome(): Boolean = z > 1.03f || abs(cx - hero.w / 2) > 4f || abs(cy - hero.h / 2) > 4f
-    override fun onKobiSide() = false
+    override fun onKobiSide() = side == Face.KOBI
+    /** for the layers: the Kobi side is the face on the screen */
+    val onKobi: Boolean get() = side == Face.KOBI
+    /** the side can be shown now: its layer is parsed and at least one picture is here */
+    val kobiUsable: Boolean get() = kobiReady && kobiSet?.usable() == true
+    /** the screen point just above where the Kobi line peeks at the top of the front picture; null elsewhere */
+    fun kobiTag(): FloatArray? {
+        if (w == 0f || side != Face.FRONT || kobiC == null) return null
+        var bx = 0f; var by = Float.MAX_VALUE
+        for (r in front.runs) if (r.key == "Kobi") for (l in r.l) for (i in 0 until l.size / 2) if (l[i * 2 + 1] < by) { by = l[i * 2 + 1]; bx = l[i * 2] }
+        if (by == Float.MAX_VALUE) return null
+        return onScreen(PeakContract.Screen(bx, by, 0f))
+    }
 
     /** the screen lines of the named runs as the picture draws them now (the contract's, in screen pixels) */
     private fun screenLines(): List<StagePick.Line> = linesOn(v, place())
@@ -176,12 +215,22 @@ internal class PictureStage(private val context: Context, private val scene: Map
 
     // ---- choosing
 
-    /** whether the front picture shows less than half of [key], or the designer's layer has no marking for it */
-    fun needsLive(key: String): Boolean {
-        if (key !in hero.sel) return true
-        val ls = pic?.filter { it.key == key } ?: return false
+    private fun seenIn(lines: List<PicLine>?, key: String): Float {
         var n = 0; var seen = 0
-        for (l in ls) for (s in l.seen) { n++; if (s) seen++ }
+        for (l in lines.orEmpty()) if (l.key == key) for (s in l.seen) { n++; if (s) seen++ }
+        return if (n == 0) 0f else seen.toFloat() / n
+    }
+    /** the face that shows more of [key] (the front when equal, and while the lines are not worked out yet) */
+    fun faceFor(key: String): Face = if (kobiC != null && seenIn(picK, key) > seenIn(picF, key)) Face.KOBI else Face.FRONT
+
+    /** whether this stage cannot show [key]: the face it belongs to has no marking for it, no picture yet (the side), or shows less than half of it */
+    fun needsLive(key: String): Boolean {
+        val f = faceFor(key)
+        if (f == Face.KOBI && !kobiUsable) return true
+        if (key !in heroOf(f).sel) return true
+        val ls = (if (f == Face.KOBI) picK else picF) ?: return false
+        var n = 0; var seen = 0
+        for (l in ls) if (l.key == key) for (s in l.seen) { n++; if (s) seen++ }
         return n > 0 && seen * 2 < n
     }
 
@@ -194,6 +243,8 @@ internal class PictureStage(private val context: Context, private val scene: Map
 
     override fun pickKey(key: String) {
         if (needsLive(key)) { Qa.log("redesign picture live for $key"); onNeedLive?.invoke(key); return }
+        val f = faceFor(key)
+        if (f != side) { turn(f, key); return }
         choose(key); onChoose?.invoke(key); frameKey(key, LiveLimits.CHOSEN_FREE, "redesign picture framed $key")
     }
 
@@ -209,6 +260,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
         val k = StagePick.nearest(screenLines(), x, y, StagePick.RADIUS_DP * density)
         Qa.log("redesign picture tap ${k ?: "none"}")
         if (k != null && needsLive(k)) { onNeedLive?.invoke(k); return }
+        if (k != null && faceFor(k) != side) { onTapAt?.invoke(x, y); turn(faceFor(k), k); return }
         choose(k); onChoose?.invoke(k)
         if (k != null) { onTapAt?.invoke(x, y); frameKey(k, LiveLimits.CHOSEN_FREE, "redesign picture framed $k") }
     }
@@ -252,7 +304,8 @@ internal class PictureStage(private val context: Context, private val scene: Map
     private fun frameKey(key: String, free: Float, log: String) { keysBox(setOf(key))?.let { b -> frameBox(b[0], b[1], b[2], b[3], guard, free, 0f, log) } }
 
     override fun home() { glide(1f, Offset(hero.w / 2, hero.h / 2), "redesign picture home") }
-    override fun backToFront() = home()
+    /** from the Kobi side: the turn back to the front; on the front: the opening view */
+    override fun backToFront() { if (side == Face.KOBI) turn(Face.FRONT, null) else home() }
     override fun frameRunAbove(key: String, free: Float?) = frameKey(key, free ?: LiveLimits.CHOSEN_FREE, "redesign picture framed above $key")
     override fun frameLift(ends: FloatArray, free: Float, log: String) {
         val a = v.project(ends[0].toDouble(), ends[1].toDouble(), scene.terrain.elev(ends[0], ends[1]).toDouble())
@@ -260,7 +313,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
         frameBox(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y), guard, free, 0f, log)
     }
     override fun showRun(key: String, top: Float, bottom: Float, shift: Float) {
-        if (needsLive(key)) return
+        if (needsLive(key) || faceFor(key) != side) return
         keysBox(setOf(key))?.let { b -> frameBox(b[0], b[1], b[2], b[3], top, bottom, shift, "redesign shelf framed $key") }
     }
     override fun showKeys(keys: Set<String>, top: Float, bottom: Float, shift: Float, log: String) {
@@ -383,18 +436,67 @@ internal class PictureStage(private val context: Context, private val scene: Map
 
     // ---- the pictures
 
+    /** decoded pictures by key: "f:<light>" (packed, the front) or "k:<light>" (downloaded, the Kobi side); at most two at once */
     private val images = HashMap<String, ImageBitmap>()
     private var cur: PeakData.Light? = null
+    private var curKey: String? = null
     private var prev: PeakData.Light? = null
+    private var prevKey: String? = null
     private val fade = Animatable(1f)
 
-    private fun decode(file: String): ImageBitmap? = runCatching {
-        context.assets.open("redesign/$file").use { BitmapFactory.decodeStream(it) }!!.also { it.prepareToDraw() }.asImageBitmap()
-    }.onFailure { Redesign.fail("picture $file") }.getOrNull()
+    /** the picture to draw for [light] on [f]: the front's own, or the Kobi side's nearest one that is here; null if none */
+    private fun keyFor(f: Face, light: String): String? = when (f) {
+        Face.FRONT -> if (d.hero.images[light] != null) "f:$light" else null
+        Face.KOBI -> kobiSet?.nearest(light)?.let { "k:$it" }
+    }
 
-    /** the decoded pictures go (leaving the picture for the live model, condition 3) */
-    fun freePictures() { images.clear(); cur = null; prev = null }
+    private fun decodeKey(key: String): ImageBitmap? = runCatching {
+        val name = key.substring(2)
+        val bmp = if (key[0] == 'f') context.assets.open("redesign/${d.hero.images.getValue(name)}").use { BitmapFactory.decodeStream(it) }
+        else BitmapFactory.decodeFile(kobiSet!!.file(name)!!.path)
+        bmp!!.also { it.prepareToDraw() }.asImageBitmap()
+    }.onFailure { Redesign.fail("picture $key") }.getOrNull()
+
+    /** the decoded pictures go (leaving the picture for the live model, condition 3); the next time starts on the front */
+    fun freePictures() { images.clear(); cur = null; prev = null; curKey = null; prevKey = null; out = null; side = Face.FRONT }
     fun release() { worker.shutdownNow(); freePictures() }
+
+    // ---- the turn between the faces (Z08): the face that leaves moves 36 pt away and fades, the other comes in from that side
+    private class Out(val face: Face, val key: String?, val light: PeakData.Light?, val pl: Place)
+    private var out by mutableStateOf<Out?>(null)
+    private val slide = Animatable(0f)
+    private var slideDir = -1f
+
+    /** turns to [to] and then chooses [then]; if the picture of that face is not here the run goes to the live model for a moment */
+    private fun turn(to: Face, then: String?) {
+        if (to == side) { if (then != null) { choose(then); onChoose?.invoke(then) }; return }
+        if (out != null) return
+        val want = PeakLight.pick(d.lights, epoch, DayNight.Mode.AUTO)
+        val key = keyFor(to, want.name)
+        if (key == null) { if (then != null) onNeedLive?.invoke(then); return }
+        // the run that was chosen and does not belong to the face we go to is let go (its sheet closes), unless it is the one asked for
+        val was = chosen
+        if (was != null && was != then && faceFor(was) != to) { choose(null); onChoose?.invoke(null) }
+        val sc = scope
+        val from = Out(side, curKey, cur, place())
+        cam?.cancel()
+        fun arrive() {
+            out = from; side = to; prev = null; prevKey = null; cur = want; curKey = key; z = 1f; cx = hero.w / 2; cy = hero.h / 2
+            slideDir = if (to == Face.KOBI) -1f else 1f
+            then?.let { choose(it); onChoose?.invoke(it) }
+        }
+        if (sc == null) { // not on the screen: the next Draw loads the picture of this face
+            side = to; z = 1f; cx = hero.w / 2; cy = hero.h / 2; then?.let { choose(it); onChoose?.invoke(it) }; return
+        }
+        sc.launch {
+            if (images[key] == null) withContext(Dispatchers.IO) { decodeKey(key) }?.let { images[key] = it }
+            if (images[key] == null) { if (then != null) onNeedLive?.invoke(then); return@launch }
+            slide.snapTo(0f); arrive(); tick++
+            slide.animateTo(1f, tween(if (reduced) 1 else 450, easing = FastOutSlowInEasing)) { tick++ }
+            out = null; images.keys.retainAll(setOf(key)); tick++
+            Qa.log("redesign picture turned ${to.name.lowercase()}")
+        }
+    }
 
     @Composable
     fun Draw(night: Boolean, modifier: Modifier = Modifier) {
@@ -405,16 +507,28 @@ internal class PictureStage(private val context: Context, private val scene: Map
         val nf = remember { java.text.NumberFormat.getIntegerInstance() }
         val want = PeakLight.pick(d.lights, epoch, DayNight.Mode.AUTO)
         var shown by remember { mutableStateOf<PeakData.Light?>(null) }
-        LaunchedEffect(want.name) {
-            val f = hero.images.getValue(want.name)
-            if (images[f] == null) withContext(Dispatchers.IO) { decode(f) }?.let { images[f] = it } ?: return@LaunchedEffect
-            val old = cur
-            prev = old; cur = want; shown = want
+        val arrived = kobiSet?.arrived ?: 0
+        LaunchedEffect(want.name, side, arrived, out == null) {
+            if (out != null) return@LaunchedEffect // a turn is under way; it sets its own picture
+            val key = keyFor(side, want.name) ?: return@LaunchedEffect
+            if (key == curKey && cur?.name == want.name) return@LaunchedEffect
+            if (images[key] == null) withContext(Dispatchers.IO) { decodeKey(key) }?.let { images[key] = it } ?: return@LaunchedEffect
+            val old = cur; val oldKey = curKey
+            prev = old; prevKey = oldKey; cur = want; curKey = key; shown = want
             // two at most: the new one and the one it fades from
-            val keep = setOfNotNull(f, old?.let { hero.images[it.name] })
-            images.keys.retainAll(keep)
-            if (old != null && old.name != want.name) { fade.snapTo(0f); fade.animateTo(1f, tween(if (reduced) 1 else 600, easing = LinearEasing)) }
-            prev = null; images.keys.retainAll(setOf(f)); tick++
+            images.keys.retainAll(setOfNotNull(key, oldKey))
+            if (old != null && oldKey != key) { fade.snapTo(0f); fade.animateTo(1f, tween(if (reduced) 1 else 600, easing = LinearEasing)) }
+            prev = null; prevKey = null; images.keys.retainAll(setOf(key)); tick++
+        }
+        // the Kobi side's pictures come in the background, once the first picture is drawn and while the app is on the screen
+        // (the architect's conditions: the current light first, resumable, never in the background)
+        LaunchedEffect(kobiSet, kobiReady) {
+            val ks = kobiSet ?: return@LaunchedEffect
+            if (!kobiReady) return@LaunchedEffect
+            while (!drawnOnce) withFrameNanos { }
+            val lc = KobiSet.lifecycleOf(context)
+            if (lc == null) ks.fetchAll(want.name) { true }
+            else lc.repeatOnLifecycle(Lifecycle.State.STARTED) { ks.fetchAll(want.name) { lc.currentState.isAtLeast(Lifecycle.State.STARTED) } }
         }
         // the chosen run's moment (the light down it, 2 s), then still
         val ch = chosen
@@ -429,6 +543,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
                 detectTransformGestures { centroid, pan, zoom, rot ->
                     turned += rot
                     if (!told && abs(turned) > 15f) { told = true; onRotateTry?.invoke() }
+                    if (out != null) return@detectTransformGestures
                     cam?.cancel()
                     val p0 = place(); val before = p0.back(centroid)
                     val kFit = PeakGeo.fit(w, h, hero)
@@ -440,8 +555,8 @@ internal class PictureStage(private val context: Context, private val scene: Map
                 }
             }
             .pointerInput(Unit) {
-                detectTapGestures(onTap = { s -> tapAt(s.x, s.y) }, onDoubleTap = { s ->
-                    if (chosen != null) return@detectTapGestures
+                detectTapGestures(onTap = { s -> if (out == null) tapAt(s.x, s.y) }, onDoubleTap = { s ->
+                    if (chosen != null || out != null) return@detectTapGestures
                     val p = place().back(s); glide(if (z > 1.5f) 1f else 2.2f, p, null)
                 })
             }
@@ -455,25 +570,37 @@ internal class PictureStage(private val context: Context, private val scene: Map
         }
     }
 
-    /** the picture, the designer's layer and the lens or the focus, as the screen shows them now */
+    /** the picture, the designer's layer and the lens or the focus, as the screen shows them now (in a turn, both faces) */
     private fun DrawScope.paint(c0: PeakData.Light, dm: Float, measurer: androidx.compose.ui.text.TextMeasurer, unitM: String, nf: java.text.NumberFormat) {
-        val pl = place()
-        fun img(l: PeakData.Light?, a: Float) {
-            val im = l?.let { images[hero.images[it.name]] } ?: return
-            drawImage(im, dstOffset = IntOffset(pl.x.toInt(), pl.y.toInt()), dstSize = IntSize((hero.w * pl.k).toInt() + 1, (hero.h * pl.k).toInt() + 1), alpha = a, filterQuality = FilterQuality.High)
+        val o = out
+        if (o != null) {
+            val t = slide.value; val m = 36f * density
+            paintFace(o.face, o.key, null, null, 1f, o.light ?: c0, o.pl, 1f - t, slideDir * m * t, 0f, null, 1f, measurer, unitM, nf)
+            paintFace(side, curKey, prevKey, prev, fade.value, c0, place(), t, -slideDir * m * (1f - t), dm, chosen, z, measurer, unitM, nf)
+            return
         }
-        val p0 = prev
-        if (p0 != null && fade.value < 1f) img(p0, 1f)
-        img(c0, if (p0 != null) fade.value else 1f)
-        val light = if (p0 != null && fade.value < .5f) p0 else c0
+        val pl = place()
+        paintFace(side, curKey, prevKey, prev, fade.value, c0, pl, 1f, 0f, dm, chosen, z, measurer, unitM, nf)
+        lensLines?.let { drawLens(it, pl) }
+        focusOn?.let { f -> drawFocus(f, pl, (if (prev != null && fade.value < .5f) prev else c0)?.night == true) }
+    }
+
+    /** one face: its picture (fading from [pk] while the light changes), its layer; [a] the whole face's opacity, [dx] its shift */
+    private fun DrawScope.paintFace(f: Face, key: String?, pk: String?, p0: PeakData.Light?, fv: Float, c0: PeakData.Light, pl0: Place, a: Float, dx: Float, dm: Float, ch: String?,
+                                    zoom: Float, measurer: androidx.compose.ui.text.TextMeasurer, unitM: String, nf: java.text.NumberFormat) {
+        val pl = Place(pl0.k, pl0.x + dx, pl0.y); val hv = heroOf(f)
+        fun img(k: String?, al: Float) {
+            val im = k?.let { images[it] } ?: return
+            drawImage(im, dstOffset = IntOffset(pl.x.toInt(), pl.y.toInt()), dstSize = IntSize((hv.w * pl.k).toInt() + 1, (hv.h * pl.k).toInt() + 1), alpha = al * a, filterQuality = FilterQuality.High)
+        }
+        if (p0 != null && pk != null && fv < 1f) img(pk, 1f)
+        img(key, if (p0 != null && pk != null) fv else 1f)
+        val light = if (p0 != null && fv < .5f) p0 else c0
         val dark = light.night
-        val ch = chosen
         // the designer's layer: with a run chosen, its moment (PeakScreen's); with a lens or the shelf's focus, the
         // runs as ghosts (their moment long past: no shade over the mountain) and the lit ones on top
         val ms = if (ch != null) chosenMs() else 2600f
-        layer(d, hero, pl, quietA, light, dark, z.pow(-.38f), ch, dm, 1f, ms, near = false, closeUp = false, measurer, unitM, nf, pinch = z)
-        lensLines?.let { drawLens(it, pl) }
-        focusOn?.let { f -> drawFocus(f, pl, dark) }
+        layer(d, hv, pl, quietA * a, light, dark, zoom.pow(-.38f), ch, dm, 1f, ms, near = false, closeUp = false, measurer, unitM, nf, pinch = zoom)
     }
 
     private var lastDm = 0f
