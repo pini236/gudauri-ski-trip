@@ -58,4 +58,49 @@ internal object StoryRules {
 
     /** The fill of a busy button: the video's progress, or full for a picture (which is quick). */
     fun fill(video: Boolean, progress: Float?): Float = if (!video) 1f else (progress ?: 0f).coerceIn(0f, 1f)
+
+    /** The glide between two moments' cameras lasts this long (DS2). */
+    const val GLIDE_MS = 300
+
+    /** Ease-out for the glide, close to the board's (0.2, 0, 0, 1) curve: fast start, soft landing. [f] 0..1. */
+    fun ease(f: Float): Float { val g = 1f - f.coerceIn(0f, 1f); return 1f - g * g * g * g }
+
+    fun lerp(a: Float, b: Float, f: Float): Float = a + (b - a) * f
+
+    /** The pin on the mountain window (DS2: "28°"): the steepest pitch in degrees, the fastest in km/h; other moments have none. */
+    fun pin(key: String, deg: Int?, kmh: Int?): String? = when (key) {
+        "steepest" -> deg?.takeIf { it > 0 }?.let { "$it°" }
+        "fastest" -> kmh?.takeIf { it > 0 }?.toString()
+        else -> null
+    }
+
+    /** DS5: a day with one moment shows it big, then where the day went, then the picture. */
+    fun solo(cards: Int): Boolean = cards == 1
+
+    /** "m:ss" of [ms] (the video card's clock, "0:25 / 1:00"). */
+    fun clock(ms: Long): String { val s = (ms.coerceAtLeast(0L) + 500L) / 1000L; return "${s / 60}:${(s % 60).toString().padStart(2, '0')}" }
+
+    fun clockPair(posMs: Long, totalMs: Long): String = clock(posMs) + " / " + clock(totalMs)
+
+    /** How much of the video has played, 0..1. */
+    fun videoFrac(posMs: Long, totalMs: Long): Float = if (totalMs <= 0L) 0f else (posMs.toFloat() / totalMs).coerceIn(0f, 1f)
+
+    enum class Press { RUN, QUEUE, IGNORE }
+
+    /**
+     * A tap on share or save (DV: while one runs, the other stays enabled and queues after it). [pressed] is the one running,
+     * [queued] the one waiting. Nothing running: run it. The other running: queue this one (one place only). The same one again: ignore.
+     */
+    fun press(kind: String, pressed: String?, queued: String?): Press = when {
+        pressed == null -> Press.RUN
+        pressed == kind -> Press.IGNORE
+        queued == kind -> Press.IGNORE
+        else -> Press.QUEUE
+    }
+
+    /** The in-card video's state: playing, paused, or at its end (the replay circle). */
+    enum class Film { PLAYING, PAUSED, ENDED }
+
+    /** A tap on the card toggles play and pause; at the end it replays. */
+    fun toggle(s: Film): Film = when (s) { Film.PLAYING -> Film.PAUSED; Film.PAUSED -> Film.PLAYING; Film.ENDED -> Film.PLAYING }
 }

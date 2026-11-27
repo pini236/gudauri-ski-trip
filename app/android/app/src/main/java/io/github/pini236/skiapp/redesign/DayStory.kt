@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -45,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -77,7 +81,11 @@ import java.util.Locale
  */
 @Composable
 internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, track: () -> Track?, runs: Runs?, night: Boolean, sample: Boolean,
-                      haptics: Haptics, shareOnly: Boolean = false, elev: ((Float, Float) -> Float)? = null, onBack: () -> Unit) {
+                      haptics: Haptics, shareOnly: Boolean = false, elev: ((Float, Float) -> Float)? = null,
+                      /** The day and its segments, for "where the day went" under a one-moment story (DS5). */
+                      day: DayModel.Day? = null, segs: List<org.json.JSONObject> = emptyList(),
+                      /** "See the day on the mountain" under the video card: leaves the story and plays the day's film. */
+                      onSeeMountain: (() -> Unit)? = null, onBack: () -> Unit) {
     // board L11: "share" opens what leaves the phone, the picture or the one-minute video; from the day's sheet (L06,
     // [shareOnly]) it opens straight, and back goes back to the sheet
     var sharing by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(shareOnly) }
@@ -113,6 +121,20 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         }
     }
     val mImg = remember(mountain) { mountain?.first?.img?.asImageBitmap() }
+    // the share picture, drawn once off the main thread: the page's own preview (DS4), then handed to the share sheet
+    val preview by androidx.compose.runtime.produceState<Pair<android.graphics.Bitmap, String>?>(null, story, night, elev) {
+        value = sharePicture(ctx, story, sm, paint, hide, night, track, name, elev)
+    }
+    val previewImg = remember(preview) { preview?.first?.asImageBitmap() }
+    // "where the day went" for the one-moment page (DS5)
+    val whereData = remember(day, segs) {
+        day?.let { d ->
+            val ds = d.chapters.flatMap { it.items }.filterIsInstance<DayModel.Descent>()
+            val total = (d.summary.end - d.summary.start) / 1000.0
+            val sec = { type: String, kind: String? -> segs.filter { it.optString("type") == type && (kind == null || it.optString("kind") == kind) }.sumOf { (it.optLong("t1") - it.optLong("t0")) / 1000.0 } }
+            DayTimelineRules.where(total, ds.sumOf { if (it.movingS > 0) it.movingS else (it.t1 - it.t0) / 1000.0 }, sec("lift", null), sec("stop", "queue"))
+        }
+    }
     LaunchedEffect(story) {
         Qa.log("redesign day story ${cards.size}")
         if (!sample) Telemetry.event("story_view", mapOf("moments" to cards.count { it.getString("key") != "tomorrow" && it.getString("key") != "trip" }.coerceAtMost(3), "surface" to "end_of_day"))
@@ -141,6 +163,18 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                 val item = story.items[ix]
                 val (t, ls) = texts[ix] ?: return@itemsIndexed
                 val soft = item.getString("key") == "tomorrow"
+                if (StoryRules.solo(cardIdx.size)) {
+                    // DS5: one moment is the big card, the window over the card's words
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp))
+                        .clickable(role = Role.Button) { haptics.tick(.3f); playSingle = null; playStart = n }.padding(8.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        MomentWindow(item, 362.dp, 70f, 18.dp, windowPaint, h = 210.dp, pin = pinOf(item))
+                        Column(Modifier.padding(horizontal = 8.dp).padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            t?.let { Text(it, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = if (soft) muted else ink) }
+                            ls.forEach { Text(it, fontFamily = Gudi, fontSize = 14.5.sp, color = muted) }
+                        }
+                    }
+                    return@itemsIndexed
+                }
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(20.dp))
                     .clickable(role = Role.Button) { haptics.tick(.3f); playSingle = null; playStart = n }
                     .padding(horizontal = 14.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -151,6 +185,9 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     }
                     Text(chevron, fontFamily = Gudi, fontSize = 22.sp, color = muted)
                 }
+            }
+            if (StoryRules.solo(cardIdx.size) && whereData != null) item {
+                WhereBar(whereData, ramp, TlColors(ink, muted, rule, glass, night))
             }
             if (moreIdx.isNotEmpty()) {
                 item { Text(stringResource(R.string.app_ds_more), Modifier.padding(horizontal = 4.dp).padding(top = 10.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink) }
@@ -167,17 +204,20 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     }
                 }
             }
-            // the end of the page: the share picture's own section
+            // the end of the page: the share picture's own section (DS4): the picture 150 x 188, "share" and "save" beside it
             item {
                 Column(Modifier.fillMaxWidth().padding(top = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(stringResource(R.string.app_ds_picture), Modifier.padding(horizontal = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for ((label, primary) in listOf(R.string.app_day_share to true, R.string.app_share_save to false)) {
-                            Text(stringResource(label), Modifier.weight(1f).heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
-                                .background(if (primary) accent else Color.Transparent).border(1.5.dp, if (primary) Color.Transparent else rule, RoundedCornerShape(18.dp))
-                                .clickable(role = Role.Button) { haptics.tick(.4f); Qa.log("redesign day story share ${storyKind(cards.firstOrNull()?.getString("key") ?: "other")}"); shareVideo = false; sharing = true }
-                                .padding(vertical = 17.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp,
-                                color = if (primary) Color.White else ink, textAlign = TextAlign.Center)
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        PicturePreview(previewImg, rule)
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            for ((label, primary) in listOf(R.string.app_day_share to true, R.string.app_share_save to false)) {
+                                Text(stringResource(label), Modifier.fillMaxWidth().heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
+                                    .background(if (primary) accent else Color.Transparent).border(1.5.dp, if (primary) Color.Transparent else rule, RoundedCornerShape(18.dp))
+                                    .clickable(role = Role.Button) { haptics.tick(.4f); Qa.log("redesign day story share ${storyKind(cards.firstOrNull()?.getString("key") ?: "other")}"); shareVideo = false; sharing = true }
+                                    .padding(vertical = 17.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp,
+                                    color = if (primary) Color.White else ink, textAlign = TextAlign.Center)
+                            }
                         }
                     }
                 }
@@ -198,27 +238,53 @@ internal fun DayStory(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         }
         playStart?.let { start ->
             val deck = playSingle?.let { listOf(it) } ?: cardIdx
-            StoryPlayer(deck, start, story, texts, windowPaint, night, rtl, ink, muted, glass, haptics,
+            StoryPlayer(deck, start, story, texts, windowPaint, night, rtl, ink, muted, glass, haptics, previewImg,
                 onShare = { video -> shareVideo = video; playStart = null; sharing = true }, onClose = { playStart = null })
         }
-        if (sharing) DayShare(story, sm, paint, hide, track, name, night, sample, haptics, elev = elev, startVideo = shareVideo, onBack = { if (shareOnly) onBack() else sharing = false })
+        if (sharing) DayShare(story, sm, paint, hide, track, name, night, sample, haptics, elev = elev, startVideo = shareVideo, pre = preview,
+            onSeeMountain = onSeeMountain, onBack = { if (shareOnly) onBack() else sharing = false })
     }
+}
+
+/** The share picture's small preview (DS4, DS3): 150 x 188; a quiet box while it is being drawn. */
+@Composable
+private fun PicturePreview(img: androidx.compose.ui.graphics.ImageBitmap?, rule: Color) {
+    Box(Modifier.size(150.dp, 188.dp).clip(RoundedCornerShape(14.dp)).border(1.dp, rule, RoundedCornerShape(14.dp)).background(rule), contentAlignment = Alignment.Center) {
+        if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+    }
+}
+
+/** The pin over a moment's place: the steepest pitch's degrees or the fastest's speed (StoryRules.pin). */
+private fun pinOf(item: org.json.JSONObject): String? {
+    val p = item.optJSONObject("p")
+    return StoryRules.pin(item.optString("key"), p?.takeIf { it.has("deg") }?.optInt("deg"), p?.takeIf { it.has("kmh") }?.optInt("kmh"))
 }
 
 /** What a window onto the mountain needs, packed so the cards and the player share it. */
 internal class MomentWindowPaint(val paint: DayPaint.Day, val mountain: Pair<StoryVideo.Mountain, List<FloatArray>>?, val img: androidx.compose.ui.graphics.ImageBitmap?,
                                  val night: Boolean, val ramp: IntArray, val dens: Float)
 
-/** A window onto the day's light at the moment's place ([pts]: about that many points of the painted picture across). Nothing without a time. */
+/**
+ * A window onto the day's light at the moment's place ([pts]: about that many points of the painted picture across). Nothing without a time.
+ * [h] makes it a wide window (DS5: [size] wide by [h] high); [from] and [glide] (0..1, already eased) move the camera from the last
+ * moment's place to this one's; [pin] is the label over the moment's place ("28°").
+ */
 @Composable
-private fun MomentWindow(item: org.json.JSONObject, size: androidx.compose.ui.unit.Dp, pts: Float, radius: androidx.compose.ui.unit.Dp, w: MomentWindowPaint, modifier: Modifier = Modifier) {
+private fun MomentWindow(item: org.json.JSONObject, size: androidx.compose.ui.unit.Dp, pts: Float, radius: androidx.compose.ui.unit.Dp, w: MomentWindowPaint, modifier: Modifier = Modifier,
+                         h: androidx.compose.ui.unit.Dp? = null, from: org.json.JSONObject? = null, glide: Float = 1f, pin: String? = null) {
     val paint = w.paint; val night = w.night; val dens = w.dens; val ramp = w.ramp
     val at = item.optLong("t").takeIf { it > 0 }?.let { paint.track.at(it) } ?: return
+    val atFrom = from?.optLong("t")?.takeIf { it > 0 }?.let { paint.track.at(it) }
     val mt = w.mountain; val mi = w.img
     val atOn = if (mt != null) OnMountain.project(mt.first.view.proj!!, mt.first.elev, at, 2f).takeIf { !it[0].isNaN() } else null
-    if (mt != null && mi != null && atOn != null) Canvas(modifier.size(size).clip(RoundedCornerShape(radius))) {
+    val fromOn = if (mt != null && atFrom != null) OnMountain.project(mt.first.view.proj!!, mt.first.elev, atFrom, 2f).takeIf { !it[0].isNaN() } else null
+    val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+    val box = if (h != null) modifier.fillMaxWidth().height(h) else modifier.size(size)
+    if (mt != null && mi != null && atOn != null) Canvas(box.clip(RoundedCornerShape(radius))) {
         val k = size.toPx().coerceAtMost(this.size.minDimension) / pts
-        val ox = this.size.width / 2 - atOn[0] * k; val oy = this.size.height / 2 - atOn[1] * k
+        val cx = if (fromOn != null) StoryRules.lerp(fromOn[0], atOn[0], glide) else atOn[0]
+        val cy = if (fromOn != null) StoryRules.lerp(fromOn[1], atOn[1], glide) else atOn[1]
+        val ox = this.size.width / 2 - cx * k; val oy = this.size.height / 2 - cy * k
         drawImage(mi, dstOffset = androidx.compose.ui.unit.IntOffset(ox.toInt(), oy.toInt()),
             dstSize = androidx.compose.ui.unit.IntSize((mt.first.view.w * k).toInt(), (mt.first.view.h * k).toInt()))
         for (pass in 0..1) paint.lines.forEachIndexed { li, l -> val q = mt.second[li]
@@ -230,37 +296,64 @@ private fun MomentWindow(item: org.json.JSONObject, size: androidx.compose.ui.un
                 else drawLine(Color(0xFF000000.toInt() or ramp[l.band[i]]), a0, b0, 2.6f * dens, cap = StrokeCap.Round)
             }
         }
-        drawCircle(Color.White, 5f * dens, center)
-        drawCircle(Color(0xFFE0246E), 5f * dens, center, style = androidx.compose.ui.graphics.drawscope.Stroke(2f * dens))
-    } else Canvas(modifier.size(size).clip(RoundedCornerShape(radius)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
+        val here = Offset(ox + atOn[0] * k, oy + atOn[1] * k)
+        drawCircle(Color.White, 5f * dens, here)
+        drawCircle(Color(0xFFE0246E), 5f * dens, here, style = androidx.compose.ui.graphics.drawscope.Stroke(2f * dens))
+        pin?.let { drawPin(measurer, it, here, dens) }
+    } else Canvas(box.clip(RoundedCornerShape(radius)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
         val half = 320f   // metres from the centre to the window's edge
         val k = this.size.minDimension / 2 / half
-        fun p(x: Float, y: Float) = Offset(this.size.width / 2 + (x - at[0]) * k, this.size.height / 2 - (y - at[1]) * k)
+        val cx = if (atFrom != null) StoryRules.lerp(atFrom[0], at[0], glide) else at[0]
+        val cy = if (atFrom != null) StoryRules.lerp(atFrom[1], at[1], glide) else at[1]
+        fun p(x: Float, y: Float) = Offset(this.size.width / 2 + (x - cx) * k, this.size.height / 2 - (y - cy) * k)
         for (l in paint.lines) for (i in 0 until l.band.size - 1) {
             val ax = l.xy[i * 2]; val ay = l.xy[i * 2 + 1]
-            if (kotlin.math.abs(ax - at[0]) > half * 1.5f || kotlin.math.abs(ay - at[1]) > half * 1.5f) continue
+            if (kotlin.math.abs(ax - cx) > half * 1.5f || kotlin.math.abs(ay - cy) > half * 1.5f) continue
             val a = p(ax, ay); val b = p(l.xy[i * 2 + 2], l.xy[i * 2 + 3])
             drawLine(if (night) Color(0xFF050A16) else Color.White, a, b, 4.4f * dens, cap = StrokeCap.Round)
             drawLine(Color(0xFF000000.toInt() or ramp[l.band[i]]), a, b, 2.6f * dens, cap = StrokeCap.Round)
         }
-        drawCircle(Color.White, 4.5f * dens, Offset(this.size.width / 2, this.size.height / 2))
-        drawCircle(Color(0xFF2F6FE4), 3f * dens, Offset(this.size.width / 2, this.size.height / 2))
+        val here = p(at[0], at[1])
+        drawCircle(Color.White, 4.5f * dens, here)
+        drawCircle(Color(0xFF2F6FE4), 3f * dens, here)
+        pin?.let { drawPin(measurer, it, here, dens) }
     }
+}
+
+/** The label over a moment's place: a dark rounded pill with the number, its tail on the place (DS2, "28°"). */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPin(measurer: androidx.compose.ui.text.TextMeasurer, label: String, at: Offset, dens: Float) {
+    val tl = measurer.measure(label, androidx.compose.ui.text.TextStyle(fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White))
+    val pw = tl.size.width + 18 * dens; val ph = tl.size.height + 8 * dens
+    val left = (at.x - pw / 2).coerceIn(0f, (size.width - pw).coerceAtLeast(0f)); val top = (at.y - 14 * dens - ph).coerceAtLeast(0f)
+    drawLine(Color(0xFF0E2233), at, Offset(at.x, top + ph), 1.4f * dens)
+    drawRoundRect(Color(0xFF0E2233), Offset(left, top), androidx.compose.ui.geometry.Size(pw, ph), androidx.compose.ui.geometry.CornerRadius(ph / 2))
+    drawText(tl, topLeft = Offset(left + 9 * dens, top + 4 * dens))
 }
 
 /**
  * The player (DS2, DS3): segments at the top (one per moment, then the finale), 6 s a moment, a tap on the inline-end half
- * goes back and on the rest forward, a press holds. The finale is the share picture's own page. The camera does not glide
- * between moments yet (each window is drawn at its place).
+ * goes back and on the rest forward, a press holds. The finale is the share picture's own page. The camera glides between moments (300 ms).
  */
 @Composable
 private fun StoryPlayer(deck: List<Int>, start: Int, story: StoryData, texts: List<Pair<String?, List<String>>?>, w: MomentWindowPaint, night: Boolean, rtl: Boolean,
-                        ink: Color, muted: Color, glass: Color, haptics: Haptics, onShare: (Boolean) -> Unit, onClose: () -> Unit) {
+                        ink: Color, muted: Color, glass: Color, haptics: Haptics, previewImg: androidx.compose.ui.graphics.ImageBitmap?,
+                        onShare: (Boolean) -> Unit, onClose: () -> Unit) {
     BackHandler { onClose() }
     val count = deck.size + 1   // the moments, then the finale
     var cur by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(start.coerceIn(0, count - 1)) }
     var frac by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(0f) }
     var held by remember { androidx.compose.runtime.mutableStateOf(false) }
+    // the camera glides from the last moment's place to this one's (300 ms); the first moment and the finale just appear
+    val glide = remember { androidx.compose.animation.core.Animatable(1f) }
+    var fromIx by remember { androidx.compose.runtime.mutableStateOf<Int?>(null) }
+    var lastCur by remember { androidx.compose.runtime.mutableStateOf(cur) }
+    LaunchedEffect(cur) {
+        val prev = lastCur; lastCur = cur
+        if (prev != cur && prev < deck.size && cur < deck.size) {
+            fromIx = deck[prev]; glide.snapTo(0f)
+            glide.animateTo(1f, androidx.compose.animation.core.tween(StoryRules.GLIDE_MS, easing = androidx.compose.animation.core.Easing { StoryRules.ease(it) }))
+        } else { fromIx = null; glide.snapTo(1f) }
+    }
     LaunchedEffect(cur, held) {
         if (held || cur >= count - 1) return@LaunchedEffect
         var last = androidx.compose.runtime.withFrameMillis { it }
@@ -292,7 +385,7 @@ private fun StoryPlayer(deck: List<Int>, start: Int, story: StoryData, texts: Li
             val (t, ls) = texts[ix] ?: Pair<String?, List<String>>(null, emptyList())
             Column(Modifier.fillMaxSize().statusBarsPadding().padding(top = 64.dp, start = 16.dp, end = 16.dp, bottom = 24.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Box(Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(24.dp)), contentAlignment = Alignment.Center) {
-                    MomentWindow(item, 340.dp, 110f, 24.dp, w, Modifier.fillMaxSize())
+                    MomentWindow(item, 340.dp, 110f, 24.dp, w, Modifier.fillMaxSize(), from = fromIx?.let { story.items.getOrNull(it) }, glide = glide.value, pin = pinOf(item))
                 }
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp)).padding(18.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -304,6 +397,7 @@ private fun StoryPlayer(deck: List<Int>, start: Int, story: StoryData, texts: Li
             Column(Modifier.fillMaxSize().statusBarsPadding().padding(top = 64.dp, start = 16.dp, end = 16.dp, bottom = 24.dp).navigationBarsPadding(),
                 verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(stringResource(R.string.app_ds_picture), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = ink, textAlign = TextAlign.Center)
+                PicturePreview(previewImg, rule)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     for ((label, primary) in listOf(R.string.app_day_share to true, R.string.app_share_save to false)) {
                         Text(stringResource(label), Modifier.weight(1f).heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))

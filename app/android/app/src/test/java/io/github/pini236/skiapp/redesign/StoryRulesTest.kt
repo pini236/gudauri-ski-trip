@@ -69,4 +69,44 @@ class StoryRulesTest {
         assertEquals(0f, StoryRules.fill(true, null), 0f)
         assertEquals(.64f, StoryRules.fill(true, .64f), 0f)
     }
+
+    @Test fun pinShowsDegreesOrSpeedOnly() {
+        assertEquals("28°", StoryRules.pin("steepest", 28, null))
+        assertEquals("68", StoryRules.pin("fastest", null, 68))
+        assertNull(StoryRules.pin("queue", 28, 68))
+        assertNull(StoryRules.pin("steepest", null, null))
+    }
+
+    @Test fun easeRunsFromZeroToOneAndNeverBackwards() {
+        assertEquals(0f, StoryRules.ease(0f), 1e-6f)
+        assertEquals(1f, StoryRules.ease(1f), 1e-6f)
+        assertEquals(1f, StoryRules.ease(3f), 1e-6f)
+        var last = 0f
+        for (i in 1..10) { val v = StoryRules.ease(i / 10f); assertTrue(v >= last); last = v }
+        assertTrue(StoryRules.ease(.5f) > .5f)
+    }
+
+    @Test fun soloOnlyForOneCard() {
+        assertTrue(StoryRules.solo(1)); assertFalse(StoryRules.solo(0)); assertFalse(StoryRules.solo(3))
+    }
+
+    @Test fun clockReads() {
+        assertEquals("0:25 / 1:00", StoryRules.clockPair(25_000, 60_000))
+        assertEquals("0:00", StoryRules.clock(-5))
+        assertEquals(.5f, StoryRules.videoFrac(30_000, 60_000), 1e-6f)
+        assertEquals(0f, StoryRules.videoFrac(10, 0), 1e-6f)
+    }
+
+    @Test fun secondButtonQueuesAfterTheRunningOne() {
+        assertEquals(StoryRules.Press.RUN, StoryRules.press("save", null, null))
+        assertEquals(StoryRules.Press.QUEUE, StoryRules.press("share", "save", null))
+        assertEquals(StoryRules.Press.IGNORE, StoryRules.press("save", "save", null))
+        assertEquals(StoryRules.Press.IGNORE, StoryRules.press("share", "save", "share"))
+    }
+
+    @Test fun cardToggleAndReplay() {
+        assertEquals(StoryRules.Film.PAUSED, StoryRules.toggle(StoryRules.Film.PLAYING))
+        assertEquals(StoryRules.Film.PLAYING, StoryRules.toggle(StoryRules.Film.PAUSED))
+        assertEquals(StoryRules.Film.PLAYING, StoryRules.toggle(StoryRules.Film.ENDED))
+    }
 }
