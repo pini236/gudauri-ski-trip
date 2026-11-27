@@ -3,7 +3,9 @@ package io.github.pini236.skiapp.redesign
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
@@ -102,13 +104,20 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
     val paper = if (night) Color(0xFF16213A) else Color.White
     val lanyard = k.acc
 
+    // fit: the pass (452 dp from the top with the lanyard) shrinks, top-anchored, to the room the sheet leaves
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val screenH = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    var sheetPx by remember { mutableIntStateOf(0) }
+    val room = screenH - with(density) { sheetPx.toDp().value } - 8f
+    val fit = if (sheetPx == 0) 1f else (room / 452f).coerceIn(.45f, 1f)
+    Box(Modifier.fillMaxSize().graphicsLayer { scaleX = fit; scaleY = fit; transformOrigin = TransformOrigin(.5f, 0f) }) {
     // the lanyard: two bands from above the screen to the slot
     Canvas(Modifier.fillMaxWidth().height(150.dp).align(Alignment.TopCenter)) {
         val w = size.width
         val slotX = w / 2f; val slotY = 142.dp.toPx()
         val stroke = 7.dp.toPx()
-        drawLine(lanyard, Offset(w * 150f / 390f, -4f), Offset(slotX - 14.dp.toPx(), slotY), stroke)
-        drawLine(lanyard.copy(alpha = .82f), Offset(w * 262f / 390f, -4f), Offset(slotX + 14.dp.toPx(), slotY), stroke)
+        drawLine(lanyard, Offset(w * 150f / 390f, -60f), Offset(slotX - 14.dp.toPx(), slotY), stroke)
+        drawLine(lanyard.copy(alpha = .82f), Offset(w * 262f / 390f, -60f), Offset(slotX + 14.dp.toPx(), slotY), stroke)
     }
     Box(Modifier.align(Alignment.TopCenter).padding(top = 136.dp).size(232.dp, 316.dp)
         .graphicsLayer { rotationZ = swing.value; transformOrigin = TransformOrigin(.5f, 0f); shadowElevation = 0f }
@@ -161,9 +170,10 @@ internal fun BoxScope.LiveSkipass(around: Around, night: Boolean, haptics: Hapti
             drawPath(back, Color.White.copy(alpha = .18f)); drawPath(front, Color.White.copy(alpha = .22f))
         }
     }
+    }
 
     // the sheet
-    Box(Modifier.align(Alignment.BottomCenter)) {
+    Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { sheetPx = it.height }) {
         LiveSheet(k, opaque = true) {
             // 1. adult or child
             Row(Modifier.fillMaxWidth().heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).background(k.line)) {
