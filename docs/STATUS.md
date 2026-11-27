@@ -417,6 +417,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Manager: Pini chose option A (the window) for the "מסלולים" button (P.3, canvas RN, v101).** Builder `session_017QrNw9YBYpchuX77eTWJgd` (branch `claude/android-runs-button-a`); architect asked about the seven packaged thumbs (~42 KB). Shelf chips and layers (P.4, P.5) ride with it.
 - 27.11.2026: **Manager: architect approved the Kobi set at 3 px/pt (P.17); ceiling 350 KB to 1.1 MB, max 180 KB per file.** Still downloaded, never packaged, one `rev`, `sha256` check, light key first, at most two decoded pictures. Builder opened: `session_017QrNw8bq4Be9d2C8ysZNyc` (Sonnet), branch `claude/android-kobi-side`.
 - 27.11.2026: **Manager: Pini approved the Kobi side in picture mode (P.17, canvas KB00-KB4).** Sent to the architect for the image size ruling (350 KB ceiling vs 626-1,069 KB); builder after his answer.
 - 27.11.2026: **Manager: Pini approved the hint motion (P.19, canvas HM00-HM4).** Builder `session_017QrNw8gQPUzupPbTf6iEKX` (branch `claude/android-hint-motion`), no new strings. Top pill (P.25) merged to `main` (run 1041 green); run button v4 in canvas v101 waits for Pini.
