@@ -589,10 +589,10 @@
    ]
   },
   "app.home_trip": {
-   "he": "הטיול שלך",
-   "en": "Your trip",
-   "ru": "Ваша поездка",
-   "ka": "თქვენი მოგზაურობა",
+   "he": "הטיול שלי",
+   "en": "My trip",
+   "ru": "Моя поездка",
+   "ka": "ჩემი მოგზაურობა",
    "where": "app/android",
    "note": "home: the pass strip and the trip form title (H1-H4, H2)",
    "check": [
@@ -17015,10 +17015,10 @@
    ]
   },
   "places.seasonal": {
-   "he": "עונתי",
-   "en": "Seasonal",
-   "ru": "Сезонно",
-   "ka": "სეზონური",
+   "he": "פתוח רק בעונה",
+   "en": "Open in season only",
+   "ru": "Только в сезон",
+   "ka": "მხოლოდ სეზონზე",
    "where": "site (round 31, places near the stations; the apps follow)",
    "note": "small tag next to a seasonal cafe",
    "check": [
@@ -17255,10 +17255,10 @@
    ]
   },
   "app.day_title": {
-   "he": "היום שלך",
-   "en": "Your day",
-   "ru": "Ваш день",
-   "ka": "თქვენი დღე",
+   "he": "היום שלי",
+   "en": "My day",
+   "ru": "Мой день",
+   "ka": "ჩემი დღე",
    "where": "app/android",
    "note": "יום הגלישה (סבב 29, החלטה 77): title of the end-of-day screen",
    "check": [
@@ -21899,10 +21899,10 @@
    ]
   },
   "app.days_trip_title": {
-   "he": "הטיול שלך על ההר",
-   "en": "Your trip on the mountain",
-   "ru": "Ваша поездка на горе",
-   "ka": "თქვენი მოგზაურობა მთაზე",
+   "he": "הטיול שלי על ההר",
+   "en": "My trip on the mountain",
+   "ru": "Моя поездка на горе",
+   "ka": "ჩემი მოგზაურობა მთაზე",
    "where": "app/android",
    "note": "סבב 4, השלמת הנוסחים (L03 עד L12): L12: כותרת ההדגשה",
    "check": [
@@ -24090,10 +24090,10 @@
    ]
   },
   "app.grp_title": {
-   "he": "החבר׳ה",
-   "en": "The crew",
-   "ru": "Компания",
-   "ka": "ჯგუფი",
+   "he": "הקבוצה שלי",
+   "en": "My group",
+   "ru": "Моя группа",
+   "ka": "ჩემი ჯგუფი",
    "where": "app/android",
    "note": "סבב ההשלמה, חלק 3 (סעיף 12 ב-design/handoff/2026-11-23-redesign-people): R01, הכפר: שם מקום באפליקציה, קצר בכל שפה (המילון: \"компания\", \"ჯგუფი\")",
    "check": [
@@ -24985,13 +24985,580 @@
     "ka"
    ]
   },
+  "app.dock_menu": {
+   "he": "תפריט",
+   "en": "Menu",
+   "ru": "Меню",
+   "ka": "მენიუ",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_trip_add": {
+   "he": "הוספת טיסה",
+   "en": "Add flight",
+   "ru": "Добавить рейс",
+   "ka": "ფრენის დამატება",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_grp_none": {
+   "he": "הזמנת חברים לטיול",
+   "en": "Invite friends to the trip",
+   "ru": "Пригласить друзей в поездку",
+   "ka": "მეგობრების მოწვევა",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_food_n": {
+   "he": {
+    "one": "מקום אחד, בכפר ועל ההר",
+    "two": "{n} מקומות, בכפר ועל ההר",
+    "other": "{n} מקומות, בכפר ועל ההר"
+   },
+   "en": {
+    "one": "1 place, in the village and on the mountain",
+    "other": "{n} places, in the village and on the mountain"
+   },
+   "ru": {
+    "one": "{n} место в деревне и на горе",
+    "few": "{n} места в деревне и на горе",
+    "many": "{n} мест в деревне и на горе",
+    "other": "{n} места в деревне и на горе"
+   },
+   "ka": {
+    "one": "{n} ადგილი სოფელში და მთაზე",
+    "other": "{n} ადგილი სოფელში და მთაზე"
+   },
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_games_n": {
+   "he": {
+    "one": "משחק אחד · גם בלי קליטה",
+    "two": "{n} משחקים · גם בלי קליטה",
+    "other": "{n} משחקים · גם בלי קליטה"
+   },
+   "en": {
+    "one": "1 game · works offline",
+    "other": "{n} games · work offline"
+   },
+   "ru": {
+    "one": "{n} игра · работает без связи",
+    "few": "{n} игры · работают без связи",
+    "many": "{n} игр · работают без связи",
+    "other": "{n} игры · работают без связи"
+   },
+   "ka": {
+    "one": "{n} თამაში · კავშირის გარეშეც",
+    "other": "{n} თამაში · კავშირის გარეშეც"
+   },
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_days_n": {
+   "he": {
+    "one": "יום אחד · {km} ק״מ",
+    "two": "{n} ימים · {km} ק״מ",
+    "other": "{n} ימים · {km} ק״מ"
+   },
+   "en": {
+    "one": "1 day · {km} km",
+    "other": "{n} days · {km} km"
+   },
+   "ru": {
+    "one": "{n} день · {km} км",
+    "few": "{n} дня · {km} км",
+    "many": "{n} дней · {km} км",
+    "other": "{n} дня · {km} км"
+   },
+   "ka": {
+    "one": "{n} დღე · {km} კმ",
+    "other": "{n} დღე · {km} კმ"
+   },
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_days_none": {
+   "he": "יום גלישה לדוגמה",
+   "en": "A sample ski day",
+   "ru": "Пример дня на склоне",
+   "ka": "სათხილამურო დღის ნიმუში",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_lifts": {
+   "he": "רכבלים ומזג אוויר",
+   "en": "Lifts and weather",
+   "ru": "Подъёмники и погода",
+   "ka": "საბაგიროები და ამინდი",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_lifts_now": {
+   "he": "{open} מתוך {total} פתוחים · {temp}",
+   "en": "{open} of {total} open · {temp}",
+   "ru": "Открыто {open} из {total} · {temp}",
+   "ka": "ღიაა {open} {total}-დან · {temp}",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_lifts_pre": {
+   "he": {
+    "one": "נפתחים ב-{date}, בעוד יום",
+    "two": "נפתחים ב-{date}, בעוד יומיים",
+    "other": "נפתחים ב-{date}, בעוד {n} ימים"
+   },
+   "en": {
+    "one": "Opens {date}, in 1 day",
+    "other": "Opens {date}, in {n} days"
+   },
+   "ru": {
+    "one": "Открытие {date}, через {n} день",
+    "few": "Открытие {date}, через {n} дня",
+    "many": "Открытие {date}, через {n} дней",
+    "other": "Открытие {date}, через {n} дня"
+   },
+   "ka": {
+    "one": "იხსნება {date}, {n} დღეში",
+    "other": "იხსნება {date}, {n} დღეში"
+   },
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.menu_account": {
+   "he": "חשבון",
+   "en": "Account",
+   "ru": "Аккаунт",
+   "ka": "ანგარიში",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.hint_menu": {
+   "he": "כאן הטיסה, כרטיס הסקי, הקבוצה, האוכל, המשחקים והימים שהקלטתם.",
+   "en": "Your flight, ski pass, group, food, games and recorded days are all here.",
+   "ru": "Здесь рейс, ски-пасс, группа, еда, игры и записанные дни.",
+   "ka": "აქ არის ფრენა, ბარათი, ჯგუფი, საჭმელი, თამაშები და ჩაწერილი დღეები.",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "trip.add_bag": {
+   "he": "+ כבודה",
+   "en": "+ Baggage",
+   "ru": "+ Багаж",
+   "ka": "+ ბარგი",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_season": {
+   "he": "{resort} · עונת {season}",
+   "en": "{resort} · {season} season",
+   "ru": "{resort} · сезон {season}",
+   "ka": "{resort} · {season} სეზონი",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_len": {
+   "he": {
+    "one": "יום אחד",
+    "two": "יומיים",
+    "other": "{n} ימים"
+   },
+   "en": {
+    "one": "1 day",
+    "other": "{n} days"
+   },
+   "ru": {
+    "one": "{n} день",
+    "few": "{n} дня",
+    "many": "{n} дней",
+    "other": "{n} дня"
+   },
+   "ka": {
+    "one": "{n} დღე",
+    "other": "{n} დღე"
+   },
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_by_trip": {
+   "he": "{dates} · לפי הטיול שלי",
+   "en": "{dates} · based on my trip",
+   "ru": "{dates} · по моей поездке",
+   "ka": "{dates} · ჩემი მოგზაურობის მიხედვით",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_saves": {
+   "he": "חיסכון של {amount} לעומת כרטיסי יום",
+   "en": "Saves {amount} compared with day passes",
+   "ru": "Экономия {amount} по сравнению с дневными ски-пассами",
+   "ka": "დანაზოგი {amount} ერთდღიან ბილეთებთან შედარებით",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_days_q": {
+   "he": "כמה ימי סקי?",
+   "en": "How many ski days?",
+   "ru": "Сколько дней кататься?",
+   "ka": "რამდენი სათხილამურო დღე?",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_office": {
+   "he": "קונים בקופה שבכפר",
+   "en": "Buy at the ticket office in the village",
+   "ru": "Покупка в кассе в деревне",
+   "ka": "ყიდვა სოფლის სალაროში",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_office_where": {
+   "he": "איפה הקופה?",
+   "en": "Where is the ticket office?",
+   "ru": "Где касса?",
+   "ka": "სად არის სალარო?",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_deposit": {
+   "he": "פיקדון על הכרטיס",
+   "en": "Card deposit",
+   "ru": "Залог за карту",
+   "ka": "ბარათის დეპოზიტი",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_deposit_value": {
+   "he": "{amount}, מוחזר",
+   "en": "{amount}, refundable",
+   "ru": "{amount}, возвращается",
+   "ka": "{amount}, ბრუნდება",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_night_row": {
+   "he": "סקי לילה, בנפרד",
+   "en": "Night skiing, paid separately",
+   "ru": "Ночное катание, отдельно",
+   "ka": "ღამის სათხილამურო, ცალკე",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_night_value": {
+   "he": "{amount} לערב",
+   "en": "{amount} per evening",
+   "ru": "{amount} за вечер",
+   "ka": "{amount} საღამოში",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.skipass_foot": {
+   "he": "מחיר לתיירים, כולל מע״מ · {src} · נבדק {date}",
+   "en": "Tourist price, VAT included · {src} · checked {date}",
+   "ru": "Цена для туристов, с НДС · {src} · проверено {date}",
+   "ka": "ტურისტის ფასი, დღგ-ს ჩათვლით · {src} · შემოწმდა {date}",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_tab_village": {
+   "he": "בכפר · {n}",
+   "en": "In the village · {n}",
+   "ru": "В деревне · {n}",
+   "ka": "სოფელში · {n}",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_tab_rest": {
+   "he": "על ההר · {n}",
+   "en": "On the mountain · {n}",
+   "ru": "На горе · {n}",
+   "ka": "მთაზე · {n}",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_from_lift": {
+   "he": "{m} מטר מ-{lift}",
+   "en": "{m} m from {lift}",
+   "ru": "{m} м от {lift}",
+   "ka": "{m} მ {lift}-დან",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_near_top": {
+   "he": "ליד התחנה העליונה של {lift}",
+   "en": "Near the top station of {lift}",
+   "ru": "У верхней станции {lift}",
+   "ka": "{lift}-ის ზედა სადგურთან",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_near_bottom": {
+   "he": "ליד התחנה התחתונה של {lift}",
+   "en": "Near the bottom station of {lift}",
+   "ru": "У нижней станции {lift}",
+   "ka": "{lift}-ის ქვედა სადგურთან",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_on_run": {
+   "he": "על המסלול, ליד {run}",
+   "en": "On the run, near {run}",
+   "ru": "На трассе, рядом с {run}",
+   "ka": "ტრასაზე, {run}-ის მახლობლად",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_navigate": {
+   "he": "ניווט",
+   "en": "Navigate",
+   "ru": "Маршрут",
+   "ka": "ნავიგაცია",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_share": {
+   "he": "שיתוף",
+   "en": "Share",
+   "ru": "Поделиться",
+   "ka": "გაზიარება",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_more_village": {
+   "he": "עוד בכפר",
+   "en": "More in the village",
+   "ru": "Ещё в деревне",
+   "ka": "კიდევ სოფელში",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.food_more_rest": {
+   "he": "עוד על ההר",
+   "en": "More on the mountain",
+   "ru": "Ещё на горе",
+   "ka": "კიდევ მთაზე",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.gate_title": {
+   "he": "נוסעים עם חברים?",
+   "en": "Traveling with friends?",
+   "ru": "Едете с друзьями?",
+   "ka": "მეგობრებთან ერთად მიდიხართ?",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.gate_sub": {
+   "he": "קבוצה אחת לכל החברים בטיול",
+   "en": "One group for everyone on the trip",
+   "ru": "Одна группа для всех в поездке",
+   "ka": "ერთი ჯგუფი მთელი კომპანიისთვის",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.gate_why_flights": {
+   "he": "מי טס מתי",
+   "en": "Who flies when",
+   "ru": "Кто когда летит",
+   "ka": "ვინ როდის დაფრინავს",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.gate_why_meet": {
+   "he": "איפה נפגשים",
+   "en": "Where to meet",
+   "ru": "Где встречаемся",
+   "ka": "სად ვხვდებით",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.gate_why_scores": {
+   "he": "מי מוביל במשחקים",
+   "en": "Who leads in the games",
+   "ru": "Кто лидирует в играх",
+   "ka": "ვინ ლიდერობს თამაშებში",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.gate_code_title": {
+   "he": "קוד ההזמנה",
+   "en": "Invite code",
+   "ru": "Код приглашения",
+   "ka": "მოსაწვევი კოდი",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
   "app.games_offline": {
    "he": "גם בלי קליטה",
    "en": "Works offline",
-   "ru": "Работает без сети",
-   "ka": "მუშაობს კავშირის გარეშე",
+   "ru": "Работает без связи",
+   "ka": "კავშირის გარეშეც მუშაობს",
    "where": "app/android",
-   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "note": "UX pass 26-27.11.2026, approved",
    "check": [
     "ru",
     "ka"
@@ -24999,11 +25566,11 @@
   },
   "app.games_last": {
    "he": "המשחק האחרון",
-   "en": "Last played",
+   "en": "Last game",
    "ru": "Последняя игра",
    "ka": "ბოლო თამაში",
    "where": "app/android",
-   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "note": "UX pass 26-27.11.2026, approved",
    "check": [
     "ru",
     "ka"
@@ -25015,7 +25582,7 @@
    "ru": "Продолжить",
    "ka": "გაგრძელება",
    "where": "app/android",
-   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "note": "UX pass 26-27.11.2026, approved",
    "check": [
     "ru",
     "ka"
@@ -25027,7 +25594,7 @@
    "ru": "Начните здесь",
    "ka": "დაიწყეთ აქ",
    "where": "app/android",
-   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "note": "UX pass 26-27.11.2026, approved",
    "check": [
     "ru",
     "ka"
@@ -25039,7 +25606,79 @@
    "ru": "Играть",
    "ka": "თამაში",
    "where": "app/android",
-   "note": "UX pass part 6 (games page); wording from the designer's proposal, content to review",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.far_title": {
+   "he": "{resort} · {km} ק״מ מכאן",
+   "en": "{resort} · {km} km from here",
+   "ru": "{resort} · {km} км отсюда",
+   "ka": "{resort} · {km} კმ აქედან",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.far_where_sub": {
+   "he": "המיקום יופיע כשתהיו על ההר",
+   "en": "Your location will show when you are on the mountain",
+   "ru": "Ваше местоположение появится, когда вы будете на горе",
+   "ka": "თქვენი მდებარეობა გამოჩნდება, როცა მთაზე იქნებით",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.far_rec_sub": {
+   "he": "מקליטים גלישה כשנמצאים על ההר",
+   "en": "Recording works when you are on the mountain",
+   "ru": "Запись катания работает, когда вы на горе",
+   "ka": "ჩაწერა მუშაობს, როცა მთაზე ხართ",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.far_sample": {
+   "he": "לראות יום גלישה לדוגמה",
+   "en": "See a sample ski day",
+   "ru": "Посмотреть пример дня",
+   "ka": "სათხილამურო დღის ნიმუშის ნახვა",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.far_rec_anyway": {
+   "he": "להקליט בכל זאת",
+   "en": "Record anyway",
+   "ru": "Всё равно записывать",
+   "ka": "მაინც ჩაწერა",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_far": {
+   "he": "{resort} במרחק {km} קילומטר",
+   "en": "{resort}, {km} kilometers away",
+   "ru": "{resort}, в {km} километрах",
+   "ka": "{resort}, {km} კილომეტრზე",
+   "where": "app/android",
+   "note": "UX pass 26-27.11.2026, approved",
    "check": [
     "ru",
     "ka"

@@ -154,11 +154,11 @@ object Redesign {
     @Composable
     fun live(scene: MapScene?, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
              onSwitch: (Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit,
-             liftState: (String) -> Pair<Boolean, String?>? = { null }, onBack: () -> Unit): Boolean {
+             liftState: (String) -> Pair<Boolean, String?>? = { null }, onSample: () -> Unit = {}, onBack: () -> Unit): Boolean {
         if (!on()) return false
         if (scene == null) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
-        LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, liftState, onBack)
+        LiveDay(scene, mode, haptics, liftName, runName, onSwitch, onStop, onEnded, liftState, onSample, onBack)
         return true
     }
 
@@ -180,6 +180,17 @@ object Redesign {
         if (!on()) return false
         if (io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn) return false
         CutDay(night, onResume, onClose)
+        return true
+    }
+
+    /** UX part 7: whether the new design's ski day is shown (the gate of [day], [live] and [first]), for the far check before recording. */
+    fun dayUi(): Boolean = on() && !(io.github.pini236.skiapp.BuildConfig.DEBUG && !RedesignQa.dayOn)
+
+    /** NM2: the far sheet before recording, or false for today's (no sheet; the recording starts as before). Gated as [first]. */
+    @Composable
+    fun far(night: Boolean, lat: Double, lon: Double, onSample: () -> Unit, onAnyway: () -> Unit, onDismiss: () -> Unit): Boolean {
+        if (!dayUi()) return false
+        FarSheet(night, lat, lon, onSample, onAnyway, onDismiss)
         return true
     }
 

@@ -1,5 +1,8 @@
 package io.github.pini236.skiapp.redesign
 
+import io.github.pini236.skiapp.data.Lift
+import io.github.pini236.skiapp.data.Piste
+import io.github.pini236.skiapp.data.Runs
 import io.github.pini236.skiapp.map.OrbitCamera
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -23,5 +26,17 @@ class WhereRulesTest {
         assertFalse(WhereRules.away(f.copy(tx = 900f, tz = 900f), f))
         // a full turn round is the opening direction again
         assertFalse(WhereRules.away(f.copy(yaw = f.yaw + deg(360.0)), f))
+    }
+
+    @Test fun aReadingFarFromTheRunsAndLiftsIsNotAtTheMountain() {
+        val runs = Runs(listOf(Piste("a", "A", "red", true, "run", listOf(floatArrayOf(0f, 0f, 1000f, 500f)))),
+            listOf(Lift("L", "chair", floatArrayOf(-200f, -100f, 300f, 400f))))
+        val box = WhereRules.resortBox(runs)
+        assertTrue(WhereRules.atResort(box, 500f, 200f))
+        assertTrue(WhereRules.atResort(box, 1000f + 2000f, 500f))
+        // inside the elevation model (a 15 km square) but kilometres from every run
+        assertFalse(WhereRules.atResort(box, 1000f + 3000f, 500f))
+        assertFalse(WhereRules.atResort(box, 0f, -4000f))
+        assertFalse(WhereRules.atResort(null, 0f, 0f))
     }
 }

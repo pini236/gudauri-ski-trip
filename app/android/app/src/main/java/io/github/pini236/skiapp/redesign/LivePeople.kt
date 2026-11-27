@@ -685,6 +685,8 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
     var state by remember { mutableStateOf<JoinStatus?>(null) }
     var err by remember { mutableStateOf<String?>(null) }
     var checking by remember { mutableStateOf(false) }
+    // GR1 / GR2: the sheet opens on "new group"; "I have a code" changes it to the six boxes
+    var codeMode by remember { mutableStateOf(false) }
     LaunchedEffect(code) {
         if (!InviteCode.isCode(code) && !InviteCode.isToken(code)) return@LaunchedEffect
         // with the sixth letter the check starts by itself
@@ -698,31 +700,48 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
         checking = false
     }
     PSheet(k, { ui.back() }) {
-        Title(stringResource(R.string.app_grp_title), k)
-        Small(stringResource(R.string.app_grp_sub), k)
-        SignTrio(k, listOf(Icons.plane to stringResource(R.string.group_empty_flights), Icons.pin to stringResource(R.string.app_grp_why_meet),
-            Icons.trophy to stringResource(R.string.app_grp_why_scores)))
-        Box(Modifier.fillMaxWidth().height(1.dp).background(k.line))
-        Text(stringResource(R.string.app_g_have_code), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink)
-        val bad = state == JoinStatus.INVALID_CODE
-        CodeBoxes(code, k, bad, enabled = !checking && state != JoinStatus.RATE_LIMITED) { c -> code = c; if (bad) state = null }
-        when (state) {
-            JoinStatus.INVALID_CODE -> { Small(stringResource(R.string.app_g_bad_code), k, color = k.red); Small(stringResource(R.string.app_g_bad_code_sub), k) }
-            JoinStatus.RATE_LIMITED -> { Small(stringResource(R.string.app_g_too_many_tries), k, color = k.red); Small(stringResource(R.string.app_g_too_many_tries_sub), k) }
-            JoinStatus.GROUP_FULL -> Small(stringResource(R.string.app_g_full), k, color = k.red)
-            else -> if (code.isNotEmpty() && code.length < 6) Small(stringResource(R.string.app_g_code_letters), k)
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Title(stringResource(R.string.app_gate_title), k)
+            Small(stringResource(R.string.app_gate_sub), k)
         }
-        ErrLine(err, k)
-        // side by side, as on the board (R01; the review of part 3)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            AccButton(stringResource(if (checking) R.string.join_loading else R.string.app_g_join), k, Modifier.weight(1f), enabled = InviteCode.isCode(code) && !checking) {
-                ui.go(PLayer.Join(code))
-            }
-            SecondaryButton(stringResource(R.string.app_g_create), k, Modifier.weight(1f)) {
+        WhyRow(k, listOf(Icons.plane to stringResource(R.string.app_gate_why_flights), Icons.pin to stringResource(R.string.app_gate_why_meet),
+            Icons.trophy to stringResource(R.string.app_gate_why_scores)))
+        if (!codeMode) {
+            AccButton(stringResource(R.string.app_g_new_title), k) {
                 if (p.api.me()?.registered == true) ui.go(PLayer.NewGroup) else { ui.go(PLayer.NewGroup); ui.go(PLayer.SignIn) }
             }
+            SecondaryButton(stringResource(R.string.app_g_have_code), k) { codeMode = true }
+        } else {
+            Text(stringResource(R.string.app_gate_code_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink)
+            val bad = state == JoinStatus.INVALID_CODE
+            CodeBoxes(code, k, bad, enabled = !checking && state != JoinStatus.RATE_LIMITED) { c -> code = c; if (bad) state = null }
+            when (state) {
+                JoinStatus.INVALID_CODE -> { Small(stringResource(R.string.app_g_bad_code), k, color = k.red); Small(stringResource(R.string.app_g_bad_code_sub), k) }
+                JoinStatus.RATE_LIMITED -> { Small(stringResource(R.string.app_g_too_many_tries), k, color = k.red); Small(stringResource(R.string.app_g_too_many_tries_sub), k) }
+                JoinStatus.GROUP_FULL -> Small(stringResource(R.string.app_g_full), k, color = k.red)
+                else -> if (code.isNotEmpty() && code.length < 6) Small(stringResource(R.string.app_g_code_letters), k)
+            }
+            ErrLine(err, k)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                SecondaryButton(stringResource(R.string.app_g_back), k, Modifier.weight(1f)) { codeMode = false; code = ""; state = null; err = null }
+                AccButton(stringResource(if (checking) R.string.join_loading else R.string.app_g_join), k, Modifier.weight(1f), enabled = InviteCode.isCode(code) && !checking) {
+                    ui.go(PLayer.Join(code))
+                }
+            }
         }
-        Small(stringResource(R.string.app_g_rest_works), k)
+    }
+}
+
+/** GR1: three small pictures in a row (108 high, radius 18); not buttons. */
+@Composable
+private fun WhyRow(k: SheetInk, items: List<Pair<ImageVector, String>>) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for ((i, t) in items) Column(Modifier.weight(1f).heightIn(min = 108.dp).clip(RoundedCornerShape(18.dp)).background(k.line.copy(alpha = .5f))
+            .border(1.dp, k.line, RoundedCornerShape(18.dp)).padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Icon(i, null, Modifier.size(40.dp), tint = k.ink)
+            Spacer(Modifier.height(8.dp))
+            Text(t, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 12.5.sp, color = k.ink, textAlign = TextAlign.Center)
+        }
     }
 }
 

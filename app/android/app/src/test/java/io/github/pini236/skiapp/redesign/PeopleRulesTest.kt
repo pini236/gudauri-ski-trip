@@ -51,7 +51,7 @@ class PeopleRulesTest {
         assertEquals(GroupTab.SCORES, PeopleRules.openingTab(d(10), d(15), d(16)))
         assertEquals(GroupTab.MEETUPS, PeopleRules.openingTab(null, null, d(9)))
         assertEquals(254, PeopleRules.sheetTop(GroupTab.FLIGHTS))
-        assertEquals(292, PeopleRules.sheetTop(GroupTab.SCORES))
+        assertEquals(254, PeopleRules.sheetTop(GroupTab.SCORES))
     }
 
     @Test fun aMeetupMoreThanAnHourPastLeavesTheList() {
