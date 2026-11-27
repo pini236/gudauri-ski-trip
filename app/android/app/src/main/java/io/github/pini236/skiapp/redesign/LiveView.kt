@@ -1011,7 +1011,12 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
         val s0 = camera.state().let { it.copy(pitch = it.pitch.coerceAtLeast(LiveLimits.FRAME_PITCH)) }
         val fit = frameBox(b, s0)
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
-        val dist = (fit.dist / (bottom - top).coerceIn(.2f, 1f)).coerceIn(1400f, LiveLimits.MAX_DIST)
+        // B3 (26.11.2026): only the height limit is shrunk to the screen's free part; on a phone (narrow) the width limit
+        // decides and dividing it too moved the camera away from the run instead of closing in
+        val part = (bottom - top).coerceIn(.2f, 1f)
+        val hHalf = vf * width.toFloat().coerceAtLeast(1f) / height.coerceAtLeast(1)
+        val rBox = hypot(b[2] - b[0], b[3] - b[1]) / 2
+        val dist = maxOf(rBox / hHalf, rBox / (vf * part)).times(1.1f).coerceIn(1400f, LiveLimits.MAX_DIST)
         // the part's middle, where the box goes, in the view before the raise; up from the screen's middle by
         // (1 - 2c) of the half height: the target lowered along the screen's up
         val c = (top + bottom) / 2f + shift / height.coerceAtLeast(1)
@@ -1052,6 +1057,7 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
      * the middle at [dist]; a short glide (or a jump with reduced motion). Only when you moved more than [min] metres.
      */
     fun follow(x: Float, y: Float, dist: Float = 2600f, min: Float = 120f) {
+        if (!scene.terrain.contains(x, y)) return // never toward a point outside the model (UX part 7)
         val s = camera.state()
         if (hypot(s.tx - x, s.tz - y) < min && kotlin.math.abs(s.dist - dist) < 1f) return
         val to = front().copy(tx = x, ty = scene.terrain.elev(x, y), tz = y, dist = dist)
@@ -1063,6 +1069,7 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
      * or within [edge] px of its edge; the direction, height and distance kept; 450 ms, or a jump with reduced motion.
      */
     override fun center(x: Float, y: Float, edge: Float) {
+        if (!scene.terrain.contains(x, y)) return // never toward a point outside the model (UX part 7)
         val p = toScreen(x, y)
         if (p != null && p[0] in edge..(width - edge) && p[1] in edge..(height - edge)) return
         val to = camera.state().copy(tx = x, ty = scene.terrain.elev(x, y), tz = y)
@@ -1079,8 +1086,8 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
     /** Where north is on the screen, degrees clockwise from up (the compass's needle). */
     override fun northDeg(): Float {
         val c = camera.state()
-        val a = toScreen(c.tx, c.tz) ?: return 0f
-        val b = toScreen(c.tx, c.tz - 400f) ?: return 0f // north is up the map's y (data/Geo.kt)
+        val a = screenAt(c.tx, c.tz) ?: return 0f
+        val b = screenAt(c.tx, c.tz - 400f) ?: return 0f // north is up the map's y (data/Geo.kt)
         return Math.toDegrees(atan2((b[0] - a[0]).toDouble(), (a[1] - b[1]).toDouble())).toFloat()
     }
 
@@ -1094,8 +1101,14 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
         Qa.log("redesign live home")
     }
 
-    /** Where a place on the map (metres, [up] above the snow) is on the screen now, or null behind the camera. */
+    /**
+     * Where a place on the map (metres, [up] above the snow) is on the screen now, or null behind the camera, and null for
+     * a place outside the model: its height would be the rim's, and a far point would sit on the rim (UX part 7, bug B2).
+     */
     override fun toScreen(x: Float, y: Float, up: Float): FloatArray? =
+        if (!scene.terrain.contains(x, y)) null else screenAt(x, y, up)
+
+    private fun screenAt(x: Float, y: Float, up: Float = 0f): FloatArray? =
         if (width == 0) null else project(camera.state(), floatArrayOf(x, scene.terrain.elev(x, y) + up, y))
 
     /**

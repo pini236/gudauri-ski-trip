@@ -168,11 +168,16 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
         .border(1.dp, k.line, RoundedCornerShape(30.dp)).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (onVillage != null) {
-        val village = stringResource(R.string.app_sr_dock_village)
-        Row(Modifier.height(44.dp).hintTarget("village").clip(RoundedCornerShape(22.dp)).semantics { contentDescription = village; role = Role.Button }
-            .clickable { haptics.tick(.3f); onVillage() }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            Canvas(Modifier.size(20.dp)) { house(k.ink) }
-            Text(stringResource(R.string.app_dock_village), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 1)
+        val menu = stringResource(R.string.app_dock_menu)
+        Row(Modifier.height(44.dp).hintTarget("village").clip(RoundedCornerShape(22.dp)).background(k.ink).semantics { contentDescription = menu; role = Role.Button }
+            .clickable { haptics.tick(.3f); onVillage() }.padding(start = 13.dp, end = 15.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            val ic = if (night) Color(0xFF0F1828) else Color.White
+            Canvas(Modifier.size(19.dp)) {
+                val c = size.width / 2f - 1.5.dp.toPx(); val st = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
+                for (x in listOf(1.dp.toPx(), size.width / 2f + .5.dp.toPx())) for (y in listOf(1.dp.toPx(), size.height / 2f + .5.dp.toPx()))
+                    drawRoundRect(ic, androidx.compose.ui.geometry.Offset(x, y), androidx.compose.ui.geometry.Size(c, c), androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()), st)
+            }
+            Text(menu, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ic, maxLines = 1)
         }
         }
         val find = stringResource(R.string.app_sr_dock_find)

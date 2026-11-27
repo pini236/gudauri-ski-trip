@@ -128,6 +128,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
 
     override fun toScreen(x: Float, y: Float, up: Float): FloatArray? {
         if (w == 0f) return null
+        if (!scene.terrain.contains(x, y)) return null // a point outside the model is never drawn at the picture's edge (UX part 7)
         val s = v.project(x.toDouble(), y.toDouble(), (scene.terrain.elev(x, y) + up).toDouble())
         if (s.x < -v.w || s.x > 2 * v.w || s.y < -v.h || s.y > 2 * v.h) return null
         return onScreen(s)
@@ -266,6 +267,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
         keysBox(keys)?.let { b -> frameBox(b[0], b[1], b[2], b[3], top, bottom, shift, log) }
     }
     override fun center(x: Float, y: Float, edge: Float) {
+        if (!scene.terrain.contains(x, y)) return
         val p = toScreen(x, y)
         if (p != null && p[0] in edge..(w - edge) && p[1] in edge..(h - edge)) return
         val s = v.project(x.toDouble(), y.toDouble(), scene.terrain.elev(x, y).toDouble())
@@ -432,6 +434,8 @@ internal class PictureStage(private val context: Context, private val scene: Map
                     val kFit = PeakGeo.fit(w, h, hero)
                     val nz = (z * zoom).coerceIn(1f, MAX_Z); val k = kFit * nz
                     z = nz; cx = before.x - (centroid.x - w / 2) / k - pan.x / k; cy = before.y - (centroid.y - h / 2 + raise) / k - pan.y / k
+                    // B1 (26.11.2026): at the fit the picture does not move at all (no pan up or down); it moves only once zoomed in
+                    if (nz <= 1.001f) { z = 1f; cx = hero.w / 2; cy = hero.h / 2 }
                     settle()
                 }
             }

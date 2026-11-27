@@ -86,7 +86,7 @@ import kotlinx.coroutines.withContext
 fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (String) -> String, runName: (String) -> String,
             onSwitch: (single: Boolean) -> Unit, onStop: () -> Unit, onEnded: (java.io.File?) -> Unit,
             /** The lift's state by its name from a fresh report (open, reason), or null: no report (completion part 1, P02). */
-            liftState: (String) -> Pair<Boolean, String?>? = { null }, onBack: () -> Unit) {
+            liftState: (String) -> Pair<Boolean, String?>? = { null }, onSample: () -> Unit = {}, onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -132,6 +132,11 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
     // the day so far, read from the log every few seconds off the main thread: the descents by the analysis so far, and
     // the stretch since it, while the live view says you ski
     var last by remember { mutableStateOf<FloatArray?>(null) }
+    // UX part 7: the recording's first reading (lat, lon) and whether the last one is outside the model
+    var first by remember { mutableStateOf<Pair<Double, Double>?>(null) }
+    // whether that first reading is this recording's own (a day resumed after a cut has older ones: never asked again)
+    var firstFresh by remember { mutableStateOf(false) }
+    var lastOut by remember { mutableStateOf(false) }
     var painted by remember { mutableStateOf<DayPaint.Day?>(null) }
     // the ground's height under each point of the painted track, for the small ridge (P01)
     var ridgeElev by remember { mutableStateOf<FloatArray?>(null) }
@@ -143,9 +148,15 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
         while (true) {
             val f = DayRec.current
             if (f != null) {
+                val read = withContext(Dispatchers.Default) { runCatching { DayLog.read(f).points }.getOrNull() }.orEmpty()
+                // the first reading and the last, as they are (UX part 7: the far sheet, the pill, the follow)
+                if (first == null) read.firstOrNull()?.let { first = it.lat to it.lon; firstFresh = it.t >= DayRec.startedAt - 60_000L }
+                lastOut = read.lastOrNull()?.let { !scene.terrain.contains(Geo.x(it.lon), Geo.y(it.lat)) } ?: false
                 val built = withContext(Dispatchers.Default) {
                     runCatching {
-                        val pts = DayLog.read(f).points.map { DayPaint.Pt(it.t, Geo.x(it.lon), Geo.y(it.lat), it.speed?.let { s -> s * 3.6 }) }
+                        // only what is inside the model is painted: a point outside would land on its rim (bug B2)
+                        val pts = read.map { DayPaint.Pt(it.t, Geo.x(it.lon), Geo.y(it.lat), it.speed?.let { s -> s * 3.6 }) }
+                            .filter { scene.terrain.contains(it.x, it.y) }
                         if (pts.isEmpty()) null else {
                             val so = DayRec.sofar
                             val segs = ArrayList<DayPaint.Seg>()
@@ -157,12 +168,16 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                     }.getOrNull()
                 }
                 if (built != null) {
-                    view.showDay(built.first, night, frame = false, withRuns = true); painted = built.first; last = built.second; view.follow(built.second[0], built.second[1])
+                    view.showDay(built.first, night, frame = false, withRuns = true); painted = built.first
+                    // outside now: no dot and no follow; the mountain stays where it is until a reading comes back inside
+                    last = if (lastOut) null else built.second
+                    if (!lastOut) view.follow(built.second[0], built.second[1])
                     val tr = built.first.track
                     ridgeElev = withContext(Dispatchers.Default) { FloatArray(tr.t.size) { scene.terrain.elev(tr.x[it], tr.y[it]) } }
-                }
+                } else if (lastOut) last = null
             }
-            delay(5000)
+            // until the first reading, a look every second, so a first reading far away is answered at once (NM2)
+            delay(if (first == null) 1000 else 5000)
         }
     }
 
@@ -342,7 +357,7 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
                         if (live?.act == "ski" && !live?.runs.isNullOrEmpty()) Text(stringResource(R.string.app_rec_probably), style = small)
                     }
                     // outside the resort (board L13): the recording goes on, without run names
-                    val outside = last?.let { q -> !io.github.pini236.skiapp.dayrec.IdleWatch.inside(q[0], q[1]) } == true
+                    val outside = lastOut
                     if (outside) Text(stringResource(R.string.app_rec_outside) + " · " + stringResource(R.string.app_rec_outside_names), style = small)
                     if (weak) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFE0A21B)))
@@ -353,6 +368,15 @@ fun LiveDay(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, liftName: (S
             // hold to finish (L03): the fill grows under the finger for a second; let go before and nothing happens
             if (!onLift) HoldToFinish(scope, haptics, red, ink, glass, rule, onStop)
         }
+        // UX part 7 (NM2): the first reading is far from the mountain and "record anyway" was not chosen: the sheet rises
+        // over the search; dismissing it cancels the recording and nothing is kept
+        val fr = first
+        var farAsked by remember { mutableStateOf(false) }
+        if (fr != null && firstFresh && !farAsked && !DayRec.farOk && recording && !scene.terrain.contains(Geo.x(fr.second), Geo.y(fr.first)))
+            FarSheet(night, fr.first, fr.second,
+                onSample = { farAsked = true; DayRec.cancel(context); onSample() },
+                onAnyway = { farAsked = true; DayRec.farOk = true },
+                onDismiss = { farAsked = true; DayRec.cancel(context); onBack() })
         // "see the day" (P01 to P03): the day so far, the recording going on; back returns here
         val cur = DayRec.current
         if (seeDay != 0 && cur != null) DayMountain(cur, false, scene, mode, haptics, live = true, openRidge = seeDay == 2) { seeDay = 0 }

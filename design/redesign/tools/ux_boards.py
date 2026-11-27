@@ -218,9 +218,9 @@ def menu(state='trip', L='he'):
                  tile(P_TRK, 'My ski days', 'See a sample day'), tile(P_GOND, 'Lifts and weather', '11 of 14 open · <bdi>−7°</bdi>')]
         foot = ('Account', 'Settings', 'English')
     elif state == 'none':
-        tiles = [tile(P_PASS, 'כרטיס סקי', 'כרטיס יום · 120 ' + LARI), tile(P_PPL, 'הקבוצה שלי', 'מזמינים את החברים לטיול'),
+        tiles = [tile(P_PASS, 'כרטיס סקי', 'כרטיס יום · 120 ' + LARI), tile(P_PPL, 'הקבוצה שלי', 'הזמנת חברים לטיול'),
                  tile(P_FOOD, 'אוכל ושתייה', '%d מקומות, בכפר ועל ההר' % n), tile(P_GAME, 'משחקים', '5 משחקים · גם בלי קליטה', thumbs(['merge', 'descent', 'snowball'])),
-                 tile(P_TRK, 'הימים שלי', 'יום גלישה לדוגמה'), tile(P_GOND, 'רכבלים ומזג אוויר', 'נפתחים ב-<bdi>20.12</bdi> · עוד 24 ימים')]
+                 tile(P_TRK, 'הימים שלי', 'יום גלישה לדוגמה'), tile(P_GOND, 'רכבלים ומזג אוויר', 'נפתחים ב-<bdi>20.12</bdi>, בעוד 24 ימים')]
         foot = ('חשבון', 'הגדרות', 'עברית')
     else:
         tiles = [tile(P_PASS, 'כרטיס סקי', '4 ימים · 390 ' + LARI), tile(P_PPL, 'הקבוצה שלי', 'נפגשים 13:00 · <bdi>Goodaura</bdi>', avs(['נועה', 'איתי', 'דנה', 'יואב'])),
@@ -238,7 +238,7 @@ def menu_screen(state='trip', pre=False):
 
 
 def menu_hint():
-    text = 'כל השאר נמצא כאן: הטיסה, כרטיס הסקי, הקבוצה, אוכל, משחקים והימים שהקלטת.'
+    text = 'כאן הטיסה, כרטיס הסקי, הקבוצה, האוכל, המשחקים והימים שהקלטתם.'
     return root(True) + HN.tile() + HN.ring(274, 775, 104, 54) + HN.bubble(text, 'down', 50, 'right', step=4, right=12, bottom=844 - 763)
 
 
@@ -304,7 +304,7 @@ def skipass(days=4, child=False, trip=True):
     o += ('<div class="skp"><span class="slot"></span><span class="sk1">גודאורי · עונת <bdi>2026/27</bdi></span>'
           '<span class="sprice">%d<small>%s</small></span><span class="swho">%s · %s</span>%s%s<div class="bot">%s</div></div>'
           % (price, LARI, dl, who, '<span class="sdt"><bdi>11–14.1</bdi> · לפי הטיול שלי</span>' if trip else '',
-             ('<span class="save">חוסכים %d %s מול כרטיסי יום</span>' % (daily - price, LARI)) if daily > price else '', MTN_SIL))
+             ('<span class="save">חיסכון של %d %s לעומת כרטיסי יום</span>' % (daily - price, LARI)) if daily > price else '', MTN_SIL))
     chips = ''.join('<button class="dc %s"><b>%d</b><span>%d %s</span></button>' % ('on' if x['days'] == days else '', x['days'], x['child' if child else 'adult'], LARI)
                     for x in PRICES['passes'] if x['days'] <= 6)
     o += ('<div class="usheet glass" style="gap: 12px; padding: 10px 16px 14px"><div class="grab"></div>'
@@ -319,7 +319,7 @@ def skipass(days=4, child=False, trip=True):
 
 
 # ---------------------------------------------------------------- 6: food and drink
-HEK = {'food': 'מסעדה', 'cafe': 'קפה ובר'}
+HEK = {'food': 'אוכל', 'cafe': 'בית קפה'}
 
 
 def places():
@@ -360,9 +360,9 @@ MSHIFT = 150      # the mountain picture moves up under the list, so the pins ar
 
 def where(r):
     if r['end'] == 'slope':
-        return 'על המסלול, ליד <bdi>%s</bdi>' % r['lift']
+        return 'על המסלול, ליד הרכבל <bdi>%s</bdi>' % r['lift']
     if r in PLACES_V:
-        return '%d מ׳ מ-<bdi>%s</bdi>' % (round(r['d'] / 10) * 10, r['lift'])
+        return '%d מטר מ-<bdi>%s</bdi>' % (round(r['d'] / 10) * 10, r['lift'])
     return 'ליד התחנה %s של <bdi>%s</bdi>' % ('העליונה' if r['end'] == 'top' else 'התחתונה', r['lift'])
 
 
@@ -409,7 +409,7 @@ def food(tab='v', sel=None):
         r = rows[sel]
         o += '<div class="tag" style="left: %.0fpx; top: %.0fpx; height: 26px; border-radius: 13px; font-size: 12.5px; z-index: 3">%s</div>' % (pos[sel][0], pos[sel][1] - 38, r['name'])
     o += '<button class="bk glass" aria-label="חזרה">%s</button>' % ic(P_BACK, 20, 2)
-    seg = ('<div class="seg"><button class="%s">בכפר · %d</button><button class="%s">בשאר ההר · %d</button></div>'
+    seg = ('<div class="seg"><button class="%s">בכפר · %d</button><button class="%s">על ההר · %d</button></div>'
            % ('on' if vill else '', len(PLACES_V), '' if vill else 'on', len(PLACES_M)))
     if sel is not None:
         r = rows[sel]
@@ -448,7 +448,7 @@ def gate(code=False):
         act = ('<button class="pri" style="flex: none; display: flex; align-items: center; justify-content: center; gap: 8px">%s קבוצה חדשה</button>'
                '<button class="sec" style="height: 52px">יש לי קוד הזמנה</button>' % ic(P_PLUS, 19, 2.2))
     o += ('<div class="usheet glass" style="gap: 12px; padding: 10px 16px 16px"><div class="grab"></div>'
-          '<div><p class="ttl">נוסעים עם חברים?</p><p class="sub">קבוצה אחת לכל מי שבא לטיול</p></div>%s%s</div>' % (why, act))
+          '<div><p class="ttl">נוסעים עם חברים?</p><p class="sub">קבוצה אחת לכל החברים בטיול</p></div>%s%s</div>' % (why, act))
     return o
 
 
@@ -497,7 +497,7 @@ def games(first=False):
 # ---------------------------------------------------------------- 10: far from the mountain
 def far_card(km='1,430', rot=52):
     return ('<div class="far glass" role="status"><span class="dir"><span style="display: flex; transform: rotate(%ddeg)">%s</span></span>'
-            '<span><b>גודאורי · <bdi>%s</bdi> ק״מ מכאן</b><span>המיקום שלך יופיע כשתהיו על ההר</span></span></div>' % (rot, ic(P_NAV, 22, 2), km))
+            '<span><b>גודאורי · <bdi>%s</bdi> ק״מ מכאן</b><span>המיקום יופיע כשתהיו על ההר</span></span></div>' % (rot, ic(P_NAV, 22, 2), km))
 
 
 def far_where():
@@ -535,7 +535,7 @@ def phones():
         'SP2.dc.html': ('כרטיס סקי: ילד, יום אחד, בלי טיול', skipass(1, child=True, trip=False), 'night'),
         'FD1.dc.html': ('אוכל ושתייה: בכפר', food('v'), None),
         'FD2.dc.html': ('אוכל ושתייה: מקום אחד', food('v', sel='Ice Bar'), None),
-        'FD3.dc.html': ('אוכל ושתייה: בשאר ההר', food('m'), None),
+        'FD3.dc.html': ('אוכל ושתייה: על ההר', food('m'), None),
         'GR1.dc.html': ('הקבוצה שלי: עוד בלי קבוצה', gate(), None),
         'GR2.dc.html': ('יש לי קוד הזמנה', gate(code=True), None),
         'GR3.dc.html': ('הקבוצה נטענת: אותו מסך, בלי קפיצה', group(loading=True), None),
@@ -580,7 +580,7 @@ def ux00():
              + row('3', 'לא ברור שהכל ניתן לעריכה', '"עריכה" עם עיפרון בתוך הכרטיס, קו מקווקו מתחת לכל ערך, ונגיעה בשדה פותחת את העריכה שלו', 'TR1, TR2', 'Sonnet')
              + row('4', 'הספח: רק צליל, בלי חיתוך', 'הספח הוא חתיכת נייר נפרדת. חורים ננקבים אחד אחרי השני, הספח נקרע מצד אחד ונופל, וחוזר', 'TR3, TR4', 'Sonnet')
              + row('5', 'מחירי הסקי: יותר מדי טקסט, והמחיר על המסך לא יפה', 'הכרטיס עצמו, תלוי על שרוך, והמחיר כתוב עליו. מתחת: מבוגר או ילד, ימים, ושלוש שורות קצרות', 'SP1, SP2', 'Sonnet')
-             + row('6', '"אוכל ושתייה" לא פותח אוכל ושתייה', 'רשימה של המקומות בשמם, על תמונת הכפר, ולשונית "בשאר ההר". נגיעה במקום: ניווט', 'FD1 עד FD3', 'Sonnet')
+             + row('6', '"אוכל ושתייה" לא פותח אוכל ושתייה', 'רשימה של המקומות בשמם, על תמונת הכפר, ולשונית "על ההר". נגיעה במקום: ניווט', 'FD1 עד FD3', 'Sonnet')
              + row('7', '"החבר׳ה": ניסוח לא טוב, לא ברור מה זה', '"הקבוצה שלי". בלי קבוצה: "נוסעים עם חברים?", שלוש תמונות קטנות של מה מקבלים, ו"קבוצה חדשה" ראשון', 'GR1, GR2', 'Sonnet')
              + row('8', 'רשימת הקבוצות נטענת וקופצת', 'מציגים מיד את מה שנשמר בטלפון. בפעם הראשונה: שלד באותן מידות. הגיליון, הכותרת והלשוניות לא זזים', 'GR3, GR4', 'Sonnet')
              + row('9', '"ערב בבקתה" לא אומר שאלה משחקים', '"משחקים". מסך בשפה החדשה עם התמונות של המשחקים עצמם, והאחרון ששיחקת למעלה', 'GA1, GA2', 'Sonnet')
@@ -607,7 +607,7 @@ def ux00():
              '<div style="flex: 1; display: flex; flex-direction: column; gap: 16px"><div class="card"><h2>הכלל</h2>%s</div><div class="card"><h2>השמות</h2>%s</div></div></div>'
              '<div class="card"><h2>עשרת הסעיפים</h2>%s<p class="cap">כל חלק נמסר בנפרד, כדי שמבצע אחר יבנה אותו בסשן משלו. חלק 7 נוגע בשכבת המיקום של המודל החי ובמצלמה של יום הגלישה, ולכן הוא למבצע על Opus. '
              'חלק 1 משנה גם את סדרת הרמזים (הרמז הרביעי, ושני הרמזים שהיו בכפר עוברים לתפריט).</p></div>'
-             '<div class="card"><h2>לפיני</h2>%s<p class="cap">המקומות, המחירים והמרחקים בלוחות מהקבצים של האתר. הטיול, הקבוצה והשיאים הם דוגמה. נמדד בכלי העיצוב, לא בטלפון. '
+             '<div class="card"><h2>לפיני</h2>%s<p class="cap">הניסוח בלוחות אחרי ההערות של סשן התוכן. המקומות, המחירים והמרחקים בלוחות מהקבצים של האתר. הטיול, הקבוצה והשיאים הם דוגמה. נמדד בכלי העיצוב, לא בטלפון. '
              'המסירה: <span dir="ltr">design/handoff/2026-11-26-redesign-ux-pass/</span></p></div>'
              % (causes, rule, names, items, asks))
     wb('UX00-Diagnosis.dc.html', 'מעבר חוויית משתמש: האבחון וההמלצה', 1280, HB, inner)
@@ -635,7 +635,8 @@ def write_canvas(cj):
         j['boards'][fn] = dict(x=x, y=y_, w=w, h=h, title='%s (%s)' % (t, code), page=PAGE)
         j['order'].append(fn)
     if not any(pg['id'] == PAGE for pg in j['pages']):
-        j['pages'].insert(0, dict(id=PAGE, name='מעבר חוויית משתמש (26.11)'))
+        j['pages'].insert(0, dict(id=PAGE, name=''))
+    [pg for pg in j['pages'] if pg['id'] == PAGE][0]['name'] = 'מעבר חוויית משתמש (26.11)'
     j['notes']['uxt'] = dict(kind='title1', maxW=1600, page=PAGE, x=0, y=-300, text='מעבר חוויית משתמש: איפה כל דבר, ומה הוא עושה')
     j['launch'] = dict(view='canvas', page=PAGE)
     open(cj, 'w', encoding='utf8').write(json.dumps(j, ensure_ascii=False, indent=1) + '\n')

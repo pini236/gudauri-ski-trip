@@ -18,6 +18,7 @@
 | התראה קבועה (`NotificationManager.notify`) | `dayrec/DayRecService.kt` | שרשור ההקלטה | המערכת | תקין (`notify` בטוח משכל שרשור) |
 | שעון מעורר ו-`BroadcastReceiver` של התזכורות | `meet/Reminders.kt` | `onReceive` בשרשור הראשי, `arm` ב-`Dispatchers.IO`, `set` מנגיעה | קריאה-וכתיבה של רשימות בהעדפות (`armed`, `codes`, `next_code`, `off`) | **תוקן:** כל פעולה שקוראת ואז כותבת היא `@Synchronized` על האובייקט. בלי זה, שתי כתובות הפעלה יכלו להיכנס לאותו קוד, ותזכורת אחת לא הייתה מצלצלת |
 | מיקום עצמי על המפה (`LocationListener`) | `map/WhereAmI.kt` | השרשור הראשי (`Looper.getMainLooper()`) | מצב Compose (`state`) | תקין: הכל בשרשור אחד |
+| Compass for the far card and sheet (`SensorEventListener`, rotation vector) | `redesign/Far.kt` (`rememberHeading`) | the main thread (registered with a `Handler` on the main looper) | a Compose state (the heading) | OK: one thread; registered only while the card or sheet is shown (UX part 7, 27.11.2026) |
 | ציור המפה (`GLSurfaceView.Renderer`) | `map/MapRenderer.kt`, `map/MapView.kt` | שרשור הציור | המצלמה (`@Synchronized`), שדות `@Volatile`; תגובות לשרשור הראשי עוברות ב-`post` | תקין |
 | הרשאות (`ActivityResultContract`) | `MainActivity.kt`, `map/MapScreen.kt`, `group/GroupScreen.kt` | השרשור הראשי | מצב Compose | תקין |
 | רשת: חיבור חוזר (`NetworkCallback.onAvailable`) | `server/Sync.kt` | שרשור של המערכת | `flush()`, שרק מעביר את העבודה ל-worker | תקין |

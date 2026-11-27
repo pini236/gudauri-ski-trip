@@ -3,7 +3,7 @@
 **When:** 26.11.2026, product designer (Fable). Design only, no code.
 **Status:** waiting for Pini (rule 7). Nothing here is built before he approves; five questions are in board `UX00`.
 **From:** `design/handoff/2026-11-26-pini-feedback/README.md`, section A (ten items).
-**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 84), page "מעבר חוויית משתמש (26.11)", boards `UX00`, `MN1`-`MN6`, `TR1`-`TR4`, `SP1`-`SP2`, `FD1`-`FD3`, `GR1`-`GR4`, `GA1`-`GA2`, `NM1`-`NM3`. Source: `design/redesign/tools/ux_boards.py`. Pictures of every board: `ref/`.
+**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 86), page "מעבר חוויית משתמש (26.11)", boards `UX00`, `MN1`-`MN6`, `TR1`-`TR4`, `SP1`-`SP2`, `FD1`-`FD3`, `GR1`-`GR4`, `GA1`-`GA2`, `NM1`-`NM3`. Source: `design/redesign/tools/ux_boards.py`. Pictures of every board: `ref/`.
 
 ## The diagnosis (why a fresh user is lost)
 
@@ -45,7 +45,7 @@ Shared values (colours, glass, sheet, buttons, type) are unchanged: `design/hand
 
 ## Strings
 
-All wording is the designer's proposal; the content session (`session_019k19PuDmyzecDEFv7DGcdx`) writes the final text in four languages. The list: `strings.md`. Renames of existing keys' text (not the keys): `app.home_trip` "הטיול שלי", `app.grp_title` "הקבוצה שלי", `app.cabin_title` "משחקים".
+The list: `strings.md`, updated after the content session's review (`content-review.md`, with the designer's answers at its end). The content session (`session_019k19PuDmyzecDEFv7DGcdx`) enters the final text in four languages, after Pini's approval. Renames of existing keys' text (not the keys): `app.home_trip` "הטיול שלי", `app.grp_title` "הקבוצה שלי", `app.cabin_title` "משחקים".
 
 ## Not in this round
 
