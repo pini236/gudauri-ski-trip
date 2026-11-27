@@ -25625,10 +25625,10 @@
    ]
   },
   "app.far_where_sub": {
-   "he": "המיקום יופיע כשתהיו על ההר",
-   "en": "Your location will show when you are on the mountain",
-   "ru": "Ваше местоположение появится, когда вы будете на горе",
-   "ka": "თქვენი მდებარეობა გამოჩნდება, როცა მთაზე იქნებით",
+   "he": "אתם לא על ההר. המיקום יופיע כשתגיעו אליו.",
+   "en": "You are not on the mountain. Your location will show once you get there.",
+   "ru": "Вы не на горе. Ваше местоположение появится, когда вы доберётесь.",
+   "ka": "თქვენ მთაზე არ ხართ. მდებარეობა გამოჩნდება, როცა მიხვალთ.",
    "where": "app/android",
    "note": "UX pass 26-27.11.2026, approved",
    "check": [
@@ -25637,10 +25637,10 @@
    ]
   },
   "app.far_rec_sub": {
-   "he": "מקליטים גלישה כשנמצאים על ההר",
-   "en": "Recording works when you are on the mountain",
-   "ru": "Запись катания работает, когда вы на горе",
-   "ka": "ჩაწერა მუშაობს, როცა მთაზე ხართ",
+   "he": "אתם לא על ההר. הקלטת גלישה מזהה ירידות רק על ההר ועל המסלולים.",
+   "en": "You are not on the mountain. Ski recording detects runs only on the mountain and its slopes.",
+   "ru": "Вы не на горе. Запись катания распознаёт спуски только на горе и на трассах.",
+   "ka": "თქვენ მთაზე არ ხართ. ჩაწერა ამოიცნობს დაშვებებს მხოლოდ მთაზე და ტრასებზე.",
    "where": "app/android",
    "note": "UX pass 26-27.11.2026, approved",
    "check": [
