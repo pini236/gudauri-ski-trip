@@ -1610,7 +1610,9 @@ PY
       tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -q "SkiQa.*redesign" || fail "redesign: the reminder did not open the new design"; } || adb shell cmd statusbar collapse; }
   # first-run hints v2 (HN00 to HN12): the emulator build has no timer, so a tap is the next hint and back closes them all
   # (the draining ring cannot be shot). The village pair first (it opens with the village sheet), then the mountain's six.
+  # the mountain must be bare for the hints: the meeting sheet, the lifts and the season sheet closed first
   mark; qa "--es qa.redesign people:off"; sleep 1
+  mark; qa "--es qa.redesign meet:off"; waitlog "redesign meet closed" 10; qa "--es qa.redesign lifts:off"; qa "--es qa.redesign season:off"; sleep 1
   mark; qa "--es qa.redesign village"; waitlog "redesign village open" 20; sleep 1
   mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step trip" 15 && { sleep 1; shot redesign-hint-village-trip; }
   mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint step group" 10 && { sleep 1; shot redesign-hint-village-group; }
