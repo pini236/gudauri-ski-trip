@@ -78,7 +78,7 @@ import kotlinx.coroutines.delay
 
 /**
  * First-run hints, version 2 (handoff 2026-11-26-redesign-hints): one guided sequence. A dim with a hole round the target,
- * a bubble with the text, an X in a ring that drains over 13 seconds, and dots. A tap anywhere is the next hint (the tap is
+ * a bubble with the text, an X in a ring that drains over 9 seconds, and dots. A tap anywhere is the next hint (the tap is
  * consumed), the X closes all, the last one ends it. Kept on the phone only ([Hints]); nothing is measured.
  */
 internal class HintStep(val id: String, @StringRes val text: Int, val radiusDp: Float? = null)
@@ -142,7 +142,7 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
     // a control that is not on the screen (or no run in sight): the step is skipped
     LaunchedEffect(on, cur?.id, rect == null) { if (on && rect == null) { delay(900); if (on) advance() } }
     val progress = remember { Animatable(1f) }
-    val total = if (Build.VERSION.SDK_INT >= 29) am.getRecommendedTimeoutMillis(13000, AccessibilityManager.FLAG_CONTENT_TEXT or AccessibilityManager.FLAG_CONTENT_CONTROLS) else 13000
+    val total = if (Build.VERSION.SDK_INT >= 29) am.getRecommendedTimeoutMillis(9000, AccessibilityManager.FLAG_CONTENT_TEXT or AccessibilityManager.FLAG_CONTENT_CONTROLS) else 9000
     LaunchedEffect(on, step, rect != null) {
         progress.snapTo(1f)
         if (on && rect != null && !Qa.enabled && !screenReader) {
