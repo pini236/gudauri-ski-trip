@@ -451,6 +451,10 @@ Canvas version 89, same page as `DK` (now "בוחרים מסלול: הכפתור
 
 **Version 2 (27.11.2026, canvas 90, `SV00` to `SV6`, `tools/sv_boards.py`):** the chosen direction with more craft. The "מסלולים" button carries a micro strip of all runs that opens into the shelf's strip; the lit chip takes the colour of what it paints; the card's big number is the chip's answer; ranks are written on the mountain; `SV4` animates a chip change. Spec: the "Version 2" section of the shelf-layers handoff.
 
+### The ticket office (P.21) and the recording mode (P.16) (27.11.2026; waiting for Pini)
+
+Canvas version 98, page "כרטיס הסקי: הקופה, ומצב ההקלטה (27.11)" (`small2711`), boards `SM00`, `SK1`-`SK2`, `RM1`-`RM4`. Source `tools/sm_boards.py`; handoff `design/handoff/2026-11-27-redesign-small-items/`.
+
 ### The top pill, P.25 (27.11.2026; waiting for Pini)
 
 Canvas version 97, page "הפס העליון: רכבלים ומזג אוויר (27.11)" (`toppill`), boards `TP00`, `TP1`-`TP7`: one pill, lifts in a filling ring and the weather, six states (in season, wind, fresh snow, evening, no live data, pre-season). Source `tools/tp_boards.py`; handoff `design/handoff/2026-11-27-redesign-top-pill/`.
