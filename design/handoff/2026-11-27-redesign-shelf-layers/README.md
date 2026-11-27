@@ -53,3 +53,33 @@ The column without the button (`SL6`); "פתוחים" and "שלג חדש" are no
 ## Honestly
 
 Orders, lengths, slopes and shade on the boards are computed from `site/data`; the snow and the closed lifts (Sadzele, Firni) are examples. Drawn in the design tool, not on a phone; the motion is specified, not drawn. No contract or data change, so no architect review.
+
+## Version 2 (27.11.2026): same concept, more craft
+
+**Why:** the manager relayed Pini's answers: the "מסלולים" button and the layers moving into the shelf (no layers button) are the chosen direction, and he asked for a more beautiful, more experiential design. Boards `SV00`, `SV1` to `SV6` (canvas version 90), source `design/redesign/tools/sv_boards.py`. **Version 2 replaces `DK2`-`DK4` and `SL1`-`SL6` as what to build; it waits for Pini's look.** Alternatives B and C of both rounds are dropped.
+
+**The bar (`SV1`, `SV2`):** height 64, radius 32, padding 0 8, gap 8. "תפריט" and record are 48 high.
+- **The runs button:** fills the middle, height 48, radius 24, background `tile`, border 1 `line`, padding 16 start and 10 end. Two lines at the start: "מסלולים" (15.5 / 700) with the count beside it (12.5 / 700 `ink2`); under it, 5 lower, **the micro strip**: one mark per named run (3 wide, 5 high, radius 1.5, gap 1.5), in the run's colour, ordered green to black. At the end a 32 circle (`line`) with an up chevron (17).
+- Narrow (recording with the clock, English, large text): the circle with the chevron drops first, then the count. The word and the micro strip always stay.
+
+**Opening the shelf (350 ms):** the bar sinks and fades; the marks of the micro strip rise about 190 and grow into the shelf's ticks, each mark staying the same run (a shared element; they re-order to the shelf's saved chip on the way); the cards rise one after another, 40 ms apart; the mountain rises 120. Closing: the reverse, the ticks fall back into the button. Reduced motion: 150 ms cross-fade.
+
+**The shelf (`SV3` to `SV6`):**
+- **Strip panel:** 12 from the sides, radius 22, padding 11 / 14 / 12. First row 15.5 / 700 with the group or count in 13 / 500 `ink2` and the position at the end. Ticks 8 wide, radius 4, 3 apart (8 at a group boundary), height 12 to 30; the centre run's tick has the ring and a small pointer (5) under it toward its card.
+- **Chips:** height 38, an icon (16) and the word; six, the row scrolls and the lit chip is always fully in view. **The lit chip takes the colour of what it paints:** "בשמש עכשיו" `#FFC93A` with text `#3B2A00`; "פתוחים" `good` with white; "שלג חדש" `acc`; the three orders that do not paint by a scale (רכבל, קושי, הארוכים) stay `ink`. Lit chips get a shadow `0 6 14 rgba(10,25,45,.25)`.
+- **Card:** 232 x 172, radius 24, padding 14 / 16. At the start a panel 52 wide, full height, radius 16, the run's colour at 12%, with the run's shape (40 x 110). Beside it, top to bottom: the sign and the name (17 / 700); **the chip's answer as the big number** (42 / 300, its unit 15 / 500) with a caption under it in `acc` 12.5 / 700; a foot line 12 `ink2` with the other facts.
+
+| Chip | Big number | Caption | Foot line |
+|---|---|---|---|
+| לפי רכבל | minutes of the return lift | "חזרה ב-{lift}" | length · drop · colour |
+| לפי קושי | the steepest stretch, degrees | "הקטע התלול" | length · drop · colour |
+| הארוכים | length in km | "מקום {i} מתוך {n} באורך" | drop · steepest · colour |
+| בשמש עכשיו | share in the sun, percent | "מהמסלול בשמש עכשיו" | length · drop · colour |
+| פתוחים | "פתוח" / "סגור" (as the big word) | "{lift} עובד" / "לא עובד" | length · drop · colour |
+| שלג חדש | centimetres | "שלג חדש, לפי התחזית" | length · drop · colour |
+
+- **On a chip change** the big number rolls to its new value (digits slide 12 up, 200 ms) while the ticks move (300 ms) and the mountain repaints (200 ms). `SV4` plays the change between "לפי רכבל" and "הארוכים" in a loop.
+- **Ranks on the mountain:** on "הארוכים" the six longest runs carry a small disc with 1 to 6 (22, `ink`, a 2 `bg` ring) about a third of the way down each.
+- **Scrubbing the strip:** a drag along the ticks changes the lit run on the mountain under the finger and brings its card to the centre, with a light haptic tick per run.
+
+Everything else (what each chip orders and paints, the empty answers, what is removed) is as in the sections above.

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>בוחרים מסלול: גרסה 2</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul,.HW ol{margin:0}
+.HW ul,.HW ol{padding-inline-start:20px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:14px;border:1px solid #D9DEE4;flex:none;background:#DCE6F2}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW .sec{font-size:13px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW h1{font-size:34px;font-weight:900;line-height:1.15}
+.HW h2{font-size:23px;font-weight:700;line-height:1.25}
+.HW .lead{font-size:18px;line-height:1.55}
+.HW .cap{font-size:13.5px;line-height:1.45;color:#3C4753}
+.HW .cap b{color:#10161D;font-size:15px}
+.HW .rowx{display:flex;gap:16px;align-items:flex-start}
+.HW .fr{display:flex;flex-direction:column;gap:8px;flex:none}
+.HW .tm{font-size:22px;font-weight:300;direction:ltr;display:inline-block}
+
+@keyframes tkd{0%{stroke-dashoffset:1;opacity:1}28%{stroke-dashoffset:0;opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arc{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes glo{0%,100%{box-shadow:inset 0 0 0 0 rgba(255,255,255,0)}50%{box-shadow:inset 0 0 14px 2px rgba(255,255,255,.45)}}
+.sh{position:relative;width:48px;height:48px;border-radius:50%;background:#E5352B;border:0;padding:0;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;box-sizing:border-box;font-family:inherit;box-shadow:0 2px 6px rgba(120,20,15,.28)}
+.sh .rg{position:absolute;inset:0;overflow:visible}
+.sh .tk{stroke-dasharray:1;stroke-dashoffset:0}
+.sh.idle .tk{animation:tkd 6s ease-out infinite}
+.sh.live{animation:glo 2.4s ease-in-out infinite}
+.sh.live .tk{animation:tkd 2.4s linear infinite}
+.sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
+.sh.mid{width:56px;height:56px}
+.rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.rq .o svg{position:absolute;inset:0}
+.rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.25)}
+.rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.rq.on{padding-inline-end:12px;background:rgba(229,53,43,.12)}
+.night .rq.on{background:rgba(255,116,104,.16)}
+.rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.still .tk,.still .ar,.still.sh{animation:none!important}
+.nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
+.nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.25)}
+
+.HW .stage{display:flex;align-items:center;justify-content:center;gap:24px;height:140px;border-radius:12px}
+.HW .stage.d{background:linear-gradient(#DDE8F3,#F4F7FA)}
+.HW .stage.n{background:linear-gradient(#0B1424,#16213A)}
+.HW .stage .z{zoom:1.7}
+.HW .opt{flex:1;min-width:0}
+.HW .opt h2 .k{display:inline-flex;width:34px;height:34px;border-radius:17px;background:#10161D;color:#fff;align-items:center;justify-content:center;font-size:18px;margin-inline-end:8px}
+.HW .opt.rec{border:3px solid #6B3FD4}
+.HW .pc{font-size:14.5px;line-height:1.5}
+.HW .pc b{display:inline-block;min-width:58px}
+.HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1280px; height: 900px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">בוחרים מסלול · גרסה 2 · 27.11.2026 · הכיוון נבחר (נמסר דרך סשן המנהל) · העיצוב ממתין לפיני</p><h1>אותו רעיון, עם יותר חוויה: הכפתור נפתח אל המדף, והצ׳יפ עונה במספר גדול ובצבע</h1><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.3"><h2>מה חדש בגרסה 2</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>הכפתור נושא את הרשימה בתוכו.</b> מתחת למילה "מסלולים" יש פס זעיר של 28 קווים בצבעי המסלולים. בנגיעה הקווים האלה עולים וגדלים, והופכים לפס המסלולים של המדף. רואים מאיפה הרשימה באה. (SV1 ← SV3)</li><li><b>המספר הגדול בכרטיס הוא התשובה של הצ׳יפ.</b> לפי רכבל: כמה דקות חזרה. לפי קושי: הקטע התלול. הארוכים: האורך והמקום. בשמש: כמה אחוזים בשמש. שלג: כמה ס״מ. כשמחליפים צ׳יפ המספר מתחלף. (SV3 עד SV6)</li><li><b>הצ׳יפ הדלוק לובש את הצבע של מה שהוא צובע.</b> "בשמש עכשיו" צהוב, "שלג חדש" סגול, "פתוחים" ירוק. הצ׳יפ עצמו הוא המקרא. לכל צ׳יפ יש סמל.</li><li><b>הסדר כתוב על ההר.</b> ב"הארוכים" ששת הארוכים מקבלים מספר 1 עד 6 על המסלול עצמו. (SV4)</li><li><b>התנועה מצוירת.</b> בלוח SV4 הפסים זזים למקום ולגובה החדשים, ההר נצבע מחדש, והכרטיסים מתחלפים, בלולאה.</li><li><b>הסרגל גדל מעט:</b> גובה 64, כפתורים 48, כדי שלכפתור "מסלולים" יהיו שתי שורות.</li></ul></div><div style="flex: 1; display: flex; flex-direction: column; gap: 16px"><div class="card"><h2>התנועה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>פתיחה (350 מ״ש):</b> הסרגל שוקע; 28 הקווים של הכפתור עולים 190 נקודות ומתרחבים לפס (כל קו נשאר אותו מסלול); הכרטיסים עולים אחד אחרי השני, 40 מ״ש ביניהם; ההר עולה 120.</li><li><b>החלפת צ׳יפ (300 מ״ש):</b> כמו בגרסה 1, ועוד: המספר הגדול מתגלגל לערך החדש, והצ׳יפ מקבל את הצבע שלו.</li><li><b>גרירה על הפס:</b> המסלול הדלוק על ההר מתחלף מתחת לאצבע, עם רטט קל בכל מסלול.</li><li><b>סגירה:</b> הפוך. הקווים חוזרים לתוך הכפתור.</li><li><b>הפחתת תנועה:</b> הכל בהתמוססות של 150 מ״ש.</li></ul></div><div class="card"><h2>לפיני</h2><p class="q"><span class="qn">1</span><span><b>גרסה 2 לבנייה?</b> הכיוון כבר נבחר: כפתור "מסלולים", והשכבות בתוך המדף בלי כפתור משלהן. (ההמלצה: כן)</span></p></div></div></div><p class="cap">הסדרים, האורכים, השיפועים והצל מחושבים מהנתונים של האתר. השלג הוא דוגמה. נמדד בכלי העיצוב, לא בטלפון. המסירה: <span dir="ltr">design/handoff/2026-11-27-redesign-shelf-layers/</span>, הסעיף "Version 2".</p></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
