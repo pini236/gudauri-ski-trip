@@ -26187,6 +26187,285 @@
     "ru",
     "ka"
    ]
+  },
+  "app.tp_lifts": {
+   "he": "רכבלים",
+   "en": "Lifts",
+   "ru": "Подъёмники",
+   "ka": "საბაგიროები",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_open_of": {
+   "he": "{open} מתוך {total}",
+   "en": "{open} of {total}",
+   "ru": "{open} из {total}",
+   "ka": "{open} {total}-დან",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_open_label": {
+   "he": "רכבלים פתוחים",
+   "en": "lifts open",
+   "ru": "подъёмников открыто",
+   "ka": "საბაგირო ღიაა",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_all_open": {
+   "he": "כל הרכבלים פתוחים",
+   "en": "All lifts open",
+   "ru": "Все подъёмники открыты",
+   "ka": "ყველა საბაგირო ღიაა",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_wind": {
+   "he": {
+    "one": "רכבל אחד עצר ברוח",
+    "two": "שני רכבלים עצרו ברוח",
+    "other": "{n} רכבלים עצרו ברוח"
+   },
+   "en": {
+    "one": "1 lift stopped by wind",
+    "other": "{n} lifts stopped by wind"
+   },
+   "ru": {
+    "one": "{n} подъёмник остановлен ветром",
+    "few": "{n} подъёмника остановлены ветром",
+    "many": "{n} подъёмников остановлены ветром",
+    "other": "{n} подъёмника остановлены ветром"
+   },
+   "ka": {
+    "one": "1 საბაგირო გაჩერდა ქარის გამო",
+    "other": "{n} საბაგირო გაჩერდა ქარის გამო"
+   },
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_closed": {
+   "he": "סגורים",
+   "en": "Closed",
+   "ru": "Закрыто",
+   "ka": "დაკეტილია",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_opens_tomorrow": {
+   "he": "נפתחים מחר ב-{time}",
+   "en": "Opens tomorrow at {time}",
+   "ru": "Откроются завтра в {time}",
+   "ka": "ხვალ გაიხსნება {time}-ზე",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_no_data": {
+   "he": "אין מידע עדכני",
+   "en": "No current information",
+   "ru": "Нет свежих данных",
+   "ka": "განახლებული ინფორმაცია არ არის",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_days_to_open": {
+   "he": "ימים לפתיחה",
+   "en": "days to opening",
+   "ru": "дней до открытия",
+   "ka": "დღე გახსნამდე",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_lifts_up_on": {
+   "he": "הרכבלים עולים ב-{date}",
+   "en": "Lifts start on {date}",
+   "ru": "Подъёмники заработают {date}",
+   "ka": "საბაგიროები ამუშავდება {date}",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_fresh_snow": {
+   "he": "{n} ס״מ שלג טרי",
+   "en": "{n} cm of fresh snow",
+   "ru": "{n} см свежего снега",
+   "ka": "{n} სმ ახალი თოვლი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_gusts": {
+   "he": "משבים {n}",
+   "en": "Gusts {n}",
+   "ru": "Порывы {n}",
+   "ka": "ქარის ნაკადები {n}",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_snow_coming": {
+   "he": "שלג בדרך · {n} ס״מ",
+   "en": "Snow on the way · {n} cm",
+   "ru": "Ожидается снег · {n} см",
+   "ka": "თოვლი მოდის · {n} სმ",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_sun": {
+   "he": "שמש",
+   "en": "Sunny",
+   "ru": "Солнечно",
+   "ka": "მზიანი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_clear": {
+   "he": "בהיר",
+   "en": "Clear",
+   "ru": "Ясно",
+   "ka": "მოწმენდილი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_cloud": {
+   "he": "מעונן",
+   "en": "Cloudy",
+   "ru": "Облачно",
+   "ka": "ღრუბლიანი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_snow": {
+   "he": "שלג",
+   "en": "Snow",
+   "ru": "Снег",
+   "ka": "თოვლი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_wind": {
+   "he": "רוח",
+   "en": "Windy",
+   "ru": "Ветер",
+   "ka": "ქარიანი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_fog": {
+   "he": "ערפל",
+   "en": "Fog",
+   "ru": "Туман",
+   "ka": "ნისლი",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_c_rain": {
+   "he": "גשם",
+   "en": "Rain",
+   "ru": "Дождь",
+   "ka": "წვიმა",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_sr_lifts": {
+   "he": "{open} מתוך {total} רכבלים פתוחים",
+   "en": "{open} of {total} lifts open",
+   "ru": "Открыто {open} из {total} подъёмников",
+   "ka": "ღიაა {open} საბაგირო {total}-დან",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.tp_sr_weather": {
+   "he": "מזג האוויר, {temp}",
+   "en": "Weather, {temp}",
+   "ru": "Погода, {temp}",
+   "ka": "ამინდი, {temp}",
+   "where": "app/android",
+   "note": "top pill 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
