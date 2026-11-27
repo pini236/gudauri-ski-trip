@@ -114,9 +114,9 @@ DPCSS = """
 .H .srow .tx b{font-size:15px}.H .srow .tx span{font-size:13px;color:var(--ink2);line-height:1.35}
 .H .play{display:flex;align-items:center;justify-content:center;gap:9px;height:50px;border-radius:25px;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700}
 .H .prog{position:absolute;left:12px;right:12px;top:58px;display:flex;gap:4px}
-.H .prog i{flex:1;height:3.5px;border-radius:2px;background:rgba(255,255,255,.38)}
+.H .prog i{flex:1;height:3.5px;border-radius:2px;background:rgba(255,255,255,.38);position:relative;overflow:hidden}
+.H .prog i u{position:absolute;top:0;bottom:0;inset-inline-start:0;width:46%;background:#fff}
 .H .prog i.on{background:#fff}
-.H .prog i.half{background:linear-gradient(90deg,#fff 46%,rgba(255,255,255,.38) 46%)}
 .H .stx{position:absolute;left:12px;right:12px;bottom:18px;border-radius:26px;padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
 .H .stx .k{font-size:12.5px;font-weight:700;color:var(--ink2)}
 .H .stx b{font-size:24px;line-height:1.2}
@@ -131,12 +131,12 @@ DPCSS = """
 .H .vcard .vc{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:rgba(8,14,28,.6);color:#fff;display:flex;align-items:center;justify-content:center}
 .H .vlink{position:absolute;left:36px;right:36px;top:522px;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;font-weight:700;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45)}
 .H .stog{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.H .stile{height:56px;border-radius:18px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:700;color:var(--ink2)}
+.H .stile{height:56px;box-sizing:border-box;border-radius:18px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:700;color:var(--ink2)}
 .H .stile.on{border-color:var(--acc);color:var(--ink);background:rgba(107,63,212,.10);box-shadow:inset 0 0 0 1px var(--acc)}
 .H .night .stile.on{background:rgba(183,156,255,.14)}
 .H .stile.on svg{color:var(--acc)}
-.H .srow2{display:grid;grid-template-columns:1.25fr 1fr;gap:8px}
-.H .sbt{position:relative;overflow:hidden;height:56px;border-radius:28px;font-size:16px;font-weight:700}
+.H .srow2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.H .sbt{position:relative;overflow:hidden;height:56px;border-radius:18px;font-size:15px;font-weight:700;border:1.5px solid transparent;box-sizing:border-box}
 .H .sbt span{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;height:100%}
 .H .sbt em{font-style:normal;font-weight:500;font-size:13px;opacity:.85;font-variant-numeric:tabular-nums;direction:ltr}
 .H .sbt.pri2{background:var(--acc);color:var(--onacc)}
@@ -162,31 +162,34 @@ def backdrop(dim=True):
 
 
 # ---------------------------------------------------------------- DM: the day map with faint white runs
-def white_runs(V, mode, k=1.0):
-    """every run of the resort as a faint white line: named runs solid, unnamed pieces and connecting ways dashed;
-    on the day's snow a hairline shadow keeps the white visible, at night the white alone is enough"""
+def white_runs(V, mode, k=1.0, a=None, w=None):
+    """every run of the resort as today's faint line in its own colour, read as part of the snow (Pini, 27.11:
+    not white, not painted on top). Today in the app: colour at 32%. Proposed: a small step stronger, 45% by day and
+    40% at night, 1.2 times as wide. Unnamed pieces and connecting ways dashed and fainter. The name stays for imports."""
     zf = max(1, V['S'] / 0.128) ** 0.62; o = []
-    sh = []; wl = []
+    a = a if a is not None else (.45 if mode == 'day' else .40)
+    w = w if w is not None else 2.0
     for p in P.PISTES:
         named = p['named'] and p.get('kind') != 'ski-way'
-        for s in p['segs']:
-            x, y, vis, z, q = P.project(V, s)
+        c = HEX.get(p['color'], '#3B82F6')
+        for sg in p['segs']:
+            x, y, vis, z, q = P.project(V, sg)
             for ch in P.chunks(x, y, vis):
-                d = P.pathd(ch)
-                if mode == 'day':
-                    sh.append('<path d="%s" stroke="#1D3556" stroke-width="%.1f" opacity="%s"%s/>' % (d, 3.4 * zf * k, '.16' if named else '.08', '' if named else ' stroke-dasharray="1 5"'))
-                wl.append('<path d="%s" stroke="#FFFFFF" stroke-width="%.1f" opacity="%s"%s/>' % (
-                    d, (1.7 if named else 1.3) * zf * k, ('.92' if named else '.5') if mode == 'day' else ('.42' if named else '.26'), '' if named else ' stroke-dasharray="1 5"'))
-    return ''.join(sh + wl)
+                o.append('<path d="%s" stroke="%s" stroke-width="%.1f" opacity="%.2f"%s/>' % (
+                    P.pathd(ch), c, (w if named else w * .75) * zf * k, a if named else a * .6, '' if named else ' stroke-dasharray="2 5"'))
+    return ''.join(o)
 
 
-def daymap(mode_fixed=None, view='hero', tagged=None):
+TODAY = dict(a=.32, w=1.66)   # the app today, for the before / after board
+
+
+def daymap(mode_fixed=None, view='hero', tagged=None, before=False):
     fall = D.FIN['falls'][0]
     V = VIEW[view]
     px, py, _, _ = D.ll(V, MX['lat'], MX['lon']); fx, fy, _, _ = D.ll(V, fall['lat'], fall['lon'])
 
     def L(mode, light):
-        s = white_runs(V, mode) + D.day(V, mode, w=3.2)
+        s = (white_runs(V, mode, **TODAY) if before else white_runs(V, mode)) + D.day(V, mode, w=3.2)
         s += '<circle cx="%.1f" cy="%.1f" r="5" fill="#fff" stroke="#E0246E" stroke-width="2.4"/>' % (px, py)
         return svg(V, s)
     o = (pic('hero', 'noon', 'night') if view == 'hero' else pic('zoom', 'morning', 'night')) + both(L)
@@ -505,7 +508,7 @@ def ds_player(which='steep'):
         return s
     o = win('hero', 390, 844, cx, cy + 60, sc, f, day='noon', r=0)
     o += '<div style="position: absolute; left: 0; right: 0; top: 0; height: 140px; background: linear-gradient(180deg, rgba(6,12,24,.55), transparent)"></div>'
-    o += '<div class="prog">%s</div>' % ''.join('<i class="%s"></i>' % c for c in ('on', 'half', '', '', ''))
+    o += '<div class="prog">%s</div>' % ''.join('<i class="%s">%s</i>' % (c, '<u></u>' if c == 'half' else '') for c in ('on', 'half', '', '', ''))
     o += '<button class="xbtn" aria-label="סגירה" style="top: 70px; left: 6px; color: #fff">%s</button>' % icon(I_X, 22, 2.2)
     o += '<div style="position: absolute; right: 16px; top: 82px; color: #fff; font-size: 13px; font-weight: 700; text-shadow: 0 1px 6px rgba(0,0,0,.5)">הסיפור של היום · 2 מתוך 5</div>'
     # the steep stretch, where it is on the run
@@ -610,9 +613,9 @@ def phones():
     b = seg_i(lambda s: s['type'] == 'lift' and s['name'] == 'Sadzele')
     tx, ty = run_point(VZ, 'Tatra 1', .55)
     return {
-        'DM1.dc.html': ('היום שלי: המסלולים בקו לבן דק מאחורי היום', daymap(), 'day'),
-        'DM2.dc.html': ('בלילה', daymap(), 'night'),
-        'DM3.dc.html': ('מקרוב, ונגיעה בקו לבן מראה את השם', daymap(view='zoom', tagged=(tx, ty - 6, 'Tatra 1')), 'day'),
+        'DM1.dc.html': ('היום שלי, אחרי: הקווים העמומים של היום, מעט חזקים יותר (45%)', daymap(), 'day'),
+        'DM2.dc.html': ('אחרי, בלילה (40%)', daymap(), 'night'),
+        'DM3.dc.html': ('לפני: כמו באפליקציה היום (32%), להשוואה', daymap(before=True), 'day'),
         'DT1.dc.html': ('הרכס של היום: המספרים, הרכס, לאן הלך היום, ותחילת ציר הזמן', dt_top(), 'day'),
         'DT2.dc.html': ('בגלילה: הרכס מתכווץ לפס למעלה, וההפסקה הארוכה', dt_mid(a - 1, a + 12), 'night'),
         'DT3.dc.html': ('טקסט גדול: השמות נשברים לשורה, אף פעם לא נחתכים', dt_mid(b - 1, b + 6, k=1.3), 'day'),
@@ -641,7 +644,7 @@ def dp00():
     row = lambda *c: '<tr>%s</tr>' % ''.join('<td style="padding: 9px 10px; vertical-align: top; border-top: 1px solid #D9DEE4">%s</td>' % x for x in c)
     th = '<tr>%s</tr>' % ''.join('<th style="text-align: start; padding: 6px 10px; font-size: 13px; color: #3C4753">%s</th>' % x for x in ('', 'מה ראית', 'מה מצאתי', 'ההצעה', 'לוחות'))
     tbl = ('<table style="border-collapse: collapse; width: 100%; font-size: 15px; line-height: 1.45">' + th
-           + row('<b>1</b>', '"היום שלי": לא ברור איפה המסלולים ואיפה גלשת', 'על ההר החי כל המסלולים מוסתרים כשהיום מצויר.', 'כל המסלולים בקו לבן דק, בלי צבעים ובלי שמות, מאחורי הקו של היום. ביום צל דק מתחת ללבן, כדי שיראו אותו על השלג. רכבלים: רק אלה שעלית בהם, מקווקו. נגיעה בקו לבן מראה את השם שלו לרגע.', 'DM1 עד DM3')
+           + row('<b>1</b>', '"היום שלי": לא ברור איפה המסלולים ואיפה גלשת', 'על ההר החי כל המסלולים מוסתרים כשהיום מצויר.', '<b>תיקון (פיני, 27.11):</b> בלי קו לבן. אותם קווים עמומים בצבע המסלול שיש באפליקציה היום (32%), רק מעט חזקים: 45% ביום, 40% בלילה, ופי 1.2 ברוחב. הם נשארים חלק מהשלג. DM3 מראה את היום להשוואה.', 'DM1 עד DM3')
            + row('<b>2</b>', '"הרכס של היום": גרף ורשימת טקסט, ושם נחתך ("Goodaur")', 'המנתח יודע: רכבל עם התור לפניו, ירידה (מסלולים, עצירות, קטע מחוץ למסלולים, דקה בלי קליטה), הפסקה ארוכה, הליכה. הוא לא יודע מה עשית בהפסקה.', 'ארבעה מספרים, הרכס עם ציר גובה ושעות ופס ההפסקה, "לאן הלך היום" בפס אחד, ואז ציר זמן עם סמל לכל סוג. הירידה היא כרטיס עם פס המהירות שלה. שמות נשברים לשורה, אף פעם לא נחתכים. בגלילה הרכס מתכווץ לפס שמראה איפה אתה ביום.', 'DT1 עד DT5')
            + row('<b>3</b>', '"הסיפור של היום": כרטיס אחד שלא נוגעים בו, ומסך ריק', '<b>זה לא הנתונים.</b> המנוע נותן ליום הדוגמה 11 רגעים, ובוחר 4 לסיפור (השחור הראשון, התלול, המהיר, רעיון למחר). גם ירידה אחת נותנת 3 או 4. המסך מראה פחות: זו בעיה בבנייה, לבדוק באמולטור לפי שורת היומן "redesign day story".', 'כל רגעי הסיפור ככרטיסים שנפתחים, "עוד מהיום" עם שאר הרגעים, "לצפות בסיפור" שמנגן אותם במסך מלא על ההר, והתמונה לשיתוף בסוף. כרטיס שיורד (נפילה, מחוץ למסלולים) לא משאיר חור: הבא בתור נכנס.', 'DS1 עד DS5')
            + row('<b>4</b>', '"תמונה לשיתוף": נגיעה בעיגול הניגון מוציאה מהדף', '<b>באג.</b> העיגול רק מצויר, ונגיעה בו עוברת לשכבה שסוגרת את הדף. גם אין נגן. ו"שמירה" שומרת לגלריה בלי לומר דבר: רק אחוז, ואז כלום.', 'הכרטיס מנגן במקום, מאותן תמונות של הסרטון, עם השהיה, פס התקדמות ו"שוב" בסוף. נגיעה בכרטיס לא יוצאת אף פעם; "לראות את היום על ההר" הוא קישור נפרד. הגיליון: שני אריחים במקום המתג, בלי משפט ההסבר, וההתקדמות בתוך הכפתור שנלחץ. בסוף: וי ו"נשמר בגלריה" (נגיעה פותחת), או "לא נשמר · שוב".', 'DV1 עד DV8')

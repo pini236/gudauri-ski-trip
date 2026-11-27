@@ -92,3 +92,10 @@ A bug fix with a small spec; it can be built before the rest:
 ## Honestly
 
 Every number, time, name, moment and wording is from the sample day and the analyzer's and engine's real output. Illustrative and marked so: `DT5` (sample rows, including `Ice Bar` and `Gradus` to show the café rule) and `DS5` (a one-moment day). Drawn in the design tool, not on a phone; motion is specified, not drawn. No contract or data change.
+
+## Fixes after Pini's look (27.11.2026, canvas 99)
+
+- **The day timeline `DT1`-`DT5`: approved** (Pini: "פגז, אני מאשר"). Strings go to content now.
+- **The day map `DM`: no white lines.** Keep today's faint run lines in each run's colour (today 32%), only a small step stronger: 45% by day, 40% at night, 1.2 times the width; unnamed pieces and connecting ways dashed at 60% of that. They stay tone-on-snow. `DM1` day, `DM2` night, `DM3` today for comparison. The same lines are used in every mountain window (story, my days, records).
+- **The story progress bars `DS`:** they follow the layout direction, never a fixed left-to-right. Hebrew: the first segment on the right, each bar fills right to left; English, Russian, Georgian: the reverse. Build with the layout direction (`inset-inline-start`, `LayoutDirection` in Compose), not a hardcoded start.
+- **The share sheet `DV`: one button system.** All four buttons (the two tiles and share/save) are 56 high, radius 18, border 1.5 (transparent on the filled ones), in a two-column grid of equal width with gap 8, so the edges line up.

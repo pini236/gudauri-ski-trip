@@ -50,3 +50,7 @@ One Sonnet session: the run sheet file of the redesign and the profile drawing (
 ## Honestly
 
 The profile, length, drop, heights and steepest stretch of Tatra 2 are from `site/data`; the videos are from the real list; the temperatures are examples. Drawn in the design tool, not on a phone; motion is specified, not drawn. No contract or data change.
+
+## During the flight (Pini's question, 27.11.2026; board `RK6`, canvas 99)
+
+"טיסה מעל המסלול" does not keep the big card on screen (`RK4` was that, now replaced). On the tap the card slides down into a 76 strip, 18 from the sides and 28 from the bottom: the sign and the run name, a progress bar (6, `acc` fill from the start side, a 14 dot at the camera's place), and a 52 round stop button (`ink`). The camera flies down the run on the mountain, which gets the whole screen; a dot with a soft ring rides the run. Stop or the end of the run brings the full card back where it was (300 ms). The neighbours and the page dots hide during the flight. Reduced motion: no camera flight, the card stays.

@@ -160,13 +160,39 @@ def screen(L='he', state='peek', playing=False):
     return b
 
 
+FCSS = """
+.H .rfly{position:absolute;left:18px;right:18px;bottom:28px;height:76px;border-radius:24px;display:flex;align-items:center;gap:12px;padding:0 10px 0 14px;box-sizing:border-box}
+.H [dir=rtl] .rfly{padding:0 14px 0 10px}
+.H .rfly .w{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.H .rfly .w b{font-size:16px;font-weight:700;direction:ltr;text-align:start;display:flex;align-items:center;gap:8px}
+.H .rfly .bar{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.H .rfly .bar i{position:absolute;top:0;bottom:0;inset-inline-start:0;border-radius:3px;background:var(--acc)}
+.H .rfly .bar u{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--acc);border:3px solid #fff;transform:translate(50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.H .rfly .stp{width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;flex:none}
+.H .fdot{position:absolute;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:var(--acc);border:3px solid #fff;box-shadow:0 0 0 6px rgba(107,63,212,.25),0 2px 8px rgba(0,0,0,.35)}
+"""
+G4.MB.CSS = G4.MB.CSS + FCSS
+
+
+def flying(at=.42):
+    """RK6: during "טיסה מעל המסלול" the card steps aside: a 76 strip with the name, the progress and a stop button;
+    the camera flies down the run on the mountain, which gets the whole screen. Stop, or the end, brings the card back."""
+    b = mount()
+    R = P.run_path(VH, RUN); x, y = P.at(R, R['cum'][-1] * at)[:2]
+    b += '<span class="fdot" style="left: %.0fpx; top: %.0fpx"></span>' % (x, y + T0)
+    b += ('<div class="rfly glass"><span class="w"><b>%s<span>%s</span></b><span class="bar"><i style="width: %d%%"></i><u style="inset-inline-end: %d%%; right: auto"></u></span></span>'
+          '<button class="stp" aria-label="עצירה">%s</button></div>' % (sign(RUN), RUN, at * 100, 100 - at * 100, ic(P_PAUSE, 22, 2.6)))
+    return b
+
+
 def phones():
     return {
         'RK1.dc.html': ('כרטיס המסלול: צף, עם השכנים מציצים והנקודות מתחתיו', screen(), None),
         'RK2.dc.html': ('הכרטיס פתוח: התנאים והסרטונים', screen(state='open'), None),
         'RK3.dc.html': ('בלילה', screen(), 'night'),
-        'RK4.dc.html': ('בזמן הטיסה מעל המסלול: הנקודה יורדת על הפרופיל', screen(playing=True), None),
+        'RK4.dc.html': ('קודם: בזמן הטיסה הכרטיס נשאר גדול (הוחלף ב-RK6)', screen(playing=True), None),
         'RK5.dc.html': ('The run card in English', screen('en'), 'day', 'en'),
+        'RK6.dc.html': ('בזמן הטיסה: הכרטיס יורד לפס קטן, וההר מקבל את כל המסך', flying(), None),
     }
 
 
@@ -205,7 +231,7 @@ def rc00():
     wb('RK00-RunCard.dc.html', 'כרטיס המסלול', 1280, HB, inner)
 
 
-FILES = ['RK00-RunCard.dc.html'] + ['RK%d.dc.html' % i for i in range(1, 6)]
+FILES = ['RK00-RunCard.dc.html'] + ['RK%d.dc.html' % i for i in range(1, 7)]
 
 
 def write_canvas(cj):

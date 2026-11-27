@@ -3106,230 +3106,6 @@
    "title": "גרסה 2: \"שלג חדש\" (SV6)",
    "page": "dock"
   },
-  "RK00-RunCard.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1280,
-   "h": 1240,
-   "title": "חמש ההערות, ההצעה והשאלות (RK00)",
-   "page": "runcard"
-  },
-  "RK1.dc.html": {
-   "x": 0,
-   "y": 1380,
-   "w": 390,
-   "h": 844,
-   "title": "כרטיס המסלול: צף, עם השכנים מציצים והנקודות מתחתיו (RK1)",
-   "page": "runcard"
-  },
-  "RK2.dc.html": {
-   "x": 470,
-   "y": 1380,
-   "w": 390,
-   "h": 844,
-   "title": "הכרטיס פתוח: התנאים והסרטונים (RK2)",
-   "page": "runcard"
-  },
-  "RK3.dc.html": {
-   "x": 940,
-   "y": 1380,
-   "w": 390,
-   "h": 844,
-   "title": "בלילה (RK3)",
-   "page": "runcard"
-  },
-  "RK4.dc.html": {
-   "x": 1410,
-   "y": 1380,
-   "w": 390,
-   "h": 844,
-   "title": "בזמן הטיסה מעל המסלול: הנקודה יורדת על הפרופיל (RK4)",
-   "page": "runcard"
-  },
-  "RK5.dc.html": {
-   "x": 1880,
-   "y": 1380,
-   "w": 390,
-   "h": 844,
-   "title": "The run card in English (RK5)",
-   "page": "runcard"
-  },
-  "DP00-DayPages.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1280,
-   "h": 1320,
-   "title": "ארבעת הדברים, מה מצאתי, ההצעה והשאלות (DP00)",
-   "page": "daypages"
-  },
-  "DM1.dc.html": {
-   "x": 0,
-   "y": 1480,
-   "w": 390,
-   "h": 844,
-   "title": "היום שלי: המסלולים בקו לבן דק מאחורי היום (DM1)",
-   "page": "daypages"
-  },
-  "DM2.dc.html": {
-   "x": 470,
-   "y": 1480,
-   "w": 390,
-   "h": 844,
-   "title": "בלילה (DM2)",
-   "page": "daypages"
-  },
-  "DM3.dc.html": {
-   "x": 940,
-   "y": 1480,
-   "w": 390,
-   "h": 844,
-   "title": "מקרוב, ונגיעה בקו לבן מראה את השם (DM3)",
-   "page": "daypages"
-  },
-  "DT1.dc.html": {
-   "x": 0,
-   "y": 2524,
-   "w": 390,
-   "h": 844,
-   "title": "הרכס של היום: המספרים, הרכס, לאן הלך היום, ותחילת ציר הזמן (DT1)",
-   "page": "daypages"
-  },
-  "DT2.dc.html": {
-   "x": 470,
-   "y": 2524,
-   "w": 390,
-   "h": 844,
-   "title": "בגלילה: הרכס מתכווץ לפס למעלה, וההפסקה הארוכה (DT2)",
-   "page": "daypages"
-  },
-  "DT3.dc.html": {
-   "x": 940,
-   "y": 2524,
-   "w": 390,
-   "h": 844,
-   "title": "טקסט גדול: השמות נשברים לשורה, אף פעם לא נחתכים (DT3)",
-   "page": "daypages"
-  },
-  "DT4.dc.html": {
-   "x": 1410,
-   "y": 2524,
-   "w": 390,
-   "h": 844,
-   "title": "The ridge of the day in English (DT4)",
-   "page": "daypages"
-  },
-  "DT5.dc.html": {
-   "x": 1880,
-   "y": 2524,
-   "w": 390,
-   "h": 844,
-   "title": "כל סוגי השורות, והכלל של בית הקפה (DT5)",
-   "page": "daypages"
-  },
-  "DS1.dc.html": {
-   "x": 0,
-   "y": 3568,
-   "w": 390,
-   "h": 844,
-   "title": "הסיפור של היום: כל הרגעים, כל כרטיס נפתח (DS1)",
-   "page": "daypages"
-  },
-  "DS2.dc.html": {
-   "x": 470,
-   "y": 3568,
-   "w": 390,
-   "h": 844,
-   "title": "רגע פתוח: ההר מקרוב על המקום, והמילים בכרטיס (DS2)",
-   "page": "daypages"
-  },
-  "DS3.dc.html": {
-   "x": 940,
-   "y": 3568,
-   "w": 390,
-   "h": 844,
-   "title": "הסוף: התמונה של היום (DS3)",
-   "page": "daypages"
-  },
-  "DS4.dc.html": {
-   "x": 1410,
-   "y": 3568,
-   "w": 390,
-   "h": 844,
-   "title": "גלילה לסוף הרשימה: עוד מהיום, והתמונה (DS4)",
-   "page": "daypages"
-  },
-  "DS5.dc.html": {
-   "x": 1880,
-   "y": 3568,
-   "w": 390,
-   "h": 844,
-   "title": "יום עם רגע אחד: כרטיס גדול, היום והתמונה (DS5)",
-   "page": "daypages"
-  },
-  "DV1.dc.html": {
-   "x": 0,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "הסרטון מתנגן בתוך הכרטיס (DV1)",
-   "page": "daypages"
-  },
-  "DV2.dc.html": {
-   "x": 470,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "נגמר: שוב, וקישור מפורש להר (DV2)",
-   "page": "daypages"
-  },
-  "DV3.dc.html": {
-   "x": 940,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מתמלא (DV3)",
-   "page": "daypages"
-  },
-  "DV4.dc.html": {
-   "x": 1410,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "תמונה: הדף בלי משפט ההסבר (DV4)",
-   "page": "daypages"
-  },
-  "DV5.dc.html": {
-   "x": 1880,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "שמירת סרטון: ההתקדמות בתוך הכפתור (DV5)",
-   "page": "daypages"
-  },
-  "DV6.dc.html": {
-   "x": 2350,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "נשמר: וי ו\"נשמר בגלריה\"; נגיעה פותחת (DV6)",
-   "page": "daypages"
-  },
-  "DV7.dc.html": {
-   "x": 2820,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "לא נשמר: אותו כפתור מנסה שוב (DV7)",
-   "page": "daypages"
-  },
-  "DV8.dc.html": {
-   "x": 3290,
-   "y": 4612,
-   "w": 390,
-   "h": 844,
-   "title": "The share sheet in English, saved (DV8)",
-   "page": "daypages"
-  },
   "SW00-V3.dc.html": {
    "x": 0,
    "y": 8012,
@@ -3385,86 +3161,6 @@
    "h": 844,
    "title": "גרסה 3, א, בתנועה: הכפתור נפתח אל המדף של גרסה 2 (SW6)",
    "page": "dock"
-  },
-  "MY00-MyDays.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1280,
-   "h": 1040,
-   "title": "P.23 ו-P.24: מה ראית, ההצעה והשאלות (MY00)",
-   "page": "mydays"
-  },
-  "NS1.dc.html": {
-   "x": 0,
-   "y": 1200,
-   "w": 390,
-   "h": 844,
-   "title": "לא נרשמה גלישה · מחוץ לגודאורי, ביום (NS1)",
-   "page": "mydays"
-  },
-  "NS2.dc.html": {
-   "x": 470,
-   "y": 1200,
-   "w": 390,
-   "h": 844,
-   "title": "לא נרשמה גלישה · בגודאורי, עלה ברכבל וירד בו (NS2)",
-   "page": "mydays"
-  },
-  "NS3.dc.html": {
-   "x": 940,
-   "y": 1200,
-   "w": 390,
-   "h": 844,
-   "title": "לא נרשמה גלישה · בלילה, בלי מיקום (NS3)",
-   "page": "mydays"
-  },
-  "MY1.dc.html": {
-   "x": 0,
-   "y": 2244,
-   "w": 390,
-   "h": 844,
-   "title": "ימי הגלישה שלי · הטיול (MY1)",
-   "page": "mydays"
-  },
-  "MY2.dc.html": {
-   "x": 470,
-   "y": 2244,
-   "w": 390,
-   "h": 844,
-   "title": "ימי הגלישה שלי · סוף הרשימה והיום לדוגמה (MY2)",
-   "page": "mydays"
-  },
-  "MY3.dc.html": {
-   "x": 940,
-   "y": 2244,
-   "w": 390,
-   "h": 844,
-   "title": "ימי הגלישה שלי · לפני היום הראשון (MY3)",
-   "page": "mydays"
-  },
-  "RS1.dc.html": {
-   "x": 0,
-   "y": 3288,
-   "w": 390,
-   "h": 844,
-   "title": "השיאים שלך (RS1)",
-   "page": "mydays"
-  },
-  "RS2.dc.html": {
-   "x": 470,
-   "y": 3288,
-   "w": 390,
-   "h": 844,
-   "title": "השיאים שלך · בלילה (RS2)",
-   "page": "mydays"
-  },
-  "RS3.dc.html": {
-   "x": 940,
-   "y": 3288,
-   "w": 390,
-   "h": 844,
-   "title": "השיאים שלך · עוד אין (RS3)",
-   "page": "mydays"
   },
   "TP00-TopPill.dc.html": {
    "x": 0,
@@ -3585,6 +3281,318 @@
    "h": 844,
    "title": "P.16 · \"ירידה אחת\" בלילה, בזמן ההקלטה (RM4)",
    "page": "small2711"
+  },
+  "RK00-RunCard.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1240,
+   "title": "חמש ההערות, ההצעה והשאלות (RK00)",
+   "page": "runcard"
+  },
+  "RK1.dc.html": {
+   "x": 0,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "כרטיס המסלול: צף, עם השכנים מציצים והנקודות מתחתיו (RK1)",
+   "page": "runcard"
+  },
+  "RK2.dc.html": {
+   "x": 470,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "הכרטיס פתוח: התנאים והסרטונים (RK2)",
+   "page": "runcard"
+  },
+  "RK3.dc.html": {
+   "x": 940,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "בלילה (RK3)",
+   "page": "runcard"
+  },
+  "RK4.dc.html": {
+   "x": 1410,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "קודם: בזמן הטיסה הכרטיס נשאר גדול (הוחלף ב-RK6) (RK4)",
+   "page": "runcard"
+  },
+  "RK5.dc.html": {
+   "x": 1880,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "The run card in English (RK5)",
+   "page": "runcard"
+  },
+  "RK6.dc.html": {
+   "x": 2350,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "בזמן הטיסה: הכרטיס יורד לפס קטן, וההר מקבל את כל המסך (RK6)",
+   "page": "runcard"
+  },
+  "DP00-DayPages.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1320,
+   "title": "ארבעת הדברים, מה מצאתי, ההצעה והשאלות (DP00)",
+   "page": "daypages"
+  },
+  "DM1.dc.html": {
+   "x": 0,
+   "y": 1480,
+   "w": 390,
+   "h": 844,
+   "title": "היום שלי, אחרי: הקווים העמומים של היום, מעט חזקים יותר (45%) (DM1)",
+   "page": "daypages"
+  },
+  "DM2.dc.html": {
+   "x": 470,
+   "y": 1480,
+   "w": 390,
+   "h": 844,
+   "title": "אחרי, בלילה (40%) (DM2)",
+   "page": "daypages"
+  },
+  "DM3.dc.html": {
+   "x": 940,
+   "y": 1480,
+   "w": 390,
+   "h": 844,
+   "title": "לפני: כמו באפליקציה היום (32%), להשוואה (DM3)",
+   "page": "daypages"
+  },
+  "DT1.dc.html": {
+   "x": 0,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "הרכס של היום: המספרים, הרכס, לאן הלך היום, ותחילת ציר הזמן · אושר (DT1)",
+   "page": "daypages"
+  },
+  "DT2.dc.html": {
+   "x": 470,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "בגלילה: הרכס מתכווץ לפס למעלה, וההפסקה הארוכה · אושר (DT2)",
+   "page": "daypages"
+  },
+  "DT3.dc.html": {
+   "x": 940,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "טקסט גדול: השמות נשברים לשורה, אף פעם לא נחתכים · אושר (DT3)",
+   "page": "daypages"
+  },
+  "DT4.dc.html": {
+   "x": 1410,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "The ridge of the day in English · אושר (DT4)",
+   "page": "daypages"
+  },
+  "DT5.dc.html": {
+   "x": 1880,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "כל סוגי השורות, והכלל של בית הקפה · אושר (DT5)",
+   "page": "daypages"
+  },
+  "DS1.dc.html": {
+   "x": 0,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "הסיפור של היום: כל הרגעים, כל כרטיס נפתח (DS1)",
+   "page": "daypages"
+  },
+  "DS2.dc.html": {
+   "x": 470,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "רגע פתוח: ההר מקרוב על המקום, והמילים בכרטיס (DS2)",
+   "page": "daypages"
+  },
+  "DS3.dc.html": {
+   "x": 940,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "הסוף: התמונה של היום (DS3)",
+   "page": "daypages"
+  },
+  "DS4.dc.html": {
+   "x": 1410,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "גלילה לסוף הרשימה: עוד מהיום, והתמונה (DS4)",
+   "page": "daypages"
+  },
+  "DS5.dc.html": {
+   "x": 1880,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "יום עם רגע אחד: כרטיס גדול, היום והתמונה (DS5)",
+   "page": "daypages"
+  },
+  "DV1.dc.html": {
+   "x": 0,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "הסרטון מתנגן בתוך הכרטיס (DV1)",
+   "page": "daypages"
+  },
+  "DV2.dc.html": {
+   "x": 470,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "נגמר: שוב, וקישור מפורש להר (DV2)",
+   "page": "daypages"
+  },
+  "DV3.dc.html": {
+   "x": 940,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מתמלא (DV3)",
+   "page": "daypages"
+  },
+  "DV4.dc.html": {
+   "x": 1410,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "תמונה: הדף בלי משפט ההסבר (DV4)",
+   "page": "daypages"
+  },
+  "DV5.dc.html": {
+   "x": 1880,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "שמירת סרטון: ההתקדמות בתוך הכפתור (DV5)",
+   "page": "daypages"
+  },
+  "DV6.dc.html": {
+   "x": 2350,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "נשמר: וי ו\"נשמר בגלריה\"; נגיעה פותחת (DV6)",
+   "page": "daypages"
+  },
+  "DV7.dc.html": {
+   "x": 2820,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "לא נשמר: אותו כפתור מנסה שוב (DV7)",
+   "page": "daypages"
+  },
+  "DV8.dc.html": {
+   "x": 3290,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "The share sheet in English, saved (DV8)",
+   "page": "daypages"
+  },
+  "MY00-MyDays.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1040,
+   "title": "P.23 ו-P.24: מה ראית, ההצעה והשאלות (MY00)",
+   "page": "mydays"
+  },
+  "NS1.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · מחוץ לגודאורי, ביום (NS1)",
+   "page": "mydays"
+  },
+  "NS2.dc.html": {
+   "x": 470,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · בגודאורי, עלה ברכבל וירד בו (NS2)",
+   "page": "mydays"
+  },
+  "NS3.dc.html": {
+   "x": 940,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · בלילה, בלי מיקום (NS3)",
+   "page": "mydays"
+  },
+  "MY1.dc.html": {
+   "x": 0,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · הטיול (MY1)",
+   "page": "mydays"
+  },
+  "MY2.dc.html": {
+   "x": 470,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · סוף הרשימה והיום לדוגמה (MY2)",
+   "page": "mydays"
+  },
+  "MY3.dc.html": {
+   "x": 940,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · לפני היום הראשון (MY3)",
+   "page": "mydays"
+  },
+  "RS1.dc.html": {
+   "x": 0,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך (RS1)",
+   "page": "mydays"
+  },
+  "RS2.dc.html": {
+   "x": 470,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך · בלילה (RS2)",
+   "page": "mydays"
+  },
+  "RS3.dc.html": {
+   "x": 940,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך · עוד אין (RS3)",
+   "page": "mydays"
   }
  },
  "createdOnFiles": {
@@ -3594,7 +3602,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "small2711"
+  "page": "mydays"
  },
  "notes": {
   "tA": {
@@ -4755,12 +4763,35 @@
   "SV4.dc.html",
   "SV5.dc.html",
   "SV6.dc.html",
+  "SW00-V3.dc.html",
+  "SW1.dc.html",
+  "SW2.dc.html",
+  "SW3.dc.html",
+  "SW4.dc.html",
+  "SW5.dc.html",
+  "SW6.dc.html",
+  "TP00-TopPill.dc.html",
+  "TP1.dc.html",
+  "TP2.dc.html",
+  "TP3.dc.html",
+  "TP4.dc.html",
+  "TP5.dc.html",
+  "TP6.dc.html",
+  "TP7.dc.html",
+  "SM00-Small.dc.html",
+  "SK1.dc.html",
+  "SK2.dc.html",
+  "RM1.dc.html",
+  "RM2.dc.html",
+  "RM3.dc.html",
+  "RM4.dc.html",
   "RK00-RunCard.dc.html",
   "RK1.dc.html",
   "RK2.dc.html",
   "RK3.dc.html",
   "RK4.dc.html",
   "RK5.dc.html",
+  "RK6.dc.html",
   "DP00-DayPages.dc.html",
   "DM1.dc.html",
   "DM2.dc.html",
@@ -4783,13 +4814,6 @@
   "DV6.dc.html",
   "DV7.dc.html",
   "DV8.dc.html",
-  "SW00-V3.dc.html",
-  "SW1.dc.html",
-  "SW2.dc.html",
-  "SW3.dc.html",
-  "SW4.dc.html",
-  "SW5.dc.html",
-  "SW6.dc.html",
   "MY00-MyDays.dc.html",
   "NS1.dc.html",
   "NS2.dc.html",
@@ -4799,22 +4823,7 @@
   "MY3.dc.html",
   "RS1.dc.html",
   "RS2.dc.html",
-  "RS3.dc.html",
-  "TP00-TopPill.dc.html",
-  "TP1.dc.html",
-  "TP2.dc.html",
-  "TP3.dc.html",
-  "TP4.dc.html",
-  "TP5.dc.html",
-  "TP6.dc.html",
-  "TP7.dc.html",
-  "SM00-Small.dc.html",
-  "SK1.dc.html",
-  "SK2.dc.html",
-  "RM1.dc.html",
-  "RM2.dc.html",
-  "RM3.dc.html",
-  "RM4.dc.html"
+  "RS3.dc.html"
  ],
  "pages": [
   {
