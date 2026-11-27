@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -101,6 +102,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     var making by remember { mutableStateOf<Float?>(null) }
     var made by remember { mutableStateOf<File?>(null) }
     var failed by remember { mutableStateOf(false) }
+    var playing by remember { mutableStateOf<File?>(null) }
     LaunchedEffect(story) {
         // the board's picture (L11); the moment kind for the measure still comes from the store's picture's rules
         pic = withContext(Dispatchers.Default) {
@@ -155,9 +157,23 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 8.dp + 48.dp + 16.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally) {
             pic?.first?.let { b ->
-                Box(Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+                // a tap on the card never reaches the dismiss layer; in video mode it plays the video inside the card
+                Box(Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp))
+                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                        if (video && playing == null) withVideo { f -> playing = f }
+                    }, contentAlignment = Alignment.Center) {
                     Image(b.asImageBitmap(), null, Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth)
-                    if (video) androidx.compose.foundation.Canvas(Modifier.size(64.dp)) {
+                    playing?.takeIf { video }?.let { f ->
+                        AndroidView(factory = { c ->
+                            android.widget.VideoView(c).apply {
+                                setVideoPath(f.absolutePath)
+                                setOnCompletionListener { playing = null }
+                                setOnErrorListener { _, _, _ -> playing = null; true }
+                                start()
+                            }
+                        }, modifier = Modifier.matchParentSize())
+                    }
+                    if (video && playing == null) androidx.compose.foundation.Canvas(Modifier.size(64.dp)) {
                         drawCircle(Color(0x99080E1C))
                         val r = size.minDimension / 2
                         drawPath(androidx.compose.ui.graphics.Path().apply {
@@ -176,7 +192,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                 for ((on, key) in listOf(false to R.string.app_share_photo, true to R.string.app_share_video)) {
                     val sel = video == on
                     Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
-                        .clickable(role = Role.Button) { haptics.tick(.2f); video = on; Qa.log("redesign share ${if (on) "video" else "photo"}") }.padding(vertical = 10.dp),
+                        .clickable(role = Role.Button) { haptics.tick(.2f); video = on; if (!on) playing = null; Qa.log("redesign share ${if (on) "video" else "photo"}") }.padding(vertical = 10.dp),
                         fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
                 }
             }
