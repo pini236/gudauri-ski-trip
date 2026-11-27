@@ -755,7 +755,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val kk = chosen
             last?.let { r -> if (d0 != null && kk != null) RunSheets(kk, r, d0, g, scene, around?.videos.orEmpty(), night, haptics, runFull, onFull = { runFull = it },
                 onPick = { nk -> view.pickKey(nk); Qa.log("redesign run swipe $nk") }, onClose = { runFull = false; chosen = null; view.choose(null) },
-                onRide = { riding = kk; Qa.log("redesign ride $kk") }) }
+                onRide = {
+                    // reduced motion: no flight, the card stays and the run is framed above it (RK6)
+                    if (io.github.pini236.skiapp.ui.Motion.reduced(context)) { view.frameRunAbove(kk, .55f); Qa.log("redesign ride reduced $kk") }
+                    else { riding = kk; Qa.log("redesign ride $kk") } }) }
         }
         // K12: the film down the chosen run, in place of its sheet; closing it goes back to the low sheet and the run's frame
         // the film needs the live model: from the picture it comes up for the film, and the picture is back after (Z05)
