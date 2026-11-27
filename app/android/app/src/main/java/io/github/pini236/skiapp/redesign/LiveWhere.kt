@@ -77,10 +77,14 @@ import kotlin.math.hypot
 internal class WhereUi(context: android.content.Context, scene: MapScene) {
     val where = WhereAmI(context.applicationContext, Locator(scene.runs, scene.terrain), scene.terrain)
     private val box = WhereRules.resortBox(scene.runs)
-    /** B2: a reading near the runs and lifts; farther, the mountain shows no dot and does not move. TODO(designer): the "not at the mountain" state. */
+    /** B2: a reading near the runs and lifts; farther, the mountain shows no dot and does not move. */
     fun near(x: Float, y: Float) = WhereRules.atResort(box, x, y)
+    /** UX part 7: outside the model or far from the runs and lifts: the far card (NM1) in place of a dot and the box. */
+    fun away(s: WhereAmI.State.Fixed) = s.fix == Locator.Fix.Outside || !near(s.x, s.y)
     /** S02 over the mountain: the first switching on ever, before the phone asks. */
     var asking by mutableStateOf(false)
+    /** UX part 7 (NM1): what the last tap found outside the model; the card shows it, the button is off again. */
+    var far by mutableStateOf<FarSeen?>(null)
     /** "Out of the area" and "no permission" keep the button lit until it is tapped (section 3). */
     val lit: Boolean get() = where.state != WhereAmI.State.Off
 }
@@ -252,7 +256,8 @@ internal fun BoxScope.WhereDot(ui: WhereUi, view: Stage) {
 internal fun BoxScope.WhereBox(ui: WhereUi, night: Boolean, onRun: (String) -> Unit, onAction: () -> Unit, below: Boolean = false) {
     val k = remember(night) { SheetInk(night) }
     val s = ui.where.state
-    val words = whereWords(s)
+    // outside: the far card says it (UX part 7), never this box
+    val words = if (s is WhereAmI.State.Fixed && ui.away(s)) null else whereWords(s)
     AnimatedVisibility(words != null, // under the lenses' chips (K08) it moves down to 150 from the top
         Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = if (below) 106.dp else 62.dp, start = 12.dp, end = 12.dp),
         enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
@@ -326,13 +331,19 @@ internal fun rememberLocate(ui: WhereUi, view: Stage): Pair<() -> Unit, () -> Un
         // the log first: a newer fix cancels this effect while the view is still moving
         Qa.log("redesign where ${whereTag(st)}")
         if (st == WhereAmI.State.Off) centred = false
-        if (!centred && st is WhereAmI.State.Fixed && st.fix != Locator.Fix.Outside && ui.near(st.x, st.y)) { centred = true; view.center(st.x, st.y, 60 * context.resources.displayMetrics.density) }
+        // outside the model or far from the runs and lifts (UX part 7, NM1; bug B2): never a dot or a centring; the card
+        // says how far, and the button goes off
+        if (st is WhereAmI.State.Fixed && ui.away(st)) {
+            ui.far = FarSeen(io.github.pini236.skiapp.data.Geo.lat(st.y), io.github.pini236.skiapp.data.Geo.lon(st.x), System.currentTimeMillis())
+            ui.where.off(quiet = true)
+        }
+        if (!centred && st is WhereAmI.State.Fixed && !ui.away(st)) { centred = true; view.center(st.x, st.y, 60 * context.resources.displayMetrics.density) }
     }
     val toggle = {
         val w = ui.where
         when {
-            w.state != WhereAmI.State.Off -> w.off()
-            w.anyPermission -> w.start()
+            w.state != WhereAmI.State.Off -> { ui.far = null; w.off() }
+            w.anyPermission -> { ui.far = null; w.start() }
             !prefs.getBoolean(ASKED, false) -> ui.asking = true
             else -> ask.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
         }
