@@ -2,8 +2,16 @@
 
 **When:** 27.11.2026, product designer (Fable). Design only, no code.
 **Status:** waiting for Pini (rule 7). Three questions in board `SL00`.
-**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 89), page "בוחרים מסלול: הכפתור, המדף והשכבות (27.11)", boards `SL00`, `SL1` to `SL8`. Source: `design/redesign/tools/sl_boards.py`. Pictures: `ref/`.
+**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 91), page "בוחרים מסלול: הכפתור, המדף והשכבות (27.11)", boards `SL00`, `SL1` to `SL8`. Source: `design/redesign/tools/sl_boards.py`. Pictures: `ref/`.
 **Read with:** `design/handoff/2026-11-27-redesign-dock-runs/README.md` (the "מסלולים" button, same page). Base spec of the shelf and the lenses: `design/handoff/2026-11-24-redesign-village-shelf-lenses/README.md`, sections 2 and 4.
+
+## The mountain is always full-screen (Pini, 27.11.2026)
+
+**The mountain fills the whole screen, edge to edge, under every sheet, shelf, card row and bar. No band of background is ever visible below it or beside it.** The cards, the strip, the chips and the bar are glass over the mountain.
+
+- When the shelf (or any sheet) opens and the ski area has to sit above it, **the view moves; the canvas does not shrink.** Live model: the camera target shifts so the ski area rises 120 (as in the shelf handoff). Picture mode: the picture is anchored at its top and scales up to about 1.14, so its bottom edge stays at or below the bottom of the screen; back to 1.0 when the shelf closes (300 ms, with the shelf).
+- This holds for every screen of the redesign: the menu, the trip, the ski pass, food and drink, the group, the games.
+- The first upload of boards `SL1`-`SL5` and `SV3`-`SV6` showed a pale band under the cards; that was a fault of the drawing, fixed in canvas version 91.
 
 ## Pini's three notes are one problem
 

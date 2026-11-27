@@ -167,14 +167,21 @@ def paint(kind, shelf=True):
     return fn
 
 
+def stage(inner):
+    """the mountain always fills the screen: under the shelf the view rises 120 and comes a little closer, so the
+    picture reaches the bottom edge behind the cards (never a band of background)"""
+    return ('<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform-origin: 50%% %dpx; transform: scale(%.4f)">%s</div>'
+            % (T0, (844 - T0) / 844, inner))
+
+
 CHIPS = [('lift', 'לפי רכבל'), ('hard', 'לפי קושי'), ('long', 'הארוכים'), ('sun', 'בשמש עכשיו'), ('open', 'פתוחים'), ('snow', 'שלג חדש')]
 
 
 def shelf(kind, six=False):
     K, G = order(kind); i = K.index(CUR)
-    b = (pic('hero', 'dawn', 'night', top=T0) if kind == 'sun' else pic('hero', top=T0)) + both(paint(kind), top=T0)
     R = P.run_path(VH, CUR); x, y = P.at(R, R['cum'][-1] * .5)[:2]
-    b += tag(x - 44, y + T0, CUR, HEX[F[CUR]['color']])
+    b = stage((pic('hero', 'dawn', 'night', top=T0) if kind == 'sun' else pic('hero', top=T0)) + both(paint(kind), top=T0)
+              + tag(x - 44, y + T0, CUR, HEX[F[CUR]['color']]))
     b += top()
     ch = CHIPS if six else CHIPS[:4]
     show = ch[2:] if six and kind in ('open', 'snow') else ch[:4]
