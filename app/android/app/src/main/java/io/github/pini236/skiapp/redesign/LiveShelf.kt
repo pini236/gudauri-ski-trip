@@ -53,7 +53,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalConfiguration
@@ -154,23 +157,25 @@ internal fun shelfBack(r: ShelfRun): String = when {
 }
 
 /**
- * The bottom bar (design/handoff/2026-11-23-redesign-on-mountain, section 1): 10 from the sides, 12 from the bottom,
- * 60 high, radius 30, an opaque surface on Android; from the start: "the village", "where to?", the record button.
+ * The bottom bar (design/handoff/2026-11-27-redesign-run-button-v4, "The bar"): 10 from the sides, 12 from the bottom,
+ * 64 high, radius 32, an opaque surface on Android; from the start: "the menu", the "מסלולים" button (A, the window, in the
+ * middle), the record button. The menu and record are 48 high. [runsHidden]: the opening's surface is drawn in the button's place.
  */
 @Composable
-internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> Unit)?, onFind: () -> Unit, onRecord: (() -> Unit)?) {
+internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> Unit)?, onFind: () -> Unit, onRecord: (() -> Unit)?,
+                           runs: RunsFace, flight: RunsFlight, runsHidden: Boolean) {
     val k = remember(night) { SheetInk(night) }
     // on a tablet 420 wide at the start side, the map's buttons above it (part 8)
     val tab = isTabletUi()
     Row((if (tab) Modifier.align(Alignment.BottomStart).width(TabletUi.DOCK.dp) else Modifier.align(Alignment.BottomCenter).fillMaxWidth())
-        .navigationBarsPadding().padding(start = if (tab) 12.dp else 10.dp, end = 10.dp, bottom = 12.dp).height(60.dp)
-        .shadow(18.dp, RoundedCornerShape(30.dp), clip = false).clip(RoundedCornerShape(30.dp)).background(k.surf.copy(alpha = 1f))
-        .border(1.dp, k.line, RoundedCornerShape(30.dp)).padding(horizontal = 8.dp),
+        .navigationBarsPadding().padding(start = if (tab) 12.dp else 10.dp, end = 10.dp, bottom = 12.dp).height(64.dp)
+        .shadow(18.dp, RoundedCornerShape(32.dp), clip = false).clip(RoundedCornerShape(32.dp)).background(k.surf.copy(alpha = 1f))
+        .border(1.dp, k.line, RoundedCornerShape(32.dp)).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (onVillage != null) {
         val menu = stringResource(R.string.app_dock_menu)
-        Row(Modifier.height(44.dp).hintTarget("village").clip(RoundedCornerShape(22.dp)).background(k.ink).semantics { contentDescription = menu; role = Role.Button }
-            .clickable { haptics.tick(.3f); onVillage() }.padding(start = 13.dp, end = 15.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        Row(Modifier.height(48.dp).hintTarget("village").clip(RoundedCornerShape(24.dp)).background(k.ink).semantics { contentDescription = menu; role = Role.Button }
+            .clickable { haptics.tick(.3f); onVillage() }.padding(start = 14.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             val ic = if (night) Color(0xFF0F1828) else Color.White
             Canvas(Modifier.size(20.dp)) { // four equal rounded squares, gap a third of a square, centred
                 val sq = 8.dp.toPx(); val gap = sq / 3f; val o = (size.width - 2 * sq - gap) / 2f
@@ -181,19 +186,7 @@ internal fun BoxScope.Dock(night: Boolean, haptics: Haptics, onVillage: (() -> U
             Text(menu, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ic, maxLines = 1)
         }
         }
-        val find = stringResource(R.string.app_sr_dock_find)
-        // in large text "where to?" keeps only its icon, in a 44 circle; its words stay for the screen reader (part 8)
-        if (bigText()) {
-            Box(Modifier.weight(1f))
-            Box(Modifier.size(44.dp).hintTarget("find").clip(CircleShape).background(k.line).semantics { contentDescription = find; role = Role.Button }
-                .clickable { haptics.tick(.3f); onFind() }, contentAlignment = Alignment.Center) { Canvas(Modifier.size(18.dp)) { glass(k.ink2) } }
-        } else
-        Row(Modifier.weight(1f).height(44.dp).hintTarget("find").clip(RoundedCornerShape(22.dp)).background(k.line).semantics { contentDescription = find; role = Role.Button }
-            .clickable { haptics.tick(.3f); onFind() }.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Canvas(Modifier.size(18.dp)) { glass(k.ink2) }
-            Text(stringResource(R.string.app_dock_find), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = k.ink2, maxLines = 1,
-                overflow = TextOverflow.Ellipsis)
-        }
+        RunsButton(k, runs, runsHidden, flight, Modifier.weight(1f)) { haptics.tick(.3f); onFind() }
         if (onRecord != null) RecordButton(k, haptics, onRecord)
     }
 }
@@ -217,14 +210,14 @@ private fun RecordButton(k: SheetInk, haptics: Haptics, onRecord: () -> Unit) {
     val hold = rememberNameHold()
     val reduced = io.github.pini236.skiapp.ui.Motion.reduced(androidx.compose.ui.platform.LocalContext.current)
     val square by androidx.compose.animation.core.animateFloatAsState(if (recording) 1f else 0f, if (reduced) tween(0) else tween(200), label = "rec-square")
-    Row(Modifier.height(44.dp).hintTarget("rec").then(if (reduced) Modifier else Modifier.animateContentSize(tween(200))).clip(RoundedCornerShape(22.dp))
+    Row(Modifier.height(48.dp).hintTarget("rec").then(if (reduced) Modifier else Modifier.animateContentSize(tween(200))).clip(RoundedCornerShape(24.dp))
         .background(if (recording) tint else Color.Transparent)
         .semantics { contentDescription = label; role = Role.Button }.nameHold(hold, k) { haptics.tick(.4f); onRecord() },
         verticalAlignment = Alignment.CenterVertically) {
         NamePill(hold, stringResource(R.string.app_rec_sign), k, above = true)
-        Canvas(Modifier.size(44.dp)) {
+        Canvas(Modifier.size(48.dp)) {
             val c = center
-            drawCircle(k.ink, 19.75.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
+            drawCircle(k.ink, 21.75.dp.toPx(), c, style = Stroke(2.5.dp.toPx()))
             // the disc (30) turns into the square (16, corners 3)
             val side = (30f + (16f - 30f) * square).dp.toPx()
             val r = (15f + (3f - 15f) * square).dp.toPx()
@@ -268,7 +261,8 @@ internal fun Chip(text: String, on: Boolean, k: SheetInk, enabled: Boolean = tru
  */
 @Composable
 internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, night: Boolean, haptics: Haptics, open: (List<Pair<String, ShelfGroup>>) -> Int,
-                            closed: (String) -> Boolean, onCenter: (ShelfRun) -> Unit, onPick: (String) -> Unit, onClose: () -> Unit) {
+                            closed: (String) -> Boolean, onCenter: (ShelfRun) -> Unit, onPick: (String) -> Unit, onClose: () -> Unit,
+                            onPanel: (androidx.compose.ui.geometry.Rect) -> Unit = {}) {
     val context = LocalContext.current
     val k = remember(night) { SheetInk(night) }
     var chosenSort by remember { mutableStateOf(ShelfPrefs.sort(context)) }
@@ -283,6 +277,13 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
     val byKey = remember(runs) { runs.associateBy { it.key } }
     val list = rememberLazyListState(initialFirstVisibleItemIndex = remember { open(flat) })
     var keep by remember { mutableStateOf<String?>(null) }
+    // the opening's table (run button v4): the panel's first row fades 270 to 470 ms, the chips rise 14 from 140, the cards rise 46 from 160,
+    // the middle one first and 45 ms apart; reduced motion: everything cross-fades in 150 ms and nothing moves
+    val reduced = io.github.pini236.skiapp.ui.Motion.reduced(context)
+    val enter = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(Unit) { enter.animateTo(700f, tween(if (reduced) 150 else 700, easing = androidx.compose.animation.core.LinearEasing)) }
+    val rise = { delay: Float, dur: Float -> if (reduced) enter.value / 700f else RunsFlight.OPEN.transform(((enter.value - delay) / dur).coerceIn(0f, 1f)) }
+    val startMid = remember { list.firstVisibleItemIndex }
     // a new order keeps the middle card the same run (section 2)
     LaunchedEffect(flat) { keep?.let { list.scrollToItem(Shelf.keep(flat, it)) } }
     val mid by remember { derivedStateOf {
@@ -320,14 +321,16 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
         }
         val shade = androidx.compose.ui.graphics.Shadow(k.halo, Offset.Zero, 8f)
         // the summary sits in a pill like the chips, not loose on the mountain (the release review, B2)
-        if (title.isNotEmpty()) Box(Modifier.padding(horizontal = 16.dp).heightIn(min = 28.dp).clip(RoundedCornerShape(14.dp)).background(k.surf.copy(alpha = 1f))
+        if (title.isNotEmpty()) Box(Modifier.padding(horizontal = 16.dp).heightIn(min = 28.dp).onGloballyPositioned { onPanel(it.boundsInWindow()) }
+            .graphicsLayer { alpha = rise(270f, 200f) }.clip(RoundedCornerShape(14.dp)).background(k.surf.copy(alpha = 1f))
             .border(1.dp, k.line, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
             Text(title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = k.ink)
         }
         if (noSun > 0) Text(stringResource(R.string.app_lens_no_sun), Modifier.padding(horizontal = 16.dp), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2,
             style = androidx.compose.ui.text.TextStyle(shadow = shade))
         androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth().graphicsLayer { val r = rise(140f, 330f); alpha = r; if (!reduced) translationY = (1f - r) * 14.dp.toPx() }
+            .horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             for (s in ShelfSort.values()) {
                 val label = stringResource(when (s) { ShelfSort.LIFT -> R.string.app_shelf_by_lift; ShelfSort.EASY -> R.string.app_shelf_easy_hard
                     ShelfSort.LONG -> R.string.app_shelf_longest; ShelfSort.SUN -> R.string.app_shelf_sun })
@@ -344,7 +347,10 @@ internal fun BoxScope.Shelf(scene: MapScene, view: Stage, runs: List<ShelfRun>, 
             flingBehavior = rememberSnapFlingBehavior(list)) {
             itemsIndexed(flat, key = { _, it -> it.first }) { i, (key, _) ->
                 val r = byKey[key] ?: return@itemsIndexed
-                ShelfCard(scene, r, k, closed(key), Modifier.alpha(if (i == mid) 1f else .72f)) {
+                ShelfCard(scene, r, k, closed(key), Modifier.graphicsLayer {
+                    val e = rise(160f + 45f * minOf(kotlin.math.abs(i - startMid), 5), 390f)
+                    alpha = e * (if (i == mid) 1f else .72f); if (!reduced) translationY = (1f - e) * 46.dp.toPx()
+                }) {
                     if (i == mid) { haptics.tick(.5f); onPick(key) } else scope.launch { list.animateScrollToItem(i) }
                 }
             }
