@@ -411,6 +411,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Designer (Opus): P.19 hint motion and P.17 Kobi side in the canvas (v100, boards HM00-HM4, KB00-KB4), waiting for Pini.** Ring glides 360-560 ms, bubble cross-fades; Kobi tag on the ridge turns the view, compass returns. Handoffs `design/handoff/2026-11-27-redesign-hint-motion/`, `...-kobi-side/`. Architect needed: Kobi set at 3 px/pt is 1,069 KB vs the 350 KB ceiling (2 px: 626 KB).
 - 27.11.2026: **Manager: Pini approved the ski pass ticket-office buttons (P.21) and the record-mode choice (P.16).** Builder `session_017QrNw8xUH7NpTCSf3LK6CS` (branch `claude/android-small-items`); content enters three strings. Ticket-office coordinate is medium certainty, confirm in January.
 - 27.11.2026: **Manager: Pini approved the top pill (P.25, canvas TP).** Content enters the strings; builder `session_017QrNwA2kWwzvtqMVDcqxWn` (branch `claude/android-top-pill`). In-season lift count has no live data before December (S-20), so only fixtures until then.
 - 27.11.2026: **Manager: Pini approved "ימי הגלישה שלי" and the records (P.23, P.24; canvas MY/NS/RS).** Builder `session_017QrNw8xyHfXbaYkyWDT8HD` (branch `claude/android-my-days`) starts with the no-descent rule; content `session_019k19PuDmyzecDEFv7DGcdx` enters the strings (also for the approved day timeline). Junk days stay as is.
