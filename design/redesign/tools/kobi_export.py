@@ -15,7 +15,7 @@ import poc_export as X
 from mountain import elev_raw
 OUT=os.path.join(P.ROOT,'design/handoff/2026-11-25-redesign-kobi-picture');os.makedirs(os.path.join(OUT,'img'),exist_ok=True)
 PX,Q=3,80                            # 1170x2532, as sharp as the front (architect, 27.11.2026: set up to 1.1 MB, each picture up to 180 KB)
-CAP=175*1024                          # tune the quality before cutting the size: lower Q only for a picture over this
+CAP=179*1024                          # tune the quality before cutting the size: lower Q only for a picture over this
 
 def images():
     tot=0
@@ -24,7 +24,7 @@ def images():
         while True:
             im.save(f,quality=q,method=6)
             if os.path.getsize(f)<=CAP or q<=60:break
-            q-=2
+            q-=1
         tot+=os.path.getsize(f);print(l,im.size,q,os.path.getsize(f)//1024)
     print('pictures: %d KB'%(tot//1024))
 
