@@ -444,3 +444,7 @@ Canvas version 87, page "מעבר חוויית משתמש (26.11)", boards `UX00
 ### The run picker in the bottom bar (27.11.2026; waiting for Pini)
 
 Canvas version 88, page "הסרגל: בחירת מסלול (27.11)", boards `DK00` to `DK6`. Source: `tools/dk_boards.py`. Handoff: `design/handoff/2026-11-27-redesign-dock-runs/README.md`. The search-like pill "לאן יורדים?" opens a list, so it should look like a button that opens a list: recommended A, "מסלולים" with four piste-colour dots, the count and an up chevron; B four colour buttons; C run cards peeking above the bar.
+
+### The shelf chips and the layers (27.11.2026; waiting for Pini)
+
+Canvas version 89, same page as `DK` (now "בוחרים מסלול: הכפתור, המדף והשכבות"), boards `SL00` to `SL8`. Source: `tools/sl_boards.py` (imports `dk_boards.py`). Handoff: `design/handoff/2026-11-27-redesign-shelf-layers/README.md`. One row of six chips in the shelf; every chip orders the cards and paints the mountain; a strip of one tick per run shows the order; the layers button leaves the column. `SL7`, `SL8`: the alternative that keeps the layers, with a legend bar in the bottom bar's slot.
