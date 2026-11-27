@@ -411,6 +411,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Manager: Pini is still not happy with the "מסלולים" button (the mountain-picture option feels cheap); a stronger model asked for.** New designer `session_017QrNw8BHRf4NnMJ3qHAMBM` (Fable, Pini's decision) draws 3-5 new options (day and night, opening motion) in the canvas; shelf chips, sorting and layers-in-shelf stay. Waiting for Pini's pick.
 - 27.11.2026: **Manager: Pini approved Opus for the designer.** New designer `session_017QrNw9EH2x45vKXTHehrt5` takes P.19 (hint motion) and P.17 (Kobi side in picture); the other four topics were already drawn (v96-v98).
 - 27.11.2026: **Manager: Pini approved the share-video fix (P.13, play circle plays in place, taps never dismiss); builder `session_017QrNwA2Xd2WpQCVBwYSwqA`.** Junk days (P.23) left as is for now.
 - 27.11.2026: **Manager: Pini approved the day timeline "הרכס של היום" (P.11).** Run button v3 (`SW00`-`SW6`, v95) and P.10 (keep today's faint run lines, slightly stronger, no white lines) relayed to the new designer `session_017QrNw9vE7tZwtoB5accqAi`.
