@@ -130,7 +130,7 @@ internal fun BoxScope.LiveTripForm(initial: Trip?, today: LocalDate, night: Bool
                 .clickable { haptics.tick(.2f); onBack() }, contentAlignment = Alignment.Center) {
                 Icon(Icons.back, null, Modifier.size(22.dp), tint = k.ink)
             }
-            Text(title ?: stringResource(R.string.trip_title), Modifier.padding(start = 12.dp).semantics { this.liveRegion = LiveRegionMode.Polite },
+            Text(title ?: stringResource(R.string.app_home_trip), Modifier.padding(start = 12.dp).semantics { this.liveRegion = LiveRegionMode.Polite },
                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = if (night) Color.White else k.ink)
         }
         Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding()

@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -81,7 +82,7 @@ internal class MenuActions(
  */
 @Composable
 internal fun BoxScope.MenuSheet(
-    scene: MapScene, around: Around?, night: Boolean, haptics: Haptics, liftsLine: String, meetNow: Pair<String, String>?,
+    scene: MapScene, around: Around?, night: Boolean, haptics: Haptics, liftsLine: String, status: io.github.pini236.skiapp.status.LiftStatus?, offline: Boolean, meetNow: Pair<String, String>?,
     food: Int, actions: MenuActions, onClose: () -> Unit,
 ) {
     val k = remember(night) { SheetInk(night) }
@@ -106,8 +107,28 @@ internal fun BoxScope.MenuSheet(
     }
     var groupWaiting by remember { mutableStateOf(false) }
     LaunchedEffect(groups, groupWaiting) { if (groupWaiting && groups != null) { groupWaiting = false; actions.onGroup(groups) } }
-    val days by produceState(0) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-        runCatching { io.github.pini236.skiapp.dayrec.DayRec.store(ctx).days().size }.getOrDefault(0) } }
+    // my days: how many, and the ski distance summed from the saved results (the same files the days list reads)
+    val daysInfo by produceState(0 to 0.0) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        runCatching {
+            val files = io.github.pini236.skiapp.dayrec.DayRec.store(ctx).days()
+            var m = 0.0
+            for (f in files) runCatching { m += org.json.JSONObject(io.github.pini236.skiapp.dayrec.DayStore.resultOf(f).readText()).optJSONObject("stats")?.optDouble("ski_dist_m", 0.0) ?: 0.0 }
+            files.size to m
+        }.getOrDefault(0 to 0.0) } }
+    val days = daysInfo.first
+    // the group tile's circles: the members of my first group, from the phone's copy (no wait on the network)
+    val members by produceState<List<Pair<String, String>>>(emptyList(), groups) {
+        val id = groups?.firstOrNull()?.id
+        value = if (id == null) emptyList() else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { around?.people?.api?.watch(id)?.now?.group?.members?.map { it.userId to it.name } }.getOrNull().orEmpty() }
+    }
+    val waiting by produceState(false, groups) {
+        value = if (!groups.isNullOrEmpty()) false else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { around?.people?.api?.pendingRequests()?.isNotEmpty() == true }.getOrDefault(false) }
+    }
+    val me = remember(around?.people) { runCatching { around?.people?.api?.me() }.getOrNull()?.takeIf { it.registered || it.name != null } }
+    val wx = io.github.pini236.skiapp.weather.LocalWeather.current
+    val temp = wx.usable?.now("goodaura", wx.local)?.temp
     val top = sheetShape()
     val tile = if (night) Color(0x12FFFFFF) else Color(0xBDFFFFFF)
     val tint = k.acc.copy(alpha = if (night) .17f else .11f)
@@ -133,20 +154,30 @@ internal fun BoxScope.MenuSheet(
         val groupLine = when {
             meetNow != null -> stringResource(R.string.app_vill_grp_meet, meetNow.first, meetNow.second)
             g == null && around?.people != null -> null // still loading: a bar, never "none"
-            g.isNullOrEmpty() -> stringResource(R.string.app_menu_grp_none)
-            g.size == 1 -> g[0].name
+            g.isNullOrEmpty() -> if (waiting) stringResource(R.string.join_pending_title) else stringResource(R.string.app_menu_grp_none)
+            g.size == 1 -> if (members.isNotEmpty()) g[0].name + " · " + pluralStringResource(R.plurals.app_g_members, members.size, members.size) else g[0].name
             else -> pluralStringResource(R.plurals.app_vill_grp_n, g.size, g.size.toString())
+        }
+        // the lifts tile: a fresh report with the temperature; before the season the opening date and the days left
+        val ov = around?.opening
+        val liftsText = when {
+            offline -> stringResource(R.string.app_now_offline)
+            status != null && status.fresh -> stringResource(R.string.app_menu_lifts_now, status.open.toString(), status.names.size.toString(), io.github.pini236.skiapp.weather.deg(temp))
+            ov != null && ov.days > 0 -> pluralStringResource(R.plurals.app_menu_lifts_pre, ov.days, io.github.pini236.skiapp.season.shortDate(ov.open), ov.days.toString())
+            else -> liftsLine
         }
         val tiles = buildList<MTile> {
             add(MTile(Icons.map, stringResource(R.string.app_skipass_title), passLine, null, actions.onSkipass))
-            add(MTile(Icons.people, stringResource(R.string.app_grp_title), groupLine, "group", { if (g == null && around?.people != null) groupWaiting = true else actions.onGroup(g) }, busy = groupWaiting))
+            add(MTile(Icons.people, stringResource(R.string.app_grp_title), groupLine, "group", { if (g == null && around?.people != null) groupWaiting = true else actions.onGroup(g) }, busy = groupWaiting,
+                end = if (members.isEmpty()) null else ({ MemberCircles(members, k) })))
             if (actions.onFood != null && food > 0) add(MTile(Icons.pin, stringResource(R.string.app_vill_food),
                 pluralStringResource(R.plurals.app_menu_food_n, food, food.toString()), null, actions.onFood))
             actions.onGames?.let { go -> add(MTile(Icons.trophy, stringResource(R.string.app_cabin_title),
-                pluralStringResource(R.plurals.app_menu_games_n, around?.games ?: 0, (around?.games ?: 0).toString()), null, go)) }
+                pluralStringResource(R.plurals.app_menu_games_n, around?.games ?: 0, (around?.games ?: 0).toString()), null, go,
+                end = { GameThumbs(k) })) }
             actions.onDays?.let { go -> add(MTile(Icons.calendar, stringResource(R.string.app_days_title),
-                if (days > 0) pluralStringResource(R.plurals.app_me_days_sub, days, days) else stringResource(R.string.app_menu_days_none), null, go)) }
-            add(MTile(Icons.lift, stringResource(R.string.app_menu_lifts), liftsLine, null, actions.onLifts))
+                if (days > 0) pluralStringResource(R.plurals.app_menu_days_n, days, io.github.pini236.skiapp.dayrec.ui.LiveNumbers.km(daysInfo.second), days.toString()) else stringResource(R.string.app_menu_days_none), null, go)) }
+            add(MTile(Icons.lift, stringResource(R.string.app_menu_lifts), liftsText, null, actions.onLifts))
         }
         // from font scale 1.3 the grid is one column (part 1)
         tiles.chunked(if (bigText()) 1 else 2).forEach { row ->
@@ -156,7 +187,8 @@ internal fun BoxScope.MenuSheet(
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            actions.onAccount?.let { Foot(Icons.user, stringResource(R.string.app_menu_account), k, haptics, Modifier.weight(1f), it) }
+            actions.onAccount?.let { Foot(Icons.user, stringResource(R.string.app_menu_account), k, haptics, Modifier.weight(1f), it,
+                lead = me?.let { m -> ({ Av(m.name, m.userId, 22) }) }) }
             actions.onSettings?.let { Foot(Icons.gear, stringResource(R.string.about_settings), k, haptics, Modifier.weight(1f), it) }
             actions.onLanguage?.let { Foot(Icons.globe, io.github.pini236.skiapp.i18n.Lang.current(ctx.resources).name, k, haptics, Modifier.weight(1f), it) }
         }
@@ -164,7 +196,8 @@ internal fun BoxScope.MenuSheet(
     HintSequence(Hints.MENU, listOf(HintStep("trip", R.string.app_hint_trip, 16f), HintStep("group", R.string.app_hint_group, 16f)), ready = true, night = night, again = Hints.again)
 }
 
-private class MTile(val icon: ImageVector, val title: String, val line: String?, val hint: String?, val onTap: () -> Unit, val busy: Boolean = false)
+private class MTile(val icon: ImageVector, val title: String, val line: String?, val hint: String?, val onTap: () -> Unit, val busy: Boolean = false,
+                    val end: (@Composable () -> Unit)? = null)
 
 @Composable
 private fun Tile(m: MTile, k: SheetInk, bg: Color, tint: Color, haptics: Haptics) {
@@ -173,7 +206,10 @@ private fun Tile(m: MTile, k: SheetInk, bg: Color, tint: Color, haptics: Haptics
         .border(1.dp, k.line, RoundedCornerShape(22.dp))
         .semantics(mergeDescendants = true) { role = Role.Button }.clickable { haptics.tick(.3f); m.onTap() }.padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.SpaceBetween) {
-        Box(Modifier.size(36.dp).clip(CircleShape).background(tint), contentAlignment = Alignment.Center) { Icon(m.icon, null, Modifier.size(20.dp), tint = k.acc) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+            Box(Modifier.size(36.dp).clip(CircleShape).background(tint), contentAlignment = Alignment.Center) { Icon(m.icon, null, Modifier.size(20.dp), tint = k.acc) }
+            m.end?.invoke()
+        }
         Column {
             Text(m.title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
             // a changed line cross-fades in place (150 ms), the frame never moves
@@ -185,12 +221,31 @@ private fun Tile(m: MTile, k: SheetInk, bg: Color, tint: Color, haptics: Haptics
     }
 }
 
+/** Up to four circles of my first group's members, 28, overlapping a little (the group tile's end slot). */
 @Composable
-private fun Foot(icon: ImageVector, text: String, k: SheetInk, haptics: Haptics, mod: Modifier, onTap: () -> Unit) {
+private fun MemberCircles(members: List<Pair<String, String>>, k: SheetInk) {
+    val ring = k.surf.copy(alpha = 1f)
+    Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+        for ((id, name) in members.take(4)) Av(name, id, 28, ring = ring)
+    }
+}
+
+/** Three game thumbnails, 28, in the games tile's end slot (decoded once; a missing file leaves its place out). */
+@Composable
+private fun GameThumbs(k: SheetInk) {
+    val ctx = LocalContext.current
+    val imgs = remember { GamesRules.ALL.take(3).mapNotNull { g -> runCatching { ctx.assets.open("thumbs/$g.webp").use { android.graphics.BitmapFactory.decodeStream(it) }?.asImageBitmap() }.getOrNull() } }
+    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
+        for (b in imgs) androidx.compose.foundation.Image(b, null, Modifier.size(28.dp).clip(CircleShape).border(2.dp, k.surf.copy(alpha = 1f), CircleShape), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+    }
+}
+
+@Composable
+private fun Foot(icon: ImageVector, text: String, k: SheetInk, haptics: Haptics, mod: Modifier, onTap: () -> Unit, lead: (@Composable () -> Unit)? = null) {
     Row(mod.heightIn(min = 44.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp))
         .semantics { role = Role.Button }.clickable { haptics.tick(.3f); onTap() }.padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-        Icon(icon, null, Modifier.size(18.dp), tint = k.ink)
+        if (lead != null) lead() else Icon(icon, null, Modifier.size(18.dp), tint = k.ink)
         Text(text, Modifier.padding(start = 6.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

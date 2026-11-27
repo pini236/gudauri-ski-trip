@@ -81,7 +81,7 @@ internal fun BoxScope.LiveSeason(around: Around, night: Boolean, haptics: Haptic
             }
             // 2. your trip: the dates and the ski days, the days to the flight at the end; or "when do you fly?"
             val trip = around.trip
-            SeasonRow(stringResource(R.string.trip_title), trip?.let { seasonTripLine(it) },
+            SeasonRow(stringResource(R.string.app_home_trip), trip?.let { seasonTripLine(it) },
                 if (trip == null) stringResource(R.string.trip_when_fly) else daysToFlight(trip, around.today), trip == null, k) { haptics.tick(.3f); Qa.log("redesign season trip"); onTrip() }
             // 3. the ski pass: the trip's ski days (or one), an adult, the price at the end
             val pr = around.prices?.takeIf { it.valid(around.today) }

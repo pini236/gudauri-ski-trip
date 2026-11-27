@@ -290,7 +290,7 @@ private fun TripCard(trip: Trip, isRet: Boolean, now: LocalDateTime, night: Bool
                 // reduced motion: no rotation or fall, the stub only fades out and in
                 val ang = if (reduced) 0f else 5f * tear + 15f * fall
                 rotationZ = -sx * ang
-                translationY = (if (reduced) 0f else 3.dp.toPx() * tear + 250.dp.toPx() * fall * fall) + 34.dp.toPx() * (1f - rise)
+                translationY = (if (reduced) 0f else 3.dp.toPx() * tear + 250.dp.toPx() * fall * fall + 34.dp.toPx() * (1f - rise))
                 alpha = (if (reduced) 1f - fall else 1f - (fall * 1.4f - .4f).coerceIn(0f, 1f)) * rise
             }
             .shadow(10.dp, StubPaper(22.dp), ambientColor = shadow, spotColor = shadow).background(p.paper, StubPaper(22.dp))
@@ -361,7 +361,7 @@ internal fun BoxScope.LiveTripPass(around: Around, trip: Trip, now: LocalDateTim
         Telemetry.event("ticket_tear", mapOf("leg" to if (frontRet) "ret" else "out"))
         Qa.log("redesign trip torn")
         fall.animateTo(1f, tween(if (reduced) 300 else 620, easing = FastOutSlowInEasing))
-        delay(1500)
+        delay(360) // 1,500 ms from the start in all (520 + 620 + 360)
         // step 4: a new stub rises 34 into place and fades in over 300 ms
         rise.snapTo(0f); tear.snapTo(0f); fall.snapTo(0f); holes = 0
         around.sounds.play("ticket-land", .6f); haptics.click(.5f)

@@ -842,7 +842,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             val food = remember(places, scene) { foodItems(places, scene, null)?.size ?: 0 }
             val (lp, _) = LiftsPillText(status, inSeason)
             val boardG = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }
-            MenuSheet(scene, around, night, haptics, lp, meetNow0, food,
+            MenuSheet(scene, around, night, haptics, lp, status, Online.pillOffline(qaNet ?: online, status?.fresh == true, inSeason), meetNow0, food,
                 MenuActions(
                     onTrip = { menuOpen = false; tripEdit = null; tripOpen = true },
                     onSkipass = { menuOpen = false; skipassOpen = true },
