@@ -1,6 +1,6 @@
 # The Kobi side in picture mode: going over and back (P.17, 27.11.2026)
 
-**Status: waiting for Pini** (canvas https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ, page "צד Kobi בתמונה: לעבור ולחזור", boards `KB00`-`KB4`). Do not build before approval (rule 7); the quality part needs the architect first. No new strings. Builds on `design/handoff/2026-11-25-redesign-kobi-picture/` (the view, the tables, the slide). Source: `design/redesign/tools/kb_boards.py`.
+**Status: approved by Pini 27.11.2026; Android built on `claude/android-kobi-side` (not merged, not tested on a phone); the 3 px set is in `site/img/peak/kobi/<rev>/` (architect ceiling 1.1 MB, 180 KB each).** Was: waiting for Pini (canvas https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ, page "צד Kobi בתמונה: לעבור ולחזור", boards `KB00`-`KB4`). Do not build before approval (rule 7); the quality part needs the architect first. No new strings. Builds on `design/handoff/2026-11-25-redesign-kobi-picture/` (the view, the tables, the slide). Source: `design/redesign/tools/kb_boards.py`.
 
 ## The way in (KB1)
 - A glass tag "צד Kobi" (`map.kobi_side`, screen reader `map.kobi_side_aria`) with an over-the-ridge icon, 36 high (44 touch), just above where the Kobi line peeks at the top of the front picture.

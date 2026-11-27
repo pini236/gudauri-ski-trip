@@ -12,6 +12,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,6 +49,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -110,4 +125,53 @@ private fun DrawScope.cube(c: Color) {
     val bl = Offset(w * .1f, h * .72f); val br = Offset(w * .9f, h * .72f); val b = Offset(w * .5f, h * .94f)
     drawPath(Path().apply { moveTo(top.x, top.y); lineTo(r.x, r.y); lineTo(br.x, br.y); lineTo(b.x, b.y); lineTo(bl.x, bl.y); lineTo(l.x, l.y); close() }, c, style = Stroke(sw, join = StrokeJoin.Round))
     drawPath(Path().apply { moveTo(l.x, l.y); lineTo(m.x, m.y); lineTo(r.x, r.y); moveTo(m.x, m.y); lineTo(b.x, b.y) }, c, style = Stroke(sw, join = StrokeJoin.Round))
+}
+
+/**
+ * P.17 (KB1, 27.11.2026): the glass tag "צד Kobi" just above where the Kobi line peeks at the top of the front picture,
+ * 36 high inside a touch area of 44. A tap turns the picture to the Kobi side (the stage's own turn, or the live model for
+ * a moment while the side's pictures have not come). Follows the picture as it moves; never above the top pill's row.
+ */
+@Composable
+internal fun BoxScope.KobiTag(picture: PictureStage, night: Boolean, onTap: () -> Unit) {
+    val k = StageInk(night)
+    var at by remember { mutableStateOf<Offset?>(null) }
+    LaunchedEffect(picture) { while (true) { withFrameNanos { }; val p = picture.kobiTag(); val n = p?.let { Offset(it[0], it[1]) }; if (n != at) at = n } }
+    val a = at ?: return
+    var tw by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+    val screenW = LocalConfiguration.current.screenWidthDp * density.density
+    val topMin = WindowInsets.statusBars.getTop(density) + with(density) { 72.dp.toPx() }
+    val label = stringResource(R.string.map_kobi_side)
+    val aria = stringResource(R.string.map_kobi_side_aria)
+    val shape = RoundedCornerShape(18.dp)
+    Box(Modifier.atScreen { IntOffset((a.x - tw / 2f).coerceIn(8.dp.toPx(), (screenW - tw - 8.dp.toPx()).coerceAtLeast(8.dp.toPx())).toInt(), (a.y - 48.dp.toPx()).coerceAtLeast(topMin).toInt()) }
+        .height(44.dp).widthIn(min = 44.dp).onSizeChanged { tw = it.width }
+        .semantics { contentDescription = aria; role = Role.Button }.clickable(onClick = onTap), contentAlignment = Alignment.Center) {
+        Row(Modifier.height(36.dp).shadow(8.dp, shape, clip = false).clip(shape).background(k.bg).border(1.dp, k.line, shape).padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Canvas(Modifier.size(16.dp)) { overRidge(k.ink) }
+            Text(label, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink, maxLines = 1)
+        }
+    }
+}
+
+/** P.17: the Kobi side's picture has not come and the live model cannot run here: one line under the pill, gone by itself after 4 s. */
+@Composable
+internal fun BoxScope.KobiWait(night: Boolean, onOff: () -> Unit) {
+    val k = StageInk(night)
+    LaunchedEffect(Unit) { delay(4000); onOff() }
+    val shape = RoundedCornerShape(16.dp)
+    Row(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 60.dp, start = 12.dp, end = 12.dp)
+        .shadow(8.dp, shape, clip = false).clip(shape).background(k.bg).border(1.dp, k.line, shape).padding(horizontal = 14.dp, vertical = 9.dp)
+        .semantics { liveRegion = LiveRegionMode.Polite }, verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.app_kobi_side_wait), fontFamily = Gudi, fontSize = 14.sp, color = k.ink, maxLines = 2)
+    }
+}
+
+/** A ridge with an arrow over it: turning to the other side of the mountain. */
+private fun DrawScope.overRidge(c: Color) {
+    val w = size.width; val h = size.height; val sw = 1.6.dp.toPx()
+    drawPath(Path().apply { moveTo(w * .06f, h * .82f); lineTo(w * .34f, h * .42f); lineTo(w * .52f, h * .62f); lineTo(w * .64f, h * .5f); lineTo(w * .94f, h * .82f) }, c, style = Stroke(sw, join = StrokeJoin.Round, cap = androidx.compose.ui.graphics.StrokeCap.Round))
+    drawPath(Path().apply { moveTo(w * .3f, h * .2f); quadraticTo(w * .62f, h * .02f, w * .86f, h * .22f); moveTo(w * .86f, h * .22f); lineTo(w * .7f, h * .2f); moveTo(w * .86f, h * .22f); lineTo(w * .84f, h * .06f) }, c, style = Stroke(sw, join = StrokeJoin.Round, cap = androidx.compose.ui.graphics.StrokeCap.Round))
 }
