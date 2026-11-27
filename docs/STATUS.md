@@ -319,6 +319,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Android (Sonnet): shelf v2 (P.4, P.5, P.6) built on `claude/android-shelf-v2`, not merged.** Six chips that order and paint, strip panel with ticks and scrub, cards with the big number, layers button removed, picture mode never shows a band under the shelf. CI only; details in `docs/handoff/2026-11-27-shelf-v2.md`.
 - 27.11.2026: **Manager: shelf chips and layers (P.4, P.5, P.6, J.9) are approved by Pini and were never built; I had wrongly listed them as waiting for his look.** Builder `session_017QrNw6HwU9N9gpr1yy4khY` (`claude/android-shelf-v2`) opened, content strings already in (`9b17e0c8`). `android-qa` run 514 on build 1082 green.
 - 27.11.2026: **Content: shelf version 2 strings entered (builder request).** 17 `app.shelf_*` keys (chips "לפי קושי", "פתוחים", "שלג חדש"; captions under the big number; foot line; empty-snow line; strip tick screen reader), builder's proposed names kept; `shelf_word_open` added. `check.py` green.
 - 27.11.2026: **Architect: SKIPASS `<queries>` approved (no data leaves the phone, result never logged); Kobi per-file cap: recommended 220 KB / 1.2 MB total for q80 on every file, Pini decides; run-button thumbs (7, ~42 KB packaged) approved.** No code changed.

@@ -110,11 +110,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // K07 (the shelf, "where to?"): open, and the run of its middle card
     var shelfOpen by remember { mutableStateOf(false) }
     var shelfMid by remember { mutableStateOf<ShelfRun?>(null) }
+    var shelfMode by remember { mutableStateOf<ShelfMode?>(null) }
     // K06 (from the station): the top station tapped, and the runs that go down from it
     var fromSt by remember { mutableStateOf<io.github.pini236.skiapp.meet.Station?>(null) }
     val stationRuns = remember(scene) { ShelfData.withLifts(scene) }
-    // K08 (the lenses): the chips' row open, and the lens on
-    var lensRow by remember { mutableStateOf(false) }
+    // K08 (the lenses): the shelf's chip that paints (shelf v2: the layers are chips in the shelf)
     // K17 (the village): open over the mountain
     var villageOpen by remember { mutableStateOf(false) }
     var menuOpen by remember { mutableStateOf(Redesign.reopenMenu.also { Redesign.reopenMenu = false }) }
@@ -328,10 +328,10 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "shelf" -> { chosen = null; view.choose(null); shelfOpen = true }
             c == "shelf:off" -> shelfOpen = false
             c == "station:off" -> fromSt = null
-            c == "lens:off" -> { lens = null; lensRow = false }
+            c == "lens:off" -> { lens = null }
             c == "village" -> { chosen = null; view.choose(null); villageOpen = true }
             c == "village:off" -> { view.fromVillage(); villageOpen = false; menuOpen = false }
-            c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
+            c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
             c == "season:off" -> { seasonOn = false; Qa.log("redesign season closed") }
@@ -653,7 +653,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         val unitM = stringResource(R.string.common_unit_m, "\u0000")
         val nf = remember { java.text.NumberFormat.getIntegerInstance() }
         // nothing of the mountain's names and marks over the pill (the review of 24.11: "New Gudauri" on its words)
-        val namesGuard = with(androidx.compose.ui.platform.LocalDensity.current) { (TOP_GUARD_DP + if (lensRow) 56 else 0).dp.toPx() }
+        val namesGuard = with(androidx.compose.ui.platform.LocalDensity.current) { TOP_GUARD_DP.dp.toPx() }
         Canvas(Modifier.fillMaxSize().drawWithContent { clipRect(top = namesGuard) { this@drawWithContent.drawContent() } }) {
             val o = ov; val pal = pd?.pal?.get(if (night) "night" else "day")
             if (o != null && pal != null) {
@@ -705,7 +705,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 drawCircle(Color.White, 26 * dp * sc, tp, alpha = .9f * (1 - r), style = Stroke(2 * dp))
             }
         }
-        val guardPx = with(androidx.compose.ui.platform.LocalDensity.current) { (TOP_GUARD_DP + 38 + if (lensRow) 56 else 0).dp.toPx() }
+        val guardPx = with(androidx.compose.ui.platform.LocalDensity.current) { (TOP_GUARD_DP + 38).dp.toPx() }
         if (chosen == null && !meet.open && !tripOpen && !skipassOpen && !seasonOn) for ((l, p) in tags) {
             // never over the pill or the lenses' row (the review of 24.11)
             if (p.y < guardPx) continue
@@ -795,9 +795,17 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             if (layerOn) { if (layerFrom == null) layerFrom = view.viewNow() }
             else { val b = layerFrom; layerFrom = null; if (b != null && chosen == null) view.backTo(b, "redesign layer back") }
         }
-        LaunchedEffect(shelfOpen, shelfMid) {
-            val r = shelfMid
-            view.setFocus(if (shelfOpen && r != null) LiveRenderer.Focus(setOf(r.key), 3.6f, 6f, setOfNotNull(r.lift)) else null)
+        // what the shelf's chip paints: by lift the group's runs and lift, by colour the colour's runs, the longest the six; the
+        // lens chips (sun, open, snow) paint by their lens and light nothing (version 2: every chip orders the cards and paints the mountain)
+        LaunchedEffect(shelfOpen, shelfMid, shelfMode) {
+            val r = shelfMid; val m = shelfMode
+            lens = if (shelfOpen) m?.lens else null
+            view.setFocus(when {
+                !shelfOpen || r == null || m == null -> null
+                m.lens != null -> null
+                m.lit.isEmpty() -> LiveRenderer.Focus(setOf(r.key), 3.6f, 6f, setOfNotNull(r.lift))
+                else -> LiveRenderer.Focus(m.lit + r.key, 3.6f, 6f, m.lifts)
+            })
         }
         // K06: the station's runs lit, the rest ghosts, its lifts on, a ring round it, and the low sheet
         val stShift by androidx.compose.animation.core.animateFloatAsState(if (fromSt != null) with(androidx.compose.ui.platform.LocalDensity.current) { 120.dp.toPx() } else 0f, tween(300), label = "station")
@@ -823,14 +831,21 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         if (shelfOpen) {
             val shelfRuns = remember(scene) { ShelfData.runs(scene) }
+            val wxShelf = io.github.pini236.skiapp.weather.LocalWeather.current.usable
+            val shelfSnow = remember(wxShelf) { wxShelf?.points?.map { it.elevation.toFloat() to it.snow24 } }
             Shelf(scene, view, shelfRuns, night, haptics,
                 open = { flat -> Shelf.start(flat, ShelfMemory.last, null, null) },
                 closed = { key -> scene.runs.pistes.firstOrNull { it.key == key }?.let { status?.runOpen(it) == false } ?: false },
                 // between the pill (100 down) and the shelf (270 up), the mountain raised 120 (K07)
-                onCenter = { shelfMid = it; view.showRun(it.key, 100f / scrHdp, 1f - 270f / scrHdp, shiftPx120) },
+                onCenter = { shelfMid = it; view.showRun(it.key, 100f / scrHdp, 1f - 350f / scrHdp, shiftPx120) },
                 onPick = { key -> ShelfMemory.last = key; shelfOpen = false; Qa.log("redesign shelf pick $key"); view.pickKey(key) },
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") },
-                onPanel = { runsFlight.panel = it })
+                onPanel = { runsFlight.panel = it },
+                runOpen = status?.takeIf { it.fresh }?.let { st -> { key: String -> scene.runs.pistes.firstOrNull { it.key == key }?.let { p -> st.runOpen(p) } } },
+                snowCm = shelfSnow?.let { pts -> { r: ShelfRun -> LensRules.snowAt(r.top.toFloat(), pts) } },
+                openHint = stringResource(R.string.status_board_hint, status?.open?.toString() ?: "0", LiveLifts.board(scene.runs).size.toString()),
+                onMode = { shelfMode = it })
+            if (veilA > .5f) shelfMode?.ranks?.forEachIndexed { i, key -> RankDisc(view, scene, key, i + 1, night) }
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
         }
         AnimatedVisibility(chosen == null && lens == null && !villageOpen && !menuOpen && !foodOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
@@ -1033,22 +1048,16 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         LaunchedEffect(bare, plan) {
             view.onPreTap = if (bare && plan != null) { x, y -> StationTap.at(view, plan, stationRuns, x, y, dens)?.let { s -> haptics.tick(.4f); fromSt = s; Qa.log("redesign station ${s.id}"); true } ?: false } else null
         }
-        if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction, below = lensRow)
+        if (bare) WhereBox(where, night, onRun = { k -> haptics.tick(.3f); view.pickKey(k) }, onAction = whereAction, below = false)
         // UX part 7 (NM1, NM3): far from the mountain, how far and which way, never a dot
-        FarCard(if (bare) where.far else null, night, below = lensRow) { where.far = null }
+        FarCard(if (bare) where.far else null, night, below = false) { where.far = null }
         // K08: one colour layer at a time: a run chosen, the shelf or a station turns the lens off and closes the row
-        LaunchedEffect(chosen, shelfOpen, fromSt) { if (chosen != null || shelfOpen || fromSt != null) { lens = null; lensRow = false } }
+        LaunchedEffect(chosen, shelfOpen, fromSt) { if (chosen != null || !shelfOpen || fromSt != null) { lens = null; shelfMode = null } }
         val wxLens = io.github.pini236.skiapp.weather.LocalWeather.current.usable
         val snowPts = remember(wxLens) { wxLens?.points?.map { it.elevation.toFloat() to it.snow24 } }
         LaunchedEffect(lens, night, status, snowPts) { view.setLens(lens, night, status?.takeIf { it.fresh }?.let { st -> { p: io.github.pini236.skiapp.data.Piste -> st.runOpen(p) } }, snowPts) }
-        if (bare && lensRow) LensChips(lens, night, haptics) { l -> lens = LensRules.tap(lens, l); LensPrefs.setLast(context, lens ?: LensPrefs.last(context)); Qa.log("redesign lens tap ${l.id}") }
-        if (bare && lens != null) LensSheet(lens!!, scene, view, status, inSeason, night) { lens = null; Qa.log("redesign lens off") }
         if (bare) MapColumn(where, view, night, recording = false, onLocate = { haptics.tick(.3f); locate() }, onHome = { haptics.tick(.3f); view.home() },
-            layersOn = lensRow, onLayers = {
-                haptics.tick(.3f)
-                if (lensRow) { lensRow = false; lens = null } else { lensRow = true; lens = LensPrefs.last(context) }
-                Qa.log("redesign lens row $lensRow")
-            }, bottom = if (lens != null) 196.dp else 84.dp,
+            bottom = 84.dp,
             // the switch shows the user's choice: in a moment of the live model (Z05) it does not move
             photo = if (canLive && picture != null) !liveChosen else null,
             onPhoto = { p -> haptics.tick(.3f); temp = null; liveChosen = !p; StagePrefs.setLive(context, !p); rotateHint = false; Qa.log("redesign stage switch ${if (p) "photo" else "live"}") },
@@ -1083,7 +1092,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 if (hintRec) HintStep("rec", R.string.app_hint_rec) else null, HintStep("village", R.string.app_hint_menu),
                 if (hintMode) HintStep("mode", R.string.app_hint_mode, 22f) else null, if (hintMe) HintStep("me", R.string.app_hint_me) else null)
         }
-        HintSequence(Hints.MOUNTAIN, hintSteps, ready = bare && !where.asking && mtnDrawn && lens == null && !lensRow, night = night, again = hintAgain + Hints.again) { sz ->
+        HintSequence(Hints.MOUNTAIN, hintSteps, ready = bare && !where.asking && mtnDrawn && lens == null, night = night, again = hintAgain + Hints.again) { sz ->
             val c = Offset(sz.width / 2f, sz.height / 2f)
             hintMids.mapNotNull { m -> view.toScreen(m[0], m[1])?.let { Offset(it[0], it[1]) } }
                 .filter { it.x in 0f..sz.width.toFloat() && it.y in 0f..sz.height.toFloat() }.minByOrNull { kotlin.math.hypot(it.x - c.x, it.y - c.y) }

@@ -121,7 +121,7 @@ internal fun rememberWhere(scene: MapScene): WhereUi {
 /** The column of the map's buttons (section 1): the compass (only once turned) and "where am I", at the screen's end. */
 @Composable
 internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, recording: Boolean, onLocate: () -> Unit, onHome: () -> Unit,
-                                 layersOn: Boolean? = null, onLayers: () -> Unit = {}, bottom: androidx.compose.ui.unit.Dp = 84.dp,
+                                 bottom: androidx.compose.ui.unit.Dp = 84.dp,
                                  photo: Boolean? = null, onPhoto: (Boolean) -> Unit = {},
                                  kobiBack: Boolean = false, onKobiBack: () -> Unit = {}) {
     val k = remember(night) { SheetInk(night) }
@@ -133,16 +133,6 @@ internal fun BoxScope.MapColumn(ui: WhereUi, view: Stage, night: Boolean, record
         KobiCompass(kobiBack, night, onKobiBack)
         // the picture or the live model (the opening's handoff, OP1): at the column's top, two cells of 44, the chosen one full
         if (photo != null) StageSwitch(k, night, photo, onPhoto)
-        // K08: the layers button (the lenses' row); lit while the row is open, the mark in the background's colour
-        if (layersOn != null) {
-            val ld = stringResource(R.string.app_map_layers_a11y)
-            val ls = stringResource(if (layersOn) R.string.app_on else R.string.app_off)
-            val hold = rememberNameHold()
-            Round(k, Modifier.semantics { contentDescription = ld; stateDescription = ls; role = Role.Switch }.nameHold(hold, k, onClick = onLayers), fill = if (layersOn) k.ink else null) {
-                Canvas(Modifier.size(20.dp)) { layers(if (layersOn) (if (night) Color(0xFF0F1828) else Color.White) else k.ink) }
-                NamePill(hold, ld, k)
-            }
-        }
         AnimatedVisibility(away && !kobiBack, enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             val home = stringResource(R.string.app_map_home_view_a11y)
             val hold = rememberNameHold()

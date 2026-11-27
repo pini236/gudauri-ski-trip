@@ -31,6 +31,17 @@ object PeakGeo {
         return Place(k, w / 2 - cx * k, h / 2 - cy * k)
     }
 
+    /**
+     * [b] raised by [raise] px with the picture still covering the screen's bottom: scaled up about the top centre by
+     * s = max(1, (h + raise) / bottom) (bottom = where the picture's bottom edge is in [b]), then moved up by [raise].
+     */
+    fun raised(b: Place, picH: Float, w: Float, h: Float, raise: Float): Place {
+        if (raise <= 0f) return b
+        val bottom = b.y + picH * b.k
+        val s = max(1f, (h + raise) / bottom.coerceAtLeast(1f))
+        return Place(b.k * s, b.x * s + w / 2 * (1 - s), b.y * s - raise)
+    }
+
     /** The picture's point at the middle of the screen in [p] (what a pinch keeps there). */
     fun centre(w: Float, h: Float, p: Place) = p.back(Offset(w / 2, h / 2))
 
