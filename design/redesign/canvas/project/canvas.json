@@ -3385,6 +3385,86 @@
    "h": 844,
    "title": "גרסה 3, א, בתנועה: הכפתור נפתח אל המדף של גרסה 2 (SW6)",
    "page": "dock"
+  },
+  "MY00-MyDays.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1040,
+   "title": "P.23 ו-P.24: מה ראית, ההצעה והשאלות (MY00)",
+   "page": "mydays"
+  },
+  "NS1.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · מחוץ לגודאורי, ביום (NS1)",
+   "page": "mydays"
+  },
+  "NS2.dc.html": {
+   "x": 470,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · בגודאורי, עלה ברכבל וירד בו (NS2)",
+   "page": "mydays"
+  },
+  "NS3.dc.html": {
+   "x": 940,
+   "y": 1200,
+   "w": 390,
+   "h": 844,
+   "title": "לא נרשמה גלישה · בלילה, בלי מיקום (NS3)",
+   "page": "mydays"
+  },
+  "MY1.dc.html": {
+   "x": 0,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · הטיול (MY1)",
+   "page": "mydays"
+  },
+  "MY2.dc.html": {
+   "x": 470,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · סוף הרשימה והיום לדוגמה (MY2)",
+   "page": "mydays"
+  },
+  "MY3.dc.html": {
+   "x": 940,
+   "y": 2244,
+   "w": 390,
+   "h": 844,
+   "title": "ימי הגלישה שלי · לפני היום הראשון (MY3)",
+   "page": "mydays"
+  },
+  "RS1.dc.html": {
+   "x": 0,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך (RS1)",
+   "page": "mydays"
+  },
+  "RS2.dc.html": {
+   "x": 470,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך · בלילה (RS2)",
+   "page": "mydays"
+  },
+  "RS3.dc.html": {
+   "x": 940,
+   "y": 3288,
+   "w": 390,
+   "h": 844,
+   "title": "השיאים שלך · עוד אין (RS3)",
+   "page": "mydays"
   }
  },
  "createdOnFiles": {
@@ -3394,7 +3474,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "dock"
+  "page": "mydays"
  },
  "notes": {
   "tA": {
@@ -4116,6 +4196,38 @@
    "x": 0,
    "y": 7712,
    "text": "גרסה 3: כפתור \"מסלולים\" פשוט; המדף של גרסה 2 נשאר"
+  },
+  "tmydays": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": -300,
+   "text": "ימי הגלישה שלי והשיאים"
+  },
+  "tmydaysNS": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": 1120,
+   "text": "1 · הקלטה בלי ירידה: לא נשמרת"
+  },
+  "tmydaysMY": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": 2164,
+   "text": "2 · ימי הגלישה שלי"
+  },
+  "tmydaysRS": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "mydays",
+   "x": 0,
+   "y": 3208,
+   "text": "3 · השיאים שלך"
   }
  },
  "order": [
@@ -4541,9 +4653,23 @@
   "SW3.dc.html",
   "SW4.dc.html",
   "SW5.dc.html",
-  "SW6.dc.html"
+  "SW6.dc.html",
+  "MY00-MyDays.dc.html",
+  "NS1.dc.html",
+  "NS2.dc.html",
+  "NS3.dc.html",
+  "MY1.dc.html",
+  "MY2.dc.html",
+  "MY3.dc.html",
+  "RS1.dc.html",
+  "RS2.dc.html",
+  "RS3.dc.html"
  ],
  "pages": [
+  {
+   "id": "mydays",
+   "name": "ימי הגלישה שלי והשיאים (27.11)"
+  },
   {
    "id": "daypages",
    "name": "עמודי היום: המפה, הרכס, הסיפור והשיתוף (27.11)"

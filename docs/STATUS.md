@@ -406,6 +406,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Product designer (Opus 5.5): P.23 and P.24 in the canvas (version 96, page `mydays`: `MY00`, `NS1`-`NS3`, `MY1`-`MY3`, `RS1`-`RS3`), waiting for Pini.** Designed by `session_017QrNw6fSnaro3p4JhH4YLR` (no push access), rebuilt and published here. No-descent recordings never saved (20 m drop, inside Gudauri); "ימי הגלישה שלי"; day cards on the mountain; records with drawings. Handoff `design/handoff/2026-11-27-redesign-my-days/`.
 - 27.11.2026: **Product designer (Opus 5.5): runs button version 3 in the canvas (version 95, `SW00`-`SW6`), waiting for Pini.** The v2 shelf stays; the micro strip leaves the button. Recommended A: a mountain glyph, "מסלולים" and the count (same at 28 or 120 runs); B colour counts and C a live line drawn too. Handoff: shelf-layers README, "Version 3".
 - 27.11.2026: **Product designer (Opus 5.5): the share sheet (P.15, task 4 add-on) in the canvas (version 94, `DV4`-`DV8`), waiting for Pini.** Two tiles instead of the toggle, no explanatory sentence, progress inside the pressed button, "נשמר בגלריה" with a check, "לא נשמר · שוב".
   P.16, P.17, P.19 and P.21 not designed here (session size, rule 12): brief in `design/handoff/2026-11-27-redesign-day-pages/BRIEF-next.md`.
