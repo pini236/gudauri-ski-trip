@@ -122,6 +122,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     // UX pass part 4: the food screen, and where back goes (the menu or the village)
     var foodOpen by remember { mutableStateOf(false) }
     var foodFromMenu by remember { mutableStateOf(false) }
+    var foodFocus by remember { mutableStateOf<String?>(null) } // a pin the food screen opens on ("tickets"), from the ski pass
     var lens by remember { mutableStateOf<LensKind?>(null) }
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
@@ -850,7 +851,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                         g.size == 1 -> people.go(PLayer.Group(g[0].id))
                         else -> people.go(PLayer.Me)
                     } } },
-                    onFood = if (places != null) ({ menuOpen = false; foodFromMenu = true; foodOpen = true }) else null,
+                    onFood = if (places != null) ({ menuOpen = false; foodFromMenu = true; foodFocus = null; foodOpen = true }) else null,
                     onGames = around?.onGames?.let { go -> { menuOpen = false; Redesign.gamesFromMenu = true; go() } },
                     onDays = around?.people?.let { p -> { menuOpen = false; p.onDays() } },
                     onLifts = { menuOpen = false; foodFirst = false; liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true },
@@ -868,7 +869,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             onLift = { l -> villageOpen = false; liftSel = l; liftsOpen = true },
             onTrip = { tripEdit = null; tripOpen = true },
             onSkipass = { skipassOpen = true },
-            onFood = if (io.github.pini236.skiapp.places.LocalPlaces.current != null) ({ villageOpen = false; foodFromMenu = false; foodOpen = true }) else null,
+            onFood = if (io.github.pini236.skiapp.places.LocalPlaces.current != null) ({ villageOpen = false; foodFromMenu = false; foodFocus = null; foodOpen = true }) else null,
             // the row says where it goes (Pini, 24.11.2026): no group, to join or open one; one, to it; more, to my groups
             // the village gives way to the people's screens (nothing of it shows through them)
             onPeople = { g -> if (pp != null) { view.fromVillage(); villageOpen = false }; if (pp != null) when {
@@ -886,8 +887,9 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 meet.fromGroup = true; meet.offlineAt = meets.offlineAt
                 Qa.log("redesign meet from village ${st.id}")
             } })
-        if (foodOpen) FoodScreen(scene, data, mode, time, night, haptics,
-            onBack = { foodOpen = false; if (foodFromMenu) menuOpen = true else villageOpen = true })
+        if (foodOpen) FoodScreen(scene, data, mode, time, night, haptics, focus = foodFocus,
+            toScreen = { x, y -> view.toScreen(x, y, 4f)?.let { Offset(it[0], it[1]) } },
+            onBack = { foodOpen = false; if (foodFocus != null) { foodFocus = null; skipassOpen = true } else if (foodFromMenu) menuOpen = true else villageOpen = true })
         // the flags of my groups (Q05 on the plain mountain): the same flag with its time; a tap opens it
         if (!meet.open && chosen == null && !liftsOpen && plan != null && flags.isNotEmpty()) {
             val sk = remember(night) { SheetInk(night) }
@@ -991,7 +993,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
-            LiveSkipass(around, night, haptics, onOffice = { skipassOpen = false; villageOpen = true; Qa.log("redesign skipass to office") })
+            LiveSkipass(around, night, haptics, onOffice = { skipassOpen = false; foodFromMenu = false; foodFocus = "tickets"; foodOpen = true; Qa.log("redesign skipass to office") })
             // the top: back, and "ski pass" as the title by it (handoff section 14.10); ink by day, white at night
             val top = if (night) Color.White else SheetInk(night).ink
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {

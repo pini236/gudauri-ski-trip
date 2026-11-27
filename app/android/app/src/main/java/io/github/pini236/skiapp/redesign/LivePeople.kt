@@ -115,7 +115,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * Part 3 of the redesign (design/handoff/2026-11-23-redesign-people): the group and the invite, the sign-in and the
@@ -715,8 +714,8 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
             Title(stringResource(R.string.app_gate_title), k)
             Small(stringResource(R.string.app_gate_sub), k)
         }
-        WhyRow(k, listOf(Icons.plane to stringResource(R.string.app_gate_why_flights), Icons.pin to stringResource(R.string.app_gate_why_meet),
-            Icons.trophy to stringResource(R.string.app_gate_why_scores)))
+        WhyRow(k, listOf(0 to stringResource(R.string.app_gate_why_flights), 1 to stringResource(R.string.app_gate_why_meet),
+            2 to stringResource(R.string.app_gate_why_scores)))
         if (!codeMode) {
             AccButton(stringResource(R.string.app_g_new_title), k) {
                 if (p.api.me()?.registered == true) ui.go(PLayer.NewGroup) else { ui.go(PLayer.NewGroup); ui.go(PLayer.SignIn) }
@@ -743,15 +742,71 @@ private fun BoxScope.GateSheet(p: People, ui: PeopleUi, k: SheetInk) {
     }
 }
 
-/** GR1: three small pictures in a row (108 high, radius 18); not buttons. */
+/** GR1: three small pictures in a row (108 high, radius 18, tile background, 52 high drawing, caption under it); not buttons. */
 @Composable
-private fun WhyRow(k: SheetInk, items: List<Pair<ImageVector, String>>) {
+private fun WhyRow(k: SheetInk, items: List<Pair<Int, String>>) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        for ((i, t) in items) Column(Modifier.weight(1f).heightIn(min = 108.dp).clip(RoundedCornerShape(18.dp)).background(k.line.copy(alpha = .5f))
+        for ((kind, t) in items) Column(Modifier.weight(1f).heightIn(min = 108.dp).clip(RoundedCornerShape(18.dp)).background(k.line.copy(alpha = .5f))
             .border(1.dp, k.line, RoundedCornerShape(18.dp)).padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(i, null, Modifier.size(40.dp), tint = k.ink)
+            androidx.compose.foundation.Canvas(Modifier.height(52.dp).fillMaxWidth()) { drawWhy(kind, k) }
             Spacer(Modifier.height(8.dp))
             Text(t, fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 12.5.sp, color = k.ink, textAlign = TextAlign.Center)
+        }
+    }
+}
+
+/** The three drawings of GR1 in the sheet's tokens: 0 a plane over three avatars, 1 a flag on a slope, 2 three bars (the middle one tall, accent). */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawWhy(kind: Int, k: SheetInk) {
+    val u = size.height / 52f
+    val cx = size.width / 2f
+    val round = androidx.compose.ui.graphics.StrokeCap.Round
+    when (kind) {
+        0 -> {
+            // the plane: a body, two wings and a tail, nose to the end side
+            val body = androidx.compose.ui.graphics.Path().apply {
+                moveTo(cx - 14 * u, 15 * u); lineTo(cx + 12 * u, 15 * u)
+                lineTo(cx + 17 * u, 12 * u); lineTo(cx + 12 * u, 9 * u)
+                lineTo(cx - 14 * u, 9 * u); close()
+            }
+            drawPath(body, k.ink)
+            val wing = androidx.compose.ui.graphics.Path().apply {
+                moveTo(cx - 3 * u, 12 * u); lineTo(cx + 3 * u, 12 * u); lineTo(cx - 5 * u, 1 * u); lineTo(cx - 9 * u, 1 * u); close()
+            }
+            drawPath(wing, k.ink2)
+            val tail = androidx.compose.ui.graphics.Path().apply {
+                moveTo(cx - 14 * u, 11 * u); lineTo(cx - 9 * u, 11 * u); lineTo(cx - 14 * u, 4 * u); lineTo(cx - 17 * u, 4 * u); close()
+            }
+            drawPath(tail, k.ink2)
+            // three avatars, overlapping
+            val r = 9 * u
+            val cols = listOf(k.ink2, k.acc, k.good)
+            for (i in 0..2) {
+                val x = cx + (i - 1) * 14 * u
+                drawCircle(cols[i], r, androidx.compose.ui.geometry.Offset(x, 38 * u))
+                drawCircle(k.surf.copy(alpha = 1f), r, androidx.compose.ui.geometry.Offset(x, 38 * u), style = androidx.compose.ui.graphics.drawscope.Stroke(1.5f * u))
+                drawCircle(k.surf.copy(alpha = 1f), 3 * u, androidx.compose.ui.geometry.Offset(x, 35 * u))
+            }
+        }
+        1 -> {
+            val slope = androidx.compose.ui.graphics.Path().apply {
+                moveTo(cx - 28 * u, 50 * u); lineTo(cx - 6 * u, 24 * u); lineTo(cx + 28 * u, 50 * u); close()
+            }
+            drawPath(slope, k.ink2.copy(alpha = .35f))
+            drawLine(k.ink, androidx.compose.ui.geometry.Offset(cx - 6 * u, 24 * u), androidx.compose.ui.geometry.Offset(cx - 6 * u, 3 * u), 2f * u, round)
+            val flag = androidx.compose.ui.graphics.Path().apply {
+                moveTo(cx - 6 * u, 3 * u); lineTo(cx + 12 * u, 8 * u); lineTo(cx - 6 * u, 14 * u); close()
+            }
+            drawPath(flag, k.acc)
+        }
+        else -> {
+            val w = 14 * u
+            val base = 50 * u
+            val hs = listOf(22 * u, 42 * u, 14 * u)
+            for (i in 0..2) {
+                val x = cx + (i - 1) * 19 * u - w / 2f
+                drawRoundRect(if (i == 1) k.acc else k.ink2, androidx.compose.ui.geometry.Offset(x, base - hs[i]), androidx.compose.ui.geometry.Size(w, hs[i]),
+                    androidx.compose.ui.geometry.CornerRadius(4 * u))
+            }
         }
     }
 }
@@ -1014,10 +1069,10 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                 g == null -> GroupSkeletonBody(k)
             }
             if (g != null) {
-                // U07: shown from the phone, with the time it was kept
+                // GR3: a load that failed keeps the saved copy, with the offline pill at the top of the sheet
                 if (shown.offline) {
                     LaunchedEffect(Unit) { Qa.log("redesign edge group offline") }
-                    StatusLine(stringResource(R.string.app_g_offline, savedHm(shown.readAt)), k, EdgeIcon.NO_SIGNAL)
+                    StatusLine(stringResource(R.string.app_err_offline), k, EdgeIcon.NO_SIGNAL)
                 }
                 // U09: a change that waited and was refused, until closed
                 shown.refused?.let { c ->
@@ -1042,7 +1097,6 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
     }
 }
 
-private fun savedHm(ms: Long?): String = ms?.let { java.time.Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime().let { t -> "%02d:%02d".format(t.hour, t.minute) } } ?: "—"
 
 /** R03: the next meetup in a box, the rest as rows; the bell remembers on the phone (meet/Reminders.kt). */
 @Composable

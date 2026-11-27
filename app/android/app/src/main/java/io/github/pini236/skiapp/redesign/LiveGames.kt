@@ -133,14 +133,20 @@ internal fun GamesPage(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -
     val cols = GamesRules.columns(LocalDensity.current.fontScale)
     val back = stringResource(R.string.app_g_back)
 
+    // the veiled mountain: the sunset picture by day, the night picture at night, under the sheet's veil
+    val hero = remember(night) {
+        runCatching { ctx.assets.open("redesign/img/hero-${if (night) "night" else "sunset"}.webp").use { BitmapFactory.decodeStream(it) }?.asImageBitmap() }.getOrNull()
+    }
     Box(Modifier.fillMaxSize().background(bg)) {
+        if (hero != null) Image(hero, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        Box(Modifier.fillMaxSize().background(k.veil))
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(44.dp).clip(CircleShape).background(k.surf.copy(alpha = 1f)).semantics { contentDescription = back; role = Role.Button }
                     .clickable { haptics.tick(.2f); onBack() }, contentAlignment = Alignment.Center) {
                     Icon(Icons.back, null, Modifier.size(22.dp), tint = k.ink)
                 }
-                Text(stringResource(R.string.app_cabin_title), Modifier.padding(start = 12.dp).weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = k.ink)
+                Text(stringResource(R.string.app_cabin_title), Modifier.padding(start = 12.dp).weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 21.sp, color = Color.White)
                 Box(Modifier.height(36.dp).clip(RoundedCornerShape(18.dp)).background(k.surf).border(1.dp, k.line, RoundedCornerShape(18.dp)).padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.app_games_offline), fontFamily = Gudi, fontSize = 12.sp, color = k.ink2)
                 }
