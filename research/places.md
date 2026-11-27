@@ -149,3 +149,19 @@
 ## המלצה (להחלטה של פיני)
 
 אם רוצים להציג את זה באתר ובאפליקציה: לסמן רק פריטים בוודאות א או ב, עם שם וסוג, ולהציג "אין מידע" ולא "אין כלום" בתחנות הריקות, כי ייתכן שיש שם משהו שלא מופה. זה שינוי מראה, ולכן דרך הקנבס, וגם שכבה חדשה בנתונים (סקירת הארכיטקט).
+
+## Ski pass ticket office coordinates (27.11.2026)
+
+Request: a sourced coordinate for the ski pass ticket office, for a Google Maps link. Both points below are OSM building centroids (mean of outline vertices), not surveyed entrances.
+
+| OSM object | Name and tags | Centroid (lat, lon) | Certainty |
+|---|---|---|---|
+| way 207052126 | "Ski Pass Office", `shop=ticket`, `sport=skiing` | 42.470828, 44.487555 | Medium: the name and tag are on the open map, but no second source (official page or photo) confirms it is the office that sells the resort pass today |
+| way 542272940 | "Gondola Tickets", `shop=ticket` | 42.471311, 44.492023 | Medium: it sits 23 m from the Goodaura lift start in our data, which fits a lift-ticket window; no second source |
+
+Source: OpenStreetMap contributors, ODbL 1.0, OSM API map call, data as of 2026-11-01 (`tools/buildings/osm-buildings.json`; links: https://www.openstreetmap.org/way/207052126 and https://www.openstreetmap.org/way/542272940). Checked 27.11.2026.
+
+Notes:
+- The two points are about 380 m apart. Which one the group should be sent to is a product choice: "Ski Pass Office" matches the name in the request; "Gondola Tickets" is where the lift starts.
+- Not found: an official MTA or resort page that gives coordinates, and a verified photo. Live OSM and web queries were unreachable from this container, so the file from 1.11.2026 was used. Opening hours and whether the pass desk moves in season are unverified.
+- No coordinate was guessed. Recommended before the trip: confirm on site in January and record the answer here.
