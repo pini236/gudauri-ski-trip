@@ -408,6 +408,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Content: start-sheet lines and ticket-office screen-reader string entered (Pini approved).** `app.start_all_sub`, `app.start_one_sub`, `app.sr_office_nav` in four languages; `check.py` green.
 - 27.11.2026: **Content: top pill strings entered in four languages (Pini approved).** 23 `app.tp_*` keys (lifts open/all open/wind plural, closed, no data, fresh snow, gusts, snow coming, condition words, two screen-reader lines); countdown and "days to opening" reuse existing `season_*`/`season_pill`. `check.py` green.
 - 27.11.2026: **Content: my-days, day-ridge and story/share strings entered in four languages (Pini approved).** 36 new `app.md_*`, `app.dt_*`, `app.ds_*` keys plus `app.menu_days`; plural keys `md_days`, `md_runs`, `md_card_a11y`, `dt_stops` fix "1 ירידות" (old `day_n_descents`, `days_item`, `rec_day_line` left as they are). `check.py` green.
 - 27.11.2026: **Product designer (Opus 5.5): Pini's fixes in the canvas (version 99).** `DT` marked approved; `DM` back to today's faint coloured run lines, a step stronger (45%/40%, no white lines; `DM3` shows today); `DS` progress bars follow the layout direction; `DV` four buttons one system (56, radius 18, equal columns); `RK6` the run card shrinks to a strip during the flight.

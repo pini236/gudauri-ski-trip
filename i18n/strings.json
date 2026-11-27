@@ -26466,6 +26466,42 @@
     "ru",
     "ka"
    ]
+  },
+  "app.start_all_sub": {
+   "he": "עד שעוצרים",
+   "en": "Until you stop",
+   "ru": "Пока не остановите",
+   "ka": "სანამ არ გააჩერებთ",
+   "where": "app/android",
+   "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.start_one_sub": {
+   "he": "נעצר לבד בתחתית",
+   "en": "Stops by itself at the bottom",
+   "ru": "Остановится сама внизу",
+   "ka": "თავისით გაჩერდება ქვემოთ",
+   "where": "app/android",
+   "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.sr_office_nav": {
+   "he": "ניווט לקופה",
+   "en": "Navigate to the ticket office",
+   "ru": "Маршрут до кассы",
+   "ka": "ნავიგაცია სალაროსკენ",
+   "where": "app/android",
+   "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
