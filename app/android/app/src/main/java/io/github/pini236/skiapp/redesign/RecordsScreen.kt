@@ -154,7 +154,7 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
             val measurer = androidx.compose.ui.text.rememberTextMeasurer()
             val flew = top?.value?.let { stringResource(R.string.app_film_top_speed, LiveNumbers.maxKmh(it)) }
             val headA11y = if (top?.value == null) stringResource(R.string.app_records_empty_title) else
-                listOfNotNull(stringResource(R.string.moment_record_max_kmh_title_1), "${LiveNumbers.maxKmh(top.value)} ${stringResource(R.string.app_rec_unit)}",
+                listOfNotNull(stringResource(R.string.app_md_rt_speed), "${LiveNumbers.maxKmh(top.value)} ${stringResource(R.string.app_md_unit_kmh)}",
                     top.runs.firstOrNull()?.let(::runName), dateOf(top), stringResource(R.string.app_run_estimate),
                     if (top.fresh) stringResource(R.string.app_records_new) else null).joinToString(", ")
             Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(260.dp).clip(RoundedCornerShape(22.dp)).alpha(if (empty) .55f else 1f)
@@ -166,7 +166,7 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
                         .padding(horizontal = 16.dp, vertical = 14.dp)) {
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(LiveNumbers.maxKmh(top.value), fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 52.sp, color = Color.White)
-                            Text(stringResource(R.string.app_rec_unit), Modifier.padding(bottom = 10.dp), fontFamily = Gudi, fontSize = 14.sp, color = Color(0xE6FFFFFF))
+                            Text(stringResource(R.string.app_md_unit_kmh), Modifier.padding(bottom = 10.dp), fontFamily = Gudi, fontSize = 14.sp, color = Color(0xE6FFFFFF))
                             if (top.fresh) Text(stringResource(R.string.app_records_new), Modifier.padding(bottom = 12.dp).clip(RoundedCornerShape(8.dp)).background(k.acc).padding(horizontal = 6.dp, vertical = 2.dp),
                                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = k.onAcc)
                         }
@@ -216,8 +216,8 @@ internal fun RecordsScreen(mode: DayNight.Mode, scene: MapScene?, haptics: Hapti
 private fun RecordTile(r: Records.Row, t: Tile?, mountain: StoryVideo.Mountain?, night: Boolean, k: SheetInk, ramp: IntArray, modifier: Modifier,
                        runName: (String) -> String, dateOf: (Records.Row) -> String?, ghost: Boolean, onClick: () -> Unit) {
     val title = stringResource(when (r.what) {
-        "longest_m" -> R.string.moment_record_longest_m_title_1; "drop_m" -> R.string.moment_record_drop_m_title_1
-        "descents" -> R.string.moment_record_descents_title_1; else -> R.string.app_md_steepest })
+        "longest_m" -> R.string.app_md_rt_longest; "drop_m" -> R.string.app_md_rt_bigday
+        "descents" -> R.string.app_md_rt_most; else -> R.string.app_md_steepest })
     val v = if (ghost) null else r.value
     val (num, unit) = when {
         v == null -> "—" to ""
@@ -231,6 +231,8 @@ private fun RecordTile(r: Records.Row, t: Tile?, mountain: StoryVideo.Mountain?,
             r.runs.size >= 2 -> stringResource(R.string.app_records_from_to, runName(r.runs.first()), runName(r.runs.last()))
             r.runs.size == 1 -> runName(r.runs[0]); else -> dateOf(r) }
         "steep_deg" -> r.runs.firstOrNull()?.let(runName) ?: stringResource(R.string.app_md_steep_seg)
+        "drop_m" -> listOfNotNull(stringResource(R.string.app_md_rd_drop), dateOf(r)).joinToString(" · ")
+        "descents" -> listOfNotNull(stringResource(R.string.app_md_rd_oneday), dateOf(r)).joinToString(" · ")
         else -> dateOf(r)
     }
     val newWord = stringResource(R.string.app_records_new)

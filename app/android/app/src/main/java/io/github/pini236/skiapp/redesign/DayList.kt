@@ -192,7 +192,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                 val cap = k.ink2
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(glass).border(1.dp, k.line, RoundedCornerShape(22.dp)).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Text(month, Modifier.semantics { heading() }, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = k.ink)
+                    Text(stringResource(R.string.app_md_trip_title, month), Modifier.semantics { heading() }, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = k.ink)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         val dayLabel = pluralStringResource(R.plurals.app_md_days, sum.days, sum.days)
                         val runLabel = pluralStringResource(R.plurals.app_md_runs, sum.descents, sum.descents)
@@ -220,7 +220,7 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(stringResource(R.string.app_day_records), Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
                         if (rec.isNotEmpty()) {
-                            if (top != null) RecChip("${LiveNumbers.maxKmh(top.value)} ${stringResource(R.string.app_rec_unit)}", k)
+                            if (top != null) RecChip("${LiveNumbers.maxKmh(top.value)} ${stringResource(R.string.app_md_unit_kmh)}", k)
                             if (drop != null) RecChip("${metres(drop.value!!)} ${stringResource(R.string.app_rec_m_down)}", k)
                         }
                         Box(Modifier.weight(1f))
@@ -338,7 +338,7 @@ private fun DayCard(c: Card, mountain: StoryVideo.Mountain?, night: Boolean, k: 
                     SpeedStrip(c.strip, ramp)
                 } else if (sm != null) Text(stringResource(R.string.app_day_empty), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
                 when (c.tag) {
-                    MyDaysRules.Tag.RECORD -> Tag(stringResource(R.string.moment_record_max_kmh_title_1), k.acc, k)
+                    MyDaysRules.Tag.RECORD -> Tag(stringResource(R.string.app_md_rt_speed), k.acc, k)
                     MyDaysRules.Tag.CUT -> Tag(stringResource(R.string.app_md_cut, d.cutAt?.let { hm.format(Instant.ofEpochMilli(it).atZone(zone)) } ?: "—"), Color(if (night) 0xFFFFB454 else 0xFFB45F06), k)
                     MyDaysRules.Tag.NONE -> {}
                 }
