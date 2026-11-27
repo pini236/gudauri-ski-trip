@@ -1,6 +1,6 @@
 # Strings for the UX pass (to the content session)
 
-Hebrew is the designer's proposal; content writes the final text in four languages and picks the key names. Plain native Hebrew, short, not poetic (CLAUDE.md, 25.11.2026). **Enter them only after Pini approves the boards.** The Hebrew below is after the content review (`content-review.md`). Where an existing key already says it, it is named instead of a new one.
+Hebrew is the designer's proposal; content writes the final text in four languages and picks the key names. Plain native Hebrew, short, not poetic (CLAUDE.md, 25.11.2026). Approved with the boards (Pini, 27.11.2026) and entered by the content session. The Hebrew below is after the content review (`content-review.md`); `i18n/strings.json` is the source from now on. Where an existing key already says it, it is named instead of a new one.
 
 ## Renames (the text of existing keys)
 

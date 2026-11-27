@@ -1,6 +1,6 @@
 # Part 7: far from the mountain (item 10, with bug B2). **Opus**
 
-Boards `NM1`-`NM3` (`ref/NM*.jpg`). **Not before Pini approves.**
+Boards `NM1`-`NM3` (`ref/NM*.jpg`). **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.**
 
 **Why Opus:** it touches the location layer on the live model and the picture (`LiveWhere.kt`), the camera follow of the ski day (`LiveDay.kt:160`, `LiveView.follow`), terrain height outside the grid (`data/Terrain.kt:23`) and the recorder's start path (`MainActivity.recordNow`, the recorder service). If the service's start contract changes, check with the architect first.
 

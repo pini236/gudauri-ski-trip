@@ -1,6 +1,6 @@
 # Part 2: my trip and the stub (items 3, 4). Sonnet
 
-Boards `TR1`-`TR4` (`ref/TR*.jpg`; `TR3` is animated in the canvas). **Not before Pini approves.** The rules of the trip itself (stored on the phone, stages of the count) do not change; base spec: `design/handoff/2026-11-21-redesign-around/README.md`, section 6.
+Boards `TR1`-`TR4` (`ref/TR*.jpg`; `TR3` is animated in the canvas). **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.** The rules of the trip itself (stored on the phone, stages of the count) do not change; base spec: `design/handoff/2026-11-21-redesign-around/README.md`, section 6.
 
 ## 1. It shows that everything can be edited (`TR1`)
 

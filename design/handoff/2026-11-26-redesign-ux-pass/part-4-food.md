@@ -1,6 +1,6 @@
 # Part 4: food and drink (item 6). Sonnet
 
-Boards `FD1`-`FD3` (`ref/FD*.jpg`). **Not before Pini approves.** Build after part 1 (the tile). Data: `site/data/places.json`, already read by the app (`SiteData`); nothing new in the file.
+Boards `FD1`-`FD3` (`ref/FD*.jpg`). **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.** Build after part 1 (the tile). Data: `site/data/places.json`, already read by the app (`SiteData`); nothing new in the file.
 
 ## What changes
 

@@ -1,6 +1,6 @@
 # Part 3: the ski pass (item 5). Sonnet
 
-Boards `SP1`, `SP2` (`ref/SP*.jpg`). **Not before Pini approves.** The calculation and the data do not change (`skipass/Prices`, `site/data/prices.json`); base spec: `design/handoff/2026-11-21-redesign-around/README.md`, section 7.
+Boards `SP1`, `SP2` (`ref/SP*.jpg`). **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.** The calculation and the data do not change (`skipass/Prices`, `site/data/prices.json`); base spec: `design/handoff/2026-11-21-redesign-around/README.md`, section 7.
 
 ## What changes
 

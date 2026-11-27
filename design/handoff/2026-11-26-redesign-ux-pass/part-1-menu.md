@@ -1,6 +1,6 @@
 # Part 1: the menu (items 1, 2). Sonnet
 
-Boards `MN1`-`MN6` (`ref/MN*.jpg`). Read `README.md` here first. **Not before Pini approves.**
+Boards `MN1`-`MN6` (`ref/MN*.jpg`). Read `README.md` here first. **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.**
 
 ## 1. The bar (`MN1`)
 

@@ -1,6 +1,6 @@
 # Part 6: games (item 9). Sonnet
 
-Boards `GA1`, `GA2` (`ref/GA*.jpg`). **Not before Pini approves.** The games themselves do not change; this is the entry and the list. It replaces board `R11` ("ערב בבקתה") and, in the app, the old-design `GamesScreen` that the row opens today.
+Boards `GA1`, `GA2` (`ref/GA*.jpg`). **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.** The games themselves do not change; this is the entry and the list. It replaces board `R11` ("ערב בבקתה") and, in the app, the old-design `GamesScreen` that the row opens today.
 
 ## 1. The name
 

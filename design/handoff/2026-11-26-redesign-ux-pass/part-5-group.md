@@ -1,6 +1,6 @@
 # Part 5: my group (items 7, 8). Sonnet
 
-Boards `GR1`-`GR4` (`ref/GR*.jpg`). **Not before Pini approves.** The group's rules, the server calls and the four tabs do not change; base spec: `design/handoff/2026-11-23-redesign-people/README.md`, sections 3 and 4.
+Boards `GR1`-`GR4` (`ref/GR*.jpg`). **Approved (Pini, 27.11.2026; recorded in `docs/STATUS.md` J.7 and `docs/DECISIONS.md` by the manager session). Build.** The group's rules, the server calls and the four tabs do not change; base spec: `design/handoff/2026-11-23-redesign-people/README.md`, sections 3 and 4.
 
 ## 1. The name
 

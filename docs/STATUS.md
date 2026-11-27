@@ -44,7 +44,7 @@ Last updated: 2.11.2026 (round 21 on the site, route name by name, Gudauri data 
 | Canvas: B10 (buttons without words) | `design/redesign/tools/b10_boards.py`, `design/handoff/2026-11-26-redesign-b10/` | free (last session: `session_017QrNw8Sx16Q5GiNokfYHLr`; boards BT00 to BT4 in canvas version 75, waiting for Pini) | | |
 | Android: UX pass part 4 (food and drink) | `app/android/` | free (last session: `session_017QrNw6AKpgNhqrREjFzvsy`, built 27.11.2026) | | |
 | Android: UX pass part 5 (my group) | `app/android/` only `LivePeople.kt` GateSheet and the group skeleton | free (merged 27.11.2026) | | |
-| Canvas: UX pass (menu, trip, ski pass, food, group, games, far from the mountain) | `design/redesign/tools/ux_boards.py`, `design/handoff/2026-11-26-redesign-ux-pass/` | free (last session: `session_017QrNw77yiLRaYaGhuEMWEh`; boards `UX00`, `MN`, `TR`, `SP`, `FD`, `GR`, `GA`, `NM` in canvas version 86, waiting for Pini) | | |
+| Canvas: UX pass (menu, trip, ski pass, food, group, games, far from the mountain) | `design/redesign/tools/ux_boards.py`, `design/handoff/2026-11-26-redesign-ux-pass/` | free (last session: `session_017QrNw77yiLRaYaGhuEMWEh`; boards `UX00`, `MN`, `TR`, `SP`, `FD`, `GR`, `GA`, `NM` in canvas version 87, approved 27.11.2026 and marked so; the designer is dormant, the design reviewer checks the builds) | | |
 | Canvas: round 38 | `design/round38/` and the shared canvas | free (round 38 deferred to the design-language refactor, 13.11.2026) | | |
 | Canvas: round 37 | `design/round37/` and the shared canvas | free (round 37 approved, handed to the site session for implementation) | | |
 | Canvas: round 34 | `design/round34/` (the boards are built in `design/round29/build.py`) and the shared canvas | free (round 34 in the canvas, waiting for Pini) | | |
@@ -378,6 +378,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Product designer (Fable): the UX pass is marked approved in the canvas (version 87) and in the handoff, following the approval recorded in J.7 and `docs/DECISIONS.md` by the manager.** Part files now say "Build"; `strings.md` points to `i18n/strings.json` as the source. Designer dormant; the design reviewer checks the builds.
 - 27.11.2026: **Android (UX pass part 2, Sonnet): my trip.** "Edit" chip inside the card, dashed lines under every field with a solid pressed state, title "הטיול שלי", the stub as its own paper with holes and a hinged fall (`LiveTrip.kt`). Not compiled here (no Gradle network) and not tested on a phone; the editor sheet look and "+ כבודה" (Trip has no baggage) are left open.
 - 27.11.2026: **Android UX pass part 6 (games page "משחקים") merged to `main`** (`LiveGames.kt`, `android` run 993 green). Last-played card, grid (1 column above font scale 1.3), group table button. Not tested on a phone.
 - 27.11.2026: **Android (Sonnet implementer): UX pass part 4, the food and drink screen built (`LiveFood.kt`, `FoodRules.kt`), on `claude/android-ux-part4`, not merged until `android` is green.** Menu tile and village pin open it: tabs "בכפר"/"על ההר", one row per name, a place with ניווט/שיתוף; pins only on the village tab. Not tested on a phone or emulator.
