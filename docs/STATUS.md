@@ -378,6 +378,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Manager (Sonnet): group loading skeleton (GR3) built.** Real-size sweeping bars in the group sheet, "אני" groups box and the menu group tile, invite pill at 45% while loading, 150 ms arrival fade. Not compiled locally; CI only; not tested on a phone.
 - 27.11.2026: **Product designer (Fable): the UX pass is marked approved in the canvas (version 87) and in the handoff, following the approval recorded in J.7 and `docs/DECISIONS.md` by the manager.** Part files now say "Build"; `strings.md` points to `i18n/strings.json` as the source. Designer dormant; the design reviewer checks the builds.
 - 27.11.2026: **Android (UX pass part 2, Sonnet): my trip.** "Edit" chip inside the card, dashed lines under every field with a solid pressed state, title "הטיול שלי", the stub as its own paper with holes and a hinged fall (`LiveTrip.kt`). Not compiled here (no Gradle network) and not tested on a phone; the editor sheet look and "+ כבודה" (Trip has no baggage) are left open.
 - 27.11.2026: **Android UX pass part 6 (games page "משחקים") merged to `main`** (`LiveGames.kt`, `android` run 993 green). Last-played card, grid (1 column above font scale 1.3), group table button. Not tested on a phone.
