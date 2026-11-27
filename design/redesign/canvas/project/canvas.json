@@ -3465,6 +3465,70 @@
    "h": 844,
    "title": "השיאים שלך · עוד אין (RS3)",
    "page": "mydays"
+  },
+  "TP00-TopPill.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 980,
+   "title": "P.25: הפס העליון, מה ולמה (TP00)",
+   "page": "toppill"
+  },
+  "TP1.dc.html": {
+   "x": 0,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · בעונה, יום רגיל (TP1)",
+   "page": "toppill"
+  },
+  "TP2.dc.html": {
+   "x": 470,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · רוח, שני רכבלים עצרו (TP2)",
+   "page": "toppill"
+  },
+  "TP3.dc.html": {
+   "x": 940,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · בוקר אחרי שלג (TP3)",
+   "page": "toppill"
+  },
+  "TP4.dc.html": {
+   "x": 1410,
+   "y": 1140,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · ערב, הרכבלים סגורים (TP4)",
+   "page": "toppill"
+  },
+  "TP5.dc.html": {
+   "x": 0,
+   "y": 2184,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · אין נתון חי (TP5)",
+   "page": "toppill"
+  },
+  "TP6.dc.html": {
+   "x": 470,
+   "y": 2184,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · לפני העונה (TP6)",
+   "page": "toppill"
+  },
+  "TP7.dc.html": {
+   "x": 940,
+   "y": 2184,
+   "w": 390,
+   "h": 844,
+   "title": "הפס העליון · כל המצבים (TP7)",
+   "page": "toppill"
   }
  },
  "createdOnFiles": {
@@ -3474,7 +3538,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "mydays"
+  "page": "toppill"
  },
  "notes": {
   "tA": {
@@ -4228,6 +4292,14 @@
    "x": 0,
    "y": 3208,
    "text": "3 · השיאים שלך"
+  },
+  "ttoppill": {
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "toppill",
+   "x": 0,
+   "y": -300,
+   "text": "הפס העליון: רכבלים ומזג אוויר"
   }
  },
  "order": [
@@ -4663,9 +4735,21 @@
   "MY3.dc.html",
   "RS1.dc.html",
   "RS2.dc.html",
-  "RS3.dc.html"
+  "RS3.dc.html",
+  "TP00-TopPill.dc.html",
+  "TP1.dc.html",
+  "TP2.dc.html",
+  "TP3.dc.html",
+  "TP4.dc.html",
+  "TP5.dc.html",
+  "TP6.dc.html",
+  "TP7.dc.html"
  ],
  "pages": [
+  {
+   "id": "toppill",
+   "name": "הפס העליון: רכבלים ומזג אוויר (27.11)"
+  },
   {
    "id": "mydays",
    "name": "ימי הגלישה שלי והשיאים (27.11)"

@@ -451,6 +451,10 @@ Canvas version 89, same page as `DK` (now "בוחרים מסלול: הכפתור
 
 **Version 2 (27.11.2026, canvas 90, `SV00` to `SV6`, `tools/sv_boards.py`):** the chosen direction with more craft. The "מסלולים" button carries a micro strip of all runs that opens into the shelf's strip; the lit chip takes the colour of what it paints; the card's big number is the chip's answer; ranks are written on the mountain; `SV4` animates a chip change. Spec: the "Version 2" section of the shelf-layers handoff.
 
+### The top pill, P.25 (27.11.2026; waiting for Pini)
+
+Canvas version 97, page "הפס העליון: רכבלים ומזג אוויר (27.11)" (`toppill`), boards `TP00`, `TP1`-`TP7`: one pill, lifts in a filling ring and the weather, six states (in season, wind, fresh snow, evening, no live data, pre-season). Source `tools/tp_boards.py`; handoff `design/handoff/2026-11-27-redesign-top-pill/`.
+
 ### My ski days and records, P.23 and P.24 (27.11.2026; waiting for Pini)
 
 Canvas version 96, new page "ימי הגלישה שלי והשיאים (27.11)" (`mydays`), boards `MY00`, `NS1`-`NS3` (a recording without a real descent is not saved; replaces `EM`), `MY1`-`MY3` (the days list), `RS1`-`RS3` (the records). Source `tools/md_boards.py`; handoff `design/handoff/2026-11-27-redesign-my-days/`.
