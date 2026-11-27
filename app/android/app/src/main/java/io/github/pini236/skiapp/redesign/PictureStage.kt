@@ -112,7 +112,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
                 kobiHero = runCatching { PeakData.loadKobiView(context, d.geo) }.onFailure { Redesign.fail("kobi layer") }.getOrNull()
                 kobiSet?.scan()
                 kobiReady = kobiHero != null
-                Qa.log("redesign kobi init set=${kobiSet != null} rev=${kobiC.rev} path=${kobiC.path} images=${kobiC.images.size} layer=${kobiHero != null} have=${kobiSet?.arrived}")
+                KobiDiag.note("kobi init set=${kobiSet != null} rev=${kobiC.rev} path=${kobiC.path} images=${kobiC.images.size} layer=${kobiHero != null} have=${kobiSet?.arrived}")
             }
         }
     }
@@ -229,7 +229,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
     fun faceFor(key: String): Face = if (kobiC != null && seenIn(picK, key) > seenIn(picF, key)) Face.KOBI else Face.FRONT
 
     /** whether this stage cannot show [key]: the face it belongs to has no marking for it, no picture yet (the side), or shows less than half of it */
-    fun needsLive(key: String): Boolean = whyLive(key).also { if (it != null) Qa.log("redesign picture live because $it for $key") } != null
+    fun needsLive(key: String): Boolean = whyLive(key).also { if (it != null) KobiDiag.note("live because $it for $key") } != null
 
     /** why the picture cannot show [key] (null = it can): one reason per condition, logged, so a fall to live can be told apart */
     fun whyLive(key: String): String? {
@@ -256,7 +256,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
     override fun pickKey(key: String) {
         val ks = kobiSet; val sc = scope
         if (ks != null && sc != null && kobiFetching && !kobiUsable && faceFor(key) == Face.KOBI) {
-            Qa.log("redesign kobi waiting for the first picture")
+            KobiDiag.note("kobi waiting for the first picture")
             sc.launch {
                 val got = withTimeoutOrNull(5000) { snapshotFlow { ks.arrived }.first { it > 0 } }
                 Qa.log("redesign kobi wait ${if (got != null) "done" else "timed out"}")
@@ -551,10 +551,10 @@ internal class PictureStage(private val context: Context, private val scene: Map
         // (the architect's conditions: the current light first, resumable, never in the background)
         // (the fetch needs only the set: it no longer waits for the layer to parse, and it tries again after a failure)
         LaunchedEffect(kobiSet) {
-            val ks = kobiSet ?: run { Qa.log("redesign kobi fetch: no set"); return@LaunchedEffect }
+            val ks = kobiSet ?: run { KobiDiag.note("kobi fetch: no set"); return@LaunchedEffect }
             while (!drawnOnce) withFrameNanos { }
             val lc = KobiSet.lifecycleOf(context)
-            Qa.log("redesign kobi fetch start lifecycle=${lc != null}")
+            KobiDiag.note("kobi fetch start lifecycle=${lc != null}")
             suspend fun round(active: () -> Boolean) {
                 for (attempt in 1..4) {
                     kobiFetching = true

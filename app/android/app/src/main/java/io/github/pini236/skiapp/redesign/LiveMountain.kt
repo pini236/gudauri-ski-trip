@@ -1035,6 +1035,11 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         // P.17 (KB1): the tag "צד Kobi" on the ridge of the front picture
         if (bare && picture != null && shows == StageRules.Shows.PICTURE && !picture.onKobi && chosen == null && riding == null && mtnDrawn)
             KobiTag(picture, night) { haptics.tick(.3f); Qa.log("redesign kobi tag"); view.pickKey("Kobi") }
+        // tester build only: the last thing the Kobi side did (Pini cannot read the log)
+        if (io.github.pini236.skiapp.BuildConfig.TESTER_EXPORT && picture != null && KobiDiag.line.isNotEmpty())
+            Text("kobi: " + KobiDiag.line, color = androidx.compose.ui.graphics.Color.White, fontSize = 11.sp, maxLines = 2,
+                modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(top = 112.dp, start = 8.dp, end = 8.dp)
+                    .background(androidx.compose.ui.graphics.Color(0xB3000000), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 3.dp))
         if (!bare) KobiCompassFloating(shows == StageRules.Shows.PICTURE && picture?.onKobi == true, night) { haptics.tick(.3f); view.backToFront() }
         if (kobiWait && shows == StageRules.Shows.PICTURE) KobiWait(night) { kobiWait = false }
         // Z03: a turn tried on the picture, once: the live model does it
