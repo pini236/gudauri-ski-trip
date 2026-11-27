@@ -229,14 +229,18 @@ internal class PictureStage(private val context: Context, private val scene: Map
     fun faceFor(key: String): Face = if (kobiC != null && seenIn(picK, key) > seenIn(picF, key)) Face.KOBI else Face.FRONT
 
     /** whether this stage cannot show [key]: the face it belongs to has no marking for it, no picture yet (the side), or shows less than half of it */
-    fun needsLive(key: String): Boolean {
+    fun needsLive(key: String): Boolean = whyLive(key).also { if (it != null) Qa.log("redesign picture live because $it for $key") } != null
+
+    /** why the picture cannot show [key] (null = it can): one reason per condition, logged, so a fall to live can be told apart */
+    fun whyLive(key: String): String? {
         val f = faceFor(key)
-        if (f == Face.KOBI && !kobiUsable) return true
-        if (key !in heroOf(f).sel) return true
-        val ls = (if (f == Face.KOBI) picK else picF) ?: return false
+        if (f == Face.KOBI && !kobiReady) return "kobi layer not ready"
+        if (f == Face.KOBI && kobiSet?.usable() != true) return "kobi pictures not here (set=${kobiSet != null}, arrived=${kobiSet?.arrived})"
+        if (key !in heroOf(f).sel) return "no marking on ${f.name}"
+        val ls = (if (f == Face.KOBI) picK else picF) ?: return null
         var n = 0; var seen = 0
         for (l in ls) if (l.key == key) for (s in l.seen) { n++; if (s) seen++ }
-        return n > 0 && seen * 2 < n
+        return if (n > 0 && seen * 2 < n) "less than half seen on ${f.name} ($seen/$n)" else null
     }
 
     override fun choose(key: String?) {
@@ -264,6 +268,7 @@ internal class PictureStage(private val context: Context, private val scene: Map
     }
 
     private fun pickKeyNow(key: String) {
+        Qa.log("redesign picture pick $key face=${faceFor(key)} side=$side lines=${picK != null}/${picF != null}")
         if (needsLive(key)) { Qa.log("redesign picture live for $key"); onNeedLive?.invoke(key); return }
         val f = faceFor(key)
         if (f != side) { turn(f, key); return }
