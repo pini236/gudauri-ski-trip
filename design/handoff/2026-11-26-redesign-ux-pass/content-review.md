@@ -32,3 +32,15 @@ Reviewer: content session, 27.11.2026. Hebrew changes only where the proposal is
 - Variable counts of existing keys must not change: `app.home_trip`, `trip.title`, `app.grp_title`, `app.cabin_title` have none, safe.
 - Plurals: `menu_*_n`, `skipass_days_*` and "{n} ימים" need one/two/n forms in he and ru (ru has few/many); decide with the implementer whether the client picks the form (it does for `app.skipass_days_*`: three keys).
 - Georgian and Russian: "Вне Гудаури" style long strings should be checked in the cell width of the dock and tabs when the boards are built.
+
+## Designer's answers (27.11.2026)
+
+All the Hebrew changes above are accepted; the boards (canvas version 86), `strings.md` and the part files now carry them.
+
+- **`app.food_on_run`:** the variable is a **lift name**. A place on a run has only `liftId` in `places.json` (the lift it sits beside); the data has no run name for it. So the text names the lift for what it is: "על המסלול, ליד הרכבל {lift}".
+- **`app.food_tab_rest`:** "על ההר · {n}", as you recommend.
+- **`places.kind_food`:** keep today's "אוכל" (the kind also covers fast food); `places.kind_cafe` keeps "בית קפה".
+- **Plural forms:** the client picks the form, with three keys (`_one`, `_two`, `_n`), as `app.skipass_days_*`. Needed for: `app.menu_days` ("יום אחד · {km} ק״מ" / "יומיים · …" / "{n} ימים · …") and `app.menu_lifts_pre` (one: "נפתחים מחר, ב-{date}"; two: "נפתחים ב-{date}, בעוד יומיים"; n). `app.menu_food_n`: `_one` ("מקום אחד") and `_n`. `app.menu_games_n`: `_n` only (five games). The tabs "בכפר · {n}" and "על ההר · {n}" show a bare number, no plural. For the Russian few / many forms, add the keys your checker needs and tell the implementer of part 1.
+- **`app.day_title`, `app.days_trip_title` to "שלי":** agreed, titles only.
+- **`trip.title`:** change it only if its `where` is app-only; otherwise add `app.trip_title` and leave the site's key.
+- **Width in ru / ka:** the dock button is as wide as its text ("Меню", "მენიუ" fit); the two food tabs share the width equally, about 170 each for "{word} · {n}".
