@@ -3025,6 +3025,54 @@
    "h": 844,
    "title": "גרסה 2: \"שלג חדש\" (SV6)",
    "page": "dock"
+  },
+  "RK00-RunCard.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1240,
+   "title": "חמש ההערות, ההצעה והשאלות (RK00)",
+   "page": "runcard"
+  },
+  "RK1.dc.html": {
+   "x": 0,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "כרטיס המסלול: צף, עם השכנים מציצים והנקודות מתחתיו (RK1)",
+   "page": "runcard"
+  },
+  "RK2.dc.html": {
+   "x": 470,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "הכרטיס פתוח: התנאים והסרטונים (RK2)",
+   "page": "runcard"
+  },
+  "RK3.dc.html": {
+   "x": 940,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "בלילה (RK3)",
+   "page": "runcard"
+  },
+  "RK4.dc.html": {
+   "x": 1410,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "בזמן הטיסה מעל המסלול: הנקודה יורדת על הפרופיל (RK4)",
+   "page": "runcard"
+  },
+  "RK5.dc.html": {
+   "x": 1880,
+   "y": 1380,
+   "w": 390,
+   "h": 844,
+   "title": "The run card in English (RK5)",
+   "page": "runcard"
   }
  },
  "createdOnFiles": {
@@ -3034,7 +3082,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "dock"
+  "page": "runcard"
  },
  "notes": {
   "tA": {
@@ -3691,6 +3739,14 @@
    "x": 0,
    "y": 5308,
    "text": "גרסה 2: הכפתור והמדף, עם יותר חוויה"
+  },
+  "truncard": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "runcard",
+   "x": 0,
+   "y": -300,
+   "text": "כרטיס המסלול"
   }
  },
  "order": [
@@ -4071,9 +4127,19 @@
   "SV3.dc.html",
   "SV4.dc.html",
   "SV5.dc.html",
-  "SV6.dc.html"
+  "SV6.dc.html",
+  "RK00-RunCard.dc.html",
+  "RK1.dc.html",
+  "RK2.dc.html",
+  "RK3.dc.html",
+  "RK4.dc.html",
+  "RK5.dc.html"
  ],
  "pages": [
+  {
+   "id": "runcard",
+   "name": "כרטיס המסלול (27.11)"
+  },
   {
    "id": "dock",
    "name": "בוחרים מסלול: הכפתור, המדף והשכבות (27.11)"

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>כרטיס המסלול</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul,.HW ol{margin:0}
+.HW ul,.HW ol{padding-inline-start:20px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:14px;border:1px solid #D9DEE4;flex:none;background:#DCE6F2}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW .sec{font-size:13px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW h1{font-size:34px;font-weight:900;line-height:1.15}
+.HW h2{font-size:23px;font-weight:700;line-height:1.25}
+.HW .lead{font-size:18px;line-height:1.55}
+.HW .cap{font-size:13.5px;line-height:1.45;color:#3C4753}
+.HW .cap b{color:#10161D;font-size:15px}
+.HW .rowx{display:flex;gap:16px;align-items:flex-start}
+.HW .fr{display:flex;flex-direction:column;gap:8px;flex:none}
+.HW .tm{font-size:22px;font-weight:300;direction:ltr;display:inline-block}
+
+@keyframes tkd{0%{stroke-dashoffset:1;opacity:1}28%{stroke-dashoffset:0;opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arc{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes glo{0%,100%{box-shadow:inset 0 0 0 0 rgba(255,255,255,0)}50%{box-shadow:inset 0 0 14px 2px rgba(255,255,255,.45)}}
+.sh{position:relative;width:48px;height:48px;border-radius:50%;background:#E5352B;border:0;padding:0;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;box-sizing:border-box;font-family:inherit;box-shadow:0 2px 6px rgba(120,20,15,.28)}
+.sh .rg{position:absolute;inset:0;overflow:visible}
+.sh .tk{stroke-dasharray:1;stroke-dashoffset:0}
+.sh.idle .tk{animation:tkd 6s ease-out infinite}
+.sh.live{animation:glo 2.4s ease-in-out infinite}
+.sh.live .tk{animation:tkd 2.4s linear infinite}
+.sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
+.sh.mid{width:56px;height:56px}
+.rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.rq .o svg{position:absolute;inset:0}
+.rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.25)}
+.rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.rq.on{padding-inline-end:12px;background:rgba(229,53,43,.12)}
+.night .rq.on{background:rgba(255,116,104,.16)}
+.rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.still .tk,.still .ar,.still.sh{animation:none!important}
+.nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
+.nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.25)}
+
+.HW .stage{display:flex;align-items:center;justify-content:center;gap:24px;height:140px;border-radius:12px}
+.HW .stage.d{background:linear-gradient(#DDE8F3,#F4F7FA)}
+.HW .stage.n{background:linear-gradient(#0B1424,#16213A)}
+.HW .stage .z{zoom:1.7}
+.HW .opt{flex:1;min-width:0}
+.HW .opt h2 .k{display:inline-flex;width:34px;height:34px;border-radius:17px;background:#10161D;color:#fff;align-items:center;justify-content:center;font-size:18px;margin-inline-end:8px}
+.HW .opt.rec{border:3px solid #6B3FD4}
+.HW .pc{font-size:14.5px;line-height:1.5}
+.HW .pc b{display:inline-block;min-width:58px}
+.HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1280px; height: 1240px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">כרטיס המסלול · 27.11.2026 · ממתין לפיני</p><h1>כרטיס המסלול: פחות מילים, הפרופיל במקום שורות, ודרך ברורה לסרטונים ולמסלול הבא</h1><div class="card"><h2>חמש ההערות</h2><table style="border-collapse: collapse; width: 100%"><tr><th>#</th><th>מה פיני אמר</th><th>ההצעה</th></tr><tr><td>1</td><td>"(מפה רשמית)" מיותר, ופחות טקסט</td><td>בראש הכרטיס: השלט, השם, תג קטן "כחול · קל" עם נקודת צבע, ו-<bdi>Goodaura ↓ Shino</bdi> (מאיפה ולאן, בלי מילים). "(מפה רשמית)" יורד בכל מקום.</td></tr><tr><td>2</td><td>המספרים הם שורות טקסט</td><td>הפרופיל האמיתי של המסלול, צבוע לפי השיפוע: ירוק במתון, צהוב בתלול. עליו הגובה בראש ובתחתית, סימון כל 500 מ׳, ותג "20°" בדיוק במקום של הקטע התלול. שלושת המספרים מתחתיו.</td></tr><tr><td>3</td><td>"לרדת בסרט" לא ברור</td><td>"טיסה מעל המסלול", עם משולש של ניגון. בזמן הטיסה נקודה יורדת על הפרופיל, והכפתור הופך ל"עצירה". שתי חלופות לניסוח למטה.</td></tr><tr><td>4</td><td>"סרטונים · 1" לא אומר מה לעשות</td><td>שורה אחת בתחתית הכרטיס: שלוש תמונות קטנות של סרטונים, "3 סרטונים", הטמפרטורה עכשיו, ועיגול עם חץ למעלה (אותו עיגול של כפתור "מסלולים"). נגיעה או משיכה פותחת.</td></tr><tr><td>5</td><td>הנקודות נראות כמו דפדוף בסרטונים</td><td>הכרטיס צף, קצות הכרטיסים של המסלול הקודם והבא מציצים משני הצדדים, והנקודות מתחת לכרטיס, מחוץ לו. ברור שהכרטיס כולו זז הצידה.</td></tr></table></div><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>איך לקרוא לכפתור</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>"טיסה מעל המסלול" (מומלץ).</b> אומר מה רואים: המצלמה טסה מעל המסלול מלמעלה עד למטה.</li><li><b>"סיור במסלול".</b> קצר, אבל יכול להישמע כמו הדרכה.</li><li><b>"לראות את הירידה".</b> טבעי, אבל פחות מדויק (אפשר לחשוב שזה סרטון של גולש).</li></ul></div><div class="card" style="flex: 1.3"><h2>המבנה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>ההר ממלא את כל המסך</b> מאחורי הכרטיס, כמו בכלל של גרסה 91; המסלול הנבחר דלוק מעל הכרטיס.</li><li><b>הכרטיס:</b> 18 מהצדדים, 44 מהתחתית, רדיוס 28, זכוכית. מתחתיו הנקודות (הפעילה רחבה). קצות השכנים: 10 נקודות נראות מכל צד, 8 מהכרטיס.</li><li><b>פתוח:</b> אותו כרטיס גדל עד 112 מלמעלה ונגלל מבפנים; השורה התחתונה מתחלפת בתנאים וברשימת הסרטונים. משיכה למטה מחזירה.</li><li><b>החלקה הצידה:</b> הכרטיס כולו נוסע, והשכן נכנס; ההר והמסלול הדלוק מתחלפים איתו (300 מ״ש). הסדר: של הצ׳יפ הדלוק במדף.</li><li><b>בלי סרטונים:</b> השורה התחתונה מראה רק את התנאים; בלי תחזית ובלי סרטונים: אין שורה, והכרטיס קצר יותר.</li></ul></div></div><div class="card"><h2>לפיני</h2><p class="q"><span class="qn">1</span><span><b>הכרטיס הצף, עם השכנים מציצים והנקודות מתחתיו?</b> (ההמלצה: כן)</span></p><p class="q"><span class="qn">2</span><span><b>הפרופיל הצבוע עם שלושת המספרים?</b> (כן)</span></p><p class="q"><span class="qn">3</span><span><b>"טיסה מעל המסלול"</b> במקום "לרדת בסרט"? (כן; הניסוח הסופי דרך סשן התוכן)</span></p><p class="q"><span class="qn">4</span><span><b>השורה התחתונה</b> (תמונות, "3 סרטונים", התנאים, חץ למעלה) במקום "סרטונים · 1"? (כן)</span></p><p class="cap">הפרופיל, האורך, הירידה, הגבהים והקטע התלול של <bdi>Tatra 2</bdi> מהנתונים של האתר. הסרטונים שבלוח הם מהרשימה האמיתית; הטמפרטורות דוגמה. נמדד בכלי העיצוב, לא בטלפון. המסירה: <span dir="ltr">design/handoff/2026-11-27-redesign-run-card/</span></p></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
