@@ -1,7 +1,7 @@
 # The run card (the run sheet, peek and open)
 
 **When:** 27.11.2026, product designer (Fable). Design only, no code.
-**Status:** waiting for Pini (rule 7). Four questions in board `RK00`.
+**Status:** approved by Pini, 27.11.2026 (relayed by the manager session); built on `claude/android-run-card` (low and open card; the neighbours peeking and the flight strip are not built yet). Four questions were in board `RK00`.
 **Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 92), page "כרטיס המסלול (27.11)", boards `RK00`, `RK1` to `RK5`. Source: `design/redesign/tools/rc_boards.py`. Pictures: `ref/`.
 **Replaces** the look of `K10` and `S07` (`design/handoff/2026-11-23-redesign-on-mountain/README.md`, section 5). The rules there (two heights, conditions, videos, previous and next in the shelf's order, share) do not change.
 
