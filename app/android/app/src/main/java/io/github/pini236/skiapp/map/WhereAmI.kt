@@ -74,11 +74,13 @@ class WhereAmI(private val context: Context, private val locator: Locator, priva
     /** The system said no to the permission. */
     fun refused() { state = State.Denied; send("denied") }
 
-    fun off() {
+    /** [quiet]: switched off by the app itself (UX part 7: far from the mountain, the card says it), not measured as the user's. */
+    fun off(quiet: Boolean = false) {
         val was = on // only a button that was really on says so (not after a refusal or no location)
         unregister(); listening = false; locator.reset(); pending = null
         state = State.Off; approximate = false
-        if (was) { Telemetry.event("location_toggle", mapOf("on" to false)); Qa.log("where off") }
+        if (was && quiet) Qa.log("where off far")
+        else if (was) { Telemetry.event("location_toggle", mapOf("on" to false)); Qa.log("where off") }
     }
 
     /** The map is in front: listen again if the button is on. */

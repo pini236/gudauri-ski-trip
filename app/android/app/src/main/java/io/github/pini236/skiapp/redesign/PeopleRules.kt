@@ -54,7 +54,9 @@ internal object PeopleRules {
     }
 
     /** The sheet's top (section 4): 292 under the screen's top, 254 on the flights and the members, which are longer. */
-    fun sheetTop(tab: GroupTab): Int = if (tab == GroupTab.FLIGHTS || tab == GroupTab.MEMBERS) 254 else 292
+    /** Part 5 (GR3): one top for every tab, so the sheet never jumps when the tab or the group arrives. */
+    @Suppress("UNUSED_PARAMETER")
+    fun sheetTop(tab: GroupTab): Int = 254
 
     /** The meetups still on the list (R03): a meetup more than an hour past leaves it; the soonest first. */
     fun upcoming(meetups: List<Meetup>, now: Instant): List<Meetup> =
