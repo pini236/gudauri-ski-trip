@@ -494,6 +494,8 @@ Map data © OpenStreetMap contributors (ODbL). Weather: Open-Meteo.com (CC BY 4.
 
 **אם גוגל דוחה:** בדרך כלל כי הבדיקה לא הייתה פעילה מספיק. ממשיכים עם הבודקים, מעלים עוד גרסה, ומגישים שוב.
 
+**Production rollout percentage (Pini, 26.11.2026):** release to **100%**, not a 20% staged rollout, because the app has no users yet. Revisit once there is a real user base. (Recorded 27.11.2026; it was only in the conversation before.)
+
 ## 10. כניסה עם גוגל: לקוחות בקונסולת גוגל ובסופבייס (פיני)
 
 **בוצע (2.10.2026):** מסך ההסכמה, לקוח האינטרנט ושני לקוחות האנדרואיד (מפתח הבדיקה ומפתח ההעלאה), וגוגל דלוק בסופבייס. יצירת קבוצה דורשת חשבון (`docs/USERS.md`), ובאנדרואיד נכנסים רק עם גוגל. **לא קשור לחשבון של גוגל פליי.**
