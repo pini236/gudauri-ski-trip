@@ -26565,6 +26565,102 @@
     "ru",
     "ka"
    ]
+  },
+  "app.md_trip_title": {
+   "he": "גודאורי · {month}",
+   "en": "Gudauri · {month}",
+   "ru": "Гудаури · {month}",
+   "ka": "გუდაური · {month}",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_rd_drop": {
+   "he": "מטרים למטה ביום",
+   "en": "Meters down in a day",
+   "ru": "Метров вниз за день",
+   "ka": "მეტრი დაღმართი ერთ დღეში",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_rd_oneday": {
+   "he": "ביום אחד",
+   "en": "In one day",
+   "ru": "За один день",
+   "ka": "ერთ დღეში",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_rt_speed": {
+   "he": "שיא מהירות",
+   "en": "Top speed",
+   "ru": "Рекорд скорости",
+   "ka": "სიჩქარის რეკორდი",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_rt_longest": {
+   "he": "הירידה הארוכה",
+   "en": "Longest descent",
+   "ru": "Самый длинный спуск",
+   "ka": "ყველაზე გრძელი დაშვება",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_rt_bigday": {
+   "he": "היום הגדול",
+   "en": "Biggest day",
+   "ru": "Самый большой день",
+   "ka": "ყველაზე დიდი დღე",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_rt_most": {
+   "he": "הכי הרבה ירידות",
+   "en": "Most descents",
+   "ru": "Больше всего спусков",
+   "ka": "ყველაზე მეტი დაშვება",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.md_unit_kmh": {
+   "he": "קמ״ש",
+   "en": "km/h",
+   "ru": "км/ч",
+   "ka": "კმ/სთ",
+   "where": "app/android",
+   "note": "my days / records 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }

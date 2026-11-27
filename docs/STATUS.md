@@ -420,6 +420,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Content: records and trip-card strings for my days entered (Pini approved).** `app.md_trip_title`, `md_rd_drop`, `md_rd_oneday`, `md_rt_speed`, `md_rt_longest`, `md_rt_bigday`, `md_rt_most`, `md_unit_kmh` in four languages; steepest reuses `md_steepest`. `check.py` green.
 - 27.11.2026: **Content: run-card strings entered (Pini approved).** `app.run_ride` (the film button, also read by iOS) now "טיסה מעל המסלול"; new `app.run_film_stop`, `app.run_vids_n` (plural), `app.run_cond_now`, `app.run_vids_from`. Day-story and share-sheet strings were already in (`ds_*`, `dt_*`). `check.py` green.
 - 27.11.2026: **Android (Sonnet): day timeline "הרכס של היום" (P.11) built on `claude/android-day-timeline`.** Four numbers, "לאן הלך היום" bar, rows on a spine with icons (lift, descent with speed strip, long break as cup/fork/bench by `places.json`, walk, queue), names wrap and are never cut; rules and tests in `DayTimeline.kt`. Not built: the scrolled ridge strip, grid and break band on the chart. Not compiled locally, not tested on a phone.
 - 27.11.2026: **Architect: Kobi side picture set at 3 px/pt approved.** Download ceiling 1.1 MB (was 350), each file up to 180 KB, with a build check; current light key first, the rest in the background; one `rev`, sha256-checked, at most two decoded pictures. No code changed.
