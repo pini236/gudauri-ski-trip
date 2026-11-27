@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>כפתור המסלולים, גרסה 4</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.HW{font-family:'Heebo',system-ui,sans-serif;color:#10161D;background:#F6F7F9}
+.HW h1,.HW h2,.HW h3,.HW p,.HW ul,.HW ol{margin:0}
+.HW ul,.HW ol{padding-inline-start:20px;display:flex;flex-direction:column;gap:7px}
+.HW li{font-size:15px;line-height:1.5}
+.HW .card{background:#fff;border:1px solid #D9DEE4;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.HW .q{display:flex;gap:12px;align-items:baseline;font-size:15.5px;line-height:1.5}
+.HW .qn{font-weight:900;font-size:20px;min-width:24px}
+.HW .th{position:relative;overflow:hidden;border-radius:14px;border:1px solid #D9DEE4;flex:none;background:#DCE6F2}
+.HW .th img{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.HW .p{font-size:15px;line-height:1.55}
+.HW .sec{font-size:13px;font-weight:700;letter-spacing:.04em;color:#6B3FD4}
+.HW h1{font-size:34px;font-weight:900;line-height:1.15}
+.HW h2{font-size:23px;font-weight:700;line-height:1.25}
+.HW .lead{font-size:18px;line-height:1.55}
+.HW .cap{font-size:13.5px;line-height:1.45;color:#3C4753}
+.HW .cap b{color:#10161D;font-size:15px}
+.HW .rowx{display:flex;gap:16px;align-items:flex-start}
+.HW .fr{display:flex;flex-direction:column;gap:8px;flex:none}
+.HW .tm{font-size:22px;font-weight:300;direction:ltr;display:inline-block}
+
+@keyframes tkd{0%{stroke-dashoffset:1;opacity:1}28%{stroke-dashoffset:0;opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arc{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes glo{0%,100%{box-shadow:inset 0 0 0 0 rgba(255,255,255,0)}50%{box-shadow:inset 0 0 14px 2px rgba(255,255,255,.45)}}
+.sh{position:relative;width:48px;height:48px;border-radius:50%;background:#E5352B;border:0;padding:0;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;box-sizing:border-box;font-family:inherit;box-shadow:0 2px 6px rgba(120,20,15,.28)}
+.sh .rg{position:absolute;inset:0;overflow:visible}
+.sh .tk{stroke-dasharray:1;stroke-dashoffset:0}
+.sh.idle .tk{animation:tkd 6s ease-out infinite}
+.sh.live{animation:glo 2.4s ease-in-out infinite}
+.sh.live .tk{animation:tkd 2.4s linear infinite}
+.sh.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.sh .stm{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;border-radius:0!important;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.sh.fab{width:62px;height:62px;box-shadow:0 6px 16px rgba(120,20,15,.35)}
+@keyframes rdp{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}
+.rb{position:relative;width:64px;height:64px;border-radius:50%;border:0;padding:0;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(14,34,51,.30);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px rgba(8,18,36,.30);font-family:inherit;color:#fff}
+.night .rb{background:rgba(0,0,0,.40);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.rb .rg{position:absolute;inset:0;overflow:visible}
+.rb .dt{position:relative;width:44px;height:44px;border-radius:50%;background:#E5352B;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 4px rgba(90,10,6,.25)}
+.rb.live .dt{animation:rdp 2.4s ease-in-out infinite}
+.rb.live .ar{stroke-dasharray:1;animation:arc 60s linear infinite}
+.rb .dt .stm{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.rb.still .dt,.rb.still .ar{animation:none!important}
+.sh.mid{width:56px;height:56px}
+.rq{height:44px;min-width:44px;border-radius:22px;border:0;padding:0;flex:none;display:flex;align-items:center;gap:7px;background:none;font-family:inherit;color:var(--ink)}
+.rq .o{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.rq .o svg{position:absolute;inset:0}
+.rq .dt{width:30px;height:30px;border-radius:50%;background:#E5352B;box-shadow:inset 0 -2px 3px rgba(90,10,6,.25)}
+.rq .sq{width:16px;height:16px;border-radius:3px;background:#E5352B}
+.rq.on{padding-inline-end:12px;background:rgba(229,53,43,.12)}
+.night .rq.on{background:rgba(255,116,104,.16)}
+.rq .tm{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;direction:ltr;line-height:1}
+.still .tk,.still .ar,.still.sh{animation:none!important}
+.nub{display:inline-flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;direction:ltr;font-weight:700}
+.nub i{width:9px;height:9px;border-radius:50%;background:#E5352B;box-shadow:0 0 0 3px rgba(229,53,43,.25)}
+
+.HW .stage{display:flex;align-items:center;justify-content:center;gap:24px;height:140px;border-radius:12px}
+.HW .stage.d{background:linear-gradient(#DDE8F3,#F4F7FA)}
+.HW .stage.n{background:linear-gradient(#0B1424,#16213A)}
+.HW .stage .z{zoom:1.7}
+.HW .opt{flex:1;min-width:0}
+.HW .opt h2 .k{display:inline-flex;width:34px;height:34px;border-radius:17px;background:#10161D;color:#fff;align-items:center;justify-content:center;font-size:18px;margin-inline-end:8px}
+.HW .opt.rec{border:3px solid #6B3FD4}
+.HW .pc{font-size:14.5px;line-height:1.5}
+.HW .pc b{display:inline-block;min-width:58px}
+.HW .mini{display:flex;align-items:center;gap:8px;height:52px;border-radius:26px;background:#fff;border:1px solid #D9DEE4;padding:0 6px 0 14px;font-size:14px;color:#56606C}
+</style>
+</helmet>
+<div class="HW" dir="rtl" style="width: 1280px; height: 1560px; box-sizing: border-box; padding: 44px 52px; display: flex; flex-direction: column; gap: 22px"><p class="sec">בוחרים מסלול · גרסה 4: הכפתור · 27.11.2026 · ממתין לפיני</p><h1>כפתור "מסלולים": חמש אפשרויות שונות באמת</h1><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2>מה היה זול בתמונה שבכפתור</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>ציור במקום ההר.</b> משולש לבן עם שלושה קווים צבעוניים, בסגנון של אייקון. מאחוריו עומד ההר האמיתי, והפער בולט.</li><li><b>מסגרת בתוך מסגרת.</b> תמונה בעיגול, בתוך כפתור, בתוך סרגל, ולכל אחד קו מתאר משלו.</li><li><b>ארבעה דברים בכפתור אחד:</b> ציור, מילה, מספר, ועיגול אפור עם חץ שנראה כמו עוד כפתור.</li><li><b>הכפתור הכי חשוב היה הכי חלש:</b> לבן על לבן, בין כפתור שחור לכפתור אדום.</li></ul></div><div class="card" style="flex: 1"><h2>מה תוקן, בכל החמש</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>אין ציורים.</b> מה שרואים הוא אמיתי: התמונה של ההר מהאפליקציה, קווי הגובה מהנתונים, או רק אותיות.</li><li><b>רעיון אחד לכל כפתור,</b> ובלי קווי מתאר. העומק בא מאור ומצל.</li><li><b>החץ הוא חץ,</b> בלי עיגול אפור מסביב.</li><li><b>אין סימן לכל מסלול.</b> הכפתור זהה ב-28 וב-120 מסלולים, ורק המספר מתחלף.</li></ul></div></div><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1; border: 3px solid #6B3FD4"><span style="align-self: flex-start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 12px; background: #DDF2E5; color: #0F5C31; font-size: 12.500px; font-weight: 700">ההמלצה</span><h2 style="margin-top: 0px">א · החלון</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>בקצה הכפתור רואים את ההר עצמו: התמונה של האפליקציה, חתוכה על הפסגה, ונמסה אל תוך הכפתור. בלי עיגול ובלי מסגרת.</li><li><b>האור של השעה:</b> בבוקר שמיים בהירים, בשקיעה ורוד, בלילה כוכבים. שבע התמונות כבר קיימות.</li><li><b>נפתח:</b> הכפתור גדל והופך ללוח של המדף, והתמונה מתקרבת ונמסה אל ההר.</li><li><b>בעד:</b> זה הכיוון שהיה הכי קרוב, בלי הזול. מעורר תיאבון, ושייך רק לאפליקציה הזאת.</li><li><b>נגד:</b> הכי הרבה פרטים מהחמש. באתר שאין לו תמונה חוזרים ל-ג.</li></ul><p class="cap" dir="rtl">הלוחות: <span dir="ltr">RN11 עד RN13</span></p></div><div class="card" style="flex: 1"><h2 style="margin-top: 0px">ב · קווי הגובה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>קווי הגובה האמיתיים סביב פסגת <bdi>Kudebi</bdi>, בקו דק ובצבע אחד. החץ יושב בדיוק על הפסגה.</li><li><b>נפתח:</b> הקווים מתרחבים מהפסגה החוצה, כמו התקרבות במפה.</li><li><b>בעד:</b> מראה של מפה רצינית. אמיתי, ובלי אף צבע.</li><li><b>נגד:</b> מי שלא מכיר מפות טופוגרפיות יראה קישוט.</li></ul><p class="cap" dir="rtl">הלוחות: <span dir="ltr">RN21 עד RN23</span></p></div><div class="card" style="flex: 1"><h2 style="margin-top: 0px">ג · המספר</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>28 גדול ודק, כמו המספרים בכרטיסי המדף, ולידו "מסלולים". בצד עמוד קטן בארבעת צבעי המסלולים.</li><li><b>נפתח:</b> הכפתור גדל ללוח של המדף, והעמוד נפרש לפס המסלולים.</li><li><b>בעד:</b> הכי נקי וקריא. עובד בכל אתר ובכל שפה.</li><li><b>נגד:</b> הכי פחות חוויה.</li></ul><p class="cap" dir="rtl">הלוחות: <span dir="ltr">RN31 עד RN33</span></p></div></div><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1"><h2 style="margin-top: 0px">ד · הידית</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>בלי כפתור פנימי. באמצע הסרגל יש ידית קטנה, המילה והמספר. הסרגל הוא השפה של המדף.</li><li><b>נפתח:</b> בנגיעה, או במשיכה למעלה. המדף עולה עם האצבע, וההר עולה איתו.</li><li><b>בעד:</b> הכי שקט, והתנועה הכי טבעית. מוכר מאפליקציות מפות.</li><li><b>נגד:</b> פחות נראה כמו כפתור. משיכה מתחתית המסך קרובה למחוות הבית של אנדרואיד.</li></ul><p class="cap" dir="rtl">הלוחות: <span dir="ltr">RN41 עד RN43</span></p></div><div class="card" style="flex: 1"><h2 style="margin-top: 0px">ה · הראשי</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li>"מסלולים" הוא הכפתור הכהה והמלא של הסרגל, עם חץ בעיגול סגול. "תפריט" נעשה בהיר ושקט.</li><li><b>נפתח:</b> הכפתור הכהה גדל, ומתבהר ללוח של המדף.</li><li><b>בעד:</b> ברור מיד מה הפעולה הראשית במסך.</li><li><b>נגד:</b> משנה את המראה של "תפריט" שאושר, ואין בו שום דבר מההר.</li></ul><p class="cap" dir="rtl">הלוחות: <span dir="ltr">RN51 עד RN53</span></p></div><div class="card" style="flex: 1"><h2>התנועה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>פתיחה, 420 מ״ש:</b> הכפתור עצמו גדל והופך ללוח העליון של המדף; ההר עולה 120; הצ׳יפים והכרטיסים עולים אחריו, אחד אחרי השני.</li><li><b>סגירה, 280 מ״ש:</b> הפוך, בלי השהיות.</li><li><b>בנגיעה:</b> הכפתור שוקע מעט, ורטט קל בשחרור.</li><li><b>הפחתת תנועה:</b> התמוססות של 150 מ״ש, בלי תזוזה.</li><li>הלוחות שנגמרים ב-3 מנגנים את התנועה במהירות האמיתית, בלולאה.</li></ul></div></div><div class="rowx" style="align-items: stretch"><div class="card" style="flex: 1.2; border: 3px solid #6B3FD4"><h2>ההמלצה: א, החלון</h2><p style="font-size: 16px; line-height: 1.55">התמונה בכפתור הייתה הכי קרובה, ומה שהפריע בה היה שהיא ציור. ב-א זה ההר עצמו, באותו אור שעל המסך, והכפתור משתנה עם השעה. אם תמונה בכפתור עדיין מרגישה עמוסה, הבחירה השנייה שלי היא ג.</p><h2 style="margin-top: 6px">לפיני</h2><p class="q"><span class="qn">1</span><span><b>איזה כפתור?</b> (ההמלצה: א, החלון)</span></p><p class="q"><span class="qn">2</span><span><b>ב-א: התמונה מתחלפת לפי השעה,</b> כמו ההר? (כן)</span></p><p class="q"><span class="qn">3</span><span><b>המספר נשאר על הכפתור?</b> (כן; בזמן הקלטה הוא יורד ראשון)</span></p></div><div class="card" style="flex: 1"><h2>מה לא השתנה</h2><ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 15px; line-height: 1.5"><li><b>המדף של גרסה 2 לא השתנה:</b> הצ׳יפים, המיון, הפס והכרטיסים. (SV3 עד SV6)</li><li><b>אין טקסט חדש.</b> המילה "מסלולים" והמספר, כמו שאושרו. על הכפתור אין שורת הסבר.</li><li><b>הסרגל:</b> גובה 64, כפתורים 48. "תפריט" וההקלטה כמו היום (חוץ מ-ה).</li></ul></div></div><p class="cap">התמונה היא התמונה של האפליקציה, וקווי הגובה מחושבים ממודל הגובה של האתר. 120 מסלולים הוא דוגמה. נמדד בכלי העיצוב, לא בטלפון. המסירה: <span dir="ltr">design/handoff/2026-11-27-redesign-run-button-v4/</span></p></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1560}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

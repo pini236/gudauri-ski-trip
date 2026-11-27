@@ -3594,6 +3594,7 @@
    "title": "השיאים שלך · עוד אין (RS3)",
    "page": "mydays"
   },
+<<<<<<< Updated upstream
   "HM00-HintMotion.dc.html": {
    "x": 0,
    "y": 0,
@@ -3673,6 +3674,143 @@
    "h": 844,
    "title": "P.17 · בצד, בלילה: המצפן מקופל (KB4)",
    "page": "kobiside"
+=======
+  "RN00-V4.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1560,
+   "title": "מה היה זול, חמש האפשרויות וההמלצה (RN00)",
+   "page": "runbtn4"
+  },
+  "RN01-Close.dc.html": {
+   "x": 1400,
+   "y": 0,
+   "w": 1280,
+   "h": 1800,
+   "title": "חמשת הכפתורים מקרוב, יום ולילה (RN01)",
+   "page": "runbtn4"
+  },
+  "RN11.dc.html": {
+   "x": 0,
+   "y": 2260,
+   "w": 390,
+   "h": 844,
+   "title": "א · החלון: ביום (RN11)",
+   "page": "runbtn4"
+  },
+  "RN12.dc.html": {
+   "x": 470,
+   "y": 2260,
+   "w": 390,
+   "h": 844,
+   "title": "א · החלון: בלילה, בזמן הקלטה (RN12)",
+   "page": "runbtn4"
+  },
+  "RN13.dc.html": {
+   "x": 940,
+   "y": 2260,
+   "w": 390,
+   "h": 844,
+   "title": "א · החלון: בתנועה, הכפתור נפתח אל המדף (RN13)",
+   "page": "runbtn4"
+  },
+  "RN21.dc.html": {
+   "x": 0,
+   "y": 3604,
+   "w": 390,
+   "h": 844,
+   "title": "ב · קווי הגובה: ביום (RN21)",
+   "page": "runbtn4"
+  },
+  "RN22.dc.html": {
+   "x": 470,
+   "y": 3604,
+   "w": 390,
+   "h": 844,
+   "title": "ב · קווי הגובה: בלילה, בזמן הקלטה (RN22)",
+   "page": "runbtn4"
+  },
+  "RN23.dc.html": {
+   "x": 940,
+   "y": 3604,
+   "w": 390,
+   "h": 844,
+   "title": "ב · קווי הגובה: בתנועה, הכפתור נפתח אל המדף (RN23)",
+   "page": "runbtn4"
+  },
+  "RN31.dc.html": {
+   "x": 0,
+   "y": 4948,
+   "w": 390,
+   "h": 844,
+   "title": "ג · המספר: ביום (RN31)",
+   "page": "runbtn4"
+  },
+  "RN32.dc.html": {
+   "x": 470,
+   "y": 4948,
+   "w": 390,
+   "h": 844,
+   "title": "ג · המספר: בלילה, בזמן הקלטה (RN32)",
+   "page": "runbtn4"
+  },
+  "RN33.dc.html": {
+   "x": 940,
+   "y": 4948,
+   "w": 390,
+   "h": 844,
+   "title": "ג · המספר: בתנועה, הכפתור נפתח אל המדף (RN33)",
+   "page": "runbtn4"
+  },
+  "RN41.dc.html": {
+   "x": 0,
+   "y": 6292,
+   "w": 390,
+   "h": 844,
+   "title": "ד · הידית: ביום (RN41)",
+   "page": "runbtn4"
+  },
+  "RN42.dc.html": {
+   "x": 470,
+   "y": 6292,
+   "w": 390,
+   "h": 844,
+   "title": "ד · הידית: בלילה, בזמן הקלטה (RN42)",
+   "page": "runbtn4"
+  },
+  "RN43.dc.html": {
+   "x": 940,
+   "y": 6292,
+   "w": 390,
+   "h": 844,
+   "title": "ד · הידית: בתנועה, הכפתור נפתח אל המדף (RN43)",
+   "page": "runbtn4"
+  },
+  "RN51.dc.html": {
+   "x": 0,
+   "y": 7636,
+   "w": 390,
+   "h": 844,
+   "title": "ה · הראשי: ביום (RN51)",
+   "page": "runbtn4"
+  },
+  "RN52.dc.html": {
+   "x": 470,
+   "y": 7636,
+   "w": 390,
+   "h": 844,
+   "title": "ה · הראשי: בלילה, בזמן הקלטה (RN52)",
+   "page": "runbtn4"
+  },
+  "RN53.dc.html": {
+   "x": 940,
+   "y": 7636,
+   "w": 390,
+   "h": 844,
+   "title": "ה · הראשי: בתנועה, הכפתור נפתח אל המדף (RN53)",
+   "page": "runbtn4"
+>>>>>>> Stashed changes
   }
  },
  "createdOnFiles": {
@@ -3682,7 +3820,11 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
+<<<<<<< Updated upstream
   "page": "kobiside"
+=======
+  "page": "runbtn4"
+>>>>>>> Stashed changes
  },
  "notes": {
   "tA": {
@@ -4453,6 +4595,7 @@
    "y": -300,
    "text": "כרטיס הסקי: הקופה, ומצב ההקלטה"
   },
+<<<<<<< Updated upstream
   "thintmotion": {
    "kind": "title1",
    "maxW": 2800,
@@ -4468,6 +4611,55 @@
    "x": 0,
    "y": -300,
    "text": "צד Kobi בתמונה: לעבור ולחזור"
+=======
+  "trn1": {
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "runbtn4",
+   "x": 0,
+   "y": 1960,
+   "text": "א · החלון (ההמלצה)"
+  },
+  "trn2": {
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "runbtn4",
+   "x": 0,
+   "y": 3304,
+   "text": "ב · קווי הגובה"
+  },
+  "trn3": {
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "runbtn4",
+   "x": 0,
+   "y": 4648,
+   "text": "ג · המספר"
+  },
+  "trn4": {
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "runbtn4",
+   "x": 0,
+   "y": 5992,
+   "text": "ד · הידית"
+  },
+  "trn5": {
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "runbtn4",
+   "x": 0,
+   "y": 7336,
+   "text": "ה · הראשי"
+  },
+  "trunbtn4": {
+   "kind": "title1",
+   "maxW": 2680,
+   "page": "runbtn4",
+   "x": 0,
+   "y": -300,
+   "text": "כפתור \"מסלולים\", גרסה 4: חמש אפשרויות, יום ולילה"
+>>>>>>> Stashed changes
   }
  },
  "order": [
@@ -4920,6 +5112,7 @@
   "RS1.dc.html",
   "RS2.dc.html",
   "RS3.dc.html",
+<<<<<<< Updated upstream
   "HM00-HintMotion.dc.html",
   "HM1.dc.html",
   "HM3.dc.html",
@@ -4939,6 +5132,30 @@
   {
    "id": "hintmotion",
    "name": "רמזים: תנועה רכה בין רמז לרמז (27.11)"
+=======
+  "RN00-V4.dc.html",
+  "RN01-Close.dc.html",
+  "RN11.dc.html",
+  "RN12.dc.html",
+  "RN13.dc.html",
+  "RN21.dc.html",
+  "RN22.dc.html",
+  "RN23.dc.html",
+  "RN31.dc.html",
+  "RN32.dc.html",
+  "RN33.dc.html",
+  "RN41.dc.html",
+  "RN42.dc.html",
+  "RN43.dc.html",
+  "RN51.dc.html",
+  "RN52.dc.html",
+  "RN53.dc.html"
+ ],
+ "pages": [
+  {
+   "id": "runbtn4",
+   "name": "כפתור המסלולים, גרסה 4 (27.11)"
+>>>>>>> Stashed changes
   },
   {
    "id": "small2711",
