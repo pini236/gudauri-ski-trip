@@ -2418,6 +2418,86 @@
    "title": "בירידה, בלילה (GD2)",
    "page": "v56"
   },
+  "HR00-Hour.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1160,
+   "title": "איפה הסליידר חי, ואיך פותחים אותו (HR00)",
+   "page": "hour"
+  },
+  "HR1.dc.html": {
+   "x": 0,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "אור היום · כפתור בעמודה, סגור (HR1)",
+   "page": "hour"
+  },
+  "HR2.dc.html": {
+   "x": 470,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "אור היום · פתוח, תמונה, 16:50 (HR2)",
+   "page": "hour"
+  },
+  "HR3.dc.html": {
+   "x": 940,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "אור היום · פתוח, מצב חי, 15:50 (HR3)",
+   "page": "hour"
+  },
+  "HR4.dc.html": {
+   "x": 1410,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "אור היום · חלופה ב, בתוך \"ההר עכשיו\" (HR4)",
+   "page": "hour"
+  },
+  "HL00-Light.dc.html": {
+   "x": 0,
+   "y": 2420,
+   "w": 1280,
+   "h": 3680,
+   "title": "מצבי אור לאורך היום (HL00)",
+   "page": "hour"
+  },
+  "WX00-Weather.dc.html": {
+   "x": 0,
+   "y": 6240,
+   "w": 1280,
+   "h": 2600,
+   "title": "מזג אוויר על ההר (WX00)",
+   "page": "hour"
+  },
+  "WX1.dc.html": {
+   "x": 0,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "מזג אוויר · ים עננים, 8:30 (WX1)",
+   "page": "hour"
+  },
+  "WX2.dc.html": {
+   "x": 470,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "מזג אוויר · שלג יורד, אור שטוח (WX2)",
+   "page": "hour"
+  },
+  "WX3.dc.html": {
+   "x": 940,
+   "y": 9000,
+   "w": 390,
+   "h": 844,
+   "title": "מזג אוויר · רוח ברכס, שלג שעף (WX3)",
+   "page": "hour"
+  },
   "B900-Frame.dc.html": {
    "x": 0,
    "y": 0,
@@ -3073,6 +3153,142 @@
    "h": 844,
    "title": "The run card in English (RK5)",
    "page": "runcard"
+  },
+  "DP00-DayPages.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 1320,
+   "title": "ארבעת הדברים, מה מצאתי, ההצעה והשאלות (DP00)",
+   "page": "daypages"
+  },
+  "DM1.dc.html": {
+   "x": 0,
+   "y": 1480,
+   "w": 390,
+   "h": 844,
+   "title": "היום שלי: המסלולים בקו לבן דק מאחורי היום (DM1)",
+   "page": "daypages"
+  },
+  "DM2.dc.html": {
+   "x": 470,
+   "y": 1480,
+   "w": 390,
+   "h": 844,
+   "title": "בלילה (DM2)",
+   "page": "daypages"
+  },
+  "DM3.dc.html": {
+   "x": 940,
+   "y": 1480,
+   "w": 390,
+   "h": 844,
+   "title": "מקרוב, ונגיעה בקו לבן מראה את השם (DM3)",
+   "page": "daypages"
+  },
+  "DT1.dc.html": {
+   "x": 0,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "הרכס של היום: המספרים, הרכס, לאן הלך היום, ותחילת ציר הזמן (DT1)",
+   "page": "daypages"
+  },
+  "DT2.dc.html": {
+   "x": 470,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "בגלילה: הרכס מתכווץ לפס למעלה, וההפסקה הארוכה (DT2)",
+   "page": "daypages"
+  },
+  "DT3.dc.html": {
+   "x": 940,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "טקסט גדול: השמות נשברים לשורה, אף פעם לא נחתכים (DT3)",
+   "page": "daypages"
+  },
+  "DT4.dc.html": {
+   "x": 1410,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "The ridge of the day in English (DT4)",
+   "page": "daypages"
+  },
+  "DT5.dc.html": {
+   "x": 1880,
+   "y": 2524,
+   "w": 390,
+   "h": 844,
+   "title": "כל סוגי השורות, והכלל של בית הקפה (DT5)",
+   "page": "daypages"
+  },
+  "DS1.dc.html": {
+   "x": 0,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "הסיפור של היום: כל הרגעים, כל כרטיס נפתח (DS1)",
+   "page": "daypages"
+  },
+  "DS2.dc.html": {
+   "x": 470,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "רגע פתוח: ההר מקרוב על המקום, והמילים בכרטיס (DS2)",
+   "page": "daypages"
+  },
+  "DS3.dc.html": {
+   "x": 940,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "הסוף: התמונה של היום (DS3)",
+   "page": "daypages"
+  },
+  "DS4.dc.html": {
+   "x": 1410,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "גלילה לסוף הרשימה: עוד מהיום, והתמונה (DS4)",
+   "page": "daypages"
+  },
+  "DS5.dc.html": {
+   "x": 1880,
+   "y": 3568,
+   "w": 390,
+   "h": 844,
+   "title": "יום עם רגע אחד: כרטיס גדול, היום והתמונה (DS5)",
+   "page": "daypages"
+  },
+  "DV1.dc.html": {
+   "x": 0,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "הסרטון מתנגן בתוך הכרטיס (DV1)",
+   "page": "daypages"
+  },
+  "DV2.dc.html": {
+   "x": 470,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "נגמר: שוב, וקישור מפורש להר (DV2)",
+   "page": "daypages"
+  },
+  "DV3.dc.html": {
+   "x": 940,
+   "y": 4612,
+   "w": 390,
+   "h": 844,
+   "title": "שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מכין (DV3)",
+   "page": "daypages"
   }
  },
  "createdOnFiles": {
@@ -3082,7 +3298,7 @@
  "designSystems": [],
  "launch": {
   "view": "canvas",
-  "page": "runcard"
+  "page": "daypages"
  },
  "notes": {
   "tA": {
@@ -3625,6 +3841,15 @@
    "y": -200,
    "text": "הערות על גרסה 56 (25.11.2026)"
   },
+  "thour": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "hour",
+   "x": 0,
+   "w": 1000,
+   "y": -200,
+   "text": "שעת היום, מצבי אור ומזג אוויר (25.11.2026)"
+  },
   "thints": {
    "kind": "title1",
    "maxW": 1600,
@@ -3747,6 +3972,46 @@
    "x": 0,
    "y": -300,
    "text": "כרטיס המסלול"
+  },
+  "tdaypages": {
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "daypages",
+   "x": 0,
+   "y": -300,
+   "text": "עמודי היום"
+  },
+  "tdaypagesDM": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "daypages",
+   "x": 0,
+   "y": 1400,
+   "text": "1 · היום שלי: המסלולים בלבן"
+  },
+  "tdaypagesDT": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "daypages",
+   "x": 0,
+   "y": 2444,
+   "text": "2 · הרכס של היום"
+  },
+  "tdaypagesDS": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "daypages",
+   "x": 0,
+   "y": 3488,
+   "text": "3 · הסיפור של היום"
+  },
+  "tdaypagesDV": {
+   "kind": "title2",
+   "maxW": 1600,
+   "page": "daypages",
+   "x": 0,
+   "y": 4532,
+   "text": "4 · הסרטון בכרטיס"
   }
  },
  "order": [
@@ -4052,6 +4317,16 @@
   "EM2.dc.html",
   "EM3.dc.html",
   "EM4.dc.html",
+  "HR00-Hour.dc.html",
+  "HR1.dc.html",
+  "HR2.dc.html",
+  "HR3.dc.html",
+  "HR4.dc.html",
+  "HL00-Light.dc.html",
+  "WX00-Weather.dc.html",
+  "WX1.dc.html",
+  "WX2.dc.html",
+  "WX3.dc.html",
   "B900-Frame.dc.html",
   "B91.dc.html",
   "B92.dc.html",
@@ -4133,9 +4408,30 @@
   "RK2.dc.html",
   "RK3.dc.html",
   "RK4.dc.html",
-  "RK5.dc.html"
+  "RK5.dc.html",
+  "DP00-DayPages.dc.html",
+  "DM1.dc.html",
+  "DM2.dc.html",
+  "DM3.dc.html",
+  "DT1.dc.html",
+  "DT2.dc.html",
+  "DT3.dc.html",
+  "DT4.dc.html",
+  "DT5.dc.html",
+  "DS1.dc.html",
+  "DS2.dc.html",
+  "DS3.dc.html",
+  "DS4.dc.html",
+  "DS5.dc.html",
+  "DV1.dc.html",
+  "DV2.dc.html",
+  "DV3.dc.html"
  ],
  "pages": [
+  {
+   "id": "daypages",
+   "name": "עמודי היום: המפה, הרכס, הסיפור והשיתוף (27.11)"
+  },
   {
    "id": "runcard",
    "name": "כרטיס המסלול (27.11)"
@@ -4159,6 +4455,10 @@
   {
    "id": "hints",
    "name": "רמזים לפעם הראשונה"
+  },
+  {
+   "id": "hour",
+   "name": "שעת היום, מצבי אור ומזג אוויר"
   },
   {
    "id": "v56",
