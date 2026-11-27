@@ -137,10 +137,15 @@ internal fun BoxScope.EmptyEnd(startMs: Long, endMs: Long, located: Boolean, any
         if (notSaved) {
             // NS: a crossed-save icon and "not saved" under the title
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Canvas(Modifier.size(18.dp)) {
-                    val w = 1.6.dp.toPx()
-                    drawRoundRect(muted, Offset(w, w), androidx.compose.ui.geometry.Size(size.width - 2 * w, size.height - 2 * w), androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()), Stroke(w))
-                    drawLine(muted, Offset(0f, size.height), Offset(size.width, 0f), w, StrokeCap.Round)
+                // the board's icon (I_NOSAVE, a 24 grid): the disk's outline, its label, and a stroke across
+                Canvas(Modifier.size(16.dp)) {
+                    val u = size.width / 24f; val sw = 1.9f * u
+                    fun o(x: Float, y: Float) = Offset(x * u, y * u)
+                    val body = androidx.compose.ui.graphics.Path().apply { moveTo(5 * u, 4 * u); lineTo(16 * u, 4 * u); lineTo(19 * u, 7 * u); lineTo(19 * u, 20 * u); lineTo(5 * u, 20 * u); close() }
+                    drawPath(body, muted, style = Stroke(sw, cap = StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+                    val tab = androidx.compose.ui.graphics.Path().apply { moveTo(8 * u, 4 * u); lineTo(8 * u, 9 * u); lineTo(15 * u, 9 * u); lineTo(15 * u, 4 * u) }
+                    drawPath(tab, muted, style = Stroke(sw, cap = StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+                    drawLine(muted, o(3f, 3f), o(21f, 21f), sw, StrokeCap.Round)
                 }
                 Text(stringResource(R.string.app_md_nosave), fontFamily = Gudi, fontSize = 15.sp, color = muted, textAlign = TextAlign.Center)
             }
