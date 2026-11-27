@@ -52,6 +52,8 @@ internal object Hints {
     private const val PREFS = "redesign"
     const val MOUNTAIN = "hints_mountain"
     const val VILLAGE = "hints_village"
+    /** UX pass part 1: the two hints that were in the village now come with the menu; who finished the village ones does not see them again. */
+    const val MENU = "hints_menu"
     private fun sp(ctx: android.content.Context) = ctx.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
     /** The next step of a sequence (0 for the first): -1 once it was finished or closed. Kept on the phone only. */
     fun next(ctx: android.content.Context, key: String): Int = sp(ctx).getInt(key, 0)

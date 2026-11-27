@@ -57,6 +57,8 @@ object Icons {
     val noMail = line("nomail", false, "M3 5h18v14H3z", "M3 6l9 7 9-7", "M3 3l18 18")
     val user = line("user", false, circle(12f, 8f, 4f), "M4 21c0-4 4-6 8-6s8 2 8 6")
     // a gondola on its cable (round 20's switched-off lift status, the site's I.lift)
+    val fork = line("fork", false, "M7 3v7a2 2 0 0 0 4 0V3M9 3v18", "M16 21V3c-2.5 2-3.5 5-3.5 8H16")
+    val cup = line("cup", false, "M5 8h11v6a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z", "M16 9.5h1.5a2.5 2.5 0 0 1 0 5H16", "M8 3.5v2M12 3.5v2")
     val lift = line("lift", false, "M2 5l20-3M12 3.5V8", "M6 8h12v10H6z", "M6 13h12")
     val x = line("x", false, "M6 6l12 12M18 6L6 18")
     // the people's rows (part 3, R13 to R15): language, about, the settings' sound, vibration, display and measuring, a row's end

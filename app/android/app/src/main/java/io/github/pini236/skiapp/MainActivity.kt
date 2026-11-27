@@ -218,8 +218,17 @@ class MainActivity : ComponentActivity() {
     }
 
     /** "Record": the ski day starts at once, from anywhere (round 29); the screen only has to say what is in the way. */
-    private fun recordNow(single: Boolean) {
+    /** UX part 7 (NM2): a fresh reading far from the mountain held the start back; the sheet asks first. */
+    private var farRec by mutableStateOf<Triple<Double, Double, Boolean>?>(null)
+
+    private fun recordNow(single: Boolean, anyway: Boolean = false) {
         recSingle = single
+        if (!DayRec.recording) {
+            // far from the mountain the tap does not start; the sheet comes before the service (nothing else changes)
+            if (!anyway && io.github.pini236.skiapp.redesign.Redesign.dayUi() && DayRec.check(this) == null)
+                io.github.pini236.skiapp.redesign.FarRules.recentOutside(this)?.let { (lat, lon) -> farRec = Triple(lat, lon, single); return }
+            DayRec.farOk = anyway
+        }
         when (DayRec.start(this, run = single)) {
             DayRec.Start.Started, DayRec.Start.Already -> if (nav.top !is Route.Day) nav.push(Route.Day)
             DayRec.Start.NeedPermission -> recExplain = true
@@ -904,6 +913,12 @@ class MainActivity : ComponentActivity() {
                     if (!io.github.pini236.skiapp.redesign.Redesign.blocked(kind, frame.dark, settings, dismiss))
                         io.github.pini236.skiapp.dayrec.ui.BlockedSheet(kind, onSettings = settings, onDismiss = dismiss)
                 }
+                farRec?.let { (lat, lon, single) ->
+                    io.github.pini236.skiapp.redesign.Redesign.far(frame.dark, lat, lon,
+                        onSample = { farRec = null; nav.push(Route.DayOf(io.github.pini236.skiapp.dayrec.SampleDay.ID)) },
+                        onAnyway = { farRec = null; recordNow(single, anyway = true) },
+                        onDismiss = { farRec = null })
+                }
                 if (recExplain) {
                     val ask = { requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), REC_PERMISSION) }
                     // the test build's redesign (board L01) has its own sheet; otherwise today's
@@ -1000,7 +1015,15 @@ class MainActivity : ComponentActivity() {
                     Route.Account -> AccountScreen(groupApi, onBack = { nav.back() }, signInGoogle = ::signInGoogle,
                         onGroup = { id -> nav.push(Route.Group(id, GroupTab.FLIGHTS.key)) }) { nav.toStart(); armReminders() }
                     // the games page (13.6, the site's #games, GP2), and the games the app has
-                    Route.Games -> GamesScreen(appGames(), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
+                    Route.Games -> {
+                        // UX pass part 6: "משחקים" on the new mountain; the group's table only for a member
+                        var myGroups by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<List<io.github.pini236.skiapp.group.GroupSummary>>(emptyList()) }
+                        androidx.compose.runtime.LaunchedEffect(Unit) { if (groupApi.ready) myGroups = runCatching { groupApi.myGroups() }.getOrDefault(emptyList()) }
+                        val grp = myGroups.firstOrNull()
+                        if (!io.github.pini236.skiapp.redesign.Redesign.games(dnMode, haptics, onOpen = { g -> nav.push(Route.Game(g)) }, tableName = grp?.name,
+                                onTable = grp?.let { gg -> { nav.push(Route.Group(gg.id, GroupTab.SCORES.key)) } }) { nav.back() })
+                            GamesScreen(appGames(), onOpen = { g -> haptics.tick(.4f); nav.push(Route.Game(g)) }) { nav.back() }
+                    }
                     Route.Game("merge") -> MergeScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("fresh") -> FreshSnowScreen(haptics, onBack = { nav.back() }) { sendBests() }
                     Route.Game("school") -> SchoolScreen(haptics, onBack = { nav.back() }) { sendBests() }
@@ -1029,7 +1052,8 @@ class MainActivity : ComponentActivity() {
                         }
                         // the test build's redesign (round 4) records on the mountain; the store build, today's screen
                         val onMountain = io.github.pini236.skiapp.redesign.Redesign.live(scene, dnMode, haptics, liftName, runName, ::switchRecording, onStop, onEnded,
-                                liftState = { n -> lstat.isOpen(n)?.let { it to lstat.reason(n) } }) { nav.back() }
+                                liftState = { n -> lstat.isOpen(n)?.let { it to lstat.reason(n) } },
+                                onSample = { nav.replaceTop(Route.DayOf(io.github.pini236.skiapp.dayrec.SampleDay.ID)) }) { nav.back() }
                         if (!onMountain)
                             io.github.pini236.skiapp.dayrec.ui.DayLiveScreen(liftName = liftName, runName = runName, runs = scene?.runs,
                                 onSwitch = ::switchRecording, onBack = { nav.back() }, onEnded = onEnded, onStop = onStop)

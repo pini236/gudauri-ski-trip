@@ -17,6 +17,9 @@ class Terrain(
     val sx = (x1 - x0) / (nx - 1)
     val sy = (y1 - y0) / (ny - 1)
 
+    /** Whether a place is inside the model's box (where [elev] is real and not the edge's). */
+    fun contains(x: Float, y: Float): Boolean = x >= x0 && x <= x1 && y >= y0 && y <= y1
+
     fun at(c: Int, r: Int): Float = h[r * nx + c].toFloat()
 
     /** Bilinear elevation in metres, clamped to the grid's edge (the site's elev()). */

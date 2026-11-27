@@ -631,3 +631,9 @@
 | יכולת | אתר | אנדרואיד | אייפון | הערה |
 |---|---|---|---|---|
 | ההר נפתח על התמונה של השעה (`hero-*`) עם כל השכבות, ומתג "תמונה / חי" בראש עמודת הכפתורים; הבחירה נשמרת בטלפון | אין (לא הוחלט על האתר) | במיזוג ל-`main` (25.11.2026): הממשק `Stage` (התמונה וההר החי), נגיעה אחת לשניהם מול `tools/fixtures/peak-projection.json`, "לרדת בסרט" ומסלול בצד Kobi עוברים להר החי לרגע (Z05), רמז סיבוב פעם אחת (Z03) | אין עדיין: אחרי תנאי 0 של הארכיטקט, על אותו חוזה (`site/data/peak.json`) | **פער באנדרואיד:** תמונות צד Kobi לא יורדות עדיין מהאתר; בינתיים צד Kobi תמיד בהר החי |
+
+## 24. Far from the mountain (UX pass part 7, approved 27.11.2026)
+
+| Capability | Site | Android | iPhone | Note |
+|---|---|---|---|---|
+| "Where am I" outside the model: a card with the distance and a compass arrow to Gudauri, never a dot or a centring (NM1, NM3); recording far away asks first (sample day or record anyway, NM2); no dot, line or camera follow for a point outside the model (bug B2) | none (the site has no ski day; its "where am I" says "not in Gudauri") | built (27.11.2026, `redesign/Far.kt`), not tested on a phone | none yet: when the redesign reaches iOS, same rules | design: `design/handoff/2026-11-26-redesign-ux-pass/part-7-far.md` |

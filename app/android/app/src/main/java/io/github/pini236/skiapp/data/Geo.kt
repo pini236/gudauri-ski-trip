@@ -12,4 +12,7 @@ object Geo {
 
     fun x(lon: Double) = ((lon - LON0) * kx).toFloat()
     fun y(lat: Double) = (-(lat - LAT0) * KY).toFloat()
+    /** Back from metres to degrees (the projection is linear, so this is exact). */
+    fun lon(x: Float) = LON0 + x / kx
+    fun lat(y: Float) = LAT0 - y / KY
 }
