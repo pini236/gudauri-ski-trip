@@ -23222,10 +23222,10 @@
    ]
   },
   "app.run_ride": {
-   "he": "לרדת בסרט",
-   "en": "Ride it down",
-   "ru": "Спуститься по ленте",
-   "ka": "ლენტით დაშვება",
+   "he": "טיסה מעל המסלול",
+   "en": "Fly over the run",
+   "ru": "Облёт трассы",
+   "ka": "ტრასის გადაფრენა",
    "where": "app/android, app/ios",
    "note": "הכפתור בגיליון המסלול (K12)",
    "check": [
@@ -26498,6 +26498,69 @@
    "ka": "ნავიგაცია სალაროსკენ",
    "where": "app/android",
    "note": "small items 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_film_stop": {
+   "he": "עצירה",
+   "en": "Stop",
+   "ru": "Стоп",
+   "ka": "გაჩერება",
+   "where": "app/android",
+   "note": "run card 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_vids_n": {
+   "he": {
+    "one": "סרטון אחד",
+    "two": "שני סרטונים",
+    "other": "{n} סרטונים"
+   },
+   "en": {
+    "one": "1 video",
+    "other": "{n} videos"
+   },
+   "ru": {
+    "one": "{n} видео",
+    "few": "{n} видео",
+    "many": "{n} видео",
+    "other": "{n} видео"
+   },
+   "ka": {
+    "one": "{n} ვიდეო",
+    "other": "{n} ვიდეო"
+   },
+   "where": "app/android",
+   "note": "run card 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_cond_now": {
+   "he": "התנאים עכשיו",
+   "en": "Conditions now",
+   "ru": "Условия сейчас",
+   "ka": "პირობები ახლა",
+   "where": "app/android",
+   "note": "run card 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.run_vids_from": {
+   "he": "סרטונים מהמסלול",
+   "en": "Videos from the run",
+   "ru": "Видео с трассы",
+   "ka": "ვიდეოები ტრასიდან",
+   "where": "app/android",
+   "note": "run card 27.11.2026, approved",
    "check": [
     "ru",
     "ka"
