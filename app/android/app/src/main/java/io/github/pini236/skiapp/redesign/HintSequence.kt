@@ -147,7 +147,17 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
         progress.snapTo(1f)
         if (on && rect != null && !Qa.enabled && !screenReader) {
             if (reduced) { val secs = (total / 1000).coerceAtLeast(1); for (i in 1..secs) { delay(1000); progress.snapTo(1f - i / secs.toFloat()) } }
-            else progress.animateTo(0f, tween(total, easing = LinearEasing))
+            else {
+                // wall clock, not an animation: the system's animator scale (0.5x in developer options) halves a tween
+                val t0 = android.os.SystemClock.elapsedRealtime()
+                while (true) {
+                    val e = android.os.SystemClock.elapsedRealtime() - t0
+                    if (e >= total) break
+                    progress.snapTo(HintTiming.left(e, total))
+                    withFrameNanos { }
+                }
+                progress.snapTo(0f)
+            }
             advance()
         }
     }
@@ -249,4 +259,9 @@ internal fun BoxScope.HintSequence(prefKey: String, steps: List<HintStep>, ready
             }
         }
     }
+}
+
+/** the ring's timing rule: the part of the time left after [elapsedMs] of [totalMs] (the clock, not the animator scale) */
+internal object HintTiming {
+    fun left(elapsedMs: Long, totalMs: Int): Float = (1f - elapsedMs / totalMs.toFloat()).coerceIn(0f, 1f)
 }

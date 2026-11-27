@@ -49,19 +49,20 @@ internal class KobiSet(context: Context, private val v: PeakContract.View) {
      * Fetches what is missing, [want] first and then by nearness to it, while [active] says so (the app on the screen).
      * Stops at the first failure (no reception): it tries again the next time the picture is opened.
      */
-    suspend fun fetchAll(want: String, active: () -> Boolean) = withContext(Dispatchers.IO) {
-        val path = v.path ?: return@withContext
+    suspend fun fetchAll(want: String, active: () -> Boolean): Boolean = withContext(Dispatchers.IO) {
+        val path = v.path ?: run { Qa.log("redesign kobi fetch: no path"); return@withContext false }
         runCatching { root.listFiles()?.filter { it.isDirectory && it.name != dir.name }?.forEach { it.deleteRecursively() } }
         runCatching { dir.mkdirs(); dir.listFiles()?.filter { it.name.endsWith(".part") && v.images.none { im -> im.file + ".part" == it.name } }?.forEach { it.delete() } }
         for (light in Rules.order(v.images.map { it.light to it.night }, want)) {
-            if (!active()) return@withContext
+            if (!active()) return@withContext false
             if (file(light) != null) continue
             val im = image(light) ?: continue
-            val ok = runCatching { download(SITE + path + im.file, im, active) }.getOrElse { Qa.log("redesign kobi set failed ${im.file}"); false }
-            if (!ok) return@withContext
+            val ok = runCatching { download(SITE + path + im.file, im, active) }.getOrElse { Qa.log("redesign kobi set failed ${im.file}: $it"); false }
+            if (!ok) { Qa.log("redesign kobi set not arrived ${im.file}"); return@withContext false }
             arrived = have().size
             Qa.log("redesign kobi set arrived ${im.file} ${have().size}/${v.images.size}")
         }
+        true
     }
 
     /** one picture; false when it did not arrive (the part stays if the app left the screen, goes if the bytes are wrong) */
@@ -75,7 +76,7 @@ internal class KobiSet(context: Context, private val v: PeakContract.View) {
                 c.connectTimeout = 10_000; c.readTimeout = 15_000
                 if (have > 0) c.setRequestProperty("Range", "bytes=$have-")
                 val code = c.responseCode
-                if (code != 200 && code != 206) return false
+                if (code != 200 && code != 206) { Qa.log("redesign kobi http $code $url"); return false }
                 val append = code == 206 && have > 0
                 if (!append) have = 0
                 FileOutputStream(part, append).use { out ->
@@ -88,9 +89,9 @@ internal class KobiSet(context: Context, private val v: PeakContract.View) {
                         }
                     }
                 }
-            } catch (e: IOException) { return false } finally { c.disconnect() }
+            } catch (e: IOException) { Qa.log("redesign kobi io ${e.javaClass.simpleName} ${e.message}"); return false } finally { c.disconnect() }
         }
-        if (part.length() != im.bytes.toLong() || sha256(part) != im.sha256) { part.delete(); return false }
+        if (part.length() != im.bytes.toLong() || sha256(part) != im.sha256) { Qa.log("redesign kobi bad bytes ${im.file} ${part.length()}/${im.bytes}"); part.delete(); return false }
         return part.renameTo(File(dir, im.file))
     }
 
