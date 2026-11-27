@@ -12,7 +12,7 @@ Boards `NM1`-`NM3` (`ref/NM*.jpg`). **Not before Pini approves.**
 
 Replaces the box "לא בגודאורי כרגע".
 
-- **The card:** under the top pill (106 from the top, 12 from the sides), glass, radius 22, min height 60. At the start a 44 circle (`tint`) with an arrow (`acc`, 22); beside it "גודאורי · 1,430 ק״מ מכאן" (16 / 700) and under it "המיקום שלך יופיע כשתהיו על ההר" (13 `ink2`).
+- **The card:** under the top pill (106 from the top, 12 from the sides), glass, radius 22, min height 60. At the start a 44 circle (`tint`) with an arrow (`acc`, 22); beside it "גודאורי · 1,430 ק״מ מכאן" (16 / 700) and under it "המיקום יופיע כשתהיו על ההר" (13 `ink2`).
 - **Distance:** great-circle, from the fix to the resort's centre (the Goodaura bottom station). Under 10 km: one decimal ("3.2"); from 10: whole, with a thousands separator. In kilometres in all four languages.
 - **The arrow:** points to Gudauri. With a compass heading: relative to where the phone points, updated live. Without: relative to north (up = north).
 - **Shown** when the tap on "איפה אני" gets an outside fix; stays 6 s, or until a touch on the mountain. The button returns to its off state (it does not stay blue). Tapping again shows it again.

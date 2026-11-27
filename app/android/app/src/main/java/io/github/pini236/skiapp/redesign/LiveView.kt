@@ -1011,7 +1011,12 @@ internal class LiveView(context: Context, private val scene: MapScene) : GLSurfa
         val s0 = camera.state().let { it.copy(pitch = it.pitch.coerceAtLeast(LiveLimits.FRAME_PITCH)) }
         val fit = frameBox(b, s0)
         val vf = tan(Math.toRadians(data.camera.fovDeg / 2.0)).toFloat()
-        val dist = (fit.dist / (bottom - top).coerceIn(.2f, 1f)).coerceIn(1400f, LiveLimits.MAX_DIST)
+        // B3 (26.11.2026): only the height limit is shrunk to the screen's free part; on a phone (narrow) the width limit
+        // decides and dividing it too moved the camera away from the run instead of closing in
+        val part = (bottom - top).coerceIn(.2f, 1f)
+        val hHalf = vf * width.toFloat().coerceAtLeast(1f) / height.coerceAtLeast(1)
+        val rBox = hypot(b[2] - b[0], b[3] - b[1]) / 2
+        val dist = maxOf(rBox / hHalf, rBox / (vf * part)).times(1.1f).coerceIn(1400f, LiveLimits.MAX_DIST)
         // the part's middle, where the box goes, in the view before the raise; up from the screen's middle by
         // (1 - 2c) of the half height: the target lowered along the screen's up
         val c = (top + bottom) / 2f + shift / height.coerceAtLeast(1)

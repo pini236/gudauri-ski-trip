@@ -989,7 +989,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
-            LiveSkipass(around, night, haptics)
+            LiveSkipass(around, night, haptics, onOffice = { skipassOpen = false; villageOpen = true; Qa.log("redesign skipass to office") })
             // the top: back, and "ski pass" as the title by it (handoff section 14.10); ink by day, white at night
             val top = if (night) Color.White else SheetInk(night).ink
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
