@@ -170,7 +170,14 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
         view.dayReveal(filmT?.let { ((it - p.t0).toFloat() / (p.t1 - p.t0).coerceAtLeast(1)) }) }
     var framed by remember(paint) { mutableStateOf(false) }
     // a recording without descents (the designer, 23.11.2026): the mountain stays behind, with no lines on it
-    val noRuns = loaded?.day?.summary?.descents == 0
+    // P.23: a day that just ended with no real descent inside the resort is never saved (the sheet says so, the file goes)
+    val unsaved = remember(loaded) {
+        val l = loaded
+        !live && !sample && l != null && KeepRules.fresh(l.day.summary.end, System.currentTimeMillis()) &&
+            !KeepRules.hasRealDescent(l.segs, l.paint.track.t, l.paint.track.x, l.paint.track.y, scene.runs?.let { WhereRules.resortBox(it) })
+    }
+    LaunchedEffect(unsaved) { if (unsaved) { runCatching { io.github.pini236.skiapp.dayrec.DayRec.store(context).delete(file) }; Qa.log("redesign day not saved") } }
+    val noRuns = loaded?.day?.summary?.descents == 0 || unsaved
     LaunchedEffect(paint, lineNight, noRuns) {
         if (paint == null) return@LaunchedEffect
         // an empty day still hides the runs and the cables, so the bare mountain stays behind the card
@@ -334,7 +341,7 @@ fun DayMountain(file: File, sample: Boolean, scene: MapScene, mode: DayNight.Mod
             val sm = emptyL.day.summary
             LaunchedEffect(Unit) { Qa.log("redesign day no runs") }
             EmptyEnd(sm.start, sm.end, tr.t.isNotEmpty(), (tr.x.indices).any { io.github.pini236.skiapp.dayrec.IdleWatch.inside(tr.x[it], tr.y[it]) }, night, haptics,
-                onSample = onSample, onDelete = { io.github.pini236.skiapp.dayrec.DayRec.store(context).delete(file); onBack() }, onBack = onBack)
+                notSaved = unsaved, onSample = onSample, onDelete = { io.github.pini236.skiapp.dayrec.DayRec.store(context).delete(file); onBack() }, onBack = onBack)
         }
         if (!filming && !(!live && emptyL != null && noRuns)) Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(8.dp).fillMaxWidth()
             .shadow(16.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp))
