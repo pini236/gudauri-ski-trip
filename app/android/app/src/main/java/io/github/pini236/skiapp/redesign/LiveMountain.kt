@@ -169,6 +169,19 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var qaFlags by remember { mutableStateOf<GroupMeets?>(null) }
     val time = scrub?.let { PeakLight.janAt(it) } ?: DayNight.lightTime(now, mode)
     val night = remember(time) { Sky.at(time).dark }
+    // the "מסלולים" button of the bar (run button v4, A): the picture of the hour's light, the count, and the opening's flight
+    val runsRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+    val runsLight = remember(data, time / 300_000) { data?.let { d -> PeakLight.pick(d.lights, time, DayNight.Mode.AUTO).name } }
+    val runsFace = RunsFace(rememberRunsPicture(data, runsLight, runsRtl), remember(scene) { scene.runs.pistes.count { it.named } })
+    val runsFlight = remember { RunsFlight() }
+    val runsSink = with(androidx.compose.ui.platform.LocalDensity.current) { 10.dp.roundToPx() }
+    val runsReduced = io.github.pini236.skiapp.ui.Motion.reduced(context)
+    LaunchedEffect(shelfOpen, runsReduced) {
+        // the button's own surface travels into the shelf's panel and back; reduced motion: nothing travels
+        if (runsReduced) runsFlight.p.snapTo(0f)
+        else if (shelfOpen) runsFlight.p.animateTo(1f, tween(420, easing = RunsFlight.OPEN))
+        else runsFlight.p.animateTo(0f, tween(280, easing = RunsFlight.CLOSE))
+    }
     // ---- the stage under the layers (the opening's handoff, 25.11.2026; the architect's Stage): the picture by default,
     // the live model by the user's choice (kept on the phone) or for a moment that needs it (the film, the Kobi side, Z05).
     // Never both: the one that leaves frees its GPU or its pictures (condition 3).
@@ -813,16 +826,22 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 // between the pill (100 down) and the shelf (270 up), the mountain raised 120 (K07)
                 onCenter = { shelfMid = it; view.showRun(it.key, 100f / scrHdp, 1f - 270f / scrHdp, shiftPx120) },
                 onPick = { key -> ShelfMemory.last = key; shelfOpen = false; Qa.log("redesign shelf pick $key"); view.pickKey(key) },
-                onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
+                onClose = { shelfOpen = false; Qa.log("redesign shelf closed") },
+                onPanel = { runsFlight.panel = it })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
         }
         AnimatedVisibility(chosen == null && lens == null && !villageOpen && !menuOpen && !foodOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
-            enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
+            enter = fadeIn(tween(150)),
+            exit = fadeOut(tween(140, easing = androidx.compose.animation.core.FastOutLinearInEasing)) +
+                androidx.compose.animation.slideOutVertically(tween(140, easing = androidx.compose.animation.core.FastOutLinearInEasing)) { runsSink }) {
             Box(Modifier.fillMaxSize()) {
+                // the button hides only while its travelling copy is drawn (the panel's place known), so there is never a frame with neither
+                val runsHidden = runsFlight.p.value > 0.001f && runsFlight.panel != null
                 Dock(night, haptics, onVillage = { menuOpen = true; Qa.log("redesign dock menu") }, onFind = { shelfOpen = true; Qa.log("redesign dock find") },
-                    onRecord = around?.onRecord?.let { r -> { Qa.log("redesign dock record"); r() } })
+                    onRecord = around?.onRecord?.let { r -> { Qa.log("redesign dock record"); r() } }, runs = runsFace, flight = runsFlight, runsHidden = runsHidden)
             }
         }
+        RunsGhost(SheetInk(night), runsFace, runsFlight)
         // UX pass part 1: the menu, over the mountain with no flight
         if (menuOpen) {
             val vMeet0 = flags.firstOrNull()?.let { f -> plan?.byId?.get(f.station)?.let { st -> f to st } }

@@ -1331,7 +1331,7 @@ redesign() {
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   # part 4b (K07): the bottom bar opens the shelf; by lift, then easy to hard, the next card, and a pick
   mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10; waitlog "redesign live turned" 20
-  mark; tapText "לאן יורדים?" || qa "--es qa.redesign shelf"
+  mark; tapText "מסלולים" || qa "--es qa.redesign shelf"
   if waitlog "redesign shelf open" 15; then
     waitlog "redesign shelf center" 10 || fail "redesign: the shelf has no middle card"; rd_settled; shot redesign-shelf-lift
     mark; qa "--es qa.redesign shelf:sort:easy"; waitlog "redesign shelf sort easy" 10 || fail "redesign: the shelf's order did not change"
@@ -1756,7 +1756,7 @@ redesign() {
   drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
   # part 4b (K07): the bottom bar opens the shelf; by lift, then easy to hard, the next card, and a pick
   mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10; waitlog "redesign live turned" 20
-  mark; tapText "לאן יורדים?" || qa "--es qa.redesign shelf"
+  mark; tapText "מסלולים" || qa "--es qa.redesign shelf"
   if waitlog "redesign shelf open" 15; then
     waitlog "redesign shelf center" 10 || fail "redesign: the shelf has no middle card"; rd_settled; shot redesign-shelf-lift
     mark; qa "--es qa.redesign shelf:sort:easy"; waitlog "redesign shelf sort easy" 10 || fail "redesign: the shelf's order did not change"
