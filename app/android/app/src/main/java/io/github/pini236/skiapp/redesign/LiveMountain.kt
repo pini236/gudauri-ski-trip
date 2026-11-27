@@ -117,6 +117,8 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
     var lensRow by remember { mutableStateOf(false) }
     // K17 (the village): open over the mountain
     var villageOpen by remember { mutableStateOf(false) }
+    var menuOpen by remember { mutableStateOf(false) }
+    var foodFirst by remember { mutableStateOf(false) }
     var lens by remember { mutableStateOf<LensKind?>(null) }
     // part 2 (Q01 to Q03): the lifts' sheet, and one lift in it
     var liftsOpen by remember { mutableStateOf(false) }
@@ -314,7 +316,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             c == "station:off" -> fromSt = null
             c == "lens:off" -> { lens = null; lensRow = false }
             c == "village" -> { chosen = null; view.choose(null); villageOpen = true }
-            c == "village:off" -> { view.fromVillage(); villageOpen = false }
+            c == "village:off" -> { view.fromVillage(); villageOpen = false; menuOpen = false }
             c.startsWith("lens:") -> LensKind.of(c.removePrefix("lens:"))?.let { lensRow = true; lens = it }
             c.startsWith("station:") -> plan?.stations?.firstOrNull { s -> c.removePrefix("station:") in s.topOf }?.let { s -> chosen = null; view.choose(null); fromSt = s; Qa.log("redesign station ${s.id}") }
             c == "season" -> seasonOn = LiveSeasonRules.shown(around)
@@ -724,7 +726,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 LaunchedEffect(sel) { io.github.pini236.skiapp.telemetry.Telemetry.event("lift_open", mapOf("lift" to sel.name)); Qa.log("redesign lift panel ${sel.name}") }
                 LiftPanel(sel, status, scene, sk, haptics, onRun = { key -> liftSel = null; liftsOpen = false; view.pickKey(key) },
                     onMeet = plan?.let { pl -> LiveMeetRules.topOf(pl, sel.name)?.let { st -> { meetOpen(true); meetPick(st) } } },
-                    onRuns = { liftSel = null; liftsOpen = false },
+                    onRuns = { liftSel = null; liftsOpen = false }, placesFirst = foodFirst,
                     onPlace = { pl -> placeMark = pl; val x = io.github.pini236.skiapp.data.Geo.x(pl.lon); val y = io.github.pini236.skiapp.data.Geo.y(pl.lat)
                         view.center(x, y, 1e6f); Qa.log("redesign places mark ${pl.id}") })
             } else LiftsSheet(boardLifts, status, scene, forMe, sk, haptics, onForMe = { v ->
@@ -819,13 +821,40 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
                 onClose = { shelfOpen = false; Qa.log("redesign shelf closed") })
             if (veilA > .5f) shelfMid?.let { r -> RunTag(view, scene, r.key, r.title, r.color, night) }
         }
-        AnimatedVisibility(chosen == null && lens == null && !villageOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
+        AnimatedVisibility(chosen == null && lens == null && !villageOpen && !menuOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open, Modifier.fillMaxSize(),
             enter = fadeIn(tween(150)), exit = fadeOut(tween(150))) {
             Box(Modifier.fillMaxSize()) {
                 if (around != null && LiveSeasonRules.shown(around)) SeasonTile(around, night, haptics, tileOpen, { tileOpen = it }, onOpenSheet = { tileOpen = false; seasonOn = true })
-                Dock(night, haptics, onVillage = { villageOpen = true; Qa.log("redesign dock village") }, onFind = { shelfOpen = true; Qa.log("redesign dock find") },
+                Dock(night, haptics, onVillage = { menuOpen = true; Qa.log("redesign dock menu") }, onFind = { shelfOpen = true; Qa.log("redesign dock find") },
                     onRecord = around?.onRecord?.let { r -> { Qa.log("redesign dock record"); r() } })
             }
+        }
+        // UX pass part 1: the menu, over the mountain with no flight
+        if (menuOpen) {
+            val vMeet0 = flags.firstOrNull()?.let { f -> plan?.byId?.get(f.station)?.let { st -> f to st } }
+            val meetNow0 = vMeet0?.let { (f, st) -> f.at.atOffset(io.github.pini236.skiapp.meet.Meet.GUDAURI).toLocalTime().let { "%02d:%02d".format(it.hour, it.minute) } to st.name }
+            val places = io.github.pini236.skiapp.places.LocalPlaces.current
+            val goodauraLift = scene.runs.lifts.firstOrNull { it.name == "Goodaura" }
+            val food = remember(places, scene) { goodauraLift?.let { l -> places?.stationOf(l.id, true)?.let { st -> places.near(st).count { it.place.kind == "food" || it.place.kind == "cafe" } } } ?: 0 }
+            val (lp, _) = LiftsPillText(status, inSeason)
+            val boardG = LiveLifts.board(scene.runs).firstOrNull { it.name == "Goodaura" }
+            MenuSheet(scene, around, night, haptics, lp, meetNow0, food,
+                MenuActions(
+                    onTrip = { menuOpen = false; tripEdit = null; tripOpen = true },
+                    onSkipass = { menuOpen = false; skipassOpen = true },
+                    onGroup = { g -> if (pp != null) { menuOpen = false; when {
+                        g.isNullOrEmpty() -> people.go(PLayer.Gate)
+                        g.size == 1 -> people.go(PLayer.Group(g[0].id))
+                        else -> people.go(PLayer.Me)
+                    } } },
+                    onFood = boardG?.let { g -> { menuOpen = false; foodFirst = true; liftSel = g; liftsOpen = true } },
+                    onGames = around?.onGames?.let { go -> { menuOpen = false; go() } },
+                    onDays = around?.people?.let { p -> { menuOpen = false; p.onDays() } },
+                    onLifts = { menuOpen = false; foodFirst = false; liftSel = null; nowTab = NowTab.LIFTS; liftsOpen = true },
+                    onAccount = if (pp != null) ({ menuOpen = false; people.go(PLayer.Me) }) else null,
+                    onSettings = if (pp != null) ({ menuOpen = false; people.go(PLayer.Settings) }) else null,
+                    onLanguage = if (pp != null) ({ menuOpen = false; people.go(PLayer.Language) }) else null,
+                ), onClose = { menuOpen = false; Qa.log("redesign menu closed") })
         }
         // K17: the village over the mountain, until "back to the mountain"
         val pd0 = data
@@ -960,7 +989,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         }
         if (skipassOpen && around != null) {
             Box(Modifier.fillMaxSize().background(SheetInk(night).veil).clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) {})
-            LiveSkipass(around, night, haptics)
+            LiveSkipass(around, night, haptics, onOffice = { skipassOpen = false; villageOpen = true; Qa.log("redesign skipass to office") })
             // the top: back, and "ski pass" as the title by it (handoff section 14.10); ink by day, white at night
             val top = if (night) Color.White else SheetInk(night).ink
             Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -972,7 +1001,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
             }
         }
         // part 4 (S03, S04, S08): the location's box under the pill, the map's buttons, and S02 before the phone asks
-        val bare = chosen == null && !villageOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
+        val bare = chosen == null && !villageOpen && !menuOpen && !shelfOpen && fromSt == null && !liftsOpen && !meet.open && !tripOpen && !skipassOpen && !seasonOn && !people.open
         val dens = androidx.compose.ui.platform.LocalDensity.current.density
         // K06 by itself: after a ride, near the lift's top station, when nothing else is open (once for each ride)
         val stAuto = remember { StationAuto() }
@@ -1023,7 +1052,7 @@ fun LiveMountain(scene: MapScene, mode: DayNight.Mode, haptics: Haptics, status:
         val hintMe = pp != null
         val hintSteps = remember(hintRec, hintMode, hintMe) {
             listOfNotNull(HintStep("run", R.string.app_hint_run), HintStep("find", R.string.app_hint_find),
-                if (hintRec) HintStep("rec", R.string.app_hint_rec) else null, HintStep("village", R.string.app_hint_village),
+                if (hintRec) HintStep("rec", R.string.app_hint_rec) else null, HintStep("village", R.string.app_hint_menu),
                 if (hintMode) HintStep("mode", R.string.app_hint_mode, 22f) else null, if (hintMe) HintStep("me", R.string.app_hint_me) else null)
         }
         HintSequence(Hints.MOUNTAIN, hintSteps, ready = bare && !where.asking && mtnDrawn && lens == null && !lensRow && !tileOpen, night = night, again = hintAgain + Hints.again) { sz ->
