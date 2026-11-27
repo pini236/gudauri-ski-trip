@@ -25,6 +25,10 @@
 
     <!-- Device backup is off (server/CONTRACT.md, "Security"): the sign-in, the local copy of the group and the choices must
          not travel to another phone or to Google's cloud. -->
+    <queries>
+        <package android:name="com.lemondo.skipass" />
+    </queries>
+
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"

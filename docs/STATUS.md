@@ -408,6 +408,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Android (Sonnet): small items P.21 and P.16 built on `claude/android-small-items`, not merged.** Ski pass office row ends with two round buttons (Google Maps walking to the office, SKIPASS app or Play page; `NameHold` long press); "איפה הקופה?" removed. Record mode chosen only in the start sheet (two tiles), a fixed label while recording. Not compiled locally (no Gradle network), CI only; not tested on a phone.
 - 27.11.2026: **Content: start-sheet lines and ticket-office screen-reader string entered (Pini approved).** `app.start_all_sub`, `app.start_one_sub`, `app.sr_office_nav` in four languages; `check.py` green.
 - 27.11.2026: **Content: top pill strings entered in four languages (Pini approved).** 23 `app.tp_*` keys (lifts open/all open/wind plural, closed, no data, fresh snow, gusts, snow coming, condition words, two screen-reader lines); countdown and "days to opening" reuse existing `season_*`/`season_pill`. `check.py` green.
 - 27.11.2026: **Content: my-days, day-ridge and story/share strings entered in four languages (Pini approved).** 36 new `app.md_*`, `app.dt_*`, `app.ds_*` keys plus `app.menu_days`; plural keys `md_days`, `md_runs`, `md_card_a11y`, `dt_stops` fix "1 ירידות" (old `day_n_descents`, `days_item`, `rec_day_line` left as they are). `check.py` green.

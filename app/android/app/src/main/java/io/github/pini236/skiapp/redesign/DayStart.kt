@@ -34,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,13 +81,29 @@ internal fun DayStart(single: Boolean, haptics: Haptics, onGo: (Boolean) -> Unit
                         }
                         Text(stringResource(line), Modifier.weight(1f), fontFamily = Gudi, fontWeight = if (icon == 0) FontWeight.Normal else FontWeight.Bold, fontSize = 14.sp, color = ink)
                     }
-                // all day or one descent: the same recording either way (round 29)
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, rule, RoundedCornerShape(22.dp)).padding(3.dp)) {
-                    for ((on, key) in listOf(false to R.string.app_rec_all, true to R.string.app_rec_one)) {
+                // P.16: all day or one descent, two tiles side by side, chosen before the start only (boards RM1-RM4)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    for ((on, key, sub) in listOf(Triple(false, R.string.app_rec_all, R.string.app_start_all_sub), Triple(true, R.string.app_rec_one, R.string.app_start_one_sub))) {
                         val sel = one == on
-                        Text(stringResource(key), Modifier.weight(1f).clip(RoundedCornerShape(19.dp)).background(if (sel) accent else Color.Transparent)
-                            .clickable(role = Role.Button) { haptics.tick(.2f); one = on }.padding(vertical = 10.dp),
-                            fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (sel) Color.White else ink, textAlign = TextAlign.Center)
+                        val shape = RoundedCornerShape(18.dp)
+                        Column(Modifier.weight(1f).clip(shape).background(if (sel) accent.copy(alpha = .08f) else Color.Transparent)
+                            .border(1.5.dp, if (sel) accent else rule, shape)
+                            .semantics { selected = sel }.clickable(role = Role.RadioButton) { haptics.tick(.2f); one = on }.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            androidx.compose.foundation.Canvas(Modifier.size(22.dp)) {
+                                val w = size.width; val st = androidx.compose.ui.graphics.drawscope.Stroke(w * .09f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                                if (!on) { // all day: a clock
+                                    drawCircle(accent, w * .45f, style = st)
+                                    drawLine(accent, androidx.compose.ui.geometry.Offset(w * .5f, w * .25f), androidx.compose.ui.geometry.Offset(w * .5f, w * .5f), st.width, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                                    drawLine(accent, androidx.compose.ui.geometry.Offset(w * .5f, w * .5f), androidx.compose.ui.geometry.Offset(w * .68f, w * .6f), st.width, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                                } else { // one descent: a line going down to a stop
+                                    drawLine(accent, androidx.compose.ui.geometry.Offset(w * .2f, w * .15f), androidx.compose.ui.geometry.Offset(w * .8f, w * .7f), st.width, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                                    drawLine(accent, androidx.compose.ui.geometry.Offset(w * .2f, w * .92f), androidx.compose.ui.geometry.Offset(w * .9f, w * .92f), st.width, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                                }
+                            }
+                            Text(stringResource(key), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ink)
+                            Text(stringResource(sub), fontFamily = Gudi, fontSize = 12.5.sp, color = muted)
+                        }
                     }
                 }
                 // "start" with the recording's dot (board L01)
