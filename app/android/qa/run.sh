@@ -1632,6 +1632,431 @@ PY
   adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
   mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-en; }
   mark; adb shell input keyevent 4; waitlog "redesign hint done hints_mountain" 10
+  # P.25: before the season the top pill's lifts part is the wait ring; a tap opens the season sheet (the countdown tile is gone)
+  mark; qa "--es qa.status none"; sleep 2; rd_settled; shot redesign-season-pill
+  if [ -n "$(where '~days to opening')" ]; then
+    mark; tapText "~days to opening"; waitlog "redesign season tile sheet" 10 && { rd_settled; shot redesign-season-sheet-tile; }
+  else note "the top pill's wait ring was not on the screen"; fi
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
+  sleep 3; uidump && unblock || true
+}
+
+
+# The core (Pini, 25.11.2026: "לא צריך להגזים עם הבדיקות"): the app's main activity only, about 10 minutes, the part
+# every push runs. The app starts and the mountain draws; a tap on a run opens its sheet; the village; me; and a
+# recording started and stopped. Every other part stays, by hand.
+core() {
+  adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS > /dev/null 2>&1 || true
+  adb shell pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION; adb shell pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION
+  adb shell cmd location set-location-enabled true 2> /dev/null
+  rd_live_start core
+  adb shell pidof "$PKG" > /dev/null || fail "core: the app is not running after the start"
+  rd_settled; shot core-mountain
+  # a real tap on a run's line: chosen, its sheet up
+  if rd_live_touch "Tatra 2"; then sleep 2; shot core-run; else fail "core: a tap on Tatra 2 did not choose it"; fi
+  rd_live_back
+  # the village
+  mark; qa "--es qa.redesign village"; if waitlog "redesign village open" 20; then sleep 1.5; shot core-village; else fail "core: the village did not open"; fi
+  mark; qa "--es qa.redesign village:off"; sleep 1
+  # me (nobody signed in)
+  mark; qa "--es qa.group none --es qa.redesign people:me"; if waitlog "redesign people me" 15; then rd_settled; shot core-me; else fail "core: me did not open"; fi
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # a recording: the live screen, started, a few readings down Tatra 2, stopped (the debug build shows the day's screens
+  # on the mountain only once asked: qa.redesign day)
+  mark; qa "--es qa.mode day --es qa.redesign day"; sleep 1
+  mark; qa "--es qa.mode day --es qa.stats off --es qa.tab day"; waitlog "redesign rec open" 20 || fail "core: the live screen did not open"
+  mark; qa "--es qa.dayrec start"; waitlog "dayrec start result Started" 20 || fail "core: the recording did not start"
+  geo 42.482631 44.483401; dayrec_walk 6; sleep 4; shot core-rec
+  mark; qa "--es qa.dayrec stop"; waitlog "dayrec stop user" 15 || fail "core: the recording did not stop"
+  sleep 2; adb shell pidof "$PKG" > /dev/null || fail "core: the app is not running at the end"
+}
+
+redesign() {
+  rd_prep redesign
+  adb shell am force-stop "$PKG"; sleep 1; mark
+  adb shell "am start -W -n $ACT --es qa.tab home --es qa.mode auto --es qa.redesign open" > /dev/null
+  # a cold start on the emulator: the map's own shadows alone took 33 s in run 292, and the painted screen waits for them
+  waitlog "redesign ready" 75; sleep 3; uidump && unblock || true; shot redesign-open
+  # a run away from the close-up's side, on the whole mountain: the mountain rises above the sheet
+  rd_touch "Kudebi 1" && { sleep 2.5; shot redesign-chosen; }; rd_back
+  # a run of the Tatra side: the close-up picture comes in
+  rd_touch "Tatra 2" && { sleep 2.5; shot redesign-closeup; }
+  # back from the close-up: the whole mountain, and a touch there is right again
+  rd_back; sleep 0.5; shot redesign-back
+  rd_touch "Sportuli 1" && sleep 2; rd_back
+  # zoomed in (as a pinch leaves it), a real drag, then a touch: the run under the finger
+  mark; qa "--es qa.redesign view:2.2,180,520"; waitlog "redesign view zoom" 10; sleep 1; shot redesign-zoom
+  drag $((W / 2)) $((H / 2)) $((W / 2 + W / 6)) $((H / 2 + H / 10)) 400; sleep 1; shot redesign-zoom-dragged
+  rd_touch "Goodaura 1" && { sleep 2.5; shot redesign-zoom-chosen; }; rd_back
+  mark; qa "--es qa.redesign view:2.6,300,300"; waitlog "redesign view zoom" 10; sleep 1
+  rd_touch "Kikilo 1" && sleep 2; rd_back
+  # day and night (the switch: day is the morning picture, night is night)
+  qa "--es qa.mode day"; sleep 3; shot redesign-day
+  # a chosen run by day (the lit corridor as on the board), and one moment of the choice held at 0, 150, 300, 600, 900 ms
+  rd_touch "Tatra 2" && { sleep 2.5; shot redesign-day-chosen; }; rd_back
+  for ms in 0 150 300 600 900; do
+    qa "--es qa.redesign 'frame:Tatra 2,$ms'"; waitlog "redesign frame Tatra 2 $ms" 10; sleep 1; shot "redesign-moment-$ms"
+  done
+  rd_back
+  qa "--es qa.mode night"; sleep 3; shot redesign-night
+  rd_touch "Tatra 1" && { sleep 2.5; shot redesign-night-chosen; }; rd_back
+  # phase B: the live model under the picture (the picture fades away over it), by day and night, a drag, and back
+  mark; qa "--es qa.mode day --es qa.redesign live"; waitlog "redesign live open" 15
+  waitlog "redesign live textures ok" 30 || fail "redesign: the live textures did not pass the designer's checks"
+  waitlog "redesign live drawn" 30 || fail "redesign: the live model drew nothing but the clear colour"
+  # part 2 (Q10): before the season the mountain opens on the count of days; the designer's frames are of the mountain itself
+  mark; qa "--es qa.redesign season:off"; waitlog "redesign season closed" 10
+  sleep 4; shot redesign-live
+  # the designer's frames (design/handoff/2026-11-20-redesign-live/ref): the opening at the seven keys of 12 January
+  # (the shadows are worked out off the GL thread, a few seconds on the emulator), then three free views
+  # the intent that carries a command brings the activity back, and with it a new GL surface: the textures are decoded
+  # again, so the frame waits for the model's next full draw (on a phone without that, the shadows' few seconds)
+  # part 2's layers: a full draw when the intent brought a new surface (the emulator's), otherwise the frame already there
+  for k in dawn:9.0 morning:10.6 noon:13.0 after:15.9 sunset:17.35 blue:18.3 night:22.0; do
+    mark; qa "--es qa.redesign 'hour:${k#*:}'"; waitlog "redesign live hour" 10; rd_drawn; shot "redesign-live-open-${k%%:*}"
+  done
+  rd_look() { mark; qa "--es qa.redesign 'hour:$1'"; waitlog "redesign live hour" 10
+    mark; qa "--es qa.redesign 'look:$2'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-live-$3"; }
+  rd_look 15.9 "75,16,7100" east-after
+  rd_look 13.0 "180,18,7100" north-noon
+  rd_look 10.6 "0,22,2600,Tatra 2" close-morning
+  rd_look 22.0 "0,22,2600,Tatra 2" close-night
+  rd_look 13.0 "0,30,2200,@-420:4470" village-noon
+  rd_look 10.6 "0,16,6617" open-again
+  # a run chosen as a tap chooses it: the light down it, the framing, its sign on the top and the sheet (K10)
+  mark; qa "--es qa.redesign 'pick:Tatra 2'"; waitlog "redesign live framed Tatra 2" 20; sleep 2; rd_drawn; shot redesign-live-chosen-sheet
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn
+  # Pini's 24.11 note: a chosen run whole, in the middle above the sheet, never on the sky (Kikilo 1 and Kobi too)
+  for rk in "Kikilo 1" "Kobi"; do
+    mark; qa "--es qa.redesign 'pick:$rk'"; waitlog "redesign live framed $rk" 30 || fail "redesign: $rk was not framed"
+    sleep 2; rd_drawn; shot "redesign-live-chosen-${rk// /-}"
+    mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; mark; qa "--es qa.redesign front"; sleep 2; rd_drawn
+  done
+  # the moment of the choice on the live model held at 0, 150, 300, 600 and 900 ms (as phase A's frame:), each from
+  # the opening view: the ring, the shade, the light down the run, the framing, the sign, then the sheet
+  for ms in 0 150 300 600 900; do
+    mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
+    mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10
+    mark; qa "--es qa.redesign 'moment:Tatra 2,$ms'"; waitlog "redesign live moment Tatra 2 $ms" 20 || fail "redesign: the live moment $ms was not held"
+    waitlog "redesign live held $ms" 25 || fail "redesign: the held moment $ms was not drawn"; sleep 1; shot "redesign-live-moment-$ms"
+  done
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10
+  mark; qa "--es qa.redesign 'look:0,16,6617'"; waitlog "redesign live look" 10; rd_drawn
+  # section 10: Kobi chosen from the opening turns to its side (through the east, about 1 s), then frames it; the sign
+  # "Kobi side" stays after letting it go, and brings the front back
+  mark; qa "--es qa.redesign 'pick:Kobi'"; waitlog "redesign live side kobi" 30 || fail "redesign: Kobi did not turn the camera to its side"
+  waitlog "redesign live kobi sign true" 15 || fail "redesign: no Kobi side sign"
+  waitlog "redesign live framed Kobi" 20; sleep .3; shot redesign-live-kobi-turned
+  rd_drawn; shot redesign-live-kobi-close
+  mark; qa "--es qa.redesign unpick"; waitlog "redesign live unpicked" 10; rd_drawn; shot redesign-live-kobi-sign
+  mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10
+  waitlog "redesign live turned" 20 || fail "redesign: the turn back to the front did not end"
+  seen "redesign live kobi sign false" 5 || fail "redesign: the sign did not bring the front back"
+  rd_drawn; shot redesign-live-front
+  drag $((W / 2)) $((H / 2)) $((W / 2 - W / 5)) $((H / 2)) 500; sleep 1.5; shot redesign-live-dragged
+  # part 4b (K07): the bottom bar opens the shelf; by lift, then easy to hard, the next card, and a pick
+  mark; qa "--es qa.redesign front"; waitlog "redesign live front" 10; waitlog "redesign live turned" 20
+  mark; tapText "לאן יורדים?" || qa "--es qa.redesign shelf"
+  if waitlog "redesign shelf open" 15; then
+    waitlog "redesign shelf center" 10 || fail "redesign: the shelf has no middle card"; rd_settled; shot redesign-shelf-lift
+    mark; qa "--es qa.redesign shelf:sort:easy"; waitlog "redesign shelf sort easy" 10 || fail "redesign: the shelf's order did not change"
+    rd_settled; shot redesign-shelf-easy
+    mark; qa "--es qa.redesign shelf:next"; waitlog "redesign shelf center" 10 || fail "redesign: the next card did not come to the middle"; rd_settled; shot redesign-shelf-next
+    mark; qa "--es qa.redesign shelf:sort:lift"; sleep 1
+    # back (the system's, as Pini's swipe on 0.1.867) returns to the view before the shelf, the names on their places
+    from=$(logline "redesign layer from" | sed 's/.*layer from //')
+    mark; adb shell input keyevent KEYCODE_BACK
+    # 25 s: on the emulator the mountain is drawn again after the shelf (textures, shadow, the band), up to 9 s at load 16
+    if waitlog "redesign layer back" 25; then
+      back=$(logline "redesign layer back" | sed 's/.*layer back //')
+      [ "${back% drift*}" = "$from" ] || fail "redesign: back from the shelf did not return to the view before it ($from, now ${back% drift*})"
+      [ "${back##* drift }" = "0" ] || fail "redesign: after back from the shelf the names sit ${back##* drift } px off their places"
+      rd_settled; shot redesign-shelf-back
+    else fail "redesign: back from the shelf did not return the view"; fi
+  else fail "redesign: the shelf did not open"; fi
+  # part 4b (K06): the runs from the top of Goodaura, and a pick from its sheet
+  mark; qa "--es qa.redesign station:Goodaura"
+  if waitlog "redesign station " 10; then rd_settled; shot redesign-station-goodaura
+    mark; adb shell input keyevent KEYCODE_BACK
+    if waitlog "redesign layer back" 25; then
+      back=$(logline "redesign layer back" | sed 's/.*layer back //')
+      [ "${back##* drift }" = "0" ] || fail "redesign: after back from the station the names sit ${back##* drift } px off their places"
+      rd_settled; shot redesign-station-back
+    else fail "redesign: back from the station did not return the view"; fi
+  else fail "redesign: the sheet from the station did not open"; fi
+  # the farthest pinch at the opening angle (Pini, 0.1.867: the mountain's cut edge over the sky), at dawn and at noon
+  mark; qa "--es qa.redesign hour:7.2"; waitlog "redesign live hour" 10
+  mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10 && { rd_drawn; shot redesign-far-dawn; }
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10; rd_drawn; shot redesign-far-noon
+  # the far ground in detail (the designer's ring handoff, 25.11.2026): a low sun, the ridges' shade on the far
+  # mountains; the shadow is worked out off the drawing thread, its time noted (the architect: 150 ms on a middling
+  # phone, otherwise the outer ring has none)
+  mark; qa "--es qa.redesign hour:16.4"; waitlog "redesign ring shadow" 20; rd_drawn; shot redesign-far-afternoon
+  note "ring: $(logline 'redesign ring ready' | sed 's/.*ring ready //') triangles; shadow $(logline 'redesign ring shadow' | sed 's/.*ring shadow //'); band shadow $(logline 'redesign ring band shadow' | sed 's/.*band shadow //')"
+  logline "redesign ring ready" | grep -q "relief true" || fail "redesign: the ring's relief map did not load"
+  logline "redesign ring ready" | grep -q "band true" || fail "redesign: the band of the front seam did not load"
+  # the front seam (the designer's step 4, Y03): the model's south edge from the front, close and from far, at noon and
+  # in a low sun; the ground must go on as one, with no flat band and no line
+  local sh; for sh in "12:noon" "16.4:afternoon"; do
+    mark; qa "--es qa.redesign hour:${sh%%:*}"; waitlog "redesign live hour" 10
+    mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-${sh#*:}"
+    mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-${sh#*:}"
+  done
+  # and before step 4, the same two looks at noon (the architect's condition 4: the seam before and after)
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  # the north edge too, from the north, close up (the architect's condition 5), and the frames on both: a slow turn of
+  # 5 s each, with the seam and before it (the extra texture read), p50 and p99 noted, not a failure
+  seam_frames() { # seam_frames <label>
+    seen "redesign live drawn" 8; adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
+    adb shell input swipe $((W * 3 / 10)) $((H / 3)) $((W * 7 / 10)) $((H / 3)) 5000
+    local g; g=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
+    note "seam $1 frames: 50th $(sed -n 's/^50th percentile: //p' <<<"$g" | head -1), 99th $(sed -n 's/^99th percentile: //p' <<<"$g" | head -1)"
+  }
+  mark; qa "--es qa.redesign 'look:180,22,2600,@-400:-7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-north-noon"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; seam_frames after
+  mark; qa "--es qa.redesign seam:off"; waitlog "redesign seam off" 30 || fail "redesign: the seam's before did not build"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; seam_frames before
+  mark; qa "--es qa.redesign 'look:0,22,2600,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-near-noon-before"
+  mark; qa "--es qa.redesign 'look:0,14,9000,@-400:7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-far-noon-before"
+  mark; qa "--es qa.redesign 'look:180,22,2600,@-400:-7300'"; waitlog "redesign live look" 10; rd_drawn; shot "redesign-seam-north-noon-before"
+  mark; qa "--es qa.redesign seam:on"; waitlog "redesign seam on" 30
+  note "seam: $(logline 'redesign shadow total' | sed 's/.*shadow total //')"
+  mark; qa "--es qa.redesign far"; waitlog "redesign live far" 10; rd_drawn
+  # the frames with the far ground and without it (the architect's condition 7: relative, the emulator draws in software):
+  # a slow turn for 5 s on each, counted from the mountain drawn again; noted, not a failure
+  for rg in on off; do
+    mark; qa "--es qa.redesign ring:$rg"; waitlog "redesign ring $rg" 10; seen "redesign live drawn" 8
+    adb shell dumpsys gfxinfo "$PKG" reset > /dev/null 2>&1
+    adb shell input swipe $((W * 3 / 10)) $((H / 3)) $((W * 7 / 10)) $((H / 3)) 5000
+    gfx=$(adb shell dumpsys gfxinfo "$PKG" 2>/dev/null | tr -d '\r')
+    note "ring $rg frames: $(sed -n 's/^Total frames rendered: //p' <<<"$gfx" | head -1) rendered, 50th $(sed -n 's/^50th percentile: //p' <<<"$gfx" | head -1), 90th $(sed -n 's/^90th percentile: //p' <<<"$gfx" | head -1), 99th $(sed -n 's/^99th percentile: //p' <<<"$gfx" | head -1)"
+  done
+  mark; qa "--es qa.redesign ring:on"; waitlog "redesign ring on" 10
+  # (two intents back to back lost the turn's end on a busy emulator: let the first one's redraw settle, and give the turn longer)
+  mark; qa "--es qa.redesign hour:off"; sleep 3; qa "--es qa.redesign front"; waitlog "redesign live turned" 40
+  # the air of height changes the mountain too: at the opening, at noon, the picture without it and with it
+  # (the architect's condition 6: no difference to see); the mean difference over the screen noted
+  mark; qa "--es qa.redesign hour:12"; waitlog "redesign live hour" 10
+  mark; qa "--es qa.redesign air:off"; waitlog "redesign air off" 10; rd_drawn; shot redesign-open-air-off
+  mark; qa "--es qa.redesign air:on"; waitlog "redesign air on" 10; rd_drawn; shot redesign-open-air-on
+  a=$(ls "$OUT"/shots/*-redesign-open-air-off.png | tail -1); b=$(ls "$OUT"/shots/*-redesign-open-air-on.png | tail -1)
+  note "air of height at the opening: $(python3 -c "
+from PIL import Image, ImageChops, ImageStat
+x=Image.open('$a').convert('RGB'); y=Image.open('$b').convert('RGB'); d=ImageChops.difference(x,y)
+m=ImageStat.Stat(d).mean; print('mean difference %.2f of 255, %.1f%% of pixels over 8' % (sum(m)/3, 100*sum(1 for p in d.convert('L').getdata() if p>8)/(d.width*d.height)))
+" 2>/dev/null || echo 'not measured')"
+  mark; qa "--es qa.redesign hour:off"; waitlog "redesign live hour" 10
+  # part 4b (K08): the lenses, at noon (the sun) with a fresh report (open), and easy to hard; the sun as the suite has it (no sun: the sheet says so)
+  mark; qa "--es qa.status fresh --es qa.redesign lens:sun"
+  if waitlog "redesign lens sun" 20; then rd_settled; shot redesign-lens-sun; else fail "redesign: the sun lens did not draw"; fi
+  mark; qa "--es qa.redesign lens:open"; waitlog "redesign lens open" 20 && { rd_settled; shot redesign-lens-open; } || fail "redesign: the open lens did not draw"
+  mark; qa "--es qa.redesign lens:slope"; waitlog "redesign lens slope" 20 && { rd_settled; shot redesign-lens-slope; } || fail "redesign: the slope lens did not draw"
+  mark; qa "--es qa.redesign lens:snow"; waitlog "redesign lens snow" 20 && { rd_settled; shot redesign-lens-snow; } || fail "redesign: the snow lens did not answer"
+  mark; qa "--es qa.redesign lens:off --es qa.status none"; sleep 1
+}
+
+redesign3() {
+  # the first part's second half, in a job of its own: from the village on
+  rd_live_start redesign3
+  # ש2 (W04): the mountain is one item for the screen reader, with the next and the previous run as its actions
+  rd_settled; uidump; if grep -q 'content-desc="ההר\. מסלולים' "$OUT/ui.xml"; then note "screen reader: the mountain item is there"
+  else fail "redesign: no mountain item for the screen reader (W04)"; fi
+  # part 4b (K17): the village from the bottom bar, its picture, tags, pins and sheet, and back
+  # the village's sign when it is on the screen, or the command (the sign may be under a sheet on a slow emulator)
+  mark; if [ -n "$(where "הכפר")" ]; then tapText "הכפר"; else qa "--es qa.redesign village"; fi
+  if waitlog "redesign village open" 20; then sleep 1.5; shot redesign-village
+    mark; qa "--es qa.redesign village:full"; sleep 1; shot redesign-village-full
+    # the games, from the cabin's row in the village (they stay in today's design); back to the mountain
+    # (the emulator's build: the games are a page of their own; home and the mountain again by the commands)
+    if tapText "ערב בבקתה"; then sleep 3; shot redesign-cabin-games; qa "--es qa.tab home"; sleep 2
+      mark; qa "--es qa.redesign open"; sleep 1; qa "--es qa.redesign live"; seen "redesign live drawn" 30; qa "--es qa.redesign season:off"; rd_settled
+    else fail "redesign: the cabin's row was not in the village"; fi
+    mark; qa "--es qa.redesign village:off"; sleep 1
+  else fail "redesign: the village did not open"; fi
+  # the completion round, part 2 (Q01 to Q03): the lifts without a report (today), then with one (two closed, their
+  # tags on the mountain), and one lift
+  mark; qa "--es qa.status none --es qa.redesign lifts"; rd_settled; shot redesign-lifts-none
+  mark; qa "--es qa.status fresh --es qa.redesign lifts:off"; rd_settled; shot redesign-lifts-tags
+  mark; qa "--es qa.redesign lifts"; rd_settled; shot redesign-lifts-live
+  mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 10 || fail "redesign: the lift's panel did not open"
+  rd_settled; shot redesign-lift-panel
+  mark; qa "--es qa.redesign lifts:off --es qa.status none"; sleep 1
+  # the light by the clock again (the frames above held an hour), so "night" below is night
+  mark; qa "--es qa.redesign hour:off"; waitlog "redesign live hour off" 10
+  # part 2 (Q04, Q05): the meeting point, where (the pins and the three spots), a flag on a lift's top (its drop and the
+  # sheet), cleared with its undo, and at night
+  mark; qa "--es qa.redesign meet"; waitlog "redesign meet where" 10 || fail "redesign: the meeting point did not open"
+  rd_settled; shot redesign-meet-where
+  # a real touch on a pin, not a command (ק10 of the review of 25.11): its tappable place is 44 and reads its station's name
+  # a pin above the sheet (under it the sheet takes the touch): the first one in the screen's top half
+  local pin; uidump; pin=$(python3 - "$OUT/ui.xml" "$H" <<'PY'
+import re, sys
+import xml.etree.ElementTree as ET
+h = int(sys.argv[2])
+for n in ET.parse(sys.argv[1]).iter("node"):
+    d = n.get("content-desc") or ""; b = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", n.get("bounds") or "")
+    if not b or n.get("clickable") != "true" or not re.search(r"Goodaura|Kudebi|Sadzele|Tatra|Soliko|Pirveli", d): continue
+    x0, y0, x1, y1 = map(int, b.groups())
+    if x1 - x0 < 200 and 250 < (y0 + y1) // 2 < h * 0.5: print((x0 + x1) // 2, (y0 + y1) // 2); break
+PY
+)
+  if [ -z "$pin" ]; then fail "redesign: no station pin to touch"; else
+    mark; adb shell input tap $pin
+    waitlog "redesign meet set" 10 || fail "redesign: a touch on the pin did not set a meeting ($pin)"
+    mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10; sleep .5
+  fi
+  mark; qa "--es qa.redesign meet:lift:Goodaura"; waitlog "redesign meet set" 10 || fail "redesign: no flag on Goodaura's top"
+  rd_settled; shot redesign-meet-set
+  mark; qa "--es qa.redesign meet:share"; waitlog "redesign meet image file" 20 || fail "redesign: the meeting point's picture was not written"
+  seen "redesign meet image file clean" 5 || fail "redesign: the meeting point's picture has a place in it"
+  rd_settled; shot redesign-meet-share
+  mark; qa "--es qa.redesign meet:share:off"; sleep .8
+  mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10 || fail "redesign: the meeting point did not clear"
+  rd_settled; shot redesign-meet-cleared
+  mark; qa "--es qa.mode night --es qa.redesign meet:preset:end"; waitlog "redesign meet set" 10 || fail "redesign: the end of day spot did not set"
+  rd_settled; shot redesign-meet-set-night
+  mark; qa "--es qa.mode auto --es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
+  # a meeting point's link from the site (Pini, 25.11.2026: never the old screen): the app comes forward on the mountain,
+  # the meeting point open on that station
+  mark; adb shell "am start -W -a android.intent.action.VIEW -d 'https://gudauri-ski-trip.vercel.app/?utm_source=app&utm_medium=share#meet/158744075b/0930/20270111' -p $PKG" > /dev/null
+  waitlog "redesign link meet:station:158744075b" 15 || fail "redesign: the meeting point's link did not reach the mountain"
+  if waitlog "redesign meet set 158744075b" 20; then rd_settled; shot redesign-meet-link; else fail "redesign: the meeting point's link did not open on its station"; fi
+  seen "meet ready" 2 && fail "redesign: the meeting point's link opened the old screen"
+  mark; qa "--es qa.redesign meet:clear"; waitlog "redesign meet cleared" 10; qa "--es qa.redesign meet:off"; waitlog "redesign meet closed" 10; sleep 1
+  # a group's meetup today on the plain mountain (the flag from the phone's copy), then gone
+  mark; qa "--es qa.redesign meet:flag"; waitlog "redesign meet flag" 10 || fail "redesign: no group flag"
+  rd_settled; shot redesign-meet-group-flag
+  mark; qa "--es qa.redesign meet:flag:off"; sleep .5
+  # part 2 (Q07, Q08): "your trip" over the mountain: the empty card and its calendar, then the pass, swapped and torn
+  mark; qa "--es qa.trip none"; sleep .5
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open empty" 10 || fail "redesign: the empty trip did not open"; rd_settled; shot redesign-trip-empty
+  mark; qa "--es qa.redesign trip:cal"; waitlog "redesign trip calendar" 10; rd_settled; shot redesign-trip-calendar
+  # the calendar after two taps (the way out and back: the range, the ski days with their dots and the summary line)
+  mark; qa "--es qa.redesign cal:tap:2027-01-10"; waitlog "redesign trip calendar tap 2027-01-10" 10
+  mark; qa "--es qa.redesign cal:tap:2027-01-15"; waitlog "redesign trip calendar tap 2027-01-15" 10; rd_settled; shot redesign-trip-calendar-range
+  mark; qa "--es qa.redesign trip:off"; sleep .5
+  mark; qa "--es qa.trip '$TRIP_HE'"; waitlog "trip set" 20
+  mark; qa "--es qa.redesign trip"; waitlog "redesign trip open pass" 10 || fail "redesign: the trip pass did not open"; rd_settled; shot redesign-trip-pass
+  mark; qa "--es qa.redesign trip:swap"; rd_settled; shot redesign-trip-return
+  mark; qa "--es qa.redesign trip:tear"; rd_settled; shot redesign-trip-torn
+  mark; qa "--es qa.mode night --es qa.redesign trip"; rd_settled; shot redesign-trip-night
+  mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
+  # part 5 (T09): the full form, from "edit": both cards, the number in place, ski days outside the trip, delete armed,
+  # the night, and the return gone (one line, "add the return"); nothing is saved
+  mark; qa "--es qa.redesign trip:form"; waitlog "redesign trip form edit" 10 || fail "redesign: the trip form did not open"; rd_settled; shot redesign-trip-form
+  mark; qa "--es qa.redesign form:num"; sleep 1.5; shot redesign-trip-form-number
+  adb shell input keyevent 4; sleep 1
+  mark; qa "--es qa.redesign form:skiOut"; waitlog "redesign trip form ski outside" 10; sleep 1; shot redesign-trip-form-error
+  mark; qa "--es qa.redesign form:arm"; waitlog "redesign trip delete armed" 10; sleep 1; shot redesign-trip-form-delete
+  mark; qa "--es qa.mode night --es qa.redesign form:noRet"; rd_settled; shot redesign-trip-form-night
+  mark; qa "--es qa.mode auto --es qa.redesign trip:off"; sleep .5
+  # part 2 (Q09): the ski pass over the mountain, for the trip's four days, a child, and two weeks
+  mark; qa "--es qa.redesign skipass"; waitlog "redesign skipass open" 10 || fail "redesign: the ski pass did not open"; rd_settled; shot redesign-skipass
+  mark; qa "--es qa.redesign skipass:child"; waitlog "redesign skipass child" 10; rd_settled; shot redesign-skipass-child
+  mark; qa "--es qa.redesign skipass:days:9"; waitlog "redesign skipass days 9" 10; rd_settled; shot redesign-skipass-9
+  mark; qa "--es qa.mode night --es qa.redesign skipass:adult"; rd_settled; shot redesign-skipass-night
+  mark; qa "--es qa.mode auto --es qa.redesign skipass:off"; sleep .5
+  # part 2 (Q10): before the season, no report: the count of days, its sheet (the trip, the ski pass), and closed to the pill
+  mark; qa "--es qa.status none --es qa.redesign season"; waitlog "redesign season shown" 10 || fail "redesign: the season count did not show"; rd_settled; shot redesign-season
+  mark; qa "--es qa.mode night --es qa.redesign season"; rd_settled; shot redesign-season-night
+  mark; qa "--es qa.mode auto --es qa.redesign season:off"; waitlog "redesign season closed" 10; rd_settled; shot redesign-season-pill
+  # part 3 (R01 to R15, design/handoff/2026-11-23-redesign-people): the people over the mountain, with the pretend
+  # server's group; an admin first (the account), then a guest in it, then nobody
+  mark; qa "--es qa.group admin --es qa.redesign people:me"; waitlog "redesign people me account 1" 15 || fail "redesign: me (an account) did not open"; rd_settled; shot redesign-me
+  mark; qa "--es qa.redesign people:settings"; waitlog "redesign people settings" 10; rd_settled; shot redesign-settings
+  mark; qa "--es qa.redesign people:lang"; waitlog "redesign people lang" 10; rd_settled; shot redesign-language
+  mark; qa "--es qa.redesign people:about"; waitlog "redesign people about" 10; rd_settled; shot redesign-about
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group flights" 15 || fail "redesign: the group did not open on its flights"; rd_settled; shot redesign-group-flights
+  for t in meetups scores members; do
+    mark; qa "--es qa.redesign people:tab:$t"; waitlog "redesign people group $t" 10 || fail "redesign: the group's $t did not show"; sleep 1.5; shot "redesign-group-$t"
+  done
+  mark; qa "--es qa.mode night --es qa.redesign people:tab:meetups"; rd_settled; shot redesign-group-night
+  mark; qa "--es qa.mode auto --es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # part 6 (U01, U03, U07 to U09, U11): the reminders' sheet before the phone's question, the notifications off, and the
+  # group with no signal, a change refused, never kept and loading (the emulator's switches; its phone allows notifications)
+  # the group opens on its own tab once the group is read (a moment after the sheet); only then the meetups tab
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; sleep 3
+  mark; qa "--es qa.redesign people:tab:meetups"; waitlog "redesign people group meetups" 10 || fail "redesign: the meetups tab did not open"
+  mark; qa "--es qa.redesign people:notifask"; waitlog "redesign edge notif ask" 10 || fail "redesign: the reminders sheet did not open"; sleep 1.5; shot redesign-edge-notif-ask
+  tapText "לא עכשיו" || adb shell input keyevent 4; sleep 1
+  mark; qa "--es qa.redesign people:notifoff"; waitlog "redesign edge notif off" 10 || fail "redesign: the notifications-off line did not show"; sleep 1; shot redesign-edge-notif-off
+  mark; qa "--es qa.redesign people:notifon"; sleep .5
+  mark; qa "--es qa.redesign people:edge:offline"; waitlog "redesign edge group offline" 10 || fail "redesign: the group's no-signal line did not show"; sleep 1; shot redesign-edge-group-offline
+  mark; qa "--es qa.redesign people:edge:refused"; waitlog "redesign edge group refused" 10 || fail "redesign: the refused line did not show"; sleep 1; shot redesign-edge-group-refused
+  mark; qa "--es qa.redesign people:edge:never"; waitlog "redesign edge group never saved" 10 || fail "redesign: the never-kept group did not show"; sleep 1; shot redesign-edge-group-never
+  mark; qa "--es qa.redesign people:edge:loading"; sleep 1.5; shot redesign-edge-loading
+  mark; qa "--es qa.redesign people:edge:off"; sleep .5
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # U12: the consent to record the games, in the settings
+  mark; qa "--es qa.redesign people:settings"; waitlog "redesign edge replay" 10 || fail "redesign: the replay consent box did not show"
+  adb shell input swipe 540 1700 540 500 400; sleep 1; shot redesign-edge-replay
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # U05: no signal on the mountain (the switch shows it without cutting the emulator's own network): in the season, with
+  # no live report, the pill says "no recent information · no signal"
+  mark; qa "--es qa.time 2027-01-12T10:00 --es qa.status stale --es qa.redesign net:off"; waitlog "redesign edge net off" 10 || fail "redesign: the no-signal switch did not take"; rd_settled; shot redesign-edge-offline-pill
+  mark; qa "--es qa.status none --es qa.redesign net:auto"; sleep 1
+  mark; qa "--es qa.redesign people:invite"; waitlog "redesign people invite" 15 || fail "redesign: the invite did not open"; rd_settled; shot redesign-invite
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # completion part 5 (T01, T04 to T08), the admin's seed: a new group, the member's menu and the red rows, name and
+  # dates, deleting the account (armed), the licences and one licence's text
+  mark; qa "--es qa.redesign people:new"; waitlog "redesign people new" 10; rd_settled; shot redesign-new-group
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:group"; waitlog "redesign people group" 15; qa "--es qa.redesign people:tab:members"; waitlog "redesign people group members" 10
+  mark; qa "--es qa.redesign people:menu"; waitlog "redesign people member menu" 10 || fail "redesign: the member's menu did not open"; sleep 1.5; shot redesign-member-menu
+  mark; qa "--es qa.redesign people:closemenu"; sleep 1; qa "--es qa.redesign people:arm:remove"; waitlog "redesign people armed rm:" 10; sleep 1; shot redesign-member-remove
+  mark; qa "--es qa.redesign people:namedates"; waitlog "redesign people name dates" 10; sleep 1.5; shot redesign-name-dates
+  mark; qa "--es qa.redesign people:closemenu"; sleep 1; qa "--es qa.redesign people:arm:leave"; waitlog "redesign people armed leave" 10; sleep 1; shot redesign-leave-armed
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:delete"; waitlog "redesign people delete" 10; rd_settled; shot redesign-delete
+  if tapText "מחיקת החשבון שלי"; then waitlog "redesign people delete armed" 10 && { sleep 1; shot redesign-delete-armed; }; fi
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:licenses"; waitlog "redesign people licenses" 10; rd_settled; shot redesign-licenses
+  mark; qa "--es qa.redesign people:license:karantina"; waitlog "redesign people license karantina" 10 || fail "redesign: a licence's text did not show"; sleep 1; shot redesign-license-text
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # T02, T03 with nobody signed in: "I'm already in the group" on the seeded code
+  mark; qa "--es qa.group invited --es qa.redesign people:join:KZBQRM"; waitlog "redesign people join" 15; rd_settled; shot redesign-join
+  mark; qa "--es qa.redesign people:reclaim"; waitlog "redesign people reclaim" 15 || fail "redesign: the reclaim list did not show"; rd_settled; shot redesign-reclaim
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # T10: all the places near Goodaura's bottom station
+  mark; qa "--es qa.redesign lift:Goodaura"; waitlog "redesign lift panel Goodaura" 15
+  mark; qa "--es qa.redesign places:bottom"; waitlog "redesign places" 10 && { sleep 1.5; shot redesign-places; }
+  mark; qa "--es qa.redesign lifts:off"; sleep 1
+  mark; qa "--es qa.group member --es qa.redesign people:me"; waitlog "redesign people me guest" 15 || fail "redesign: me (a guest) did not open"; rd_settled; shot redesign-me-guest
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.group none --es qa.redesign people:me"; waitlog "redesign people me nobody" 15 || fail "redesign: me (nobody) did not open"; rd_settled; shot redesign-me-nobody
+  mark; qa "--es qa.redesign people:signin"; waitlog "redesign people signin" 10; rd_settled; shot redesign-signin
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  mark; qa "--es qa.redesign people:gate"; waitlog "redesign people gate" 10; rd_settled; shot redesign-gate
+  mark; qa "--es qa.redesign people:off"; waitlog "redesign people closed" 10
+  # row 18 of docs/QA.md section 5: the reminder opens the new design (Redesign.link), never today's home
+  mark; qa "--es qa.redesign people:off"; sleep 1
+  mark; qa "--es qa.remind next"; waitlog "reminder shown" 15 && { adb shell cmd statusbar expand-notifications
+    for _ in 1 2 3 4 5 6; do [ -n "$(where "~בעוד רבע שעה")" ] && break; sleep 1; done; sleep 0.5; shot redesign-reminder
+    mark; tapText "~בעוד רבע שעה" && { sleep 3; shot redesign-from-reminder
+      tail -n +"$((MARK + 1))" "$OUT/logcat.txt" | grep -q "SkiQa.*redesign" || fail "redesign: the reminder did not open the new design"; } || adb shell cmd statusbar collapse; }
+  # first-run hints v2 (HN00 to HN12): the emulator build has no timer, so a tap is the next hint and back closes them all
+  # (the draining ring cannot be shot). The village pair first (it opens with the village sheet), then the mountain's six.
+  # the mountain must be bare for the hints: the meeting sheet, the lifts and the season sheet closed first
+  mark; qa "--es qa.redesign people:off"; sleep 1
+  mark; qa "--es qa.redesign meet:off"; waitlog "redesign meet closed" 10; qa "--es qa.redesign lifts:off"; qa "--es qa.redesign season:off"; sleep 1
+  mark; qa "--es qa.redesign village"; waitlog "redesign village open" 20; sleep 1
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step trip" 15 && { sleep 1; shot redesign-hint-village-trip; }
+  mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint step group" 10 && { sleep 1; shot redesign-hint-village-group; }
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_village" 10 || note "hints: the village pair did not close"
+  mark; qa "--es qa.redesign village:off"; sleep 1
+  # the mountain's six, one shot each
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-1-run; }
+  for id in find rec village mode me; do
+    mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint step $id" 10 && { sleep 1; shot "redesign-hint-$id"; } || note "hints: no step $id"
+  done
+  mark; tap $((W / 2)) $((H / 2)); waitlog "redesign hint done hints_mountain" 10 || fail "redesign: the last hint did not end the sequence"
+  # one in the night, one in English
+  mark; qa "--es qa.mode night --es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-night; }
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_mountain" 10; qa "--es qa.mode auto"; sleep 1
+  adb shell cmd locale set-app-locales "$PKG" --locales en > /dev/null 2>&1; sleep 3
+  mark; qa "--es qa.redesign hint:reset"; waitlog "redesign hint step run" 25 && { sleep 1; shot redesign-hint-en; }
+  mark; adb shell input keyevent 4; waitlog "redesign hint done hints_mountain" 10
   # the countdown tile (B8): closed, a tap opens its words, a tap on the open tile opens the season sheet (no big number)
   mark; qa "--es qa.status none"; sleep 2; rd_settled; shot redesign-season-tile
   if [ -n "$(where '~planned opening')" ]; then

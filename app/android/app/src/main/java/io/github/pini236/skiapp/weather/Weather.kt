@@ -49,6 +49,22 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
         return Now(r(p.h.getValue("temp")[i]), r(p.h.getValue("wind")[i]), r(p.h.getValue("gust")[i]), dirOf(p.h.getValue("dir")[i]), r(p.snow24))
     }
 
+    /** The WMO weather code of the hour that has begun (top pill, TP1 to TP7); null when the answer has none. */
+    fun code(id: String, at: LocalDateTime): Int? {
+        val p = point(id) ?: return null
+        val a = p.h["code"] ?: return null
+        val i = p.hours.indexOf(at.withMinute(0).withSecond(0).withNano(0)).takeIf { it >= 0 } ?: return null
+        return a[i].takeIf { !it.isNaN() }?.toInt()
+    }
+
+    /** The forecast snow (cm) of the [days] days from [from] (top pill before the season: "snow on the way"); null with no day in the answer. */
+    fun snowAhead(id: String, from: LocalDate, days: Int): Int? {
+        val p = point(id) ?: return null
+        val a = p.d["snow"] ?: return null
+        val v = p.days.indices.filter { !p.days[it].isBefore(from) && p.days[it].isBefore(from.plusDays(days.toLong())) && !a[it].isNaN() }.map { a[it] }
+        return if (v.isEmpty()) null else Math.round(v.sum()).toInt()
+    }
+
     /** At an altitude (a run's top or bottom): linear between the points above and below, the nearest one outside them. */
     fun at(alt: Float, at: LocalDateTime): Now? {
         val ps = points.sortedBy { it.elevation }.mapNotNull { p -> raw(p, at)?.let { p.elevation to it } }
@@ -154,7 +170,7 @@ class Forecast(val updated: Instant, val points: List<Point>, private val ridgeD
                 val h = p.getJSONObject("hourly"); val d = p.getJSONObject("daily")
                 Point(p.getString("id"), p.getInt("elevation"), p.optDouble("snow24", Double.NaN),
                     h.getJSONArray("time").strings().map { LocalDateTime.parse(it) },
-                    listOf("temp", "wind", "gust", "dir").associateWith { h.getJSONArray(it).doubles() },
+                    (listOf("temp", "wind", "gust", "dir") + listOf("code").filter { h.has(it) }).associateWith { h.getJSONArray(it).doubles() },
                     d.getJSONArray("date").strings().map { LocalDate.parse(it) },
                     listOf("tmin", "tmax", "snow", "wind", "gust", "dir").associateWith { d.getJSONArray(it).doubles() })
             }
