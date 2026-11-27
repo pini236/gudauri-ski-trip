@@ -431,7 +431,9 @@ jobs:
           title="אנדרואיד: בדיקה באמולטור$([ "$tag" = android-qa ] || echo " (ענף ${GITHUB_REF_NAME})")"
           # nullglob: no contact sheets (or store shots) must not leave a literal pattern that makes the upload fail
           shopt -s nullglob
-          files=("$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png "$OUT"/store/*.png)
+          files=()
+          # an empty file is refused by the upload (HTTP 400 Bad Content-Length, run 497), so it is left out
+          for f in "$RUNNER_TEMP/qa.zip" "$OUT"/sheet-*.png "$OUT"/store/*.png; do [ -s "$f" ] && files+=("$f") || echo "::warning::skipped an empty file: $f"; done
           shopt -u nullglob
           {
             echo "בדיקה באמולטור, ענף ${GITHUB_REF_NAME}, קומיט ${GITHUB_SHA::7}."
