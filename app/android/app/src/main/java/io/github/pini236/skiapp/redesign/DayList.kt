@@ -60,6 +60,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pini236.skiapp.R
+import io.github.pini236.skiapp.dayrec.ui.LiveNumbers
+import io.github.pini236.skiapp.dayrec.MomentsStore
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.draw.alpha
 import io.github.pini236.skiapp.dayrec.DayAnalysis
 import io.github.pini236.skiapp.dayrec.DayLog
 import io.github.pini236.skiapp.dayrec.DayParams
@@ -96,12 +101,15 @@ import kotlin.math.roundToInt
  * the glass alone. The personal records (today's screen) stay, under the rows.
  */
 internal class ListedDay(val file: File, val id: String, val date: LocalDate, val sm: DayModel.Summary?, val runs: Set<String>,
-                         val head: String?, val lines: List<DayPaint.Line>)
+                         val head: String?, val lines: List<DayPaint.Line>, val cutAt: Long? = null)
+
+/** One day card: the day, its window on the mountain, its speed strip and its tag (P.24, MY1 and MY2). */
+private class Card(val d: ListedDay, val win: WinData?, val strip: IntArray, val tag: MyDaysRules.Tag)
 
 @Composable
 internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> Unit, onBack: () -> Unit, scene: io.github.pini236.skiapp.map.MapScene? = null,
                      onRecord: () -> Unit = {}) {
-    // your records (completion part 1, P05 and P06), from the card at the top
+    // your records (completion part 1, P05 and P06), from the row under the trip card
     var records by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(RedesignQa.seq) { when (RedesignQa.cmd) { "records" -> records = true; "records:off" -> records = false } }
     if (records) { RecordsScreen(mode, scene, haptics, onOpenDay = { records = false; onOpen(it) }, onRecord = { records = false; onRecord() }) { records = false }; return }
@@ -110,123 +118,137 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
     val locale = ctx.resources.configuration.locales[0]
     val zone = ZoneId.of(DayParams.TZ)
     val night = remember(mode) { Sky.at(DayNight.lightTime(System.currentTimeMillis(), mode)).dark }
+    val k = remember(night) { SheetInk(night) }
     val bg = if (night) Color(0xFF0A1322) else Color(0xFFF2F5F9)
-    val ink = if (night) Color(0xFFEAF0F7) else Color(0xFF0E2233)
-    val muted = if (night) Color(0xB3EAF0F7) else Color(0xFF5B6B7B)
     val glass = if (night) Color(0xEB0F1828) else Color(0xF5FFFFFF)
-    val rule = if (night) Color(0x33FFFFFF) else Color(0x1F0E2233)
     val red = Color(0xFFD1342B)
     val ramp = if (night) DayPaint.NIGHT else DayPaint.DAY
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var version by remember { mutableStateOf(0) }
-    var days by remember { mutableStateOf<List<ListedDay>?>(null) }
-    var trip by remember { mutableStateOf<ClosedRange<LocalDate>?>(null) }
+    var cards by remember { mutableStateOf<List<Card>?>(null) }
+    var mountain by remember { mutableStateOf<StoryVideo.Mountain?>(null) }
+    var sampleWin by remember { mutableStateOf<WinData?>(null) }
+    var recRows by remember { mutableStateOf<List<Records.Row>>(emptyList()) }
     var sure by remember { mutableStateOf<String?>(null) }
     var swiped by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(version) {
+    LaunchedEffect(version, night, scene) {
         val words = MomentText.Words(ctx, locale, group = true)
-        val (d, t) = withContext(Dispatchers.IO) {
-            val t = runCatching { io.github.pini236.skiapp.trip.TripStore(ctx).load()?.skiDays() }.getOrNull()
-            DayRec.store(ctx).days().asReversed().map { f -> listed(ctx, f, zone, locale, words) } to t
+        val loaded = withContext(Dispatchers.IO) {
+            val files = DayRec.store(ctx).days().asReversed()
+            val listedAll = files.map { f -> listed(ctx, f, zone, locale, words) }
+            val best = runCatching { MomentsStore.history(files.firstOrNull()?.parentFile ?: ctx.filesDir).optJSONObject("best") }.getOrNull() ?: JSONObject()
+            val rows = Records.rows(best, savedDays(files))
+            val recordDay = rows.firstOrNull { it.what == "max_kmh" }?.day?.id
+            val m = scene?.let { sc -> OnMountain.load(ctx, night, sc.terrain::elev) }
+            val faint = if (m != null) projectRuns(m, scene?.runs) else emptyList()
+            val list = listedAll.map { d ->
+                val win = if (m == null) null else WinData(faint, projectDay(m, d.lines))
+                Card(d, win, MyDaysRules.strip(d.lines), MyDaysRules.tag(d.id == recordDay, d.cutAt != null))
+            }
+            val sw = if (m == null) null else runCatching {
+                val sf = DayAnalysis.ensure(ctx, SampleDay.file(ctx))
+                val res = sf?.let { JSONObject(it.readText()) }
+                if (res == null) null else WinData(faint, projectDay(m, dayLines(SampleDay.file(ctx), res)))
+            }.getOrNull()
+            Triple(list, rows, Triple(m, sw, Unit))
         }
-        days = d; trip = t
-        Qa.log("redesign days ${d.size} trip ${tripDays(d, t).map { it.first }.distinct().size}")
+        cards = loaded.first; recRows = loaded.second; mountain = loaded.third.first; sampleWin = loaded.third.second
+        Qa.log("redesign days ${loaded.first.size} ${if (loaded.third.first != null) "mountain" else "plain"}")
     }
-    val list = days
-    val inTrip = remember(list, trip) { tripDays(list.orEmpty(), trip) }
-    val tripDates = inTrip.map { it.first }.distinct().sorted()
-    val colours = remember(tripDates.size, night) { tripColours(tripDates.size, night) }
-    val colourOf: (LocalDate) -> Color = { date -> colours.getOrElse(tripDates.indexOf(date)) { ink } }
+    val list = cards
+    val real = list.orEmpty().filter { it.d.sm != null }
+    val sum = MyDaysRules.sum(real.map { Triple(it.d.sm!!.descents, it.d.sm.dropM, it.d.sm.distM) })
+    val img = remember(mountain) { mountain?.img?.asImageBitmap() }
     Box(Modifier.fillMaxSize().background(bg)) {
-        LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 72.dp, bottom = 32.dp),
+        // the painted mountain under a light veil (the v91 rule: the picture fills the screen)
+        if (img != null) Canvas(Modifier.fillMaxSize()) {
+            val vw = mountain!!.view.w; val vh = mountain!!.view.h
+            val cover = maxOf(size.width / vw, size.height / vh)
+            drawImage(img, dstOffset = androidx.compose.ui.unit.IntOffset(((size.width - vw * cover) / 2).toInt(), 0),
+                dstSize = androidx.compose.ui.unit.IntSize((vw * cover).toInt(), (vh * cover).toInt()))
+            drawRect(if (night) Color(0xCC0A1322) else Color(0xCCF2F5F9))
+        }
+        val empty = list != null && list.isEmpty()
+        LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 72.dp, bottom = if (empty) 96.dp else 32.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (list != null && list.isEmpty()) item {
-                Text(stringResource(R.string.app_days_empty), Modifier.padding(4.dp), fontFamily = Gudi, fontSize = 15.sp, color = muted)
-            }
-            // your records, against yourself only (board L12's card; P05)
-            if (list != null) item {
-                val title = stringResource(R.string.app_day_records)
-                Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(16.dp))
-                    .semantics { role = Role.Button }.clickable { haptics.tick(.3f); Qa.log("redesign records card"); records = true }.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(title, Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink)
-                    Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = muted)
+            // MY3: before the first day, the sample day in a large window that opens it
+            if (empty) item {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.app_md_empty), Modifier.padding(horizontal = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = k.ink)
+                    val sa = stringResource(R.string.app_empty_sample_a11y)
+                    Box(Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, k.line, RoundedCornerShape(22.dp))
+                        .semantics { contentDescription = sa; role = Role.Button }.clickable { haptics.tick(.3f); onOpen(SampleDay.ID) }) {
+                        MountainWindow(mountain, sampleWin, night, Modifier.fillMaxSize(), ramp, line = 3.6f)
+                        Text(stringResource(R.string.app_day_sample), Modifier.padding(12.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x9E080E1C)).padding(horizontal = 10.dp, vertical = 4.dp),
+                            fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.White)
+                    }
+                    Text(stringResource(R.string.app_md_sample_note), Modifier.padding(horizontal = 4.dp), fontFamily = Gudi, fontSize = 13.5.sp, color = k.ink2)
                 }
             }
-            // the trip as layers: each ski day of the trip in its colour, on one mountain
-            if (tripDates.isNotEmpty()) item {
-                val dropM = inTrip.sumOf { it.second.sm?.dropM ?: 0.0 }
-                val routes = inTrip.flatMap { it.second.runs }.toSet().size
-                Box(Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(20.dp))
-                    .background(if (night) Color(0xFF0E1A2C) else Color(0xFFE4EAF1)).border(1.dp, rule, RoundedCornerShape(20.dp))) {
-                    val strokes = remember(inTrip, colours) { inTrip.map { (date, d) -> d.lines to colourOf(date) } }
-                    // on the painted mountain from the valley (board L12; the designer's point 10): the picture and each day's
-                    // lines projected onto it once, off the main thread; without the ground's heights, from above as before
-                    val mountain by androidx.compose.runtime.produceState<Pair<StoryVideo.Mountain, List<Pair<List<FloatArray>, Color>>>?>(null, strokes, night, scene) {
-                        val sc = scene ?: return@produceState
-                        value = withContext(Dispatchers.Default) {
-                            OnMountain.load(ctx, night, sc.terrain::elev)?.let { m -> val pj = m.view.proj!!
-                                m to strokes.map { (ls, c) -> ls.map { l -> OnMountain.project(pj, m.elev, l.xy, 2f) } to c } }
+            // MY1: the trip card: month, four numbers, one column per day, and the records row
+            if (real.isNotEmpty()) item {
+                val newest = real.first().d.date
+                val month = DateTimeFormatter.ofPattern("LLLL yyyy", locale).format(newest)
+                val cap = k.ink2
+                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(glass).border(1.dp, k.line, RoundedCornerShape(22.dp)).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text(month, Modifier.semantics { heading() }, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = k.ink)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val dayLabel = pluralStringResource(R.plurals.app_md_days, sum.days, sum.days)
+                        val runLabel = pluralStringResource(R.plurals.app_md_runs, sum.descents, sum.descents)
+                        Stat(sum.days.toString(), dayLabel.replace(sum.days.toString(), "").trim().ifEmpty { dayLabel }, k, Modifier.weight(1f))
+                        Stat(sum.descents.toString(), runLabel.replace(sum.descents.toString(), "").trim().ifEmpty { runLabel }, k, Modifier.weight(1f))
+                        Stat(metres(sum.dropM), stringResource(R.string.app_rec_m_down), k, Modifier.weight(1f))
+                        Stat("%.0f".format(Locale.ROOT, sum.km), stringResource(R.string.app_md_km), k, Modifier.weight(1f))
+                    }
+                    // one column per day, oldest first in reading order; the height is the metres down, the newest day bold
+                    val chrono = real.reversed()
+                    val bars = MyDaysRules.bars(chrono.map { it.d.sm!!.dropM })
+                    Row(Modifier.fillMaxWidth().height(56.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.Bottom) {
+                        chrono.forEachIndexed { i, c ->
+                            val newestCol = i == chrono.size - 1
+                            Box(Modifier.weight(1f).fillMaxHeight(bars[i]).clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(if (newestCol) k.acc else k.acc.copy(alpha = .38f)))
                         }
                     }
-                    val mt = mountain
-                    if (mt != null) {
-                        val img = remember(mt) { mt.first.img.asImageBitmap() }
-                        Canvas(Modifier.fillMaxSize()) {
-                            val pl = OnMountain.place(mt.first.view, mt.second.flatMap { it.first }, size.width, size.height, size.minDimension * .08f, size.height - 120.dp.toPx())
-                            val k = pl[0]; val ox = pl[1]; val oy = pl[2]
-                            drawImage(img, dstOffset = androidx.compose.ui.unit.IntOffset(ox.toInt(), oy.toInt()),
-                                dstSize = androidx.compose.ui.unit.IntSize((mt.first.view.w * k).toInt(), (mt.first.view.h * k).toInt()))
-                            val case = if (night) Color(0xFF050A16) else Color.White
-                            for (pass in 0..1) for ((ls, c) in mt.second) for (q in ls) for (i in 0 until q.size / 2 - 1) {
-                                if (q[i * 2].isNaN() || q[i * 2 + 2].isNaN()) continue
-                                val a0 = Offset(ox + q[i * 2] * k, oy + q[i * 2 + 1] * k); val b0 = Offset(ox + q[i * 2 + 2] * k, oy + q[i * 2 + 3] * k)
-                                if (pass == 0) drawLine(case, a0, b0, 4.8f * density, cap = StrokeCap.Round) else drawLine(c, a0, b0, 3f * density, cap = StrokeCap.Round)
-                            }
+                    // the two headline records, and the way to the records page
+                    val rec = recRows.filter { it.value != null }
+                    val top = recRows.firstOrNull { it.what == "max_kmh" && it.value != null }
+                    val drop = recRows.firstOrNull { it.what == "drop_m" && it.value != null }
+                    Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, k.line, RoundedCornerShape(16.dp))
+                        .semantics { role = Role.Button }.clickable { haptics.tick(.3f); Qa.log("redesign records card"); records = true }.padding(horizontal = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(stringResource(R.string.app_day_records), Modifier.weight(1f, fill = false), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 1)
+                        if (rec.isNotEmpty()) {
+                            if (top != null) RecChip("${LiveNumbers.maxKmh(top.value)} ${stringResource(R.string.app_rec_unit)}", k)
+                            if (drop != null) RecChip("${metres(drop.value!!)} ${stringResource(R.string.app_rec_m_down)}", k)
                         }
-                    } else Canvas(Modifier.fillMaxSize().padding(bottom = 60.dp)) {
-                        val fit = fitOf(strokes.flatMap { it.first }, size.width, size.height, size.minDimension * .08f) ?: return@Canvas
-                        for ((ls, c) in strokes) for (l in ls) drawLineOf(l, fit, if (night) Color(0xFF050A16) else Color.White, c, 3f, density)
-                    }
-                    // the days' chips, in the reading order of the trip
-                    Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        tripDates.forEachIndexed { k, date ->
-                            Row(Modifier.height(24.dp).clip(RoundedCornerShape(12.dp)).background(Color(0x9E080E1C)).padding(horizontal = 9.dp),
-                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Box(Modifier.size(8.dp).clip(CircleShape).background(colourOf(date)))
-                                Text(stringResource(R.string.app_days_day_n, k + 1), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
-                            }
-                        }
-                    }
-                    Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(120.dp)
-                        .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xD6080E1C))))
-                        .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.Bottom) {
-                        Text(stringResource(R.string.app_days_trip_title), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
-                        val line = listOf(pluralStringResource(R.plurals.app_days_trip_days, tripDates.size, tripDates.size),
-                            stringResource(R.string.app_days_trip_drop, metres(dropM)),
-                            pluralStringResource(R.plurals.app_days_trip_routes, routes, routes)).joinToString(", ")
-                        Text("$line.", fontFamily = Gudi, fontSize = 13.5.sp, color = Color(0xE6FFFFFF))
+                        Box(Modifier.weight(1f))
+                        Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = cap)
                     }
                 }
             }
-            items(list.orEmpty(), key = { it.id }) { d ->
-                val n = tripDates.indexOf(d.date).takeIf { it >= 0 }
-                DayRow(d, n, colourOf, night, ink, muted, glass, rule, red, ramp, rtl, open = swiped == d.id, asked = sure == d.id,
-                    onSwipe = { o -> swiped = if (o) d.id else null; sure = null; if (o) haptics.tick(.2f) },
-                    onOpen = { onOpen(d.id) },
+            // one card per day, the newest first (MY1)
+            items(list.orEmpty(), key = { it.d.id }) { c ->
+                DayCard(c, mountain, night, k, glass, red, ramp, rtl, locale, zone, open = swiped == c.d.id, asked = sure == c.d.id,
+                    onSwipe = { o -> swiped = if (o) c.d.id else null; sure = null; if (o) haptics.tick(.2f) },
+                    onOpen = { onOpen(c.d.id) },
                     onDelete = {
-                        if (sure == d.id) { DayRec.store(ctx).delete(d.file); sure = null; swiped = null; version++; Qa.log("redesign days deleted") }
-                        else { sure = d.id; haptics.tick(.3f) }
+                        if (sure == c.d.id) { DayRec.store(ctx).delete(c.d.file); sure = null; swiped = null; version++; Qa.log("redesign days deleted") }
+                        else { sure = c.d.id; haptics.tick(.3f) }
                     })
             }
-            // the example day, last, as today
-            if (list != null) item {
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(18.dp))
-                    .clickable(role = Role.Button) { onOpen(SampleDay.ID) }.heightIn(min = 64.dp).padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.app_day_sample), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF7C4FE0))
-                        Text(stringResource(R.string.app_day_sample_note), fontFamily = Gudi, fontSize = 13.sp, color = muted)
+            // MY2: the sample day at the end, dimmed, under its note
+            if (list != null && list.isNotEmpty()) item {
+                val sa = stringResource(R.string.app_empty_sample_a11y)
+                Column(Modifier.fillMaxWidth().alpha(.72f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(R.string.app_md_sample_note), Modifier.padding(horizontal = 4.dp), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(glass).border(1.dp, k.line, RoundedCornerShape(20.dp))
+                        .semantics { contentDescription = sa; role = Role.Button }.clickable { haptics.tick(.3f); onOpen(SampleDay.ID) }.padding(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        MountainWindow(mountain, sampleWin, night, Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)), ramp, line = 2.4f)
+                        Text(stringResource(R.string.app_day_sample), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.acc)
+                        Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = k.ink2)
                     }
                 }
             }
@@ -239,65 +261,107 @@ internal fun DayList(mode: DayNight.Mode, haptics: Haptics, onOpen: (String) -> 
                     fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = red)
             }
         }
+        // MY3: "record a ski day" at the thumb
+        if (empty) {
+            val rec = stringResource(R.string.app_md_record)
+            Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp).fillMaxWidth().height(56.dp).clip(RoundedCornerShape(28.dp)).background(k.acc)
+                .semantics { role = Role.Button }.clickable { haptics.tick(.4f); onRecord() }, contentAlignment = Alignment.Center) {
+                Text(rec, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.onAcc)
+            }
+        }
         // the pill: back and the title
         Row(Modifier.statusBarsPadding().padding(8.dp).fillMaxWidth().height(48.dp)
-            .shadow(10.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, rule, RoundedCornerShape(24.dp)),
+            .shadow(10.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp)).background(glass).border(1.dp, k.line, RoundedCornerShape(24.dp)),
             verticalAlignment = Alignment.CenterVertically) {
             val back = stringResource(R.string.app_g_back)
             Box(Modifier.size(48.dp).clickable(role = Role.Button) { onBack() }.semantics { contentDescription = back }, contentAlignment = Alignment.Center) {
-                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = ink)
+                Text(if (rtl) "›" else "‹", fontFamily = Gudi, fontSize = 20.sp, color = k.ink)
             }
-            Text(stringResource(R.string.app_days_title), Modifier.weight(1f), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = ink, maxLines = 2)
+            Text(stringResource(R.string.app_md_title), Modifier.weight(1f).semantics { heading() }, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = k.ink, maxLines = 2)
         }
     }
 }
 
 private const val ALL = "*"
 
-/** One day's row: its lines, "trip day N" (or its date), the head and the numbers; a swipe shows the delete behind it. */
 @Composable
-private fun DayRow(d: ListedDay, n: Int?, colourOf: (LocalDate) -> Color, night: Boolean, ink: Color, muted: Color, glass: Color, rule: Color,
-                   red: Color, ramp: IntArray, rtl: Boolean, open: Boolean, asked: Boolean, onSwipe: (Boolean) -> Unit, onOpen: () -> Unit, onDelete: () -> Unit) {
+private fun Stat(value: String, label: String, k: SheetInk, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(value, fontFamily = Gudi, fontWeight = FontWeight.Light, fontSize = 26.sp, color = k.ink, maxLines = 1)
+        Text(label, fontFamily = Gudi, fontSize = 11.5.sp, color = k.ink2, maxLines = 2)
+    }
+}
+
+@Composable
+private fun RecChip(text: String, k: SheetInk) {
+    Text(text, Modifier.clip(RoundedCornerShape(12.dp)).background(k.acc.copy(alpha = .14f)).padding(horizontal = 8.dp, vertical = 3.dp),
+        fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = k.acc, maxLines = 1)
+}
+
+/** One day's card (MY1): a 104 window on the mountain, the date and hours, three numbers, the speed strip and a tag; a swipe shows its delete. */
+@Composable
+private fun DayCard(c: Card, mountain: StoryVideo.Mountain?, night: Boolean, k: SheetInk, glass: Color, red: Color, ramp: IntArray, rtl: Boolean, locale: Locale, zone: ZoneId,
+                    open: Boolean, asked: Boolean, onSwipe: (Boolean) -> Unit, onOpen: () -> Unit, onDelete: () -> Unit) {
     val dens = LocalDensity.current
     val reveal = with(dens) { 112.dp.toPx() }
-    // the row slides toward the reading start (in Hebrew to the right): the delete is at the end of the reading
     val dir = if (rtl) 1f else -1f
     var drag by remember(open) { mutableFloatStateOf(if (open) reveal else 0f) }
-    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))) {
-        // behind: the delete, two taps (as today); only while the row is moved, since the row's glass lets it show through
+    val d = c.d
+    val sm = d.sm
+    val dayText = DateTimeFormatter.ofPattern("EEE · d.M", locale).format(d.date)
+    val hm = DateTimeFormatter.ofPattern("HH:mm")
+    val hours = sm?.let { "⁦" + hm.format(Instant.ofEpochMilli(it.start).atZone(zone)) + "–" + hm.format(Instant.ofEpochMilli(it.end).atZone(zone)) + "⁩" }
+    val a11y = if (sm == null) dayText else pluralStringResource(R.plurals.app_md_card_a11y, sm.descents, dayText, metres(sm.dropM), sm.descents)
+    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp))) {
         if (drag > 0f) Box(Modifier.matchParentSize().background(red.copy(alpha = .14f)), contentAlignment = if (rtl) Alignment.CenterStart else Alignment.CenterEnd) {
             Text(stringResource(if (asked) R.string.app_days_delete_sure else R.string.app_days_delete),
                 Modifier.width(112.dp).fillMaxHeight().clickable(role = Role.Button) { onDelete() }.padding(horizontal = 10.dp, vertical = 12.dp),
                 fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = red)
         }
-        Row(Modifier.offset { IntOffset((dir * drag).roundToInt(), 0) }.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(glass)
-            .border(1.dp, rule, RoundedCornerShape(18.dp))
+        Row(Modifier.offset { IntOffset((dir * drag).roundToInt(), 0) }.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(glass)
+            .border(1.dp, k.line, RoundedCornerShape(20.dp))
             .draggable(rememberDraggableState { dx -> drag = (drag + dir * dx).coerceIn(0f, reveal) }, Orientation.Horizontal,
                 onDragStopped = { val o = drag > reveal / 2; drag = if (o) reveal else 0f; onSwipe(o) })
-            .clickable(role = Role.Button) { if (drag > 0f) { drag = 0f; onSwipe(false) } else onOpen() }
+            .semantics(mergeDescendants = true) { contentDescription = a11y; role = Role.Button }
+            .clickable { if (drag > 0f) { drag = 0f; onSwipe(false) } else onOpen() }
             .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            // a day without a descent (the designer, point 3): no picture, no story's head, the date and "no descents"
-            val empty = d.sm?.descents == 0
-            if (d.lines.isNotEmpty() && !empty) Canvas(Modifier.size(84.dp).clip(RoundedCornerShape(12.dp)).background(if (night) Color(0xFF0E1A2C) else Color(0xFFE9EEF4))) {
-                val fit = fitOf(d.lines, size.width, size.height, size.minDimension * .12f) ?: return@Canvas
-                for (l in d.lines) drawLineOf(l, fit, if (night) Color(0xFF050A16) else Color.White, null, 2.6f, density, ramp)
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                if (n != null) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Box(Modifier.size(7.dp).clip(CircleShape).background(colourOf(d.date)))
-                    Text(stringResource(R.string.app_days_trip_day_n, n + 1), fontFamily = Gudi, fontSize = 12.sp, color = muted)
+            MountainWindow(mountain, c.win, night, Modifier.size(104.dp).clip(RoundedCornerShape(14.dp)), ramp, line = 2.6f)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(dayText, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink, maxLines = 1)
+                if (hours != null) Text(hours, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                if (sm != null && sm.descents > 0) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Bottom) {
+                        Text(sm.descents.toString(), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = k.ink)
+                        Text(metres(sm.dropM) + " " + stringResource(R.string.app_rec_m_down), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                        Text("%.1f".format(Locale.ROOT, sm.distM / 1000) + " " + stringResource(R.string.app_run_km), fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = 1)
+                    }
+                    SpeedStrip(c.strip, ramp)
+                } else if (sm != null) Text(stringResource(R.string.app_day_empty), fontFamily = Gudi, fontSize = 13.sp, color = k.ink2)
+                when (c.tag) {
+                    MyDaysRules.Tag.RECORD -> Tag(stringResource(R.string.moment_record_max_kmh_title_1), k.acc, k)
+                    MyDaysRules.Tag.CUT -> Tag(stringResource(R.string.app_md_cut, d.cutAt?.let { hm.format(Instant.ofEpochMilli(it).atZone(zone)) } ?: "—"), Color(if (night) 0xFFFFB454 else 0xFFB45F06), k)
+                    MyDaysRules.Tag.NONE -> {}
                 }
-                else Text(DateTimeFormatter.ofPattern("EEEE d.M", Locale.getDefault()).format(d.date), fontFamily = Gudi, fontSize = 12.sp, color = muted)
-                Text((if (empty) null else d.head) ?: DateTimeFormatter.ofPattern("d.M.yyyy", Locale.ROOT).format(d.date), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.5.sp, color = ink, maxLines = 2)
-                val sm = d.sm
-                Text(when {
-                    sm == null -> stringResource(R.string.app_days_cut)
-                    empty -> stringResource(R.string.app_day_empty)
-                    else -> stringResource(R.string.app_rec_day_line, sm.descents, metres(sm.dropM), "%.1f".format(Locale.ROOT, sm.distM / 1000))
-                }, fontFamily = Gudi, fontSize = 13.5.sp, color = muted)
             }
-            Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = muted)
+            Text(if (rtl) "‹" else "›", fontFamily = Gudi, fontSize = 20.sp, color = k.ink2)
         }
+    }
+}
+
+@Composable
+private fun Tag(text: String, colour: Color, k: SheetInk) {
+    Text(text, Modifier.clip(RoundedCornerShape(10.dp)).background(colour.copy(alpha = .14f)).padding(horizontal = 8.dp, vertical = 2.dp),
+        fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = colour, maxLines = 1)
+}
+
+/** One strip over the descents only (no lifts): each cell in the speed light of its band. */
+@Composable
+private fun SpeedStrip(bands: IntArray, ramp: IntArray) {
+    Canvas(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))) {
+        val cells = MyDaysRules.cells(bands, 48)
+        if (cells.isEmpty()) return@Canvas
+        val w = size.width / cells.size
+        for (i in cells.indices) drawRect(Color(0xFF000000.toInt() or ramp[cells[i].coerceIn(0, ramp.size - 1)]), Offset(i * w, 0f), androidx.compose.ui.geometry.Size(w + 1f, size.height))
     }
 }
 
@@ -320,7 +384,8 @@ private fun listed(ctx: android.content.Context, f: File, zone: ZoneId, locale: 
         DayPaint.build(pts, segs).lines
     }.getOrDefault(emptyList())
     val date = Instant.ofEpochMilli(sm?.start ?: start).atZone(zone).toLocalDate()
-    return ListedDay(f, id, date, sm, runs, head, lines)
+    val cutAt = if (DayRec.store(ctx).isCut(f)) runCatching { DayLog.read(f).points.lastOrNull()?.t }.getOrNull() else null
+    return ListedDay(f, id, date, sm, runs, head, lines, cutAt)
 }
 
 /** The recorded days that fall in the trip's ski days, each with its date (a date can have more than one recording). */
