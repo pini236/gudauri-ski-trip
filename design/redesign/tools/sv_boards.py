@@ -163,12 +163,12 @@ def shelf2(kind, to=None):
     R = P.run_path(VH, CUR); x, y = P.at(R, R['cum'][-1] * .5)[:2]
     name = tag(x - 44, y + T0, CUR, HEX[F[CUR]['color']])
     if not to:
-        b = pc + mount(kind) + name + top()
+        b = SL.stage(pc + mount(kind) + name) + top()
         b += '<div class="sp2 glass">%s%s</div>' % (label2(kind), strip2(kind))
         return b + chips2(kind) + cards(kind)
     A = lambda s: '<div class="lay2 svA">%s</div>' % s
     B = lambda s: '<div class="lay2 svB">%s</div>' % s
-    b = pc + A(mount(kind)) + B(mount(to)) + name + top()
+    b = SL.stage(pc + A(mount(kind)) + B(mount(to)) + name) + top()
     b += ('<div class="sp2 glass"><div style="position: relative; height: 20px"><div class="svA" style="position: absolute; inset: 0">%s</div><div class="svB" style="position: absolute; inset: 0">%s</div></div>%s</div>'
           % (label2(kind), label2(to), strip2(kind, to)))
     b += A(chips2(kind)) + B(chips2(to)) + A(cards(kind)) + B(cards(to))
