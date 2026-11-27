@@ -2,7 +2,7 @@
 
 **When:** 27.11.2026, product designer (Opus 5.5). Design only, no code.
 **Status:** waiting for Pini (rule 7). Five questions in board `DP00`.
-**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 93), page "עמודי היום: המפה, הרכס, הסיפור והשיתוף (27.11)", boards `DP00`, `DM1`-`DM3`, `DT1`-`DT5`, `DS1`-`DS5`, `DV1`-`DV3`. Source: `design/redesign/tools/dp_boards.py`.
+**Canvas:** https://claude.ai/artifact/8NrAKy97KWRj3JWcxx41yQ (version 94), page "עמודי היום: המפה, הרכס, הסיפור והשיתוף (27.11)", boards `DP00`, `DM1`-`DM3`, `DT1`-`DT5`, `DS1`-`DS5`, `DV1`-`DV8`. Source: `design/redesign/tools/dp_boards.py`.
 **Data:** the sample day (`tools/fixtures/dayrec-logs/full_day.jsonl`, 11.1.2027) and the engine's real output (`dayrec-cases.json` `full_day`, `dayrec-moments.json` `full_day`). Wording: the approved `moment.*` and existing `app.*` keys; new strings listed at the end.
 **Rule kept:** the mountain picture fills the screen under every page and sheet (v91 rule, `design/handoff/2026-11-27-redesign-shelf-layers/README.md`). The ridge and story pages sit over the day-painted mountain, veiled to `bg` at 86% (84% at night).
 
@@ -58,7 +58,7 @@ Top to bottom, one scrolling page under the pill (back, "הרכס של היום 
 - **One moment** (`DS5`): the single card is big (the window 362 x 210 over the card's words), then "לאן הלך היום" for that day, then the picture. Illustrative: in the engine's test days a day with a descent always gives 3 or 4.
 - **No moments:** happens only on a day without descents; that day already ends on the approved empty end screen (`EM`), with no story button. Not drawn again.
 
-## 4. The one-minute video plays in its card (`DV1`-`DV3`)
+## 4. The one-minute video plays in its card, and the share sheet (`DV1`-`DV8`)
 
 A bug fix with a small spec; it can be built before the rest:
 - **The card plays in place.** The preview shows the same frames as the file (`StoryVideo` drawing the film into the card), so it plays at once, without waiting for the encoder.
@@ -68,10 +68,20 @@ A bug fix with a small spec; it can be built before the rest:
 - **Nothing on the card leaves the page.** The replay on the mountain ("היום בדקה") is an explicit link under the card: mountain icon + "לראות את היום על ההר".
 - The outer dismiss layer stays only outside the card and the sheet.
 
+**The sheet** (Pini, P.15; `DV4`-`DV8`), for picture and video alike:
+- **No explanatory sentence** ("בלי שם ובלי נפילות...", `app.share_note`, leaves the sheet; the privacy line stays in the policy).
+- **What to send:** two tiles instead of the toggle pill, 56 high, radius 18: a picture icon + "תמונה", a play icon + "סרטון של דקה". The chosen tile: `acc` border 1.5 plus an inset 1, a 10% `acc` wash, the icon in `acc`.
+- **Two buttons**, 56 high, the primary a bit wider (1.25 : 1): "שיתוף" (share icon, `acc`) and "שמירה" (download icon, outline).
+- **Progress lives in the pressed button:** it fills from its start side (white 26% on the primary, `acc` 16% on the outline), the verb changes ("מכינים" for share, "שומרים" for save) and the percent sits small after it. Never a bare number elsewhere. A picture is quick: the fill may only flash.
+- **Saved:** the save button turns `good` with a check and "נשמר בגלריה" for 4 s; a tap in that time opens the file in the gallery; then it returns to "שמירה". Haptic tick.
+- **Share done:** the system sheet opens by itself when the file is ready; back from it, the button is "שיתוף" again.
+- **Failed:** the pressed button turns to a `warn` outline with a retry icon and "לא נשמר · שוב" (for share: "לא הוכן · שוב"); a tap retries. No dialog.
+- Both actions keep the video playing; while one runs, the other button stays enabled and queues after it.
+
 ## Strings (to the content session after approval)
 
 - **Existing, reused:** the `moment.*` story texts; `app.day_queue`, `app.day_lunch`, `app.tl_one_stop`, `app.day_off`, `app.rec_gap_title`, `app.tl_walk`, `app.speed_slow` / `app.speed_fast`, `app.share_video`, `app.share_save`, `app.day_share`, `moment.time_split.title`.
-- **New:** "בוקר", "צהריים"; "בראש {lift}"; "{n} עצירות" (plural); "שעות על ההר", "ק״מ גלישה"; "גלישה" / "ברכבלים" / "בתורים" / "הפסקות והליכה" (with minutes); "לצפות בסיפור", "עוד מהיום", "התמונה של היום", "{i} מתוך {n}"; "לראות את היום על ההר", "מכינים · {pct}%", screen reader "השהיה", "הפעלה", "שוב". Four languages.
+- **New:** "בוקר", "צהריים"; "בראש {lift}"; "{n} עצירות" (plural); "שעות על ההר", "ק״מ גלישה"; "גלישה" / "ברכבלים" / "בתורים" / "הפסקות והליכה" (with minutes); "לצפות בסיפור", "עוד מהיום", "התמונה של היום", "{i} מתוך {n}"; "לראות את היום על ההר", "מכינים", "שומרים", "נשמר בגלריה", "לא נשמר · שוב", "לא הוכן · שוב", screen reader "השהיה", "הפעלה", "שוב". Four languages. **Dropped from this sheet:** `app.share_note`.
 
 ## Build notes
 

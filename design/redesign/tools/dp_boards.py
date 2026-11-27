@@ -130,8 +130,24 @@ DPCSS = """
 .H .vcard .vb{position:absolute;top:8px;right:8px;width:44px;height:44px;border-radius:50%;background:rgba(8,14,28,.55);color:#fff;display:flex;align-items:center;justify-content:center}
 .H .vcard .vc{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:rgba(8,14,28,.6);color:#fff;display:flex;align-items:center;justify-content:center}
 .H .vlink{position:absolute;left:36px;right:36px;top:522px;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;font-weight:700;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45)}
-.H .mk{position:relative;overflow:hidden}
-.H .mk i.f{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.22)}
+.H .stog{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.H .stile{height:56px;border-radius:18px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:700;color:var(--ink2)}
+.H .stile.on{border-color:var(--acc);color:var(--ink);background:rgba(107,63,212,.10);box-shadow:inset 0 0 0 1px var(--acc)}
+.H .night .stile.on{background:rgba(183,156,255,.14)}
+.H .stile.on svg{color:var(--acc)}
+.H .srow2{display:grid;grid-template-columns:1.25fr 1fr;gap:8px}
+.H .sbt{position:relative;overflow:hidden;height:56px;border-radius:28px;font-size:16px;font-weight:700}
+.H .sbt span{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;height:100%}
+.H .sbt em{font-style:normal;font-weight:500;font-size:13px;opacity:.85;font-variant-numeric:tabular-nums;direction:ltr}
+.H .sbt.pri2{background:var(--acc);color:var(--onacc)}
+.H .sbt.sec2{border:1.5px solid var(--line);color:var(--ink)}
+.H .sbt.ok2{background:var(--good);color:#fff}
+.H .night .sbt.ok2{color:#062014}
+.H .sbt.bad2{border:1.5px solid var(--warn);color:var(--warn)}
+.H .sbt i.f{position:absolute;top:0;bottom:0;inset-inline-start:0;display:block}
+.H .sbt.pri2 i.f{background:rgba(255,255,255,.26)}
+.H .sbt.sec2 i.f{background:rgba(107,63,212,.16)}
+.H .night .sbt.sec2 i.f{background:rgba(183,156,255,.22)}
 """
 MB.CSS = MB.CSS + DPCSS
 TOP = lambda t, extra='': '<div class="recp glass">%s<span style="min-width: 0; white-space: normal; line-height: 1.25">%s</span><span style="margin-inline-start: auto">%s</span>%s</div>' % (icon(I_BACK, 20, 2), t, EG, extra)
@@ -436,7 +452,7 @@ def more_rows():
     return ''.join('<button class="srow"><span class="ic2">%s</span><span class="tx"><b>%s</b><span>%s</span></span><span class="go" style="color: var(--ink2); display: flex">%s</span></button>' % (a, b, c, icon(I_CHEV, 18, 2)) for a, b, c in R)
 
 
-def share_card(w=318, h=398, until=None, top=0, left=0, abs_=True, play=None, extra=''):
+def share_card(w=318, h=398, until=None, top=0, left=0, abs_=True, play=None, extra='', L='he'):
     sc = w / 390 * 1.18
 
     def f(V, mode):
@@ -447,12 +463,12 @@ def share_card(w=318, h=398, until=None, top=0, left=0, abs_=True, play=None, ex
         return s
     k = w / 318
     nums = ''.join('<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: %.0fpx; font-weight: 300; line-height: 1; direction: ltr">%s</span><span style="font-size: %.1fpx; opacity: .85">%s</span></div>' % (27 * k, a, 11 * k, b)
-                   for a, b in ((D.ST['descents'], 'ירידות'), (n0(D.ST['drop_m']), 'מ׳ למטה'), ('%.1f' % (D.ST['ski_dist_m'] / 1000), 'ק״מ'), ('%.1f' % D.ST['max_kmh'], 'קמ״ש, מרבית')))
+                   for a, b in zip((D.ST['descents'], n0(D.ST['drop_m']), '%.1f' % (D.ST['ski_dist_m'] / 1000), '%.1f' % D.ST['max_kmh']), (('runs', 'm down', 'km', 'km/h, top') if L == 'en' else ('ירידות', 'מ׳ למטה', 'ק״מ', 'קמ״ש, מרבית'))))
     o = '<div style="%s; width: %dpx; height: %dpx; border-radius: %dpx; overflow: hidden; box-shadow: 0 18px 44px rgba(6,14,30,.45)">%s' % (
         'position: absolute; left: %dpx; top: %dpx' % (left, top) if abs_ else 'position: relative; flex: none', w, h, 20 * k, win('hero', w, h, 196, 400, sc, f, day='noon', r=0))
     o += '<div style="position: absolute; left: 0; right: 0; bottom: 0; height: %dpx; background: linear-gradient(180deg, transparent, rgba(8,14,28,.86) 62%%)"></div>' % (190 * k)
-    o += '<div style="position: absolute; left: %dpx; right: %dpx; bottom: %dpx; color: #fff; display: flex; flex-direction: column; gap: %dpx; text-align: start"><div style="font-size: %.0fpx; font-weight: 700; line-height: 1.15">יום של פעם ראשונה</div><div style="display: flex; gap: %dpx">%s</div><div style="display: flex; justify-content: space-between; font-size: %.1fpx; opacity: .85; direction: ltr"><span>Gudi</span><span>Gudauri · %s</span></div></div>' % (
-        16 * k, 16 * k, 14 * k, 8 * k, 25 * k, 18 * k, nums, 11.5 * k, DSTR)
+    o += '<div style="position: absolute; left: %dpx; right: %dpx; bottom: %dpx; color: #fff; display: flex; flex-direction: column; gap: %dpx; text-align: start"><div style="font-size: %.0fpx; font-weight: 700; line-height: 1.15">%s</div><div style="display: flex; gap: %dpx">%s</div><div style="display: flex; justify-content: space-between; font-size: %.1fpx; opacity: .85; direction: ltr"><span>Gudi</span><span>Gudauri · %s</span></div></div>' % (
+        16 * k, 16 * k, 14 * k, 8 * k, 25 * k, 'A day of firsts' if L == 'en' else 'יום של פעם ראשונה', 18 * k, nums, 11.5 * k, DSTR)
     return o + extra + '</div>'
 
 
@@ -537,24 +553,55 @@ def timebar_one(d):
 
 
 # ---------------------------------------------------------------- DV: the one-minute video plays in its card
-def dv(state='play'):
-    frac = {'play': .42, 'end': 1.0, 'make': .7}[state]
-    until = int(T0 + (T1 - T0) * frac)
-    o = pic('hero', 'noon', 'night') + veil(0, 844, 'var(--veil)')
-    o += '<div class="recp glass">%s<span>תמונה לשיתוף</span><span style="margin-inline-start: auto">%s</span></div>' % (icon(I_BACK, 20, 2), EG)
-    secs = int(60 * frac)
-    tm = '%d:%02d' % (secs // 60, secs % 60)
-    ex = '<div class="vp" style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.28)"><i style="display: block; height: 100%%; width: %d%%; background: #fff"></i></div>' % int(frac * 100)
-    ex += '<span class="vt" style="position: absolute; top: 12px; left: 12px; height: 26px; padding: 0 9px; border-radius: 13px; background: rgba(8,14,28,.55); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; direction: ltr">%s / 1:00</span>' % tm
-    if state == 'end':
-        ex += '<button aria-label="שוב" style="position: absolute; left: 50%%; top: 42%%; transform: translate(-50%%,-50%%); width: 72px; height: 72px; border-radius: 50%%; background: rgba(8,14,28,.6); color: #fff; display: flex; align-items: center; justify-content: center">%s</button>' % icon(I_REPLAY, 30, 2.2)
+SHW = {'he': dict(title='תמונה לשיתוף', photo='תמונה', video='סרטון של דקה', share='שיתוף', save='שמירה', making='מכינים', saving='שומרים', saved='נשמר בגלריה', failed='לא נשמר · שוב',
+                  link='לראות את היום על ההר', eg='דוגמה'),
+       'en': dict(title='Image to share', photo='Picture', video='One-minute video', share='Share', save='Save', making='Preparing', saving='Saving', saved='Saved to gallery', failed='Not saved · retry',
+                  link='See the day on the mountain', eg='Example')}
+I_PHOTO = '<rect x="3.500" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.700"/><path d="m5 17.500 5-5 3 3 2.500-2.500 3.500 3.500"/>'
+I_SAVE = '<path d="M12 4v11"/><path d="m7.500 10.500 4.500 4.500 4.500-4.500"/><path d="M5 19.500h14"/>'
+I_CHECK = '<path d="m5 12.500 4.500 4.500L19 7.500"/>'
+
+
+def share_sheet(kind, state, L='he'):
+    """the whole sheet: what to send (two tiles), then share and save; the progress lives in the button pressed"""
+    T = SHW[L]; vid = kind == 'video'
+    tile = lambda on, ic_, w: '<button class="stile%s">%s<span>%s</span></button>' % (' on' if on else '', icon(ic_, 20, 1.9, 'currentColor' if ic_ == I_PLAY else 'none'), w)
+    o = '<div class="sheet glass" style="gap: 12px; padding-bottom: 14px"><div class="grab"></div><div class="stog">%s%s</div>' % (tile(not vid, I_PHOTO, T['photo']), tile(vid, I_PLAY, T['video']))
+    pct = 64
+    if state == 'make':
+        sh = '<button class="sbt pri2 mk"><i class="f" style="width: %d%%"></i><span>%s<b>%s</b><em>%d%%</em></span></button>' % (pct, icon(I_SHARE, 19, 2), T['making'], pct)
     else:
-        ex += '<button aria-label="השהיה" style="position: absolute; top: 6px; right: 6px; width: 44px; height: 44px; border-radius: 50%%; background: rgba(8,14,28,.55); color: #fff; display: flex; align-items: center; justify-content: center">%s</button>' % icon(I_PAUSE, 20, 2.6)
-    o += share_card(until=until, top=112, left=36, extra=ex)
-    o += '<button class="vlink">%s לראות את היום על ההר</button>' % icon(I_MTN, 18, 2)
-    mk = '<button class="pri mk">%s</button>' % ('<i class="f" style="width: 64%"></i><span style="position: relative">מכינים · 64%</span>' if state == 'make' else 'שיתוף')
-    o += '<div class="sheet glass" style="gap: 12px"><div class="grab"></div><div class="seg"><button>תמונה</button><button class="on">סרטון של דקה</button></div><div style="display: flex; gap: 8px">%s<button class="sec">שמירה</button></div></div>' % mk
-    return o
+        sh = '<button class="sbt pri2"><span>%s<b>%s</b></span></button>' % (icon(I_SHARE, 19, 2), T['share'])
+    if state == 'save':
+        sv = '<button class="sbt sec2 mk"><i class="f" style="width: %d%%"></i><span>%s<b>%s</b><em>%d%%</em></span></button>' % (pct, icon(I_SAVE, 19, 2), T['saving'], pct)
+    elif state == 'saved':
+        sv = '<button class="sbt ok2"><span>%s<b>%s</b></span></button>' % (icon(I_CHECK, 20, 2.6), T['saved'])
+    elif state == 'failed':
+        sv = '<button class="sbt bad2"><span>%s<b>%s</b></span></button>' % (icon(I_REPLAY, 19, 2.2), T['failed'])
+    else:
+        sv = '<button class="sbt sec2"><span>%s<b>%s</b></span></button>' % (icon(I_SAVE, 19, 2), T['save'])
+    return o + '<div class="srow2">%s%s</div></div>' % (sh, sv)
+
+
+def dv(state='play', kind='video', L='he'):
+    T = SHW[L]; vid = kind == 'video'
+    frac = {'play': .42, 'end': 1.0, 'make': .7, 'save': .55, 'saved': .55, 'failed': 1.0, 'idle': 1.0}[state] if vid else 1.0
+    until = int(T0 + (T1 - T0) * frac) if frac < 1 else None
+    o = pic('hero', 'noon', 'night') + veil(0, 844, 'var(--veil)')
+    o += '<div class="recp glass">%s<span>%s</span><span style="margin-inline-start: auto"><span class="eg">%s</span></span></div>' % (icon(I_BACK if L == 'he' else '<path d="m15 6-6 6 6 6"/>', 20, 2), T['title'], T['eg'])
+    ex = ''
+    if vid:
+        secs = int(60 * frac); tm = '%d:%02d' % (secs // 60, secs % 60)
+        ex += '<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.28); direction: %s"><i style="display: block; height: 100%%; width: %d%%; background: #fff"></i></div>' % ('rtl' if L == 'he' else 'ltr', int(frac * 100))
+        ex += '<span style="position: absolute; top: 12px; %s: 12px; height: 26px; padding: 0 9px; border-radius: 13px; background: rgba(8,14,28,.55); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; direction: ltr">%s / 1:00</span>' % ('left' if L == 'he' else 'right', tm)
+        if state in ('end', 'failed'):
+            ex += '<button aria-label="שוב" style="position: absolute; left: 50%%; top: 42%%; transform: translate(-50%%,-50%%); width: 72px; height: 72px; border-radius: 50%%; background: rgba(8,14,28,.6); color: #fff; display: flex; align-items: center; justify-content: center">%s</button>' % icon(I_REPLAY, 30, 2.2)
+        else:
+            ex += '<button aria-label="השהיה" style="position: absolute; top: 6px; %s: 6px; width: 44px; height: 44px; border-radius: 50%%; background: rgba(8,14,28,.55); color: #fff; display: flex; align-items: center; justify-content: center">%s</button>' % ('right' if L == 'he' else 'left', icon(I_PAUSE, 20, 2.6))
+    o += share_card(until=until, top=112, left=36, extra=ex, L=L)
+    if vid:
+        o += '<button class="vlink">%s %s</button>' % (icon(I_MTN, 18, 2), T['link'])
+    return o + share_sheet(kind, state, L)
 
 
 # ---------------------------------------------------------------- the phones and the overview
@@ -578,7 +625,12 @@ def phones():
         'DS5.dc.html': ('יום עם רגע אחד: כרטיס גדול, היום והתמונה', ds_one(), 'day'),
         'DV1.dc.html': ('הסרטון מתנגן בתוך הכרטיס', dv('play'), 'night'),
         'DV2.dc.html': ('נגמר: שוב, וקישור מפורש להר', dv('end'), 'night'),
-        'DV3.dc.html': ('שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מכין', dv('make'), 'day'),
+        'DV3.dc.html': ('שיתוף בזמן הניגון: הסרטון ממשיך, הכפתור מתמלא', dv('make'), 'day'),
+        'DV4.dc.html': ('תמונה: הדף בלי משפט ההסבר', dv('idle', 'image'), 'day'),
+        'DV5.dc.html': ('שמירת סרטון: ההתקדמות בתוך הכפתור', dv('save'), 'night'),
+        'DV6.dc.html': ('נשמר: וי ו"נשמר בגלריה"; נגיעה פותחת', dv('saved'), 'day'),
+        'DV7.dc.html': ('לא נשמר: אותו כפתור מנסה שוב', dv('failed', 'image'), 'night'),
+        'DV8.dc.html': ('The share sheet in English, saved', dv('saved', 'video', 'en'), 'night', 'en'),
     }
 
 
@@ -592,16 +644,16 @@ def dp00():
            + row('<b>1</b>', '"היום שלי": לא ברור איפה המסלולים ואיפה גלשת', 'על ההר החי כל המסלולים מוסתרים כשהיום מצויר.', 'כל המסלולים בקו לבן דק, בלי צבעים ובלי שמות, מאחורי הקו של היום. ביום צל דק מתחת ללבן, כדי שיראו אותו על השלג. רכבלים: רק אלה שעלית בהם, מקווקו. נגיעה בקו לבן מראה את השם שלו לרגע.', 'DM1 עד DM3')
            + row('<b>2</b>', '"הרכס של היום": גרף ורשימת טקסט, ושם נחתך ("Goodaur")', 'המנתח יודע: רכבל עם התור לפניו, ירידה (מסלולים, עצירות, קטע מחוץ למסלולים, דקה בלי קליטה), הפסקה ארוכה, הליכה. הוא לא יודע מה עשית בהפסקה.', 'ארבעה מספרים, הרכס עם ציר גובה ושעות ופס ההפסקה, "לאן הלך היום" בפס אחד, ואז ציר זמן עם סמל לכל סוג. הירידה היא כרטיס עם פס המהירות שלה. שמות נשברים לשורה, אף פעם לא נחתכים. בגלילה הרכס מתכווץ לפס שמראה איפה אתה ביום.', 'DT1 עד DT5')
            + row('<b>3</b>', '"הסיפור של היום": כרטיס אחד שלא נוגעים בו, ומסך ריק', '<b>זה לא הנתונים.</b> המנוע נותן ליום הדוגמה 11 רגעים, ובוחר 4 לסיפור (השחור הראשון, התלול, המהיר, רעיון למחר). גם ירידה אחת נותנת 3 או 4. המסך מראה פחות: זו בעיה בבנייה, לבדוק באמולטור לפי שורת היומן "redesign day story".', 'כל רגעי הסיפור ככרטיסים שנפתחים, "עוד מהיום" עם שאר הרגעים, "לצפות בסיפור" שמנגן אותם במסך מלא על ההר, והתמונה לשיתוף בסוף. כרטיס שיורד (נפילה, מחוץ למסלולים) לא משאיר חור: הבא בתור נכנס.', 'DS1 עד DS5')
-           + row('<b>4</b>', '"תמונה לשיתוף": נגיעה בעיגול הניגון מוציאה מהדף', '<b>באג.</b> העיגול רק מצויר, ונגיעה בו עוברת לשכבה שסוגרת את הדף. גם אין נגן: הסרטון נוצר רק כשמשתפים.', 'הכרטיס מנגן במקום, מאותן תמונות של הסרטון (בלי לחכות לקידוד), עם השהיה, פס התקדמות ו"שוב" בסוף. שיתוף ושמירה לא עוצרים אותו, והכפתור מראה כמה הוכן. נגיעה בכרטיס לא יוצאת אף פעם; "לראות את היום על ההר" הוא קישור נפרד.', 'DV1 עד DV3')
+           + row('<b>4</b>', '"תמונה לשיתוף": נגיעה בעיגול הניגון מוציאה מהדף', '<b>באג.</b> העיגול רק מצויר, ונגיעה בו עוברת לשכבה שסוגרת את הדף. גם אין נגן. ו"שמירה" שומרת לגלריה בלי לומר דבר: רק אחוז, ואז כלום.', 'הכרטיס מנגן במקום, מאותן תמונות של הסרטון, עם השהיה, פס התקדמות ו"שוב" בסוף. נגיעה בכרטיס לא יוצאת אף פעם; "לראות את היום על ההר" הוא קישור נפרד. הגיליון: שני אריחים במקום המתג, בלי משפט ההסבר, וההתקדמות בתוך הכפתור שנלחץ. בסוף: וי ו"נשמר בגלריה" (נגיעה פותחת), או "לא נשמר · שוב".', 'DV1 עד DV8')
            + '</table>')
     asks = ''.join('<p class="q"><span class="qn">%d</span><span>%s</span></p>' % (i + 1, t) for i, t in enumerate([
         '<b>המסלולים בקו לבן דק</b> מאחורי היום, בלי שמות, ונגיעה מראה שם? (ההמלצה: כן)',
         '<b>הרכס של היום</b> כמו בלוחות: מספרים, רכס, "לאן הלך היום" וציר זמן עם סמלים? (כן)',
         '<b>כוס קפה רק כשההפסקה ליד בית קפה מקובץ המקומות</b>, ובלי זה סמל הפסקה כללי? (כן; ביום הדוגמה אין בית קפה ליד ההפסקה, ולכן רואים את הכללי)',
         '<b>הסיפור:</b> כל הרגעים ככרטיסים שנפתחים, נגן במסך מלא, והתמונה בסוף? (כן)',
-        '<b>הסרטון מתנגן בכרטיס</b>, והקישור להר נפרד מתחתיו? (כן; זה תיקון באג, אפשר לבנות בלי לחכות לשאר)']))
+        '<b>הסרטון מתנגן בכרטיס</b>, הקישור להר נפרד, והגיליון החדש: אריחים, התקדמות בכפתור, "נשמר בגלריה" ו"לא נשמר · שוב", בלי משפט ההסבר? (כן; אפשר לבנות בלי לחכות לשאר)']))
     strings = li('<b>קיימים:</b> כל רגעי הסיפור (<span dir="ltr">moment.*</span>), "תור {min} דק׳", "הפסקה ארוכה · {min} דק׳", "עצירה אחת", "חלק מחוץ למסלולים", "דקה בלי קליטה", "הליכה, {m} מ׳", "לאן הלך היום", "לאט" / "מהר", "סרטון של דקה", "שמירה".',
-                  '<b>חדשים, לסשן התוכן אחרי האישור:</b> "בוקר", "צהריים", "בראש {lift}", "{n} עצירות", "שעות על ההר", "ק״מ גלישה", "גלישה" / "ברכבלים" / "בתורים" / "הפסקות והליכה", "לצפות בסיפור", "עוד מהיום", "התמונה של היום", "{i} מתוך {n}", "לראות את היום על ההר", "מכינים · {pct}%", "השהיה", "שוב".')
+                  '<b>חדשים, לסשן התוכן אחרי האישור:</b> "בוקר", "צהריים", "בראש {lift}", "{n} עצירות", "שעות על ההר", "ק״מ גלישה", "גלישה" / "ברכבלים" / "בתורים" / "הפסקות והליכה", "לצפות בסיפור", "עוד מהיום", "התמונה של היום", "{i} מתוך {n}", "לראות את היום על ההר", "מכינים", "שומרים", "נשמר בגלריה", "לא נשמר · שוב", "השהיה", "שוב". יוצא: משפט ההסבר בגיליון השיתוף.')
     honest = ('כל המספרים, הזמנים, השמות, הרגעים והניסוחים מיום הדוגמה ומהפלט האמיתי של המנתח ושל מנוע הרגעים. '
               'שני דברים מומחשים ומסומנים כך: לוח DT5 (שורות לדוגמה, כולל <bdi>Ice Bar</bdi> ו-<bdi>Gradus</bdi> כדי להראות את הכלל), ולוח DS5 (יום עם רגע אחד; במקרי הבדיקה המנוע לא נותן אף פעם רגע אחד, אבל המסך צריך לעמוד בזה). '
               'יום בלי ירידות בכלל הוא מסך הסוף הריק שכבר אושר (EM); אין בו כפתור לסיפור. נבדק בכלי העיצוב, לא בטלפון.')
@@ -613,7 +665,7 @@ def dp00():
     open(os.path.join(PROJ, 'DP00-DayPages.dc.html'), 'w', encoding='utf8').write(board('עמודי היום', 1280, HB, wbox(1280, HB, inner)))
 
 
-FILES = ['DP00-DayPages.dc.html'] + ['DM%d.dc.html' % i for i in range(1, 4)] + ['DT%d.dc.html' % i for i in range(1, 6)] + ['DS%d.dc.html' % i for i in range(1, 6)] + ['DV%d.dc.html' % i for i in range(1, 4)]
+FILES = ['DP00-DayPages.dc.html'] + ['DM%d.dc.html' % i for i in range(1, 4)] + ['DT%d.dc.html' % i for i in range(1, 6)] + ['DS%d.dc.html' % i for i in range(1, 6)] + ['DV%d.dc.html' % i for i in range(1, 9)]
 CODE = re.compile(r'^(DP|DM|DT|DS|DV)\d')
 
 
