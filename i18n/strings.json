@@ -26661,6 +26661,30 @@
     "ru",
     "ka"
    ]
+  },
+  "app.run_profile_a11y": {
+   "he": "פרופיל המסלול: מ-{top} עד {bottom} מטר, הקטע התלול {deg} מעלות",
+   "en": "Run profile: from {top} to {bottom} meters, steepest section {deg} degrees",
+   "ru": "Профиль трассы: от {top} до {bottom} метров, самый крутой участок {deg} градусов",
+   "ka": "ტრასის პროფილი: {top}-დან {bottom} მეტრამდე, ყველაზე ციცაბო მონაკვეთი {deg} გრადუსი",
+   "where": "app/android",
+   "note": "run card / runs button 27.11.2026",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.runs_button": {
+   "he": "מסלולים",
+   "en": "Runs",
+   "ru": "Трассы",
+   "ka": "ტრასები",
+   "where": "app/android",
+   "note": "run card / runs button 27.11.2026",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
