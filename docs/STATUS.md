@@ -417,6 +417,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Manager: Pini approved the hint motion (P.19, canvas HM00-HM4).** Builder `session_017QrNw8gQPUzupPbTf6iEKX` (branch `claude/android-hint-motion`), no new strings. Top pill (P.25) merged to `main` (run 1041 green); run button v4 in canvas v101 waits for Pini.
 - 27.11.2026: **Designer (Opus): P.19 hint motion and P.17 Kobi side in the canvas (v100, boards HM00-HM4, KB00-KB4), waiting for Pini.** Ring glides 360-560 ms, bubble cross-fades; Kobi tag on the ridge turns the view, compass returns. Handoffs `design/handoff/2026-11-27-redesign-hint-motion/`, `...-kobi-side/`. Architect needed: Kobi set at 3 px/pt is 1,069 KB vs the 350 KB ceiling (2 px: 626 KB).
 - 27.11.2026: **Manager: Pini approved the ski pass ticket-office buttons (P.21) and the record-mode choice (P.16).** Builder `session_017QrNw8xUH7NpTCSf3LK6CS` (branch `claude/android-small-items`); content enters three strings. Ticket-office coordinate is medium certainty, confirm in January.
 - 27.11.2026: **Manager: Pini approved the top pill (P.25, canvas TP).** Content enters the strings; builder `session_017QrNwA2kWwzvtqMVDcqxWn` (branch `claude/android-top-pill`). In-season lift count has no live data before December (S-20), so only fixtures until then.
