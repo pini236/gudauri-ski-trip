@@ -559,7 +559,12 @@ private fun BoxScope.MeScreen(p: People, ui: PeopleUi, k: SheetInk) {
         if (kind != PeopleRules.MeKind.NOBODY) PBox(k) {
             Text(stringResource(R.string.acct_my_groups), Modifier.padding(top = 12.dp, bottom = 4.dp), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = k.ink2)
             val gs = groups.orEmpty()
-            if (gs.isEmpty()) {
+            // first load: two rows of the real height, never "no groups" before the answer
+            if (groups == null) for (i in 0 until 2) Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                SkeletonBar(k, 36, 36)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { SkeletonBar(k, listOf(150, 120)[i], 14); SkeletonBar(k, listOf(90, 110)[i], 11) }
+            }
+            else if (gs.isEmpty()) {
                 Small(stringResource(R.string.acct_no_groups), k, Modifier.padding(vertical = 6.dp))
                 PRow(stringResource(R.string.app_g_create), k, icon = Icons.plus, last = true) { ui.go(PLayer.Gate) }
             }
@@ -947,6 +952,8 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
         else -> real
     }
     val g = shown.group
+    // GR4: the content arrives in a 150 ms cross-fade, where the skeleton stood
+    val arrive by androidx.compose.animation.core.animateFloatAsState(if (g != null) 1f else 0f, androidx.compose.animation.core.tween(150), label = "arrive")
     LaunchedEffect(g?.meetups) { if (g != null) p.onMeetups() }
     var tab by remember(id) { mutableStateOf<GroupTab?>(null) }
     LaunchedEffect(g?.startsOn, g?.endsOn) { if (tab == null && g != null) tab = PeopleRules.openingTab(g.startsOn, g.endsOn, today) }
@@ -1011,7 +1018,7 @@ private fun BoxScope.GroupSheet(p: People, ui: PeopleUi, k: SheetInk, id: String
                     LaunchedEffect(c) { Qa.log("redesign edge group refused $c") }
                     StatusLine(stringResource(R.string.app_g_refused, stringResource(errorRes(c))), k, EdgeIcon.WARN, bad = true, onClose = { watch.clearRefused() })
                 }
-                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.alpha(arrive).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     when (t) {
                         GroupTab.MEETUPS -> Meetups(g, k, plan, onOpen = { m -> onOpenMeetup(id, m) }, onNew = { onNewMeetup(id) }, onRemind = p.onMeetups,
                             onDelete = { m -> act.run { api.removeMeetup(id, m.id); watch.refresh() } })

@@ -165,7 +165,7 @@ private fun Tile(m: MTile, k: SheetInk, bg: Color, tint: Color, haptics: Haptics
         Box(Modifier.size(36.dp).clip(CircleShape).background(tint), contentAlignment = Alignment.Center) { Icon(m.icon, null, Modifier.size(20.dp), tint = k.acc) }
         Column {
             Text(m.title, fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = k.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (m.line == null) Box(Modifier.padding(top = 4.dp).size(90.dp, 12.dp).clip(RoundedCornerShape(6.dp)).background(k.line))
+            if (m.line == null) SkeletonBar(k, 90, 12, Modifier.padding(top = 4.dp))
             else Text(m.line, fontFamily = Gudi, fontSize = 12.5.sp, color = k.ink2, maxLines = if (big) 2 else 1, overflow = TextOverflow.Ellipsis)
         }
     }
