@@ -12,7 +12,7 @@ Boards `SP1`, `SP2` (`ref/SP*.jpg`). **Not before Pini approves.** The calculati
 
 - **Lanyard:** two bands, 7 wide, `acc` (the second at 82%), from above the screen top (x 150 and x 262) down to the slot of the pass.
 - **The pass:** 232 x 316, radius 22, paper `paper`, shadow `0 18 34 rgba(10,25,45,.34)`, turned 3 degrees around its top centre, 136 from the top, centred. Our own drawing; not MTA's card.
-- On it, centred, top to bottom: the slot (46 x 10, radius 5); "גודאורי · עונת 2026/27" (11.5 / 700 `ink2`); the price (76 / 300, the currency sign 30); "4 ימים · מבוגר" (17 / 700); with a trip and unchanged days, "11–14.1 · לפי הטיול שלי" (13 `ink2`); when it is cheaper than day passes, a chip "חוסכים 90 ₾ מול כרטיסי יום" (height 26, `#DDF2E5` / `#0F5C31`; night `rgba(70,208,138,.2)` / `#7BE3AC`); at the bottom a band 74 high in `acc` with a two-layer mountain silhouette in white 22% and 18%.
+- On it, centred, top to bottom: the slot (46 x 10, radius 5); "גודאורי · עונת 2026/27" (11.5 / 700 `ink2`); the price (76 / 300, the currency sign 30); "4 ימים · מבוגר" (17 / 700); with a trip and unchanged days, "11–14.1 · לפי הטיול שלי" (13 `ink2`); when it is cheaper than day passes, a chip "חיסכון של 90 ₾ לעומת כרטיסי יום" (height 26, `#DDF2E5` / `#0F5C31`; night `rgba(70,208,138,.2)` / `#7BE3AC`); at the bottom a band 74 high in `acc` with a two-layer mountain silhouette in white 22% and 18%.
 - The price changes with a 150 ms cross-fade; on a change of days the pass swings once (3 to 5 to 3 degrees, 300 ms; reduced motion: no swing).
 
 ## 2. The sheet
