@@ -450,3 +450,9 @@ Canvas version 88, page "הסרגל: בחירת מסלול (27.11)", boards `DK0
 Canvas version 89, same page as `DK` (now "בוחרים מסלול: הכפתור, המדף והשכבות"), boards `SL00` to `SL8`. Source: `tools/sl_boards.py` (imports `dk_boards.py`). Handoff: `design/handoff/2026-11-27-redesign-shelf-layers/README.md`. One row of six chips in the shelf; every chip orders the cards and paints the mountain; a strip of one tick per run shows the order; the layers button leaves the column. `SL7`, `SL8`: the alternative that keeps the layers, with a legend bar in the bottom bar's slot.
 
 **Version 2 (27.11.2026, canvas 90, `SV00` to `SV6`, `tools/sv_boards.py`):** the chosen direction with more craft. The "מסלולים" button carries a micro strip of all runs that opens into the shelf's strip; the lit chip takes the colour of what it paints; the card's big number is the chip's answer; ranks are written on the mountain; `SV4` animates a chip change. Spec: the "Version 2" section of the shelf-layers handoff.
+
+### The run card (27.11.2026; waiting for Pini)
+
+Canvas version 92, page "כרטיס המסלול (27.11)", boards `RK00` to `RK5` (the code `RC` was already taken). Source: `tools/rc_boards.py`. Handoff: `design/handoff/2026-11-27-redesign-run-card/README.md`. A floating card with its neighbours peeking and the dots under it, the run's slope-coloured profile, "טיסה מעל המסלול", and a foot row that leads to the videos and the conditions.
+
+**For the next designer session:** the tools chain is `ux_boards.py` (root screen, menu, helpers), `dk_boards.py` (the bar; `preview()` for local screenshots), `sl_boards.py` (shelf data, `stage()` for a full-screen mountain), `sv_boards.py`, `rc_boards.py`. Run a tool against a copy of the **live** `project/canvas.json` (read it from the artifact first), publish the changed files with the index; class names `.d`, `.n`, `.me`, `.hn`, `.pr`, `.w`, `.k` are taken by older CSS. Check a board code is free before using it.
