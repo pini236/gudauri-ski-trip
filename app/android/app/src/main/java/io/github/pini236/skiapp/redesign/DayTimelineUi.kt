@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -128,7 +129,7 @@ internal fun TimelineLine(time: String, node: Node, nodeColor: Color, spineColor
     }
 }
 
-private fun Modifier.fillMaxHeight1() = this.then(Modifier.heightIn(min = 40.dp)).then(androidx.compose.foundation.layout.fillMaxHeight())
+private fun Modifier.fillMaxHeight1() = this.heightIn(min = 40.dp).fillMaxHeight()
 
 /** The glyphs, drawn small and plain (no stop type beyond the analysis's: lift, descent, break, walk, queue). */
 private fun DrawScope.drawNode(n: Node, col: Color) {
