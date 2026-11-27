@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,7 +90,11 @@ import java.util.Locale
 @Composable
 internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, track: () -> Track?,
                       name: (String) -> String, night: Boolean, sample: Boolean, haptics: Haptics,
-                      elev: ((Float, Float) -> Float)? = null, startVideo: Boolean = false, onBack: () -> Unit) {
+                      elev: ((Float, Float) -> Float)? = null, startVideo: Boolean = false,
+                      /** The picture the story page already made (DS4), so it is not drawn twice. */
+                      pre: Pair<Bitmap, String>? = null,
+                      /** "לראות את היום על ההר" under the video card: leaves the share and plays the day's film on the mountain. */
+                      onSeeMountain: (() -> Unit)? = null, onBack: () -> Unit) {
     BackHandler { onBack() }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -99,7 +105,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     val rule = if (night) Color(0x33FFFFFF) else Color(0x1F0E2233)
     val accent = Color(0xFF7C4FE0)
     var video by remember { mutableStateOf(startVideo) }
-    var pic by remember { mutableStateOf<Pair<Bitmap, String>?>(null) }
+    var pic by remember { mutableStateOf(pre) }
     var making by remember { mutableStateOf<Float?>(null) }
     var made by remember { mutableStateOf<File?>(null) }
     // the pressed button shows the progress, then a saved flash or a failure on itself (DV4-DV8); no dialog
@@ -107,17 +113,25 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     var saved by remember { mutableStateOf(false) }
     var failKind by remember { mutableStateOf<String?>(null) }
     var playing by remember { mutableStateOf<File?>(null) }
+    // the one waiting behind the running button (DV: the other button stays enabled and queues), and where the file was saved
+    var queued by remember { mutableStateOf<String?>(null) }
+    var savedUri by remember { mutableStateOf<Uri?>(null) }
+    // the in-card video (DV1-DV3): its view, state and clock
+    var vv by remember { mutableStateOf<android.widget.VideoView?>(null) }
+    var film by remember { mutableStateOf(StoryRules.Film.PLAYING) }
+    var posMs by remember { mutableStateOf(0L) }
+    var durMs by remember { mutableStateOf(0L) }
+    val waiters = remember { mutableListOf<Pair<(File) -> Unit, () -> Unit>>() }
+    LaunchedEffect(vv) {
+        val v = vv ?: return@LaunchedEffect
+        while (true) {
+            if (film == StoryRules.Film.PLAYING) runCatching { posMs = v.currentPosition.toLong(); durMs = v.duration.toLong().coerceAtLeast(0L) }
+            kotlinx.coroutines.delay(100)
+        }
+    }
     LaunchedEffect(story) {
         // the board's picture (L11); the moment kind for the measure still comes from the store's picture's rules
-        pic = withContext(Dispatchers.Default) {
-            runCatching {
-                val top = storyPicture(ctx, story, sm, track(), name).let { (b, t) -> b.recycle(); t }
-                val lang = Lang.current(ctx.resources)
-                // the title in the text's bold face, not the old language's display face (the designer, point 6)
-                StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, false), regular(ctx, lang),
-                    lang.rtl, sm.maxAt?.let { paint.track.at(it) }, mountainOf(ctx, night, elev)) to top
-            }.getOrNull()
-        }
+        if (pic == null) pic = sharePicture(ctx, story, sm, paint, hide, night, track, name, elev)
         Qa.log("redesign share open")
     }
     val top = pic?.second ?: "other"
@@ -125,6 +139,8 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
     /** The video, made once (on a background thread), then kept for share and save. */
     fun withVideo(onFail: () -> Unit = {}, then: (File) -> Unit) {
         made?.let { if (it.isFile) { then(it); return } }
+        // a second asker (the card's tap, then a button) waits for the same encode
+        waiters += then to onFail
         if (making != null) return
         making = 0f
         scope.launch {
@@ -132,12 +148,23 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             val ok = withContext(Dispatchers.Default) { makeVideo(ctx, f, story, sm, paint, hide, night, mountainOf(ctx, night, elev)) { p -> making = p } }
             making = null
             Qa.log("redesign share video ${if (ok) "made ${f.length()}" else "failed"}")
-            if (ok) { made = f; then(f) } else onFail()
+            val ws = waiters.toList(); waiters.clear()
+            if (ok) { made = f; ws.forEach { it.first(f) } } else ws.forEach { it.second() }
         }
+    }
+    fun toggleFilm() {
+        val v = vv ?: return
+        val next = StoryRules.toggle(film)
+        if (next == StoryRules.Film.PLAYING) { if (film == StoryRules.Film.ENDED) v.seekTo(0); v.start() } else v.pause()
+        film = next
+    }
+    fun openGallery() {
+        val u = savedUri ?: return
+        runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(u, ctx.contentResolver.getType(u)).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)) }
     }
     // the emulator's run makes the video and saves it (no chooser to drive)
     LaunchedEffect(RedesignQa.seq) {
-        if (RedesignQa.cmd == "share:video") { video = true; withVideo { f -> scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok") } } }
+        if (RedesignQa.cmd == "share:video") { video = true; withVideo { f -> scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) != null }; Qa.log("redesign share saved video $ok") } } }
     }
     Box(Modifier.fillMaxSize().background(Color(0xFF0B1220)).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onBack() }) {
         // the screen's title (L11), then the picture as it will leave; in the video's mode the same frame with a play sign
@@ -161,21 +188,53 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
         Column(Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 8.dp + 48.dp + 16.dp, start = 36.dp, end = 36.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally) {
             pic?.first?.let { b ->
-                // a tap on the card never reaches the dismiss layer; in video mode it plays the video inside the card
+                // a tap on the card never reaches the dismiss layer; in video mode it plays the video inside the card, then
+                // toggles play and pause (DV1-DV3)
                 Box(Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(20.dp)).clip(RoundedCornerShape(20.dp))
                     .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                        if (video && playing == null) withVideo { f -> playing = f }
+                        if (video && playing == null) withVideo { f -> film = StoryRules.Film.PLAYING; posMs = 0L; playing = f }
+                        else if (video) toggleFilm()
                     }, contentAlignment = Alignment.Center) {
                     Image(b.asImageBitmap(), null, Modifier.fillMaxWidth(), contentScale = ContentScale.FillWidth)
                     playing?.takeIf { video }?.let { f ->
                         AndroidView(factory = { c ->
                             android.widget.VideoView(c).apply {
                                 setVideoPath(f.absolutePath)
-                                setOnCompletionListener { playing = null }
-                                setOnErrorListener { _, _, _ -> playing = null; true }
+                                // the last frame stays and the replay circle shows
+                                setOnCompletionListener { film = StoryRules.Film.ENDED; posMs = durMs }
+                                setOnErrorListener { _, _, _ -> playing = null; vv = null; true }
+                                post { vv = this }
                                 start()
                             }
-                        }, modifier = Modifier.matchParentSize())
+                        }, modifier = Modifier.matchParentSize(), onRelease = { it.stopPlayback(); if (vv === it) vv = null })
+                        val glassDark = Color(0x99080E1C)
+                        val pauseLabel = stringResource(if (film == StoryRules.Film.PLAYING) R.string.app_ds_pause else R.string.app_ds_play)
+                        if (film != StoryRules.Film.ENDED) Box(Modifier.align(Alignment.TopStart).padding(10.dp).size(44.dp).clip(CircleShape).background(glassDark)
+                            .clickable(role = Role.Button) { haptics.tick(.2f); toggleFilm() }.semantics { contentDescription = pauseLabel }, contentAlignment = Alignment.Center) {
+                            androidx.compose.foundation.Canvas(Modifier.size(18.dp)) {
+                                if (film == StoryRules.Film.PLAYING) {
+                                    val w = size.width * .28f
+                                    drawRect(Color.White, androidx.compose.ui.geometry.Offset(size.width * .12f, 0f), androidx.compose.ui.geometry.Size(w, size.height))
+                                    drawRect(Color.White, androidx.compose.ui.geometry.Offset(size.width * .60f, 0f), androidx.compose.ui.geometry.Size(w, size.height))
+                                } else drawPath(androidx.compose.ui.graphics.Path().apply {
+                                    moveTo(size.width * .18f, 0f); lineTo(size.width, size.height / 2); lineTo(size.width * .18f, size.height); close()
+                                }, Color.White)
+                            }
+                        }
+                        // "0:25 / 1:00", always left to right
+                        Text("\u2066" + StoryRules.clockPair(posMs, durMs) + "\u2069", Modifier.align(Alignment.TopEnd).padding(10.dp).clip(RoundedCornerShape(14.dp)).background(glassDark)
+                            .padding(horizontal = 10.dp, vertical = 6.dp), fontFamily = Gudi, fontWeight = FontWeight.Medium, fontSize = 12.sp, color = Color.White)
+                        // the progress line along the bottom edge, filling in the reading direction
+                        Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(4.dp).background(Color.White.copy(alpha = .28f))) {
+                            Box(Modifier.fillMaxHeight().fillMaxWidth(StoryRules.videoFrac(posMs, durMs)).background(Color.White))
+                        }
+                        if (film == StoryRules.Film.ENDED) {
+                            val again = stringResource(R.string.app_ds_again)
+                            Box(Modifier.size(72.dp).clip(CircleShape).background(glassDark).clickable(role = Role.Button) { haptics.tick(.3f); toggleFilm() }
+                                .semantics { contentDescription = again }, contentAlignment = Alignment.Center) {
+                                Text("\u21BB", fontFamily = Gudi, fontSize = 30.sp, color = Color.White)
+                            }
+                        }
                     }
                     if (video && playing == null) androidx.compose.foundation.Canvas(Modifier.size(64.dp)) {
                         drawCircle(Color(0x99080E1C))
@@ -184,6 +243,18 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                             moveTo(center.x - r * .28f, center.y - r * .38f); lineTo(center.x + r * .42f, center.y); lineTo(center.x - r * .28f, center.y + r * .38f); close()
                         }, Color.White)
                     }
+                }
+                // the replay on the mountain is an explicit link under the card, never a tap on it (DV3)
+                if (video && onSeeMountain != null) Row(Modifier.padding(top = 12.dp).clip(RoundedCornerShape(14.dp))
+                    .clickable(role = Role.Button) { haptics.tick(.3f); onSeeMountain() }.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    androidx.compose.foundation.Canvas(Modifier.size(20.dp, 16.dp)) {
+                        drawPath(androidx.compose.ui.graphics.Path().apply {
+                            moveTo(0f, size.height); lineTo(size.width * .36f, size.height * .2f); lineTo(size.width * .56f, size.height * .55f)
+                            lineTo(size.width * .72f, size.height * .36f); lineTo(size.width, size.height); close()
+                        }, accent)
+                    }
+                    Text(stringResource(R.string.app_ds_see_mtn), fontFamily = Gudi, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
                 }
             }
         }
@@ -203,21 +274,30 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                 }
             }
             fun press(kind: String) {
-                if (pressed != null) return
+                when (StoryRules.press(kind, pressed, queued)) {
+                    StoryRules.Press.IGNORE -> return
+                    StoryRules.Press.QUEUE -> { queued = kind; return }
+                    StoryRules.Press.RUN -> {}
+                }
                 failKind = null; pressed = kind
-                fun done(ok: Boolean) {
+                fun done(ok: Boolean, uri: Uri? = null) {
                     pressed = null
                     if (!ok) failKind = kind
-                    else if (kind == "save") { saved = true; scope.launch { kotlinx.coroutines.delay(4000); saved = false } }
+                    else if (kind == "save") {
+                        savedUri = uri; saved = true; haptics.click(.5f)
+                        scope.launch { kotlinx.coroutines.delay(4000); saved = false }
+                    }
+                    // the other button, pressed meanwhile, goes now
+                    queued?.let { q -> queued = null; press(q) }
                 }
                 if (!video) {
                     val b = pic?.first
-                    if (b == null) { pressed = null; return }
-                    if (kind == "share") { io.github.pini236.skiapp.dayrec.ui.StoryImage.share(ctx, b, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share)); measure("native"); pressed = null }
-                    else scope.launch { val ok = withContext(Dispatchers.IO) { savePicture(ctx, b) }; Qa.log("redesign share saved photo $ok"); if (ok) measure("save"); done(ok) }
+                    if (b == null) { pressed = null; queued = null; return }
+                    if (kind == "share") { io.github.pini236.skiapp.dayrec.ui.StoryImage.share(ctx, b, ctx.getString(R.string.common_site_name), ctx.getString(R.string.app_day_share)); measure("native"); done(true) }
+                    else scope.launch { val u = withContext(Dispatchers.IO) { savePicture(ctx, b) }; Qa.log("redesign share saved photo ${u != null}"); if (u != null) measure("save"); done(u != null, u) }
                 } else withVideo(onFail = { done(false) }) { f ->
-                    if (kind == "share") { shareVideo(ctx, f); measure("video"); pressed = null }
-                    else scope.launch { val ok = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video $ok"); if (ok) measure("save"); done(ok) }
+                    if (kind == "share") { shareVideo(ctx, f); measure("video"); done(true) }
+                    else scope.launch { val u = withContext(Dispatchers.IO) { saveVideo(ctx, f) }; Qa.log("redesign share saved video ${u != null}"); if (u != null) measure("save"); done(u != null, u) }
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -225,7 +305,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     val st = StoryRules.button(kind, pressed, saved, failKind)
                     val busy = st == StoryRules.Btn.BUSY
                     val good = Color(0xFF198549); val warn = Color(0xFFB8741A)
-                    val edge = when (st) { StoryRules.Btn.SAVED -> good; StoryRules.Btn.FAILED -> warn; else -> if (primary) Color.Transparent else rule }
+                    val edge = when (st) { StoryRules.Btn.SAVED -> good; StoryRules.Btn.FAILED -> warn; else -> if (queued == kind) accent else if (primary) Color.Transparent else rule }
                     val label = when (st) {
                         StoryRules.Btn.BUSY -> stringResource(if (kind == "share") R.string.app_ds_preparing else R.string.app_ds_saving) +
                             if (video) " · " + (StoryRules.fill(true, making) * 100).toInt() + "%" else ""
@@ -236,7 +316,7 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
                     Box(Modifier.weight(1f).heightIn(min = 56.dp).clip(RoundedCornerShape(18.dp))
                         .background(if (primary && st == StoryRules.Btn.IDLE) accent else Color.Transparent)
                         .border(1.5.dp, edge, RoundedCornerShape(18.dp))
-                        .clickable(role = Role.Button) { haptics.tick(if (primary) .4f else .3f); press(kind) }, contentAlignment = Alignment.Center) {
+                        .clickable(role = Role.Button) { haptics.tick(if (primary) .4f else .3f); if (st == StoryRules.Btn.SAVED && savedUri != null) openGallery() else press(kind) }, contentAlignment = Alignment.Center) {
                         if (busy) Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterStart) {
                             // the fill grows from the reading start
                             Box(Modifier.fillMaxHeight().fillMaxWidth(StoryRules.fill(video, making)).background(if (primary) accent.copy(alpha = .55f) else accent.copy(alpha = .16f)))
@@ -249,6 +329,18 @@ internal fun DayShare(story: StoryData, sm: DayModel.Summary, paint: DayPaint.Da
             }
         }
     }
+}
+
+/** The share picture of the day (L11) and the kind of its top moment; null when it cannot be drawn. Used by the share sheet and the story page's own preview. */
+internal suspend fun sharePicture(ctx: Context, story: StoryData, sm: DayModel.Summary, paint: DayPaint.Day, hide: List<LongArray>, night: Boolean,
+                                  track: () -> Track?, name: (String) -> String, elev: ((Float, Float) -> Float)?): Pair<Bitmap, String>? = withContext(Dispatchers.Default) {
+    runCatching {
+        val top = storyPicture(ctx, story, sm, track(), name).let { (b, t) -> b.recycle(); t }
+        val lang = Lang.current(ctx.resources)
+        // the title in the text's bold face, not the old language's display face (the designer, point 6)
+        StoryVideo.still(paint, hide, night, shareWords(ctx, story, sm), Lang.typeface(ctx, lang, false), regular(ctx, lang),
+            lang.rtl, sm.maxAt?.let { paint.track.at(it) }, mountainOf(ctx, night, elev)) to top
+    }.getOrNull()
 }
 
 /** The day's words for the video, the picture's: the kind of day, four numbers, "Gudi" and "Gudauri · date". */
@@ -302,24 +394,24 @@ private fun shareVideo(ctx: Context, f: File) {
 }
 
 /** Into the phone's pictures (Android 10 and up, no permission; before that the system asks, so it is only shared there). */
-private fun savePicture(ctx: Context, b: Bitmap): Boolean {
-    if (Build.VERSION.SDK_INT < 29) return false
+private fun savePicture(ctx: Context, b: Bitmap): Uri? {
+    if (Build.VERSION.SDK_INT < 29) return null
     val v = ContentValues().apply {
         put(MediaStore.Images.Media.DISPLAY_NAME, "gudi-day-${System.currentTimeMillis()}.png"); put(MediaStore.Images.Media.MIME_TYPE, "image/png")
         put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Gudi")
     }
-    val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v) ?: return false
-    return runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { b.compress(Bitmap.CompressFormat.PNG, 100, it) } }.getOrDefault(false)
+    val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v) ?: return null
+    return uri.takeIf { runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { b.compress(Bitmap.CompressFormat.PNG, 100, it) } }.getOrDefault(false) }
 }
 
-private fun saveVideo(ctx: Context, f: File): Boolean {
-    if (Build.VERSION.SDK_INT < 29) return false
+private fun saveVideo(ctx: Context, f: File): Uri? {
+    if (Build.VERSION.SDK_INT < 29) return null
     val v = ContentValues().apply {
         put(MediaStore.Video.Media.DISPLAY_NAME, "gudi-day-${System.currentTimeMillis()}.mp4"); put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
         put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/Gudi")
     }
-    val uri = ctx.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, v) ?: return false
-    return runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { o -> f.inputStream().use { it.copyTo(o) } }; true }.getOrDefault(false)
+    val uri = ctx.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, v) ?: return null
+    return uri.takeIf { runCatching { ctx.contentResolver.openOutputStream(uri)!!.use { o -> f.inputStream().use { it.copyTo(o) } }; true }.getOrDefault(false) }
 }
 
 /** The painted mountain for the picture and the video (L11); null without the ground's heights (then drawn from above). */
