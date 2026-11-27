@@ -12,7 +12,7 @@ Today the sheet leads with six code boxes, which most people do not have, and "�
 
 - **Backdrop:** the mountain under a veil `rgba(40,62,110,.22)` (not the village). A round back button at the top start.
 - **Sheet,** padding 10 / 16 / 16, gap 12:
-  1. "נוסעים עם חברים?" (21 / 700) and under it "קבוצה אחת לכל מי שבא לטיול" (13.5 `ink2`).
+  1. "נוסעים עם חברים?" (21 / 700) and under it "קבוצה אחת לכל החברים בטיול" (13.5 `ink2`).
   2. Three small pictures in a row (each 108 high, radius 18, background `tile`, border 1 `line`; the drawing 52 high, the caption 12.5 / 500 under it). Not tappable:
      - a plane and three avatars: "מי טס מתי"
      - a flag on a small slope: "איפה נפגשים"

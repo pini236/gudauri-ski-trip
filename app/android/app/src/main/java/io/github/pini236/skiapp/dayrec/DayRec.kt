@@ -63,6 +63,28 @@ object DayRec {
 
     fun store(ctx: Context) = DayStore(ctx.applicationContext.filesDir)
 
+    /**
+     * UX part 7 (NM2): "record anyway" was chosen far from the mountain, so the live screen does not ask again. Set by the
+     * screens on the main thread before [start]; read there too.
+     */
+    @Volatile var farOk = false
+
+    /**
+     * UX part 7 (NM2): the far sheet over the search screen was dismissed: the recording stops and its file is deleted
+     * once the recorder has closed it, so nothing of it is kept (the user never meant to record there).
+     */
+    fun cancel(ctx: Context) {
+        val f = current ?: run { stop(ctx); return }
+        val app = ctx.applicationContext
+        stop(ctx)
+        Diag.log("dayrec cancelled far from the mountain")
+        Thread {
+            val until = System.currentTimeMillis() + 60_000L
+            while (recording && System.currentTimeMillis() < until) Thread.sleep(200)
+            runCatching { store(app).delete(f) }
+        }.apply { name = "dayrec-cancel"; isDaemon = true }.start()
+    }
+
     /** [run]: a recording of one descent, which stops by itself at the bottom (docs/FEATURES.md section 10, 1a). */
     fun start(ctx: Context, resume: File? = null, run: Boolean = false): Start {
         if (recording) { Diag.log("dayrec tap: already recording"); return Start.Already }

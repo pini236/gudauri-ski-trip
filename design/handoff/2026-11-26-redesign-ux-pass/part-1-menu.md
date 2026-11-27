@@ -34,11 +34,11 @@ Top to bottom: handle; the trip tile; a grid of six tiles (two columns, gap 10);
 | Tile | Title | Status line | End slot | Opens |
 |---|---|---|---|---|
 | Ski pass | כרטיס סקי (`app.skipass_title`) | with a trip `app.vill_pass_trip`, else `app.vill_pass_day`; after `until`: `weather.none` | | the ski pass (part 3) |
-| Group | הקבוצה שלי | today's meetup `app.vill_grp_meet`; a group: its name and member count; several: `app.vill_grp_n`; pending: "ממתין לאישור המנהל"; none: "מזמינים את החברים לטיול" | up to four avatars, 28 | as today: gate / group / "הקבוצות שלי" |
+| Group | הקבוצה שלי | today's meetup `app.vill_grp_meet`; a group: its name and member count; several: `app.vill_grp_n`; pending: "ממתין לאישור המנהל"; none: "הזמנת חברים לטיול" | up to four avatars, 28 | as today: gate / group / "הקבוצות שלי" |
 | Food | אוכל ושתייה | "{n} מקומות, בכפר ועל ההר" (food and cafes in `places.json`) | | food and drink (part 4) |
 | Games | משחקים | "{n} משחקים · גם בלי קליטה" | three game thumbnails, 28 | games (part 6) |
 | My days | הימים שלי (`app.days_title`) | "{n} ימים · {km} ק״מ"; none: "יום גלישה לדוגמה" | | "הימים שלי" (with no days: the sample day) |
-| Lifts | רכבלים ומזג אוויר | a report: "{open} מתוך {total} פתוחים · {temp}"; before the season: "נפתחים ב-{date} · עוד {n} ימים"; no recent report: `status.bar_no_recent` | | the lifts sheet (what the top pill opens) |
+| Lifts | רכבלים ומזג אוויר | a report: "{open} מתוך {total} פתוחים · {temp}"; before the season: "נפתחים ב-{date}, בעוד {n} ימים"; no recent report: `status.bar_no_recent` | | the lifts sheet (what the top pill opens) |
 
 A tile whose capability is off for the resort (`has(...)`) is not shown; the grid closes the gap.
 
