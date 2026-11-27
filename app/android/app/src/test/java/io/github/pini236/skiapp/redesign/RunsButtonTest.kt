@@ -10,8 +10,8 @@ class RunsButtonTest {
     @Test fun cropIsTheWindowAtHalfScaleCentredOnThePeak() {
         // the hero picture at 3 pixels a point, 390 points wide: 264 by 96 points is 792 by 288 pixels around (128, 172)
         assertArrayEquals(intArrayOf(0, 372, 792, 288), RunsCrop.rect(1170, 2532, 390f, true))
-        // at the other end: around (262, 176)
-        assertArrayEquals(intArrayOf(390, 384, 792, 288), RunsCrop.rect(1170, 2532, 390f, false))
+        // at the other end: around (262, 176), cut at the picture's edge
+        assertArrayEquals(intArrayOf(378, 384, 792, 288), RunsCrop.rect(1170, 2532, 390f, false))
     }
 
     @Test fun cropStaysInsideThePicture() {
