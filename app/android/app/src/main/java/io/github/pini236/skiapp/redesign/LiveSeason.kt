@@ -153,8 +153,9 @@ internal fun BoxScope.SeasonTile(around: Around, night: Boolean, haptics: Haptic
     androidx.compose.runtime.LaunchedEffect(expanded) { if (expanded && !Qa.enabled) { kotlinx.coroutines.delay(stay.toLong()); onExpanded(false) } }
     val shape = RoundedCornerShape(18.dp)
     Row(Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 12.dp, bottom = 90.dp)
+        // no .shadow here: animateContentSize clips to a rectangle, which showed the shadow as a grey square behind the rounded corners
+        .clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
         .then(if (reduced) Modifier else Modifier.animateContentSize(androidx.compose.animation.core.tween(250, easing = androidx.compose.animation.core.FastOutSlowInEasing)))
-        .shadow(8.dp, shape, clip = false).clip(shape).background(k.surf.copy(alpha = 1f)).border(1.dp, k.line, shape)
         .clearAndSetSemantics { contentDescription = a11y; role = Role.Button; onClick { Qa.log("redesign season tile sheet"); onOpenSheet(); true } }
         .clickable { haptics.tick(.3f); if (expanded) { Qa.log("redesign season tile sheet"); onOpenSheet() } else { Qa.log("redesign season tile open"); onExpanded(true) } }
         .padding(8.dp),
