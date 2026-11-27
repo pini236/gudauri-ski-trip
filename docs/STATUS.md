@@ -319,6 +319,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Content: shelf version 2 strings entered (builder request).** 17 `app.shelf_*` keys (chips "לפי קושי", "פתוחים", "שלג חדש"; captions under the big number; foot line; empty-snow line; strip tick screen reader), builder's proposed names kept; `shelf_word_open` added. `check.py` green.
 - 27.11.2026: **Architect: SKIPASS `<queries>` approved (no data leaves the phone, result never logged); Kobi per-file cap: recommended 220 KB / 1.2 MB total for q80 on every file, Pini decides; run-button thumbs (7, ~42 KB packaged) approved.** No code changed.
 - 27.11.2026: **Content: `app.run_profile_a11y` and `app.runs_button` added (manager request).** Screen-reader line for the run profile ({top}, {bottom}, {deg}) and the runs-button word as an app key, same wording as `resort.pass_runs`. `check.py` green.
 - 27.11.2026: **Manager: the full builder reports of 27.11 are kept in `docs/handoff/2026-11-27-builder-reports.md`.** Per item: built, not built or different, phone checks, and seven open decisions (flight strip controls, Kobi q80, top pill states, story back-tap, manifest `<queries>`, content keys, the not-built approved parts).

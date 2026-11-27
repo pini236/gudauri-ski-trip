@@ -26685,6 +26685,198 @@
     "ru",
     "ka"
    ]
+  },
+  "app.shelf_by_diff": {
+   "he": "לפי קושי",
+   "en": "By difficulty",
+   "ru": "По сложности",
+   "ka": "სირთულის მიხედვით",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_open": {
+   "he": "פתוחים",
+   "en": "Open",
+   "ru": "Открытые",
+   "ka": "ღია",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_snow_chip": {
+   "he": "שלג חדש",
+   "en": "New snow",
+   "ru": "Новый снег",
+   "ka": "ახალი თოვლი",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_back": {
+   "he": "חזרה ב-{lift}",
+   "en": "Back on {lift}",
+   "ru": "Возврат на {lift}",
+   "ka": "დაბრუნება {lift}-ით",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_steep": {
+   "he": "הקטע התלול",
+   "en": "Steepest section",
+   "ru": "Самый крутой участок",
+   "ka": "ყველაზე ციცაბო მონაკვეთი",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_rank": {
+   "he": "מקום {i} מתוך {n} באורך",
+   "en": "No. {i} of {n} by length",
+   "ru": "№ {i} из {n} по длине",
+   "ka": "{i}-ე {n}-დან სიგრძით",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_sun": {
+   "he": "מהמסלול בשמש עכשיו",
+   "en": "of the run in the sun now",
+   "ru": "трассы сейчас на солнце",
+   "ka": "ტრასა ახლა მზეზეა",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_open": {
+   "he": "{lift} עובד",
+   "en": "{lift} is running",
+   "ru": "{lift} работает",
+   "ka": "{lift} მუშაობს",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_closed": {
+   "he": "{lift} לא עובד",
+   "en": "{lift} is not running",
+   "ru": "{lift} не работает",
+   "ka": "{lift} არ მუშაობს",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_cap_snow": {
+   "he": "שלג חדש, לפי התחזית",
+   "en": "New snow, per the forecast",
+   "ru": "Новый снег, по прогнозу",
+   "ka": "ახალი თოვლი, პროგნოზით",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_foot_steep": {
+   "he": "תלול {deg}°",
+   "en": "Steep {deg}°",
+   "ru": "Уклон {deg}°",
+   "ka": "დახრა {deg}°",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_unit_min": {
+   "he": "דק׳",
+   "en": "min",
+   "ru": "мин",
+   "ka": "წთ",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_word_open": {
+   "he": "פתוח",
+   "en": "Open",
+   "ru": "Открыта",
+   "ka": "ღიაა",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_word_closed": {
+   "he": "סגור",
+   "en": "Closed",
+   "ru": "Закрыта",
+   "ka": "დაკეტილია",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_snow_none": {
+   "he": "אין שלג חדש ב-24 השעות האחרונות",
+   "en": "No new snow in the last 24 hours",
+   "ru": "Нового снега за последние 24 часа нет",
+   "ka": "ბოლო 24 საათში ახალი თოვლი არ მოსულა",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
+  },
+  "app.shelf_tick_a11y": {
+   "he": "{run}, {i} מתוך {n}",
+   "en": "{run}, {i} of {n}",
+   "ru": "{run}, {i} из {n}",
+   "ka": "{run}, {i} {n}-დან",
+   "where": "app/android",
+   "note": "shelf v2 27.11.2026, approved",
+   "check": [
+    "ru",
+    "ka"
+   ]
   }
  }
 }
