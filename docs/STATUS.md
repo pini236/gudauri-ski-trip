@@ -418,6 +418,7 @@ Yehuda Wexler, Dubi Albom, Sharulik Lapkovich, Moishi Bokchin, Yehuda Hirsch, Pi
 - `vercel.json` is in `site/` and not in the root, because the Root Directory in Vercel is `site`.
 
 ## Log
+- 27.11.2026: **Architect: Kobi side picture set at 3 px/pt approved.** Download ceiling 1.1 MB (was 350), each file up to 180 KB, with a build check; current light key first, the rest in the background; one `rev`, sha256-checked, at most two decoded pictures. No code changed.
 - 27.11.2026: **Product designer (Fable): the "מסלולים" button, version 4, in the canvas (version 101, page `runbtn4`, `RN00`, `RN01`, `RN11`-`RN53`), waiting for Pini's pick.** Five options, each day, night and a real-speed opening loop: A the real mountain picture in the button (recommended), B real contour lines, C type only, D the bar as the shelf's handle, E one dark primary button.
   The shelf of version 2 and the strings are unchanged. Handoff `design/handoff/2026-11-27-redesign-run-button-v4/`; design tool only, not on a phone; Monday board not updated by me.
 - 27.11.2026: **Designer (Opus): P.19 hint motion and P.17 Kobi side in the canvas (v100, boards HM00-HM4, KB00-KB4), waiting for Pini.** Ring glides 360-560 ms, bubble cross-fades; Kobi tag on the ridge turns the view, compass returns. Handoffs `design/handoff/2026-11-27-redesign-hint-motion/`, `...-kobi-side/`. Architect needed: Kobi set at 3 px/pt is 1,069 KB vs the 350 KB ceiling (2 px: 626 KB).
